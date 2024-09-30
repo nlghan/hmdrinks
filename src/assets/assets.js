@@ -19,7 +19,8 @@ import tra_chanh from '../assets/img/tra_chanh.jpg';
 import tra_sua from '../assets/img/tra_sua.jpg';
 import yogurt from '../assets/img/yogurt.jpg';
 import logo from '../assets/img/logo.png'
-
+import login from '../assets/img/login.jpg'
+import gg from '../assets/img/icongg.jpg'
 
 export const assets =
 {
@@ -43,5 +44,7 @@ export const assets =
     tra_chanh,
     tra_sua,
     yogurt,
-    logo
+    logo,
+    login,
+    gg
 };
