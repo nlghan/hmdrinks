@@ -21,7 +21,8 @@ const Login = () => {
                         <button className="btn">Đăng Nhập</button>
                         <span className="forgot-pass-link">Quên mật khẩu</span>
                     </div>
-                    <button className="btn btn-google">Đăng Nhập bằng Google</button>
+                    <button className="btn btn-google">
+                    <img src={assets.gg} alt='' className="google-icon"/>Đăng Nhập bằng Google</button>
                     <p className="register-text">Bạn chưa có tài khoản? <span className="register-link">Đăng ký</span></p>
                 </div>
             </div>

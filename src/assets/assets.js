@@ -20,6 +20,7 @@ import tra_sua from '../assets/img/tra_sua.jpg';
 import yogurt from '../assets/img/yogurt.jpg';
 import logo from '../assets/img/logo.png'
 import login from '../assets/img/login.jpg'
+import gg from '../assets/img/icongg.jpg'
 
 export const assets =
 {
@@ -44,5 +45,6 @@ export const assets =
     tra_sua,
     yogurt,
     logo,
-    login
+    login,
+    gg
 };
