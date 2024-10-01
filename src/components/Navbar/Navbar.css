@@ -4,7 +4,7 @@
 
 
 .navbar {
-    width: 100%;
+    width: auto;
     display: flex; 
     padding: 0 50px 0 102px;
     justify-content: space-between;
@@ -62,4 +62,25 @@
     font-weight: bold;
     padding-bottom: 2px;
     border-bottom: 2px solid #FF7380 ;
+}
+
+.navbar-right {
+    display: flex;
+    gap: 25px; 
+    align-items: center; /* Để căn giữa các phần tử trong navbar */
+}
+
+.navbar-right i {
+    font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+    cursor: pointer; /* Thêm con trỏ để cho biết rằng biểu tượng có thể nhấp được */
+    transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
+}
+
+.navbar-right i:hover {
+    transform: scale(1.1); /* Phóng to biểu tượng khi hover */
+}
+
+/* Nếu bạn muốn thêm khoảng cách giữa các biểu tượng và nút đăng xuất */
+.navbar-right .signup {
+    margin-left: 15px; /* Thêm khoảng cách bên trái cho nút Đăng xuất */
 }
