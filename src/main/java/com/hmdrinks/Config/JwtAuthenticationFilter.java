@@ -84,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             // Giả sử t.getExpire() trả về Date
                             Date expiredDateTime = t.getExpire();
                             Instant expiredInstant = expiredDateTime.toInstant();
-                            Instant extendedExpiryTime = expiredInstant.plusSeconds(900000);
+                            Instant extendedExpiryTime = expiredInstant.plusSeconds(90000000);
                             Instant now = Instant.now();
                             return now.isBefore(extendedExpiryTime);
                         })

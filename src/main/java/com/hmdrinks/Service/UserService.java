@@ -153,7 +153,7 @@ public class UserService {
         int randomNumber = random.nextInt(900000) + 100000;
         String to = users.getEmail();
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("20133118@student.hcmute.edu.vn");
+        message.setFrom("HMDRINKS");
         message.setTo(to);
         String text = "Dear user,\n\n"
                 + "We have received a request to reset the password for your account.\n"
@@ -193,7 +193,7 @@ public class UserService {
                 userRepository.save(users);
                 String to = users.getEmail();
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom("20133118@student.hcmute.edu.vn");
+                message.setFrom("HMDRINKS");
                 message.setTo(to);
                 String text = "Hello user,\n\n"
                         + "We have received a password recovery request for your account. Below is your new password:\n\n"

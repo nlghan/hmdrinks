@@ -1,13 +1,18 @@
 package com.hmdrinks.Service;
 
+import com.hmdrinks.Entity.Category;
+import com.hmdrinks.Entity.Product;
 import com.hmdrinks.Entity.User;
 import com.hmdrinks.Entity.UserInfo;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.NotFoundException;
+import com.hmdrinks.Repository.CategoryRepository;
+import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.UserInfoRepository;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Response.ImgResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.*;
@@ -23,9 +28,16 @@ import java.util.Optional;
 
 @Service
 public class ImgService {
-
+    @Value("${cloudinary.url}")
+    private String cloudinaryUrl;
     @Autowired
     private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,7 +55,7 @@ public class ImgService {
         }
 
 
-        Cloudinary cloudinary = new Cloudinary("cloudinary://975419637137491:VccYpUAKe_dpLQX3alPlB-OGJgc@dwkklrxyj");
+        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
 
         try {
@@ -66,6 +78,83 @@ public class ImgService {
             userInfo.setAvatar(imageUrl);
             userInfoRepository.save(userInfo);
 
+            return imgResponse;
+
+        } catch (Exception e) {
+            System.out.println("Error uploading image: " + e.getMessage());
+            throw new IOException("Could not upload image: " + e.getMessage());
+        }
+    }
+
+    public ImgResponse uploadImgCategory(MultipartFile multipartFile, int cateId) throws IOException {
+
+        if (!processFile(multipartFile)) {
+            throw new BadRequestException("Incorrect formatting");
+        }
+
+
+        Category category = categoryRepository.findByCateId(cateId);
+        if (category== null) {
+            throw new NotFoundException("Not found cateId");
+        }
+
+
+        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
+        cloudinary.config.secure = true;
+
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            Map<String, Object> params = ObjectUtils.asMap(
+                    "use_filename", true,
+                    "unique_filename", false,
+                    "overwrite", true
+            );
+            File tempFile = File.createTempFile("upload-", ".tmp");
+            multipartFile.transferTo(tempFile);
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(tempFile, params);
+            String imageUrl = (String) uploadResult.get("secure_url");
+            ImgResponse imgResponse = new ImgResponse();
+            imgResponse.setUrl(imageUrl);
+            category.setCateImg(imageUrl);
+            categoryRepository.save(category);
+            return imgResponse;
+
+        } catch (Exception e) {
+            System.out.println("Error uploading image: " + e.getMessage());
+            throw new IOException("Could not upload image: " + e.getMessage());
+        }
+    }
+    public ImgResponse uploadImgProduct(MultipartFile multipartFile, int proId) throws IOException {
+
+        if (!processFile(multipartFile)) {
+            throw new BadRequestException("Incorrect formatting");
+        }
+
+
+        Product product = productRepository.findByProId(proId);
+        if (product == null) {
+            throw new NotFoundException("Not found proId");
+        }
+
+
+        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
+        cloudinary.config.secure = true;
+
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            Map<String, Object> params = ObjectUtils.asMap(
+                    "use_filename", true,
+                    "unique_filename", false,
+                    "overwrite", true
+            );
+            File tempFile = File.createTempFile("upload-", ".tmp");
+            multipartFile.transferTo(tempFile);
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(tempFile, params);
+            String imageUrl = (String) uploadResult.get("secure_url");
+            ImgResponse imgResponse = new ImgResponse();
+            imgResponse.setUrl(imageUrl);
+            product.setProImg(imageUrl);
+            productRepository.save(product);
             return imgResponse;
 
         } catch (Exception e) {
