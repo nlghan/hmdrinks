@@ -55,7 +55,7 @@ const Navbar = () => {
   };
 
   const handleUserIconClick = () => {
-    // navigate('/user'); 
+    navigate('/info'); 
   };
 
   const handleCartIconClick = () => {
@@ -79,7 +79,7 @@ const Navbar = () => {
       <div className="navbar-right">
         {!isLoggedIn ? (
           <>
-            <button className='login' onClick={handleLogin}>Đăng Nhập</button>
+            <button className='login1' onClick={handleLogin}>Đăng Nhập</button>
             <button className='signup' onClick={handleRegister}>Đăng Ký</button>
           </>
         ) : (

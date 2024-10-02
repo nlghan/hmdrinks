@@ -21,6 +21,7 @@ import yogurt from '../assets/img/yogurt.jpg';
 import logo from '../assets/img/logo.png'
 import login from '../assets/img/login.jpg'
 import gg from '../assets/img/icongg.jpg'
+import avtrang from '../assets/img/avatar_trang.jpg'
 
 export const assets =
 {
@@ -46,5 +47,6 @@ export const assets =
     yogurt,
     logo,
     login,
-    gg
+    gg,
+    avtrang
 };
