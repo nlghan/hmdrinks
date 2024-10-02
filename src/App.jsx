@@ -6,6 +6,7 @@ import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Home from './pages/Home/Home'; // Nếu bạn có trang Home
+import Dashboard from './pages/Admin/Dashboard';
 
 const App = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const App = () => {
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup>

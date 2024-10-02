@@ -44,6 +44,8 @@ const Login = ({ setIsLoggedIn }) => { // Nhận props setIsLoggedIn
             console.error('Lỗi đăng nhập:', error);
             if (error.response) {
                 setMessage("Có lỗi xảy ra, vui lòng kiểm tra lại thông tin đăng nhập.");
+            } else {
+                setMessage("Không thể kết nối với máy chủ. Vui lòng thử lại sau.");
             }
         }
     };
@@ -55,7 +57,11 @@ const Login = ({ setIsLoggedIn }) => { // Nhận props setIsLoggedIn
     const handleBack = () => {
         navigate('/home'); // Điều hướng đến trang Register
     };
-
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            handleLogin(); // Gọi hàm đăng nhập khi nhấn Enter
+        }
+    };
     return (
         <div className="login-page">
             <div className="login-container">
