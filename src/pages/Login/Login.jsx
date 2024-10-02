@@ -9,12 +9,13 @@ import Cookies from 'js-cookie';
 const Login = ({ setIsLoggedIn }) => { 
     const navigate = useNavigate();
     
-    // State để lưu thông tin đăng nhập
+    // State to store login information
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState(""); 
+    const [error, setError] = useState(""); 
 
-    // Kiểm tra trạng thái đăng nhập từ sessionStorage khi trang load lại
+    // Check login status from sessionStorage on component mount
     useEffect(() => {
         const storedLoggedInStatus = sessionStorage.getItem("isLoggedIn");
         if (storedLoggedInStatus === "true") {
@@ -22,6 +23,22 @@ const Login = ({ setIsLoggedIn }) => {
             navigate('/home');
         }
     }, [setIsLoggedIn, navigate]);
+
+    const getRoleFromToken = (token) => {
+        try {
+            // Split the token and get the payload part
+            const payload = token.split('.')[1]; 
+            
+            // Decode the base64url encoded payload
+            const decodedPayload = JSON.parse(atob(payload)); 
+            
+            // Return the Roles value from the decoded payload
+            return decodedPayload.Roles; // Ensure to use the exact key from the payload
+        } catch (error) {
+            console.error("Không thể giải mã token:", error);
+            return null; 
+        }
+    };
 
     const handleLogin = async () => {
         const data = {
@@ -38,7 +55,7 @@ const Login = ({ setIsLoggedIn }) => {
 
             console.log('Đăng nhập thành công:', response.data);
 
-            // Lưu token vào cookie nếu có trong phản hồi
+            // Save tokens to cookies if present in the response
             if (response.data.access_token) {
                 Cookies.set('access_token', response.data.access_token, { expires: 7 }); 
             }
@@ -46,15 +63,35 @@ const Login = ({ setIsLoggedIn }) => {
                 Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
             }
 
-            sessionStorage.setItem("isLoggedIn", "true"); // Lưu trạng thái đăng nhập vào sessionStorage
-            setIsLoggedIn(true); // Cập nhật trạng thái đăng nhập trong component cha
-            navigate('/home'); // Điều hướng đến trang home sau khi đăng nhập thành công
+            // Retrieve the token from cookies
+            const token = Cookies.get('access_token'); // Fixed to use Cookies.get
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                return;
+            }
+
+            const role = getRoleFromToken(token);
+            if (!role) {
+                setError("Không thể lấy role từ token.");
+                return;
+            }
+
+            // Update login status
+           
+
+            // Check role and navigate accordingly
+            if (role.includes("ADMIN")) {
+                navigate('/dashboard'); // Navigate to dashboard if ADMIN
+            } else if (role.includes("CUSTOMER")){
+                sessionStorage.setItem("isLoggedIn", "true");
+                setIsLoggedIn(true);
+                navigate('/home'); // Navigate to home for CUSTOMER or other roles
+            }
         } catch (error) {
             console.error('Lỗi đăng nhập:', error);
             if (error.response) {
                 setMessage("Có lỗi xảy ra, vui lòng kiểm tra lại thông tin đăng nhập.");
             } else {
-
                 setMessage("Không thể kết nối với máy chủ. Vui lòng thử lại sau.");
             }
         }
@@ -70,20 +107,21 @@ const Login = ({ setIsLoggedIn }) => {
 
     const handleKeyPress = (event) => {
         if (event.key === "Enter") {
-            handleLogin(); // Gọi hàm đăng nhập khi nhấn Enter
+            handleLogin(); // Call login function on Enter key press
         }
     };
 
-
-    const handleForget= () => {
-        navigate('/send-mail')
-    }
+    const handleForget = () => {
+        navigate('/send-mail');
+    };
 
     return (
         <div className="login-page">
             <div className="login-container">
                 <div className="login-image">
                     <img src={assets.login} alt=''/>
+
+                    {/* Back Button */}
                     <i className="ti-arrow-left" onClick={handleBack}></i>
                 </div>
                 <div className="login-form">
@@ -114,8 +152,9 @@ const Login = ({ setIsLoggedIn }) => {
                     </button>
                     <p className="register-text">Bạn chưa có tài khoản? <span className="register-link" onClick={handleRegister}>Đăng ký</span></p>
 
-                    {/* Hiển thị thông báo lỗi nếu có */}
+                    {/* Display error message if any */}
                     {message && <p className="message">{message}</p>}
+                    {error && <p className="error-message">{error}</p>} {/* Display error state */}
                 </div>
             </div>
             <Footer />
