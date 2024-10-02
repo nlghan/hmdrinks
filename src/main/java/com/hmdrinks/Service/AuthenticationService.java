@@ -57,7 +57,7 @@ public class AuthenticationService {
             User user = new User();
             user.setType(TypeLogin.BASIC);
             user.setEmail("");
-            user.setRole(Role.ADMIN);
+            user.setRole(Role.CUSTOMER);
             user.setIsDeleted(false);
             user.setUserName(userCreateReq.getUserName());
             user.setPassword(passwordEncoder.encode(userCreateReq.getPassword()));

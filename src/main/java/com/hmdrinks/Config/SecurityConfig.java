@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Allow Swagger UI access
                         .requestMatchers(
                                 "/v2/api-docs",
                                 "/v3/api-docs",
@@ -45,25 +46,23 @@ public class SecurityConfig {
                                 "/configuration/security",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
-                        ).permitAll() // Allow access to Swagger endpoints
-                    // Allow all API access
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN","CUSTOMER")
-                       // .requestMatchers("/api/user/**").hasAnyRole("ADMIN")
-                        .anyRequest()
-                        .authenticated())
+                        ).permitAll()
+                        // Allow unauthenticated access to auth endpoints
+                        .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
+                        // Secure other endpoints
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
+                        .requestMatchers("/api/image/**").hasAnyAuthority("ADMIN", "CUSTOMER")
+                        .requestMatchers("/api/public/**").permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(myAccessDeniedHandler))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout((logout) -> logout
-                                .logoutUrl("/api/v1/auth/logout")
-                                .addLogoutHandler(logoutService)
-                                .logoutSuccessHandler(((request, response, authentication) -> SecurityContextHolder.clearContext())));
-
-
-                         // Allow auth endpoints
-
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .addLogoutHandler(logoutService)
+                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()));
 
         return http.build();
     }

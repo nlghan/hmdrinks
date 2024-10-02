@@ -1,22 +1,31 @@
 package com.hmdrinks.Service;
 
+import com.hmdrinks.Entity.OTP;
 import com.hmdrinks.Entity.User;
 import com.hmdrinks.Entity.UserInfo;
 import com.hmdrinks.Enum.Sex;
+import com.hmdrinks.Exception.BadRequestException;
+import com.hmdrinks.Exception.NotFoundException;
+import com.hmdrinks.Repository.OtpRepository;
 import com.hmdrinks.Repository.UserInfoRepository;
 import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.IdReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
-import com.hmdrinks.Response.DetailUserResponse;
-import com.hmdrinks.Response.GetDetailUserInfoResponse;
-import com.hmdrinks.Response.ListAllUserResponse;
-import com.hmdrinks.Response.UpdateUserInfoResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import  org.springframework.mail.*;
+
+import com.hmdrinks.Response.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +33,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserInfoRepository userInfoRepository;
+    private  final OtpRepository otpRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     public ListAllUserResponse getListAllUser() {
         List<User> userList = userRepository.findAll();
@@ -47,12 +63,12 @@ public class UserService {
     }
 
     public GetDetailUserInfoResponse getDetailUserInfoResponse(Integer id){
-        Optional<User> userList = userRepository.findByUserId(id);
+        User userList = userRepository.findByUserId(id);
 
-        if (userList.isEmpty()) {  // Kiểm tra xem Optional có giá trị hay không
+        if (userList == null) {  // Kiểm tra xem Optional có giá trị hay không
             throw new RuntimeException("Khong ton tai user");
         }
-        User user = userList.get();  // Lấy đối tượng User từ Optional
+        User user = userList;  // Lấy đối tượng User từ Optional
         Optional<UserInfo> userInfo = Optional.ofNullable(userInfoRepository.findByUserUserId(user.getUserId()));
         if(userInfo.isEmpty()){
             throw new RuntimeException("Khong ton tai thong tin user");
@@ -81,12 +97,12 @@ public class UserService {
         );
     }
     public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
-        Optional<User> userList = userRepository.findByUserId(req.getUserId());
+        User userList = userRepository.findByUserId(req.getUserId());
 
-        if (userList.isEmpty()) {  // Kiểm tra xem Optional có giá trị hay không
+        if (userList == null) {  // Kiểm tra xem Optional có giá trị hay không
             throw new RuntimeException("Khong ton tai user");
         }
-        User user = userList.get();  // Lấy đối tượng User từ Optional
+        User user = userList;  // Lấy đối tượng User từ Optional
         Optional<UserInfo> userInfo = Optional.ofNullable(userInfoRepository.findByUserUserId(user.getUserId()));
         if(userInfo.isEmpty()){
             throw new RuntimeException("Khong ton tai thong tin user");
@@ -118,6 +134,115 @@ public class UserService {
                 req.getSex(),
                 userInfo1.getBirthDate(),
                 req.getAddress()
+        );
+    }
+
+    public SendEmailResponse sendEmail(String email) {
+        Random random = new Random();
+        User users = userRepository.findByEmail(email);
+
+        if (users == null) {
+            throw new NotFoundException("Username or email does not exist");
+        }
+
+        OTP otpEntity = otpRepository.findByEmail(email);
+        if (otpEntity != null) {
+            otpRepository.deleteById(otpEntity.getOtpId());
+        }
+
+        int randomNumber = random.nextInt(900000) + 100000;
+        String to = users.getEmail();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("20133118@student.hcmute.edu.vn");
+        message.setTo(to);
+        String text = "Dear user,\n\n"
+                + "We have received a request to reset the password for your account.\n"
+                + "Please use the following One-Time Password (OTP) to proceed with the password recovery process:\n\n"
+                + "Your Password Recovery OTP: " + randomNumber + "\n\n"
+                + "This OTP is valid for a single use and will expire in 10 minutes for security reasons.\n"
+                + "Please make sure to use the OTP within this timeframe.\n\n"
+                + "For security purposes, do not share this OTP with anyone.\n"
+                + "If you did not initiate this request, you can safely ignore this email.\n"
+                + "Please ensure the security of your account and do not reply to this message.\n\n"
+                + "Best regards,\n"
+                + "Your Application Support Team";
+        message.setSubject("Password Recovery OTP");
+        message.setText(text);
+        javaMailSender.send(message);
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        OTP otp = new OTP();
+        otp.setEmail(users.getEmail());
+        otp.setUserName(users.getUserName());
+        otp.setOtp(String.valueOf(randomNumber));
+        otp.setTimeOtp(currentDateTime);
+        otp.setStatus(Boolean.TRUE);
+        otpRepository.save(otp);
+        return new SendEmailResponse(otp.getEmail(), "OTP has been sent to your email.");
+    }
+
+    public MessageResponse AcceptOTP(String email, int OTP) {
+        String newPass = "pass12345";
+        OTP otp = otpRepository.findOTP(email, String.valueOf(OTP));
+        User users = userRepository.findByEmail(email);
+        if (otp != null && OTP == Integer.parseInt(otp.getOtp())) {
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            LocalDateTime tenMinutesAgo = currentDateTime.minusMinutes(10);
+            boolean isWithinTenMinutes = (otp.getTimeOtp().isAfter(tenMinutesAgo) && otp.getTimeOtp().isBefore(currentDateTime));
+            if (isWithinTenMinutes) {
+                users.setPassword(passwordEncoder.encode(newPass));
+                userRepository.save(users);
+                String to = users.getEmail();
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom("20133118@student.hcmute.edu.vn");
+                message.setTo(to);
+                String text = "Hello user,\n\n"
+                        + "We have received a password recovery request for your account. Below is your new password:\n\n"
+                        + "Username:" + users.getUserName() + "\n\n"
+                        + "New Password: " + newPass + "\n\n"
+                        + "Please make sure to copy the password above and paste it into the login page to avoid any errors.\n\n"
+                        + "If you did not initiate this request, please disregard this email and ensure the security of your account.\n\n"
+                        + "Best regards,\n"
+                        + "Your Application Support Team";
+
+                message.setSubject("Password Recovery Information for Your Account");
+                message.setText(text);
+                javaMailSender.send(message);
+                otp.setStatus(Boolean.FALSE);
+                otpRepository.save(otp);
+                return new MessageResponse("Your new password was sent to your email. Please check email.");
+            } else {
+                otp.setStatus(Boolean.FALSE);
+                otpRepository.save(otp);
+                return new MessageResponse("OTP existing time is expired.");
+            }
+        } else {
+            return new MessageResponse("Your username, email or OTP is not correct.");
+        }
+    }
+
+    public ChangePasswordResponse changePasswordResponse(ChangePasswordReq req) {
+        User users = userRepository.findByUserId(req.getUserId());
+
+        if (users == null) {
+            throw new NotFoundException("Not found user");
+        }
+
+        if (!passwordEncoder.matches(req.getCurrentPassword(), users.getPassword())) {
+            throw new BadRequestException("The current password is incorrect");
+        }
+
+        if (req.getNewPassword().equals(req.getCurrentPassword())) {
+            throw new BadRequestException("You're using an old password");
+        }
+        if (!req.getNewPassword().matches(req.getConfirmNewPassword())) {
+            throw new BadRequestException("No overlap");
+        }
+        users.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(users);
+        String message = "Password change successfully";
+        return new ChangePasswordResponse(
+                message,
+                req.getNewPassword()
         );
     }
 

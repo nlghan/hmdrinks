@@ -1,9 +1,6 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.IdReq;
-import com.hmdrinks.Request.LoginBasicReq;
-import com.hmdrinks.Request.UserCreateReq;
-import com.hmdrinks.Request.UserInfoUpdateReq;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.AuthenticationService;
 import com.hmdrinks.Service.UserService;
@@ -34,12 +31,7 @@ public class UserController {
 
 
 
-    @GetMapping(value = "/list")
-    public ResponseEntity<ListAllUserResponse> listAllUser(
 
-    ) {
-        return ResponseEntity.ok(userService.getListAllUser());
-    }
 
     @GetMapping(value ="/info/{id}")
     public ResponseEntity<GetDetailUserInfoResponse> getDetailUserInfoResponseResponseEntity(
@@ -53,6 +45,11 @@ public class UserController {
             @RequestBody UserInfoUpdateReq req
             ){
         return ResponseEntity.ok(userService.updateUserInfoResponse(req));
+    }
+
+    @PutMapping("/password/change")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordReq req) {
+        return ResponseEntity.ok(userService.changePasswordResponse(req));
     }
 
 }
