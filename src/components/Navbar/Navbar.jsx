@@ -47,14 +47,15 @@ const Navbar = () => {
       Cookies.remove('refresh_token'); // Xóa refresh token nếu cần
 
       setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
-      navigate('/'); // Chuyển hướng đến trang đăng nhập
+      navigate('/'); 
+      window.location.reload();
     } catch (error) {
       console.error('Error during logout:', error);
     }
   };
 
   const handleUserIconClick = () => {
-    // navigate('/user'); 
+    navigate('/info'); 
   };
 
   const handleCartIconClick = () => {

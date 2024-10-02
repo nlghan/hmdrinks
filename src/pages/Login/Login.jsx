@@ -83,11 +83,11 @@ const Login = ({ setIsLoggedIn }) => { // Nhận props setIsLoggedIn
                             onChange={(e) => setPassword(e.target.value)} // Cập nhật giá trị
                         />
                     </div>
-                    <div className="button-group">
-                        <button className="btn btn-login" onClick={handleLogin}>Đăng Nhập</button>
+                    <div className="button-group-login">
+                        <button className="btn-login" onClick={handleLogin}>Đăng Nhập</button>
                         <span className="forgot-pass-link">Quên mật khẩu</span>
                     </div>
-                    <button className="btn btn-google">
+                    <button className="btn-google">
                         <img src={assets.gg} alt='' className="google-icon"/>Đăng Nhập bằng Google
                     </button>
                     <p className="register-text">Bạn chưa có tài khoản? <span className="register-link" onClick={handleRegister}>Đăng ký</span></p>

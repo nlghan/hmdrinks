@@ -6,7 +6,7 @@ footer {
     justify-content: space-around;
     padding: 20px;
     background-color: #FDF9FA;
-    width: 100%;
+    /* width: 100%; */
     margin-top: auto;
     flex-shrink: 0;
     position: relative;

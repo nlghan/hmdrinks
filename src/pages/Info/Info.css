@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Sử dụng border-box cho toàn bộ phần tử */
+}
+.body-info{
+    background: linear-gradient(to right, #fce5e5, #fffacd);
+    padding: 5px;
+
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    border-radius: 10px; /* Góc bo tròn */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    margin: 20px auto;
+}
+
+.user-info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-info-form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px; /* Tăng kích thước tiêu đề */
+}
+
+.user-info-form .form-group {
+    display: flex;
+    flex-direction: column; /* Đảm bảo label nằm trên input */
+    gap: 5px; /* Khoảng cách giữa label và input */
+}
+
+.user-info-form label {
+    font-weight: bold;
+    color: #555; /* Màu chữ đậm hơn cho label */
+    margin-bottom: 5px;
+}
+
+.user-info-form input, 
+.user-info-form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9; /* Màu nền nhạt hơn cho input */
+    transition: border-color 0.3s ease; /* Hiệu ứng khi người dùng click vào input */
+}
+
+.user-info-form input:focus, 
+.user-info-form select:focus {
+    border-color: #FF7380; /* Đổi màu viền khi focus */
+    outline: none; /* Bỏ outline khi focus */
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    background-color: #FF7380;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Thêm hiệu ứng chuyển đổi mượt mà */
+    width: 48%; /* Đặt kích thước nút */
+}
+
+.btn:hover {
+    transform: scale(1.05); /* Phóng to nhẹ khi hover */
+    background-color: #FF5E6B; /* Đổi màu nền khi hover */
+}
+
+.btn-back {
+    background-color: #ccc; /* Màu nền cho nút Trở lại */
+}
+
+.btn-back:hover {
+    background-color: #bbb; /* Màu nền cho nút Trở lại khi hover */
+}
+
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.avatar-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Đặt hình ảnh thành hình tròn */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+    border: 2px solid #FF7380; /* Viền cho avatar */
+}

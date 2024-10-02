@@ -6,6 +6,8 @@ import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Home from './pages/Home/Home'; // Nếu bạn có trang Home
+import Info from './pages/Info/Info'; // Nhập trang Info
+import About from "./pages/About/About";
 
 const App = () => {
   const location = useLocation();
@@ -21,7 +23,7 @@ const App = () => {
       <TransitionGroup>
         <CSSTransition
           key={location.key}
-          timeout={300}
+          timeout={0}
           classNames="fade"
         >
           <Routes location={location}>
@@ -29,6 +31,8 @@ const App = () => {
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+            <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
+            <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
           </Routes>
         </CSSTransition>
       </TransitionGroup>

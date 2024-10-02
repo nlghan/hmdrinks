@@ -99,10 +99,10 @@ const Register = () => {
                             onChange={(e) => setPassword(e.target.value)} 
                         />
                     </div>
-                    <div className="button-group">
+                    <div className="button-group-register">
                         <button className="btn-register" onClick={handleRegister}>Tạo tài khoản</button>
                     </div>
-                    <button className="btn btn-google">
+                    <button className="btn-google">
                         <img src={assets.gg} alt='' className="google-icon" />Đăng Nhập bằng Google
                     </button>
                     <p className="login-text">Bạn đã có tài khoản? <span className="login-link" onClick={handleLogin}>Đăng nhập</span></p>
