@@ -1,0 +1,90 @@
+/* SendMail.css */
+
+.send-mail-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh; /* Chiều cao của trang */
+    background-color: #FAEDED; /* Màu nền nhẹ nhàng */
+    padding: 20px; /* Thêm khoảng cách bên ngoài */
+}
+
+.send-mail-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px; /* Tăng khoảng cách bên trong */
+    max-width: 1000px; /* Kích thước tối đa */
+    width: 50%; /* Chiều rộng container */
+    text-align: center;
+    border: 1px solid #e63946; /* Đường viền nổi bật */
+}
+
+h2.send {
+    color: #e63946;
+    margin-bottom: 20px; /* Tăng khoảng cách dưới tiêu đề */
+    font-size: 24px; /* Tăng kích thước chữ cho tiêu đề */
+}
+
+p {
+    color: #6c757d;
+    margin-bottom: 20px; /* Tăng khoảng cách dưới đoạn văn */
+    font-size: 16px; /* Tăng kích thước chữ */
+}
+
+.input-group-send {
+    display: flex; /* Sử dụng flexbox */
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+}
+
+input[type="email"] {
+    padding: 15px; /* Tăng padding */
+    margin-bottom: 20px; /* Tăng khoảng cách dưới input */
+    border: 1px solid #ced4da;
+    border-radius: 5px 0 0 5px; /* Bo góc bên trái */
+    font-size: 16px; /* Tăng kích thước chữ */
+    /* width: 100%; Chiếm toàn bộ chiều rộng */
+}
+
+.otp-change {
+    padding: 15px; /* Tăng padding */
+    margin-bottom: 20px; /* Tăng khoảng cách dưới input */
+    border: 1px solid #ced4da;
+    border-radius: 5px 0 0 5px; /* Bo góc bên trái */
+    font-size: 16px; /* Tăng kích thước chữ */
+    /* width: 100%; Chiếm toàn bộ chiều rộng */
+}
+
+
+
+.btn-send {
+    padding: 15px; /* Tăng padding */
+    background-color: #FFDBB1;
+    height: 50px;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0; /* Bo góc bên phải */
+    cursor: pointer;
+    font-size: 16px; /* Tăng kích thước chữ */
+    transition: background-color 0.3s;
+    color:black;
+    font-weight: bold;
+}
+
+button.btn-send:hover {
+    background-color: #d62839;
+}
+
+.send-mail-message {
+    color: #28a745;
+    margin-top: 5px; /* Tăng khoảng cách trên thông báo */
+    font-size: 18px; /* Tăng kích thước chữ */
+    font-weight: bold;
+}
+
+.send-mail-note {
+    color: #6c757d;
+    margin-top: 5px; /* Tăng khoảng cách trên ghi chú */
+    font-size: 14px; /* Tăng kích thước chữ */
+}

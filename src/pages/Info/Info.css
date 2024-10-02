@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 * {
     margin: 0;
     padding: 0;
@@ -26,6 +27,7 @@
 }
 
 .user-info-form h2 {
+    font-family: 'Inter', sans-serif;
     text-align: center;
     color: #333;
     margin-bottom: 20px;
@@ -91,16 +93,95 @@
     background-color: #bbb; /* Màu nền cho nút Trở lại khi hover */
 }
 
+.btn-change {
+    background-color: #f17844; /* Màu nền cho nút Trở lại */
+}
+
+.btn-change:hover {
+    background-color: #5fc09a; /* Màu nền cho nút Trở lại khi hover */
+}
 .avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.avatar-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image fits within the circle */
+    border: 3px solid #FF7380; /* Slightly thicker border with soft color */
+    box-shadow: 0 4px 15px rgb(254 54 112 / 20%);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover effect to make the image frame more interactive */
+.avatar-image:hover {
+    transform: scale(1.05); /* Slightly enlarge the image on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
+
+
+.btn-upload {
+    padding: 10px 15px;
+    background-color: #FF7380;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Hiệu ứng mượt mà */
+}
+
+.btn-upload:hover {
+    transform: scale(1.05); /* Phóng to nhẹ khi hover */
+    background-color: #FF5E6B; /* Đổi màu nền khi hover */
+}
+
+.up-img {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
 
-.avatar-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%; /* Đặt hình ảnh thành hình tròn */
-    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
-    border: 2px solid #FF7380; /* Viền cho avatar */
+/* Container for image buttons */
+.btn-gr-img {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center; /* Center the buttons */
+    margin-top: 10px; /* Space above the buttons */
 }
+
+/* General button styles */
+.btn-upload, .btn-save {
+    padding: 10px 20px; /* Space inside buttons */
+    font-size: 16px;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s; /* Smooth transition on hover */
+}
+
+/* Upload button styles */
+.btn-upload {
+    background-color:#FF5E6B; /* Green background */
+    color: white;
+}
+
+.btn-upload:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Save button styles */
+.btn-save {
+    background-color: #69ccd3; /* Blue background */
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #007BB5; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+

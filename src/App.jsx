@@ -8,14 +8,18 @@ import Register from './pages/Register/Register';
 import Home from './pages/Home/Home'; // Nếu bạn có trang Home
 import Info from './pages/Info/Info'; // Nhập trang Info
 import About from "./pages/About/About";
+import ChangePassword from "./pages/Password/ChangePassword";
+import SendMail from "./pages/Password/SendMail";
 
 const App = () => {
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State để theo dõi trạng thái đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const loggedIn = sessionStorage.getItem("isLoggedIn"); // Sử dụng sessionStorage
-    setIsLoggedIn(loggedIn === "true"); // Cập nhật trạng thái đăng nhập từ session storage
+      const storedLoggedInStatus = sessionStorage.getItem("isLoggedIn");
+      if (storedLoggedInStatus === "true") {
+          setIsLoggedIn(true);
+      }
   }, []);
 
   return (
@@ -33,6 +37,8 @@ const App = () => {
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
             <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
+            <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
+            <Route path="/send-mail" element={<SendMail />} /> 
           </Routes>
         </CSSTransition>
       </TransitionGroup>
