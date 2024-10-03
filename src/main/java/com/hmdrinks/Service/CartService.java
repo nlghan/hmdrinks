@@ -81,13 +81,13 @@ public class CartService {
         {
 
             crudCartItemResponses.add( new CRUDCartItemResponse(
-                    cartItem.getCartItemId(),
-                    cartItem.getProductVariant().getProduct().getProId(),
-                    cartItem.getCart().getCartId(),
-                    cartItem.getProductVariant().getSize(),
-                    cartItem.getTotalPrice(),
-                    cartItem.getQuantity()
-            ));
+                cartItem.getCartItemId(),
+                cartItem.getProductVariants().getProduct().getProId(),
+                cartItem.getCart().getCartId(),
+                cartItem.getProductVariants().getSize(),
+                cartItem.getTotalPrice(),
+                cartItem.getQuantity()
+        ));
         }
         return new ListItemCartResponse(
                id,

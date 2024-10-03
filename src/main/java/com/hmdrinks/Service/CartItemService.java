@@ -63,7 +63,7 @@ public class CartItemService {
             throw  new BadRequestException("quantity must larger 0");
         }
 
-        CartItem cartItem1 = cartItemRepository.findByProductVariant_VarIdAndCart_CartId(productVariants.getVarId(),req.getCartId());
+        CartItem cartItem1 = cartItemRepository.findByProductVariants_VarIdAndProductVariants_SizeAndCart_CartId(productVariants.getVarId(),req.getSize(),req.getCartId());
         CartItem cartItem = new CartItem();
         if(cartItem1 == null)
         {
@@ -75,11 +75,9 @@ public class CartItemService {
             Integer stock_quantity = productVariants.getStock() - req.getQuantity();
             cartItem.setCart(cart);
             cartItem.setQuantity(req.getQuantity());
-            cartItem.setProductVariant(productVariants);
+            cartItem.setProductVariants(productVariants);
             cartItem.setTotalPrice(totalPrice);
             cartItemRepository.save(cartItem);
-            productVariants.setStock(stock_quantity);
-            productVariantsRepository.save(productVariants);
             List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(req.getCartId());
             Double Price = 0.0;
             Integer Quantity=0;
@@ -93,9 +91,9 @@ public class CartItemService {
             cartRepository.save(cart);
             return new CRUDCartItemResponse(
                     cartItem.getCartItemId(),
-                    cartItem.getProductVariant().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProId(),
                     cartItem.getCart().getCartId(),
-                    cartItem.getProductVariant().getSize(),
+                    cartItem.getProductVariants().getSize(),
                     cartItem.getTotalPrice(),
                     cartItem.getQuantity()
             );
@@ -113,8 +111,6 @@ public class CartItemService {
             cartItem1.setTotalPrice(totalPrice);
             cartItem1.setQuantity((req.getQuantity()+cartItem1.getQuantity()));
             cartItemRepository.save(cartItem1);
-            productVariants.setStock(stock_quantity);
-            productVariantsRepository.save(productVariants);
             List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(req.getCartId());
             Double Price = 0.0;
             Integer Quantity=0;
@@ -128,9 +124,9 @@ public class CartItemService {
             cartRepository.save(cart);
             return new CRUDCartItemResponse(
                     cartItem1.getCartItemId(),
-                    cartItem1.getProductVariant().getProduct().getProId(),
+                    cartItem1.getProductVariants().getProduct().getProId(),
                     cartItem1.getCart().getCartId(),
-                    cartItem1.getProductVariant().getSize(),
+                    cartItem1.getProductVariants().getSize(),
                     cartItem1.getTotalPrice(),
                     cartItem1.getQuantity()
             );
@@ -149,7 +145,7 @@ public class CartItemService {
         if(req.getQuantity() < 0){
             throw  new BadRequestException("quantity must larger 0");
         }
-        ProductVariants productVariants = productVariantsRepository.findByVarId(cart.getProductVariant().getVarId());
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cart.getProductVariants().getProduct().getProId());
         Integer Present_Quantity = cart.getQuantity() + 1 ;
 
         if((req.getQuantity() + 1 ) > productVariants.getStock())
@@ -174,8 +170,9 @@ public class CartItemService {
         if(req.getQuantity() < 0){
             throw  new BadRequestException("quantity must larger 0");
         }
-        ProductVariants productVariants = productVariantsRepository.findByVarId(cart.getProductVariant().getVarId());
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cart.getProductVariants().getVarId());
         Integer Present_Quantity = cart.getQuantity() - 1 ;
+        System.out.println(productVariants.getStock());
 
         if((req.getQuantity() - 1 ) > productVariants.getStock())
         {

@@ -1,5 +1,6 @@
 package com.hmdrinks.Entity;
 
+import com.hmdrinks.Enum.Size;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,21 +16,27 @@ import lombok.Setter;
 public class CartItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment primary key for CartItem
-    @Column(name = "cartItemId")
-    private int cartItemId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Khóa chính cho cartItemId
+    @Column(name = "cartItemId", nullable = false) // Đánh dấu không null
+    private int cartItemId; // Trường tự động tăng nhưng không phải khóa chính
+
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "proId", referencedColumnName = "proId"),
+            @JoinColumn(name = "size", referencedColumnName = "size")
+    })
+    private ProductVariants productVariants;
 
     @ManyToOne
     @JoinColumn(name = "cartId", nullable = false)
     private Cart cart;
-
-    @ManyToOne
-    @JoinColumn(name = "varId", nullable = false)  // Link to ProductVariants via varId
-    private ProductVariants productVariant;
 
     @Column(name = "totalPrice")
     private double totalPrice;
 
     @Column(name = "quantity")
     private int quantity;
+
+    // Thêm các phương thức khác nếu cần
 }
+
