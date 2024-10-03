@@ -26,6 +26,9 @@ public class AdminService {
     private UserInfoRepository userInfoRepository;
 
     @Autowired
+    private SupportFunction supportFunction;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     public CRUDAccountUserResponse createAccountUser(CreateAccountUserReq req){
@@ -35,7 +38,7 @@ public class AdminService {
         {
             throw new ConflictException("User name already exists");
         }
-        if(!SupportFunction.checkRole(req.getRole().toString())){
+        if(!supportFunction.checkRole(req.getRole().toString())){
             throw new BadRequestException("Role is wrong");
         }
 

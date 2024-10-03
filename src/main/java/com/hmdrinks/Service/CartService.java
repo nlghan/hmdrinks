@@ -49,13 +49,11 @@ public class CartService {
             throw  new BadRequestException("NewCart exists");
         }
 
-
         Cart cart1 = new Cart();
         cart1.setTotalPrice(0);
         cart1.setUser(user);
         cart1.setStatus(Status_Cart.NEW);
         cart1.setTotalProduct(0);
-
         cartRepository.save(cart1);
 
         return new CreateNewCartResponse(
@@ -66,7 +64,6 @@ public class CartService {
                 cart1.getStatus()
 
         );
-
     }
 
     public ListItemCartResponse getAllItemCart(int id){
@@ -79,7 +76,6 @@ public class CartService {
         List<CRUDCartItemResponse> crudCartItemResponses = new ArrayList<>();
         for(CartItem cartItem : cartItems)
         {
-
             crudCartItemResponses.add( new CRUDCartItemResponse(
                 cartItem.getCartItemId(),
                 cartItem.getProductVariants().getProduct().getProId(),
@@ -90,7 +86,7 @@ public class CartService {
         ));
         }
         return new ListItemCartResponse(
-               id,
+                id,
                 crudCartItemResponses
         );
     }

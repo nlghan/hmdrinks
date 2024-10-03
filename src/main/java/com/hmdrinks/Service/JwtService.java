@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -29,8 +28,14 @@ public class JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
+
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractUserId(String token) {
+        return extractNotCheckingClaim(token, claims -> claims.get("UserId", String.class));
     }
 
     public Date extractCreateDate(String token) {
@@ -50,8 +55,6 @@ public class JwtService {
     public String generateToken(UserDetails userDetails, String userId, String roles) {
         return generateToken(new HashMap<>(), userDetails, userId, roles);
     }
-
-
 
     public String generateToken(
             Map<String, Object> extraClaims,
@@ -77,10 +80,10 @@ public class JwtService {
             String userId,
             String roles
     ) {
-         // Java 16 và cao hơn, hoặc sử dụng Collectors.toList() cho Java thấp hơn
+        // Java 16 và cao hơn, hoặc sử dụng Collectors.toList() cho Java thấp hơn
 
         extraClaims.put("Roles", roles); // Lưu danh sách role vào claims
-        extraClaims.put("UserId", userId);
+        extraClaims.put("UserId", userId); // Thêm UserId vào claims
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -92,11 +95,9 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
-
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
@@ -125,7 +126,6 @@ public class JwtService {
             return claims;
         }
     }
-
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);

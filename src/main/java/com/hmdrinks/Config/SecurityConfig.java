@@ -35,7 +35,6 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Allow Swagger UI access
                         .requestMatchers(
                                 "/v2/api-docs",
                                 "/v3/api-docs",
@@ -47,10 +46,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // Allow unauthenticated access to auth endpoints
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
-                        .requestMatchers("/api/product/view/**", "/api/product/list-product").permitAll()
-                        // Secure other endpoints
+                        .requestMatchers("/api/product/view/**", "/api/product/list-product","/api/product/variants/**").permitAll()
+                        .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
                         .requestMatchers("/api/image/**").hasAnyAuthority("ADMIN", "CUSTOMER")
