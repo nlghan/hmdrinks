@@ -16,7 +16,7 @@ public class ProductVariants {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "varId")  // Thêm khóa chính cho ProductVariants nếu cần
+    @Column(name = "varId")
     private int varId;
 
     @ManyToOne

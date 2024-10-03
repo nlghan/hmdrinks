@@ -49,6 +49,7 @@ public class SecurityConfig {
                         ).permitAll()
                         // Allow unauthenticated access to auth endpoints
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
+                        .requestMatchers("/api/product/view/**", "/api/product/list-product").permitAll()
                         // Secure other endpoints
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
@@ -56,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/cate/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/product/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/productVar/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/cart/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
+                        .requestMatchers("/api/cart-item/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(myAccessDeniedHandler))
