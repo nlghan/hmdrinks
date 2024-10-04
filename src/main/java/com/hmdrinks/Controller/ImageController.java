@@ -43,4 +43,9 @@ public class ImageController {
         return ResponseEntity.ok(imgService.uploadImgCategory(file,id));
     }
 
+    @PostMapping(value = "/post/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> handleUploadPostImage(@RequestParam("file") MultipartFile file, @RequestParam("cateId") Integer id) throws IOException {
+        return ResponseEntity.ok(imgService.uploadImgPost(file,id));
+    }
+
 }

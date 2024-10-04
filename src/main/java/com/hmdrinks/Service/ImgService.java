@@ -1,15 +1,9 @@
 package com.hmdrinks.Service;
 
-import com.hmdrinks.Entity.Category;
-import com.hmdrinks.Entity.Product;
-import com.hmdrinks.Entity.User;
-import com.hmdrinks.Entity.UserInfo;
+import com.hmdrinks.Entity.*;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.NotFoundException;
-import com.hmdrinks.Repository.CategoryRepository;
-import com.hmdrinks.Repository.ProductRepository;
-import com.hmdrinks.Repository.UserInfoRepository;
-import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Repository.*;
 import com.hmdrinks.Response.ImgResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +32,9 @@ public class ImgService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -124,6 +121,43 @@ public class ImgService {
             throw new IOException("Could not upload image: " + e.getMessage());
         }
     }
+
+    public ImgResponse uploadImgPost(MultipartFile multipartFile, int postId) throws IOException {
+
+        if (!processFile(multipartFile)) {
+            throw new BadRequestException("Incorrect formatting");
+        }
+
+
+        Post post = postRepository.findByPostId(postId);
+
+
+        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
+        cloudinary.config.secure = true;
+
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            Map<String, Object> params = ObjectUtils.asMap(
+                    "use_filename", true,
+                    "unique_filename", false,
+                    "overwrite", true
+            );
+            File tempFile = File.createTempFile("upload-", ".tmp");
+            multipartFile.transferTo(tempFile);
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(tempFile, params);
+            String imageUrl = (String) uploadResult.get("secure_url");
+            ImgResponse imgResponse = new ImgResponse();
+            imgResponse.setUrl(imageUrl);
+            post.setBannerUrl(imageUrl);
+            postRepository.save(post);
+            return imgResponse;
+
+        } catch (Exception e) {
+            System.out.println("Error uploading image: " + e.getMessage());
+            throw new IOException("Could not upload image: " + e.getMessage());
+        }
+    }
+
     public ImgResponse uploadImgProduct(MultipartFile multipartFile, int proId) throws IOException {
 
         if (!processFile(multipartFile)) {
