@@ -44,4 +44,7 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private User user;
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)  // mappedBy để ánh xạ với thuộc tính user bên UserInfo
+    private Voucher voucher;
 }
