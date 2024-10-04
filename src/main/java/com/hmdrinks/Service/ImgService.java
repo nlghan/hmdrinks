@@ -24,8 +24,7 @@ import java.util.Optional;
 public class ImgService {
     @Value("${cloudinary.url}")
     private String cloudinaryUrl;
-    @Autowired
-    private UserInfoRepository userInfoRepository;
+
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -68,13 +67,12 @@ public class ImgService {
             String imageUrl = (String) uploadResult.get("secure_url");
             ImgResponse imgResponse = new ImgResponse();
             imgResponse.setUrl(imageUrl);
-            UserInfo userInfo = userInfoRepository.findByUserUserId(userId);
-            if(userInfo == null){
+            User user = userRepository.findByUserId(userId);
+            if(user == null){
                 throw  new RuntimeException("Khong ton tai userId");
             }
-            userInfo.setAvatar(imageUrl);
-            userInfoRepository.save(userInfo);
-
+            user.setAvatar(imageUrl);
+            userRepository.save(user);
             return imgResponse;
 
         } catch (Exception e) {
