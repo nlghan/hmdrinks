@@ -47,5 +47,4 @@ public class ImageController {
     public ResponseEntity<?> handleUploadPostImage(@RequestParam("file") MultipartFile file, @RequestParam("cateId") Integer id) throws IOException {
         return ResponseEntity.ok(imgService.uploadImgPost(file,id));
     }
-
-}it
+}
