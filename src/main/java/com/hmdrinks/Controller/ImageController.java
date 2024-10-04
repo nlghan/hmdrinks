@@ -48,4 +48,4 @@ public class ImageController {
         return ResponseEntity.ok(imgService.uploadImgPost(file,id));
     }
 
-}it
+}
