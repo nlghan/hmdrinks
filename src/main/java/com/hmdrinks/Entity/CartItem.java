@@ -16,9 +16,9 @@ import lombok.Setter;
 public class CartItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Khóa chính cho cartItemId
-    @Column(name = "cartItemId", nullable = false) // Đánh dấu không null
-    private int cartItemId; // Trường tự động tăng nhưng không phải khóa chính
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cartItemId", nullable = false)
+    private int cartItemId; 
 
     @ManyToOne
     @JoinColumns({
