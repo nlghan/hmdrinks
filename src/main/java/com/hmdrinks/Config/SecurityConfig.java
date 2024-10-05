@@ -51,6 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
                         .requestMatchers("/api/post/view/**").permitAll()
                         .requestMatchers("/api/voucher/view/**").permitAll()
+                        .requestMatchers("/api/user-voucher/view-all/**").permitAll()
+                        .requestMatchers("/api/user-voucher/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
                         .requestMatchers("/api/image/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")

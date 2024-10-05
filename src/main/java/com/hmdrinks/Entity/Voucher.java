@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -42,4 +43,8 @@ public class Voucher {
     @OneToOne
     @JoinColumn(name = "postId", nullable = false)
     private Post post;
+
+    @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserVoucher> userVouchers;
+
 }
