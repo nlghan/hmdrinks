@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
 import { assets } from '../../assets/assets';
+import { useNavigate } from "react-router-dom";
 
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
 
     // Function to toggle the menu
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+    const handleUser = () => {
+        navigate('/user'); 
     };
 
     return (
@@ -22,7 +27,7 @@ const Dashboard = () => {
 
                         <ul className="menu-items">
                             <img src={assets.logo} alt='' className="logo-menu" />
-                            <div className='menu-and-user'>
+                            <div className='menu-and-user' onClick={handleUser}>
                                 <i className='ti-user' />
                                 <li>Tài khoản</li>
                             </div>
