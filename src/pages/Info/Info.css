@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://lottie.host/embed/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json");
+@import url("https://lottie.host/embed/5a6e1322-c693-4426-a249-282707dee448/M5D4IXsC9l.json");
 * {
     margin: 0;
     padding: 0;
@@ -185,3 +187,16 @@
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
+/* Add this to your Info.css */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Ensure it covers other content */
+}

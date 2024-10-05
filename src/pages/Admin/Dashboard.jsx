@@ -1,16 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import { assets } from '../../assets/assets';
+import Cookies from 'js-cookie'; 
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 const Dashboard = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
-
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        const loggedIn = sessionStorage.getItem("isLoggedIn");
+        setIsLoggedIn(loggedIn === "true");
+      }, []);
     // Function to toggle the menu
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        const accessToken = Cookies.get('access_token'); // Lấy accessToken từ cookies
+    
+        if (!accessToken) {
+          console.error('No access token found. Unable to logout.');
+          return;
+        }
+    
+        try {
+          // Gửi yêu cầu đăng xuất đến backend
+          const response = await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`, // Gửi token trong header
+            },
+          });
+    
+          console.log("Logged out:", response.data);
+          
+          // Xóa token và cập nhật trạng thái đăng nhập
+          sessionStorage.removeItem("isLoggedIn");
+          Cookies.remove('access_token'); // Xóa token trong cookies
+          Cookies.remove('refresh_token'); // Xóa refresh token nếu cần
+    
+          setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
+          navigate('/home'); 
+          window.location.reload();
+        } catch (error) {
+          console.error('Error during logout:', error);
+        }
+      };
     return (
         <div className="dashboard">
             {/* Background dimming effect */}
@@ -22,6 +61,12 @@ const Dashboard = () => {
 
                         <ul className="menu-items">
                             <img src={assets.logo} alt='' className="logo-menu" />
+
+                            <div className='menu-and-user'>
+                                <i className='ti-home' />
+                                <li>Dashboard</li>
+                            </div>
+
                             <div className='menu-and-user'>
                                 <i className='ti-user' />
                                 <li>Tài khoản</li>
@@ -47,7 +92,7 @@ const Dashboard = () => {
                                 <li>Analytics</li>
                             </div>
 
-                            <div className='menu-and-user'>
+                            <div className='menu-and-user' onClick={handleLogout}>
                                 <i className='ti-back-left' />
                                 <li>Logout</li>
                             </div>
