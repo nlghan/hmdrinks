@@ -8,9 +8,8 @@ import Cookies from 'js-cookie';
 import Navbar from "../../components/Navbar/Navbar.jsx";
 
 const ChangePassword = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate();    
     
-    // State để lưu thông tin thay đổi mật khẩu
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
