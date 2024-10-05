@@ -1,4 +1,4 @@
-.dashboard {
+.user-table {
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -8,26 +8,26 @@
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
   }
   
-  .dashboard-row {
+  .user-table-row {
     display: flex;
-    justify-content: space-between;
-    margin-top: -30px;
+    justify-content: space-between;    
   }
   
-  .main-section {
+  .user-main-section {
     flex: 2;
     display: flex;
     flex-direction: row;
     
   }
   
-  .stats-section {
+  .user-stats-section {
     display: flex;
     gap: 10px;
     flex-direction: column;
     margin-left: 30px;
+    position: relative;
   }
-  .orders-box .header {
+  .user-box .header-user-box {
     position: relative;
     display: flex;
     justify-content: center; 
@@ -35,10 +35,10 @@
     margin-bottom: 10px;
 }
 
-.orders-box h2 {
+.user-box h2 {
     margin: 0;
 }
-.update-btn1 {
+.user-update-btn1 {
   width:90px;
   height:30px;
   border-radius: 5px;
@@ -48,11 +48,11 @@
   background-color: #79bbfe;
   border-color: #1a83ed;  
 }
-.update-btn1:hover {
+.user-update-btn1:hover {
   background-color: #1a83ed
 }
 
-.update-btn2 {
+.user-update-btn2 {
   width:50px;
   height:30px;
   border-radius: 5px;
@@ -130,7 +130,7 @@ input:checked + .slider:before {
 }
 
   
-  .stat-box1 {
+  .user-stat-box1 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -145,7 +145,7 @@ input:checked + .slider:before {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .percentage-circle {
+  .user-percentage-circle {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -160,7 +160,7 @@ input:checked + .slider:before {
     left: 15px;
   }
   
-  .inner-circle {
+  .user-inner-circle {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -169,7 +169,7 @@ input:checked + .slider:before {
     z-index: 1;
   }
   
-  .inner-circle2 {
+  .user-inner-circle2 {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -178,7 +178,7 @@ input:checked + .slider:before {
     z-index: 1;
   }
   
-  .inner-circle3 {
+  .user-inner-circle3 {
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -187,28 +187,28 @@ input:checked + .slider:before {
     z-index: 1;
   }
   
-  .percentage-circle span {
+  .user-percentage-circle span {
     position: absolute;
     color: white;
     font-weight: bold;
     z-index: 1;
   }
   
-  .percentage-circle2 span {
+  .user-percentage-circle2 span {
     position: absolute;
     color: white;
     font-weight: bold;
     z-index: 1;
   }
   
-  .percentage-circle3 span {
+  .user-percentage-circle3 span {
     position: absolute;
     color: white;
     font-weight: bold;
     z-index: 1;
   }
   
-  .text1 {
+  .user-stat-boxtext1 {
     position: absolute;
     top: 50px;
     left: 110px;
@@ -216,31 +216,35 @@ input:checked + .slider:before {
     font-size: 26px;
   }
   
-  .text1 h3 {
+  .user-stat-boxtext1 h3 {
     margin: 0;
   }
   
-  .icon {
+  .user-stat-boxicon {
     position: absolute;
     top: 10px;
     right: 20px;
   }
   
-  .count {
+  .user-stat-boxcount {
     position: absolute;
     bottom: 15px;
     right: 20px;
     color: #ffffff;
   }
   
-  .details {
+  .user-stat-boxdetails {
     position: absolute;
     top: 50px;
     right: 20px;
     color: #ffffff;
   }
-  
-  .stat-box2 {
+  .user-stat-box {
+    position: absolute;
+    top: 10px;
+    right:0px;       
+  }
+  .user-stat-box2 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -255,7 +259,7 @@ input:checked + .slider:before {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .stat-box3 {
+  .user-stat-box3 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -270,7 +274,7 @@ input:checked + .slider:before {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .percentage-circle2 {
+  .user-percentage-circle2 {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -285,7 +289,7 @@ input:checked + .slider:before {
     left: 15px;
   }
   
-  .percentage-circle3 {
+  .user-percentage-circle3 {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -308,7 +312,7 @@ input:checked + .slider:before {
     margin: 5px 0;
   }
   
-  .orders-box {
+  .user-box {
     flex: 1;
     margin-top: 50px;
     background-color: #ffffff;
@@ -317,30 +321,30 @@ input:checked + .slider:before {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .orders-box h2 {
+  .user-box h2 {
     margin-bottom: 30px;
     text-align: center;
     
   }
   
-  .orders-box table {
+  .user-box table {
     width: 100%;
     border-collapse: collapse;
   }
   
-  .orders-box table th,
-  .orders-box table td {
+  .user-box table th,
+  .user-box table td {
     border: 1px solid #ffffff;
     padding: 8px;
     text-align: left;
     border: none;
   }
   
-  .orders-box table th {
+  .user-box table th {
     background-color: #ffffff;
   }
   
-  .orders-box table td {
+  .user-box table td {
     padding: 8px;
     text-align: left;
     border: none;
@@ -373,16 +377,127 @@ input:checked + .slider:before {
     border: 1px solid #c3e6cb;
     display: inline-block;
   }
-  .details {
+  .user-stat-boxdetails {
     margin-top:50px;
   }
   .text-details {
     color: #547df8;
     
   }
+  .user-table {
+    display: flex; /* Flex container for main layout */
+    position: relative; /* Position for absolute elements inside */
+  }
+  .user-menu-flex {
+    position: relative; /* Position to contain the button and menu */
+  }
   
-
+  /* Button to toggle the menu */
+  .user-menu-toggle {
+    background-color: #007bff; /* Button color */
+    color: white; /* Button text color */
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    width: 7%; /* Full width */
+    border-radius: 4px; /* Rounded corners */
+    margin-bottom: 15px; /* Margin below the button */
+    transition: background-color 0.3s;
+    margin-left: 480px; /* Adjust margin as needed */
+  }
   
+  .user-menu-toggle:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  /* Side Menu Styles */
+  .user-side-menu {
+    width: 220px; /* Width of the side menu, slightly increased */
+    background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+    position: fixed; /* Fixed positioning for overlay */
+    top: 0; /* Align it to the top */
+    left: 0; /* Align it to the left */
+    height: 100vh; /* Full height of the viewport */
+    z-index: 1000; /* Ensure it appears above other elements */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
+  
+  /* Logo Style */
+  .user-logo-menu {
+    width: 100%; /* Makes the logo fit the width of the menu */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Space below the logo */
+  }
+  
+  /* Menu Items Styles */
+  .user-menu-items {
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+  
+  .user-menu-items li {
+    font-size: 20px; /* Increase font size for menu items */
+    font-weight: bold; /* Make font bold */
+    color: #333; /* Text color */
+    margin-bottom: 15px; /* Space between items */
+    transition: color 0.3s ease;
+     /* Smooth color transition on hover */
+     padding: 20px;
+     
+  }
+  
+  .user-menu-items li:hover {
+    color: #FF7380; /* Change color on hover */
+    cursor: pointer;
+    background-color: #e9ece9;
+  }
+  
+  /* Background dimming styles */
+  .user-dim-background {
+    position: fixed; /* Fixed positioning for dim background */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dimmed effect */
+    z-index: 500; /* Below side menu but above content */
+  }
+  
+/* Main Content Styles */
+.user-table-row {
+  flex-grow: 1; /* Take the remaining space */
+  padding: 20px; /* Padding for main content */
+  transition: filter 0.3s ease; /* Smooth transition for dimming effect */
+}
 
+/* Dimmed effect for the main content */
+.user-table-row.user-dimmed {
+  filter: blur(2px); /* Blurred effect for the main content */
+}
+
+
+.user-menu-and-user {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 10px; /* Space below each menu item */
+}
+
+.user-menu-and-user i {
+  margin-left: 10px;
+  margin-right: 12px; /* Space between the icon and text */
+  font-size: 19px; /* Adjust the icon size as needed */
+  color: #333; /* Icon color */
+}
+
+.user-menu-and-user li {
+  font-size: 24px; /* Adjust font size for the list item */
+  font-weight: bold; /* Make font bold */
+  color: #333; /* Text color */
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
   
   
