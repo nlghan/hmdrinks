@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -364,7 +365,7 @@
 /* Side Menu Styles */
 .side-menu {
   width: 220px; /* Width of the side menu, slightly increased */
-  background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+  background: linear-gradient(to bottom right, rgb(252, 252, 252), rgba(251, 255, 206, 1));
   position: fixed; /* Fixed positioning for overlay */
   top: 0; /* Align it to the top */
   left: 0; /* Align it to the left */
@@ -386,16 +387,18 @@
   list-style: none; /* Remove default list styles */
   padding: 0; /* Remove default padding */
   margin: 0; /* Remove default margin */
+  font-weight: 400;
 }
 
 .menu-items li {
   font-size: 20px; /* Increase font size for menu items */
-  font-weight: bold; /* Make font bold */
+  font-weight: 400;/* Make font bold */
   color: #333; /* Text color */
   margin-bottom: 15px; /* Space between items */
   transition: color 0.3s ease;
    /* Smooth color transition on hover */
    padding: 20px;
+   font-family: 'Inter';
    
 }
 
@@ -442,15 +445,15 @@
 .menu-and-user i {
   margin-left: 10px;
   margin-right: 12px; /* Space between the icon and text */
-  font-size: 19px; /* Adjust the icon size as needed */
+  font-size: 18px; /* Adjust the icon size as needed */
   color: #333; /* Icon color */
 }
 
 .menu-and-user li {
-  font-size: 24px; /* Adjust font size for the list item */
-  font-weight: bold; /* Make font bold */
+  font-size: 18px; /* Adjust font size for the list item */
+  font-weight: 400; /* Make font bold */
   color: #333; /* Text color */
   list-style: none; /* Remove default list styling */
-  padding: 0; /* Remove default padding */
+  padding: 1; /* Remove default padding */
   margin: 0; /* Remove default margin */
 }

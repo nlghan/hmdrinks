@@ -3,9 +3,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
-import './Info.css'; // Nhập CSS
-import '../../assets/assets.js'
+import './Info.css'; // Import CSS
+import '../../assets/assets.js';
 import { assets } from "../../assets/assets.js";
+import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
+import ErrorMessage from "../../components/Animation/ErrorMessage.jsx";
 
 const Info = () => {
     const navigate = useNavigate(); 
@@ -23,7 +25,9 @@ const Info = () => {
     const [previewImage, setPreviewImage] = useState(''); 
     const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(""); 
+    const [isUploading, setIsUploading] = useState(false); // New state for upload loading
 
+    // Function to decode JWT token and get userId
     const getUserIdFromToken = (token) => {
         try {
             const payload = token.split('.')[1]; 
@@ -35,10 +39,10 @@ const Info = () => {
         }
     };
 
+    // Function to retrieve token from cookies
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
@@ -59,6 +63,7 @@ const Info = () => {
                     return;
                 }
 
+                // Fetch user info from backend
                 const response = await axios.get(`http://localhost:1010/api/user/info/${userId}`, {
                     headers: {
                         'Accept': '*/*',
@@ -68,18 +73,18 @@ const Info = () => {
 
                 const userInfo = response.data;
 
-                // Khởi tạo formData với giá trị mặc định nếu không có giá trị từ server
+                // Initialize formData with user data from server
                 setFormData({
-                    email: userInfo.email || '',  // Nếu không có email, khởi tạo thành chuỗi rỗng
+                    email: userInfo.email || '',
                     fullName: userInfo.fullName || '',
                     phoneNumber: userInfo.phoneNumber || '',
                     avatar: userInfo.avatar || '',
                     sex: userInfo.sex || '',
-                    birthDay: userInfo.birthDay ? userInfo.birthDay.split('T')[0] : '',  // Nếu không có ngày sinh, khởi tạo thành chuỗi rỗng
+                    birthDay: userInfo.birthDay ? userInfo.birthDay.split('T')[0] : '',
                     address: userInfo.address || ''
                 });
 
-                setPreviewImage(userInfo.avatar || ''); // Cập nhật previewImage với avatar hoặc chuỗi rỗng
+                setPreviewImage(userInfo.avatar || '');
                 setLoading(false);
             } catch (err) {
                 setError("Không thể lấy thông tin người dùng.");
@@ -90,23 +95,27 @@ const Info = () => {
         fetchUserInfo();
     }, []);
 
+    // Handle image file changes
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
         setPreviewImage(URL.createObjectURL(file)); 
     };
 
+    // Handle back button click
     const handleBack = () => {
         navigate('/home');
     };
 
+    // Handle password change button click
     const handleChangePass = () => {
         navigate('/change');
     };
 
-    const handleSubmitImg = async (e) => {
+    // Handle form submission to update user info
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
@@ -115,38 +124,40 @@ const Info = () => {
             return;
         }
 
-        if (selectedFile) {
-            const formData = new FormData();
-            formData.append("file", selectedFile);
+        // Prepare data for updating user information
+        const updatedData = {
+            userId: userId,
+            email: formData.email,
+            fullName: formData.fullName,
+            phoneNumber: formData.phoneNumber,
+            avatar: formData.avatar, 
+            sex: formData.sex,
+            birthDay: formData.birthDay,
+            address: formData.address
+        };
 
-            try {
-                // Gửi yêu cầu POST để tải ảnh lên
-                const response = await axios.post(`http://localhost:1010/api/image/user/upload?userId=${userId}`, formData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
+        try {
+            const response = await axios.put(`http://localhost:1010/api/user/info/${userId}`, updatedData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-                // Nếu thành công, cập nhật ảnh đại diện
-                const imageUrl = response.data.url;
-                setPreviewImage(imageUrl);
-
-                alert("Đã cập nhật ảnh đại diện!");
-
-            } catch (error) {
-                console.error("Lỗi cập nhật:", error);
-                setError("Không thể cập nhật ảnh đại diện.");
-            }
+            // If update is successful, show success message or navigate
+            alert("Cập nhật thông tin thành công!");
+        } catch (error) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", error);
+            setError("Không thể cập nhật thông tin.");
         }
     };
 
     if (loading) {
-        return <p>Đang tải thông tin người dùng...</p>;
+        return <LoadingAnimation animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json" />;
     }
 
     if (error) {
-        return <p>{error}</p>;
+        return <ErrorMessage path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"} message={error} />;
     }
 
     return (
@@ -154,9 +165,8 @@ const Info = () => {
             <Navbar />
             <div className="body-info">
                 <div className="container">
-                    <form className="user-info-form">
+                    <form className="user-info-form" onSubmit={handleSubmit}>
                         <h2>Thông tin cá nhân</h2>
-
                         <div className="avatar-container">
                             {previewImage ? (
                                 <img src={previewImage} alt="Avatar" className="avatar-image" />
@@ -174,22 +184,13 @@ const Info = () => {
                                 style={{ display: 'none' }}  
                             />
                             <div className="btn-gr-img">
-                            <button
-                                type="button"
-                                className="btn-upload"
-                                onClick={() => document.getElementById('file-upload').click()}
-                            >
-                                Tải ảnh lên
-                            </button>
-
-                            <button
-                                type="button"
-                                className="btn-save"
-                                onClick={handleSubmitImg}
-                            >
-                                Lưu
-                            </button>
-
+                                <button
+                                    type="button"
+                                    className="btn-upload"
+                                    onClick={() => document.getElementById('file-upload').click()}
+                                >
+                                    Tải ảnh lên
+                                </button>
                             </div>
                         </div>
 
@@ -265,6 +266,12 @@ const Info = () => {
                     </form>
                 </div>
             </div>
+
+            {isUploading && (
+                <div className="overlay">
+                    <LoadingAnimation animationPath="https://lottie.host/bfcb91ed-f6e3-486d-b052-6c0705a6416c/yzsyGYxWhd.json" isVisible={isUploading}/>
+                </div>
+            )}
 
             <Footer />
         </>
