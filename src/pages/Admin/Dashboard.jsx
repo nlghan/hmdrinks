@@ -4,6 +4,7 @@ import { assets } from '../../assets/assets';
 import Cookies from 'js-cookie'; 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Menu from '../../components/Menu/Menu';
 
 
 
@@ -23,7 +24,6 @@ const Dashboard = () => {
         navigate('/user'); 
     };
 
-    const navigate = useNavigate();
 
     const handleLogout = async () => {
         const accessToken = Cookies.get('access_token'); // Lấy accessToken từ cookies
@@ -57,55 +57,8 @@ const Dashboard = () => {
       };
     return (
         <div className="dashboard">
-            {/* Background dimming effect */}
-            {isMenuOpen && <div className="dim-background" onClick={toggleMenu}></div>}
-
-            <div className='menu-flex'>
-                {isMenuOpen && (
-                    <div className="side-menu">
-
-                        <ul className="menu-items">
-                            <img src={assets.logo} alt='' className="logo-menu" />
-                            <div className='menu-and-user'>
-                                <i className='ti-home' />
-                                <li>Dashboard</li>
-                            </div>
-                            <div className='menu-and-user' onClick={handleUser}>
-                                <i className='ti-user' />
-                                <li>Tài khoản</li>
-                            </div>
-
-                            <div className='menu-and-user'>
-                                <i className='ti-package' />
-                                <li>Sản phẩm</li>
-                            </div>
-                            <div className='menu-and-user'>
-                                <i className='ti-pencil-alt' />
-                                <li>Đơn hàng</li>
-                            </div>
-                            <div className='menu-and-user'>
-                                <i className='ti-signal' />
-                                <li>Tiếp thị</li>
-                            </div><div className='menu-and-user'>
-                                <i className='ti-share-alt' />
-                                <li>Phản hồi</li>
-                            </div>
-                            <div className='menu-and-user'>
-                                <i className='ti-image' />
-                                <li>Analytics</li>
-                            </div>
-
-                            <div className='menu-and-user' onClick={handleLogout}>
-                                <i className='ti-back-left' />
-                                <li>Logout</li>
-                            </div>
-
-
-                        </ul>
-                    </div>
-                )}
-            </div>
-
+           
+           <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
             <div className={`dashboard-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="main-section">
                     <div className='flex'>
