@@ -20,4 +20,5 @@ public class CreateAccountUserReq {
     private String password;
 
     private Role role;
+    private String phone;
 }

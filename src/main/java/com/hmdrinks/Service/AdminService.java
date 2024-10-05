@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @Service
 public class AdminService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -29,15 +30,24 @@ public class AdminService {
     PasswordEncoder passwordEncoder;
 
     public CRUDAccountUserResponse createAccountUser(CreateAccountUserReq req){
-        Optional <User> user = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
+        Optional<User> user = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
 
-        if(!user.isEmpty())
-        {
+        if (user.isPresent()) {
             throw new ConflictException("User name already exists");
         }
-        if(!supportFunction.checkRole(req.getRole().toString())){
+
+        if (!supportFunction.checkRole(req.getRole().toString())) {
             throw new BadRequestException("Role is wrong");
         }
+
+        User userWithEmail = userRepository.findByEmail(req.getEmail());
+        if (userWithEmail != null && !(userWithEmail.getUserName() == (req.getUserName()))) {
+            // Nếu tìm thấy người dùng có email này nhưng không phải chính người đang tạo
+            throw new ConflictException("Email already exists with another user");
+        }
+
+        // Gọi hàm checkPhoneNumber từ SupportFunction
+
         LocalDate currentDate = LocalDate.now();
         User user1 = new User();
         user1.setType(TypeLogin.BASIC);
@@ -57,9 +67,8 @@ public class AdminService {
         userRepository.save(user1);
 
         Optional<User> userNewq = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
-        User userNew= userNewq.get();
-        return
-                new CRUDAccountUserResponse(
+        User userNew = userNewq.get();
+        return new CRUDAccountUserResponse(
                 userNew.getUserId(),
                 userNew.getUserName(),
                 userNew.getFullName(),
@@ -76,6 +85,5 @@ public class AdminService {
                 userNew.getDateCreated(),
                 userNew.getRole().toString()
         );
-
     }
 }

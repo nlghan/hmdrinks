@@ -4,11 +4,13 @@ import com.hmdrinks.Entity.OTP;
 import com.hmdrinks.Entity.User;
 import com.hmdrinks.Enum.Sex;
 import com.hmdrinks.Exception.BadRequestException;
+import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
 import com.hmdrinks.Repository.OtpRepository;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import  org.springframework.mail.*;
 
@@ -32,6 +34,7 @@ public class UserService {
 
     private final  UserRepository userRepository;
     private final OtpRepository otpRepository;
+    private final SupportFunction supportFunction;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -96,17 +99,25 @@ public class UserService {
         );
     }
     public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
+        // Tìm người dùng hiện tại theo userId
         User userList = userRepository.findByUserId(req.getUserId());
 
         if (userList == null) {
-            throw new RuntimeException("Khong ton tai user");
+            throw new NotFoundException("User does not exist");
         }
 
+        // Kiểm tra xem email đã được sử dụng bởi người dùng khác hay không
         Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
-        if(!user.isPresent()) {
-            throw new RuntimeException("Email exists");
+        if(user.isPresent()) { // Đảo ngược điều kiện
+            throw new ConflictException("Email already exists");
         }
-        LocalDate  currentDate = LocalDate.now();
+
+        // Kiểm tra số điện thoại
+        supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
+        User userWithEmail = userRepository.findByEmail(req.getEmail());
+
+        // Cập nhật thông tin người dùng
+        LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
         userList.setEmail(req.getEmail());
         userList.setFullName(req.getFullName());
@@ -115,12 +126,17 @@ public class UserService {
         userList.setSex(Sex.valueOf(req.getSex()));
         userList.setBirthDate(req.getBirthDay());
         userList.setDateUpdated(Date.valueOf(currentDate));
-        String street = locationParts[0].trim();   // Lấy phần street
-        String district = locationParts[1].trim();  // Lấy phần district
-        String city = locationParts[2].trim();
-        userList.setCity(city);
-        userList.setStreet(street);
-        userList.setDistrict(district);
+
+        if(locationParts.length >= 3){
+            String street = locationParts[0].trim();   // Lấy phần street
+            String district = locationParts[1].trim();  // Lấy phần district
+            String city = locationParts[2].trim();
+            userList.setCity(city);
+            userList.setStreet(street);
+            userList.setDistrict(district);
+        } else {
+            throw new BadRequestException("Invalid address format");
+        }
 
         userRepository.save(userList);
 
@@ -142,6 +158,7 @@ public class UserService {
                 userList.getRole().toString()
         );
     }
+
 
     public SendEmailResponse sendEmail(String email) {
         Random random = new Random();

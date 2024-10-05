@@ -13,6 +13,7 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.LoginBasicReq;
 import com.hmdrinks.Request.UserCreateReq;
 import com.hmdrinks.Response.AuthenticationResponse;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,7 +41,6 @@ public class AuthenticationService {
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
-
 
         @Value("${application.security.jwt.expiration}")
         private long jwtExpiration;
