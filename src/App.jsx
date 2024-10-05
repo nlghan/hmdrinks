@@ -43,6 +43,7 @@ const App = () => {
             <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/send-mail" element={<SendMail />} /> 
+            <Route path="/user" element={<User/>} />
 
           </Routes>
         </CSSTransition>

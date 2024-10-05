@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './User.css';
-import { assets } from '../../assets/assets';
-
+import Menu from '../../components/Menu/Menu';
 const User = () => {
     const [switches, setSwitches] = useState([true, false]); // Mảng để lưu trạng thái cho các switch
 
@@ -20,52 +19,9 @@ const User = () => {
 
     return (
         <div className="user-table">
-            {isMenuOpen && <div className="user-dim-background" onClick={toggleMenu}></div>}
-
-            <div className='user-menu-flex'>
-                {isMenuOpen && (
-                    <div className="user-side-menu">
-
-                        <ul className="user-menu-items">
-                            <img src={assets.logo} alt='' className="user-logo-menu" />
-                            <div className='user-menu-and-user'>
-                                <i className='ti-user' />
-                                <li>Tài khoản</li>
-                            </div>
-
-                            <div className='user-menu-and-user'>
-                                <i className='ti-package' />
-                                <li>Sản phẩm</li>
-                            </div>
-                            <div className='user-menu-and-user'>
-                                <i className='ti-pencil-alt' />
-                                <li>Đơn hàng</li>
-                            </div>
-                            <div className='user-menu-and-user'>
-                                <i className='ti-signal' />
-                                <li>Tiếp thị</li>
-                            </div><div className='user-menu-and-user'>
-                                <i className='ti-share-alt' />
-                                <li>Phản hồi</li>
-                            </div>
-                            <div className='user-menu-and-user'>
-                                <i className='ti-image' />
-                                <li>Analytics</li>
-                            </div>
-
-                            <div className='user-menu-and-user'>
-                                <i className='ti-back-left' />
-                                <li>Logout</li>
-                            </div>
-
-
-                        </ul>
-                    </div>
-                )}
-            </div>
+            <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
             <div className={`user-table-row ${isMenuOpen ? 'user-dimmed' : ''}`}>
                 <div className="user-main-section">
-
                     <div className="user-box">
                         <div className="header-user-box">
                             <h2>Users</h2>
@@ -86,7 +42,7 @@ const User = () => {
                                     <tr key={index}>
                                         <td>User{index + 1}</td>
                                         <td>Nguyễn Văn {String.fromCharCode(65 + index)}</td>
-                                        <td>{<td>{index === 0 ? 'Admin' : index === 1 ? 'User' : 'Shipper'}</td>}</td>
+                                        <td>{index === 0 ? 'Admin' : index === 1 ? 'User' : 'Shipper'}</td>
                                         <td>
                                             <label className="switch">
                                                 <input
@@ -109,10 +65,8 @@ const User = () => {
 
                     <div className="user-stats-section">
                         <div className="user-stat-box">
-                            <i className="ti-menu menu-toggle" onClick={toggleMenu}>
-                            </i>
+                            <i className="ti-menu menu-toggle" onClick={toggleMenu}></i>
                         </div>
-
                         <div className="user-stat-box1">
                             <div className="user-percentage-circle">
                                 <div className="user-inner-circle"></div>
@@ -162,7 +116,6 @@ const User = () => {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
