@@ -7,6 +7,7 @@ import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Home from './pages/Home/Home'; // Nếu bạn có trang Home
 import Dashboard from './pages/Admin/Dashboard';
+import User from './pages/Admin/User';
 import Info from './pages/Info/Info'; // Nhập trang Info
 import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/user" element={<User />} />
             <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
