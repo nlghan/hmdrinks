@@ -1,0 +1,388 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: 100%;
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+  }
+  
+  .dashboard-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -30px;
+  }
+  
+  .main-section {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    
+  }
+  
+  .stats-section {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    margin-left: 30px;
+  }
+  .orders-box .header {
+    position: relative;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    margin-bottom: 10px;
+}
+
+.orders-box h2 {
+    margin: 0;
+}
+.update-btn1 {
+  width:90px;
+  height:30px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; 
+  margin-left: -30px;  
+  background-color: #79bbfe;
+  border-color: #1a83ed;  
+}
+.update-btn1:hover {
+  background-color: #1a83ed
+}
+
+.update-btn2 {
+  width:50px;
+  height:30px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; 
+  margin-left: 5px;
+  margin-right: 20px;
+  background-color: #f87079;
+  border-color: #ed3b47;
+}
+.update-btn2:hover {
+  background-color: #ef2e3b;
+}
+
+.add-user-btn {
+    position: absolute;
+    right: 0; /* Căn về cuối dòng */
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.add-user-btn:hover {
+    background-color: #45a049;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px; /* Chiều rộng của nút switch */
+    height: 20px; /* Chiều cao của nút switch */
+    margin-left: 50px;
+}
+
+.switch input {
+    opacity: 0; /* Ẩn checkbox */
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc; /* Màu nền khi tắt */
+    transition: .4s; /* Hiệu ứng chuyển đổi */
+    border-radius: 20px; /* Bo góc cho nút */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; /* Chiều cao của nút */
+    width: 16px; /* Chiều rộng của nút */
+    left: 2px;
+    bottom: 2px;
+    background-color: white; /* Màu nền của nút */
+    transition: .4s; /* Hiệu ứng chuyển đổi */
+    border-radius: 50%; /* Bo tròn cho nút */
+}
+
+input:checked + .slider {
+    background-color: #4CAF50; /* Màu nền khi bật */
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px); /* Di chuyển nút sang phải */
+}
+
+  
+  .stat-box1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    width: 350px;
+    height: 150px;
+    background-color: #efa0ed;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .percentage-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(rgb(255, 255, 255) 70%, #efa0ed 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 40px;
+    left: 15px;
+  }
+  
+  .inner-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #efa0ed;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .inner-circle2 {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #f48d8d;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .inner-circle3 {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #eaca71;
+    position: absolute;
+    z-index: 1;
+  }
+  
+  .percentage-circle span {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .percentage-circle2 span {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .percentage-circle3 span {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .text1 {
+    position: absolute;
+    top: 50px;
+    left: 110px;
+    color: #ffffff;
+    font-size: 26px;
+  }
+  
+  .text1 h3 {
+    margin: 0;
+  }
+  
+  .icon {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+  }
+  
+  .count {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    color: #ffffff;
+  }
+  
+  .details {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    color: #ffffff;
+  }
+  
+  .stat-box2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    width: 350px;
+    height: 150px;
+    background-color: #f48d8d;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stat-box3 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    width: 350px;
+    height: 150px;
+    background-color: #eaca71;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .percentage-circle2 {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(rgb(255, 255, 255) 80%, #f48d8d 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 40px;
+    left: 15px;
+  }
+  
+  .percentage-circle3 {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(rgb(255, 255, 255) 60%, #eaca71 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 40px;
+    left: 15px;
+  }
+  
+  .stat-box .icon {
+    font-size: 24px;
+  }
+  
+  .stat-box .text h3 {
+    margin: 5px 0;
+  }
+  
+  .orders-box {
+    flex: 1;
+    margin-top: 50px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .orders-box h2 {
+    margin-bottom: 30px;
+    text-align: center;
+    
+  }
+  
+  .orders-box table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .orders-box table th,
+  .orders-box table td {
+    border: 1px solid #ffffff;
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
+  
+  .orders-box table th {
+    background-color: #ffffff;
+  }
+  
+  .orders-box table td {
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
+  
+  
+  .status-approved {
+    color: green;
+    background-color: #d4edda;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+    display: inline-block;
+  }
+  
+  .status-pending {
+    color: rgb(214, 0, 0);
+    background-color: #edd4d4;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #e6c3c3;
+    display: inline-block;
+  }
+  
+  .status-delivered {
+    color: rgb(254, 254, 254);
+    background-color: #3362f0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+    display: inline-block;
+  }
+  .details {
+    margin-top:50px;
+  }
+  .text-details {
+    color: #547df8;
+    
+  }
+  
+
+  
+
+  
+  
