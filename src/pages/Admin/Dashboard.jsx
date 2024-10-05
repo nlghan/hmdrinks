@@ -1,12 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Dashboard.css';
+import { assets } from '../../assets/assets';
+
 
 const Dashboard = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
+
+    // Function to toggle the menu
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
     return (
         <div className="dashboard">
-            <div className="dashboard-row">
+            {/* Background dimming effect */}
+            {isMenuOpen && <div className="dim-background" onClick={toggleMenu}></div>}
+
+            <div className='menu-flex'>
+                {isMenuOpen && (
+                    <div className="side-menu">
+
+                        <ul className="menu-items">
+                            <img src={assets.logo} alt='' className="logo-menu" />
+                            <div className='menu-and-user'>
+                                <i className='ti-user' />
+                                <li>Tài khoản</li>
+                            </div>
+
+                            <div className='menu-and-user'>
+                                <i className='ti-package' />
+                                <li>Sản phẩm</li>
+                            </div>
+                            <div className='menu-and-user'>
+                                <i className='ti-pencil-alt' />
+                                <li>Đơn hàng</li>
+                            </div>
+                            <div className='menu-and-user'>
+                                <i className='ti-signal' />
+                                <li>Tiếp thị</li>
+                            </div><div className='menu-and-user'>
+                                <i className='ti-share-alt' />
+                                <li>Phản hồi</li>
+                            </div>
+                            <div className='menu-and-user'>
+                                <i className='ti-image' />
+                                <li>Analytics</li>
+                            </div>
+
+                            <div className='menu-and-user'>
+                                <i className='ti-back-left' />
+                                <li>Logout</li>
+                            </div>
+
+
+                        </ul>
+                    </div>
+                )}
+            </div>
+
+            <div className={`dashboard-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="main-section">
-                    <h1>Dashboard</h1>
+                    <div className='flex'>
+                        <h1>Dashboard</h1>
+                    </div>
+
                     <div className="stats-section">
                         <div className="stat-box1">
                             <div className="percentage-circle">
@@ -105,6 +162,10 @@ const Dashboard = () => {
                 </div>
 
                 <div className="side-section">
+                    {/* Replaced button with TiMenu icon */}
+                    <i className=" ti-menu menu-toggle" onClick={toggleMenu}>
+
+                    </i>
                     <div className="updates-box">
                         <h2>Recent Updates</h2>
                         <ul>
