@@ -3,14 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
-import './Info.css'; // Import CSS
-import '../../assets/assets.js';
+import './Info.css'; // Nhập CSS
+import '../../assets/assets.js'
 import { assets } from "../../assets/assets.js";
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import ErrorMessage from "../../components/Animation/ErrorMessage.jsx";
 
 const Info = () => {
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         fullName: '',
@@ -21,28 +21,32 @@ const Info = () => {
         address: ''
     });
 
-    const [selectedFile, setSelectedFile] = useState(null); 
-    const [previewImage, setPreviewImage] = useState(''); 
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState(""); 
-    const [isUploading, setIsUploading] = useState(false); // New state for upload loading
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [formErrors, setFormErrors] = useState({
+        email: '',
+        phoneNumber: '',
+        birthDay: ''
+    });
 
-    // Function to decode JWT token and get userId
     const getUserIdFromToken = (token) => {
         try {
-            const payload = token.split('.')[1]; 
-            const decodedPayload = JSON.parse(atob(payload)); 
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
             return decodedPayload.UserId;
         } catch (error) {
             console.error("Không thể giải mã token:", error);
-            return null; 
+            return null;
         }
     };
 
-    // Function to retrieve token from cookies
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
+
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
@@ -63,7 +67,6 @@ const Info = () => {
                     return;
                 }
 
-                // Fetch user info from backend
                 const response = await axios.get(`http://localhost:1010/api/user/info/${userId}`, {
                     headers: {
                         'Accept': '*/*',
@@ -73,20 +76,28 @@ const Info = () => {
 
                 const userInfo = response.data;
 
-                // Initialize formData with user data from server
+                const formatBirthDayForInput = (isoDate) => {
+                    const date = new Date(isoDate);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+
                 setFormData({
                     email: userInfo.email || '',
                     fullName: userInfo.fullName || '',
-                    phoneNumber: userInfo.phoneNumber || '',
+                    phoneNumber: userInfo.phone || '',
                     avatar: userInfo.avatar || '',
                     sex: userInfo.sex || '',
-                    birthDay: userInfo.birthDay ? userInfo.birthDay.split('T')[0] : '',
+                    birthDay: userInfo.birth_date ? formatBirthDayForInput(userInfo.birth_date) : '',
                     address: userInfo.address || ''
                 });
 
                 setPreviewImage(userInfo.avatar || '');
                 setLoading(false);
             } catch (err) {
+                console.error("Lỗi khi lấy thông tin người dùng:", err);
                 setError("Không thể lấy thông tin người dùng.");
                 setLoading(false);
             }
@@ -95,27 +106,52 @@ const Info = () => {
         fetchUserInfo();
     }, []);
 
-    // Handle image file changes
+    const validateForm = () => {
+        const errors = {
+            email: '',
+            phoneNumber: '',
+            birthDay: ''
+        };
+
+        const phoneRegex = /^[0-9]{10}$/; // Phone number must be exactly 10 digits
+
+        if (!formData.email.includes('@')) {
+            errors.email = 'Email không hợp lệ!';
+        }
+
+        if (!phoneRegex.test(formData.phoneNumber)) {
+            errors.phoneNumber = 'Số điện thoại phải có đúng 10 số và không chứa kí tự đặc biệt!';
+        }
+
+        const today = new Date();
+        const birthDate = new Date(formData.birthDay);
+        if (birthDate > today) {
+            errors.birthDay = 'Ngày sinh không hợp lệ!';
+        }
+
+        setFormErrors(errors);
+
+        // Return true if there are no errors
+        return Object.values(errors).every(error => error === '');
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
-        setPreviewImage(URL.createObjectURL(file)); 
+        setPreviewImage(URL.createObjectURL(file));
     };
 
-    // Handle back button click
     const handleBack = () => {
         navigate('/home');
     };
 
-    // Handle password change button click
     const handleChangePass = () => {
         navigate('/change');
     };
 
-    // Handle form submission to update user info
-    const handleSubmit = async (e) => {
+    const handleSubmitImg = async (e) => {
         e.preventDefault();
-        
+
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
@@ -124,27 +160,68 @@ const Info = () => {
             return;
         }
 
-        // Prepare data for updating user information
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            setIsUploading(true);
+
+            try {
+                const response = await axios.post(`http://localhost:1010/api/image/user/upload?userId=${userId}`, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                const imageUrl = response.data.url;
+                setPreviewImage(imageUrl);
+
+                alert("Đã cập nhật ảnh đại diện!");
+            } catch (error) {
+                console.error("Lỗi cập nhật:", error);
+                setError("Không thể cập nhật ảnh đại diện.");
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+
+        if (!token || !userId) {
+            setError("Bạn cần phải đăng nhập.");
+            return;
+        }
+
+        // Validate form data before submitting
+        if (!validateForm()) {
+            return; // Stop submission if validation fails
+        }
+
         const updatedData = {
             userId: userId,
             email: formData.email,
             fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
-            avatar: formData.avatar, 
+            avatar: formData.avatar,
             sex: formData.sex,
             birthDay: formData.birthDay,
             address: formData.address
         };
 
         try {
-            const response = await axios.put(`http://localhost:1010/api/user/info/${userId}`, updatedData, {
+            const response = await axios.put(`http://localhost:1010/api/user/info-update`, updatedData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            // If update is successful, show success message or navigate
             alert("Cập nhật thông tin thành công!");
         } catch (error) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", error);
@@ -163,10 +240,12 @@ const Info = () => {
     return (
         <>
             <Navbar />
+
             <div className="body-info">
                 <div className="container">
-                    <form className="user-info-form" onSubmit={handleSubmit}>
+                    <form className="user-info-form">
                         <h2>Thông tin cá nhân</h2>
+
                         <div className="avatar-container">
                             {previewImage ? (
                                 <img src={previewImage} alt="Avatar" className="avatar-image" />
@@ -181,7 +260,7 @@ const Info = () => {
                                 accept="image/*"
                                 id="file-upload"
                                 onChange={handleFileChange}
-                                style={{ display: 'none' }}  
+                                style={{ display: 'none' }}
                             />
                             <div className="btn-gr-img">
                                 <button
@@ -191,17 +270,27 @@ const Info = () => {
                                 >
                                     Tải ảnh lên
                                 </button>
+
+                                <button
+                                    type="button"
+                                    className="btn-save"
+                                    onClick={handleSubmitImg}
+                                >
+                                    Lưu
+                                </button>
                             </div>
                         </div>
 
                         <div className="form-group">
                             <label>Email:</label>
                             <input
-                                type="email"
+                                className="email_info"
                                 name="email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                style={{ borderColor: formErrors.email ? 'red' : '' }}
                             />
+                            {formErrors.email && <span className="error-message">{formErrors.email}</span>}
                         </div>
 
                         <div className="form-group">
@@ -221,7 +310,9 @@ const Info = () => {
                                 name="phoneNumber"
                                 value={formData.phoneNumber}
                                 onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                style={{ borderColor: formErrors.phoneNumber ? 'red' : '' }}
                             />
+                            {formErrors.phoneNumber && <span className="error-message">{formErrors.phoneNumber}</span>}
                         </div>
 
                         <div className="form-group">
@@ -232,9 +323,9 @@ const Info = () => {
                                 onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
                             >
                                 <option value="">Chọn giới tính</option>
-                                <option value="Male">Nam</option>
-                                <option value="Female">Nữ</option>
-                                <option value="Other">Khác</option>
+                                <option value="MALE">Nam</option>
+                                <option value="FEMALE">Nữ</option>
+                                <option value="OTHER">Khác</option>
                             </select>
                         </div>
 
@@ -245,7 +336,9 @@ const Info = () => {
                                 name="birthDay"
                                 value={formData.birthDay}
                                 onChange={(e) => setFormData({ ...formData, birthDay: e.target.value })}
+                                style={{ borderColor: formErrors.birthDay ? 'red' : '' }}
                             />
+                            {formErrors.birthDay && <span className="error-message">{formErrors.birthDay}</span>}
                         </div>
 
                         <div className="form-group">
@@ -259,7 +352,7 @@ const Info = () => {
                         </div>
 
                         <div className="button-group">
-                            <button type="submit" className="btn">Cập nhật thông tin</button>
+                            <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật thông tin</button>
                             <button type="button" className="btn btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
                             <button type="button" className="btn btn-back" onClick={handleBack}>Trở lại</button>
                         </div>
@@ -269,7 +362,7 @@ const Info = () => {
 
             {isUploading && (
                 <div className="overlay">
-                    <LoadingAnimation animationPath="https://lottie.host/bfcb91ed-f6e3-486d-b052-6c0705a6416c/yzsyGYxWhd.json" isVisible={isUploading}/>
+                    <LoadingAnimation animationPath="https://lottie.host/bfcb91ed-f6e3-486d-b052-6c0705a6416c/yzsyGYxWhd.json" isVisible={isUploading} />
                 </div>
             )}
 

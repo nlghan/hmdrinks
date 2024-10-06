@@ -60,7 +60,7 @@
 
 .user-info-form input:focus, 
 .user-info-form select:focus {
-    border-color: #FF7380; /* Đổi màu viền khi focus */
+    border-color: #1daa79; /* Đổi màu viền khi focus */
     outline: none; /* Bỏ outline khi focus */
 }
 
@@ -199,4 +199,11 @@
     justify-content: center;
     align-items: center;
     z-index: 999; /* Ensure it covers other content */
+}
+
+.email_info{
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px 0 0 5px;
+    font-size: 16px;
 }
