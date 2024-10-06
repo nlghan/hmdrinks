@@ -9,13 +9,14 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false); 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     useEffect(() => {
         const loggedIn = sessionStorage.getItem("isLoggedIn");
         setIsLoggedIn(loggedIn === "true");
       }, []);
-    // Function to toggle the menu
+    
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -23,7 +24,6 @@ const Dashboard = () => {
         navigate('/user'); 
     };
 
-    const navigate = useNavigate();
 
     const handleLogout = async () => {
         const accessToken = Cookies.get('access_token'); // Lấy accessToken từ cookies
