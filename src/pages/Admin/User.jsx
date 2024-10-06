@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './User.css';
-import Menu from '../../components/Menu/Menu';
+import Header from '../../components/Header/Header';
 const User = () => {
     const [switches, setSwitches] = useState([true, false]); // Mảng để lưu trạng thái cho các switch
 
@@ -19,7 +19,7 @@ const User = () => {
 
     return (
         <div className="user-table">
-            <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Tài khoản" />
             <div className={`user-table-row ${isMenuOpen ? 'user-dimmed' : ''}`}>
                 <div className="user-main-section">
                     <div className="user-box">
@@ -64,9 +64,6 @@ const User = () => {
                     </div>
 
                     <div className="user-stats-section">
-                        <div className="user-stat-box">
-                            <i className="ti-menu menu-toggle" onClick={toggleMenu}></i>
-                        </div>
                         <div className="user-stat-box1">
                             <div className="user-percentage-circle">
                                 <div className="user-inner-circle"></div>

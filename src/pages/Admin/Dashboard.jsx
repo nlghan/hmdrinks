@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets';
 import Cookies from 'js-cookie'; 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Menu from '../../components/Menu/Menu';
+import Header from '../../components/Header/Header';
 
 
 
@@ -58,14 +58,10 @@ const Dashboard = () => {
     return (
         <div className="dashboard">
            
-           <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
+           <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Dashboard" />
             <div className={`dashboard-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="main-section">
-                    <div className='flex'>
-                        <h1>Dashboard</h1>
-                    </div>
-
-                    <div className="stats-section">
+                  <div className="stats-section">
                         <div className="stat-box1">
                             <div className="percentage-circle">
                                 <div className="inner-circle"></div>
@@ -163,10 +159,6 @@ const Dashboard = () => {
                 </div>
 
                 <div className="side-section">
-                    {/* Replaced button with TiMenu icon */}
-                    <i className=" ti-menu menu-toggle" onClick={toggleMenu}>
-
-                    </i>
                     <div className="updates-box">
                         <h2>Recent Updates</h2>
                         <ul>

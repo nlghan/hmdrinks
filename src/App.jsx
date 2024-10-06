@@ -12,6 +12,7 @@ import Info from './pages/Info/Info'; // Nhập trang Info
 import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
+import Category from "./pages/Admin/Category";
 
 const App = () => {
   const location = useLocation();
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
             <Route path="/send-mail" element={<SendMail />} /> 
             <Route path="/user" element={<User/>} />
+            <Route path="/category" element={<Category/>} />
 
           </Routes>
         </CSSTransition>

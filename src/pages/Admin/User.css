@@ -1,7 +1,6 @@
 .user-table {
     display: flex;
     flex-direction: column;
-    padding: 20px;
     width: 100%;
     margin: 0;
     height: 100vh;
@@ -314,7 +313,6 @@ input:checked + .slider:before {
   
   .user-box {
     flex: 1;
-    margin-top: 50px;
     background-color: #ffffff;
     border-radius: 10px;
     padding: 15px;
@@ -387,6 +385,7 @@ input:checked + .slider:before {
   .user-table {
     display: flex; /* Flex container for main layout */
     position: relative; /* Position for absolute elements inside */
+    padding: 20px;
   }
   .user-menu-flex {
     position: relative; /* Position to contain the button and menu */
@@ -468,7 +467,6 @@ input:checked + .slider:before {
 /* Main Content Styles */
 .user-table-row {
   flex-grow: 1; /* Take the remaining space */
-  padding: 20px; /* Padding for main content */
   transition: filter 0.3s ease; /* Smooth transition for dimming effect */
 }
 
