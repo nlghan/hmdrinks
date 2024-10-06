@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+.category {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 100%;
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+}
+
+.category-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.main-section-cate {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-approved {
+  color: green;
+  background-color: #d4edda;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #c3e6cb;
+  display: inline-block;
+}
+
+.status-pending {
+  color: rgb(214, 0, 0);
+  background-color: #edd4d4;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #e6c3c3;
+  display: inline-block;
+}
+
+.side-section-cate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-right: 20px;
+}
+
+.image-preview img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover; /* Giữ ảnh trong khung mà không bị méo */
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.category {
+  display: flex; /* Flex container for main layout */
+  position: relative; /* Position for absolute elements inside */
+}
+
+.menu-flex {
+  position: relative; /* Position to contain the button and menu */
+}
+
+/* Button to toggle the menu */
+.menu-toggle {
+  background-color: #fc6764; /* Button color */
+  color: white; /* Button text color */
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 7%; /* Full width */
+  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 15px; /* Margin below the button */
+  transition: background-color 0.3s;
+  margin-left: 480px; /* Adjust margin as needed */
+}
+
+
+.updates-box h2 {
+  justify-content: center;
+  margin-bottom: 20px;
+  display: flex;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.btn-add, .btn-clear {
+    padding: 10px 36px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.btn-add {
+    background-color: #00B087; /* Màu xanh cho nút Add */
+}
+
+.gr-btn-cate{
+  display: flex;
+  gap:15px
+}
+
+.btn-clear {
+    background-color: #f96e6e; /* Màu đỏ cho nút Clear */
+}
+
+.flex-cate{
+    display: inline-flex;
+    justify-content: space-between;
+    padding: 0 25px;
+}
+
+
+
+.list-cate-box{
+        flex: 1;
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      
+}
+
+.list-cate-box h2 {
+    margin-bottom: 10px;
+    justify-content: center;
+    display: flex;
+  }
+  
+  .list-cate-box table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .list-cate-box table th,
+  .list-cate-box table td {
+    border: 1px solid #ffffff;
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
+  
+  .list-cate-box table th {
+    background-color: #ffffff;
+  }
+  
+  .list-cate-box table td {
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
+  .cate-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.cate-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cate-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.cate-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .cate-slider {
+    background-color: #28a745; /* Màu xanh cho trạng thái "Kích hoạt" */
+}
+
+input:checked + .cate-slider:before {
+    transform: translateX(26px);
+}
+
+.check-box-active{
+  margin-right: 10px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between; /* Căn chỉnh tiêu đề và thanh tìm kiếm */
+  align-items: center; /* Đảm bảo chúng căn chỉnh theo chiều dọc */
+  margin-bottom: 20px; /* Khoảng cách dưới phần tiêu đề và thanh tìm kiếm */
+}
+
+.list-header h2 {
+  margin: 0; /* Xóa margin của tiêu đề */
+  font-size: 28px; /* Kích thước tiêu đề */
+}
+
+.search-sort-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  margin-right: 10px;
+  padding: 5px;
+}
+
+.sort-select {
+  padding: 5px;
+}
+
+.cate-img {
+  width: 50px;
+  height: 50px;
+  object-fit: fit; /* Đảm bảo ảnh không bị biến dạng */
+}

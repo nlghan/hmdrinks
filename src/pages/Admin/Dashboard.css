@@ -30,7 +30,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 50px;
   width: 350px;
   height: 100px;
   background-color: #efa0ed;
@@ -139,7 +138,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 50px;
   width: 350px;
   height: 100px;
   background-color: #f48d8d;
@@ -154,7 +152,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 50px;
   width: 350px;
   height: 100px;
   background-color: #eaca71;
@@ -346,7 +343,7 @@
 
 /* Button to toggle the menu */
 .menu-toggle {
-  background-color: #007bff; /* Button color */
+  background-color: #fc6764; /* Button color */
   color: white; /* Button text color */
   border: none;
   padding: 10px;
@@ -359,7 +356,7 @@
 }
 
 .menu-toggle:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #059265; /* Darker blue on hover */
 }
 
 /* Side Menu Styles */
@@ -375,85 +372,3 @@
   transition: transform 0.3s ease; /* Smooth transition */
 }
 
-/* Logo Style */
-.logo-menu {
-  width: 100%; /* Makes the logo fit the width of the menu */
-  height: auto; /* Maintain aspect ratio */
-  margin-bottom: 20px; /* Space below the logo */
-}
-
-/* Menu Items Styles */
-.menu-items {
-  list-style: none; /* Remove default list styles */
-  padding: 0; /* Remove default padding */
-  margin: 0; /* Remove default margin */
-  font-weight: 400;
-}
-
-.menu-items li {
-  font-size: 20px; /* Increase font size for menu items */
-  font-weight: 400;/* Make font bold */
-  color: #333; /* Text color */
-  margin-bottom: 15px; /* Space between items */
-  transition: color 0.3s ease;
-   /* Smooth color transition on hover */
-   padding: 20px;
-   font-family: 'Inter';
-   
-}
-
-.menu-items li:hover {
-  color: #FF7380; /* Change color on hover */
-  cursor: pointer;
-  background-color: #e9ece9;
-}
-
-/* Background dimming styles */
-.dim-background {
-  position: fixed; /* Fixed positioning for dim background */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Dimmed effect */
-  z-index: 500; /* Below side menu but above content */
-}
-
-/* Main Content Styles */
-.dashboard-row {
-  flex-grow: 1; /* Take the remaining space */
-  padding: 20px; /* Padding for main content */
-  transition: filter 0.3s ease; /* Smooth transition for dimming effect */
-}
-
-/* Dimmed effect for the main content */
-.dashboard-row.dimmed {
-  filter: blur(2px); /* Blurred effect for the main content */
-}
-
-.flex{
-  display: flex;
-  
-}
-
-.menu-and-user {
-  display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Center items vertically */
-  margin-bottom: 10px; /* Space below each menu item */
-}
-
-.menu-and-user i {
-  margin-left: 10px;
-  margin-right: 12px; /* Space between the icon and text */
-  font-size: 18px; /* Adjust the icon size as needed */
-  color: #333; /* Icon color */
-}
-
-.menu-and-user li {
-  font-size: 18px; /* Adjust font size for the list item */
-  font-weight: 400; /* Make font bold */
-  color: #333; /* Text color */
-  list-style: none; /* Remove default list styling */
-  padding: 1; /* Remove default padding */
-  margin: 0; /* Remove default margin */
-}

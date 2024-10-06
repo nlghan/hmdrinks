@@ -1,0 +1,20 @@
+.flex-header{
+    display: inline-flex;
+    gap:20px;
+    padding: 20px 0px;
+}
+.header-menu-toggle{
+    background-color: #fc6764; /* Button color */
+  color: white; /* Button text color */
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width:36px; /* Full width */
+  border-radius: 4px; /* Rounded corners */
+  margin-bottom: 15px; /* Margin below the button */
+  transition: background-color 0.3s;
+}
+
+.header-menu-toggle:hover{
+  background-color: #28a745
+}
