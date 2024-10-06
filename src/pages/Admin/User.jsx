@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './User.css';
+import Header from '../../components/Header/Header';
 import { assets } from '../../assets/assets';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu';
+
 
 const User = () => {
     const [users, setUsers] = useState([]); // State to store the fetched user data
@@ -123,12 +125,9 @@ const User = () => {
 
     return (
         <div className="user-table">
-            <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Tài khoản" />
             <div className={`user-table-row ${isMenuOpen ? 'user-dimmed' : ''}`}>
                 <div className="user-main-section">
-                    <div className='user-flex'>
-                        <h1>Tài khoản</h1>
-                    </div>
                     <div className="user-box">
                         <div className="header-user-box">
                             <h2>Danh Sách Người Dùng</h2>
@@ -162,9 +161,13 @@ const User = () => {
                                             </label>
                                         </td>
                                         <td>
-                                            <button className="user-update-btn1">Cập nhật</button>
-                                            <button className="user-update-btn2">Xóa</button>
+                                            <div className="button-container">
+                                                <button className="user-update-btn3">Chi tiết</button>
+                                                <button className="user-update-btn1">Cập nhật</button>
+                                                <button className="user-update-btn2">Xóa</button>
+                                            </div>
                                         </td>
+
                                     </tr>
                                 ))}
                             </tbody>
@@ -172,10 +175,6 @@ const User = () => {
                     </div>
                 </div>
                 <div className="user-stats-section">
-                    <div className="user-stat-box">
-                        <i className="ti-menu menu-toggle" onClick={toggleMenu}>
-                        </i>
-                    </div>
 
                     <div className="user-stat-box1">
                         <div className="user-percentage-circle">
