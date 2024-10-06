@@ -38,7 +38,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createAccountUser(req));
     }
 
-    @GetMapping(value = "/search")
+    @GetMapping(value = "/search-user")
     public ResponseEntity<?> searchByUser(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
         return ResponseEntity.ok(userService.totalSearchUser(keyword, page, limit));
     }
