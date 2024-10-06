@@ -39,6 +39,22 @@
 .user-box h2 {
     margin: 0;
 }
+.button-container {
+  display: flex; /* Sử dụng Flexbox để bố trí các nút */
+  justify-content: space-between; /* Căn giữa các nút với khoảng cách đều */
+}
+
+.button-container button {
+  flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
+  width: 40px;
+  margin: 0 5px; /* Thêm khoảng cách giữa các nút */
+  border: none; /* Loại bỏ viền mặc định */
+  border-radius: 5px; /* Tạo bo góc cho nút */
+  cursor: pointer; /* Thay đổi con trỏ khi di chuột qua nút */
+  transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+  text-align: center
+}
+
 .user-update-btn1 {
   width:90px;
   height:30px;
@@ -50,7 +66,8 @@
   border-color: #1a83ed;  
 }
 .user-update-btn1:hover {
-  background-color: #1a83ed
+  background-color: #1a83ed;
+  transform: scale(1.05);
 }
 
 .user-update-btn2 {
@@ -64,8 +81,25 @@
   background-color: #f87079;
   border-color: #ed3b47;
 }
-.update-btn2:hover {
+.user-update-btn2:hover {
   background-color: #ef2e3b;
+  transform: scale(1.05);
+}
+
+.user-update-btn3 {
+  width:50px;
+  height:30px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px; 
+  margin-left: 5px;
+  margin-right: 20px;
+  background-color: #dad86c;
+  border-color: #ed3b47;
+}
+.user-update-btn3:hover {
+  background-color: #a9ab33;
+  transform: scale(1.05);
 }
 
 .add-user-btn {
