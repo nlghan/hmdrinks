@@ -10,13 +10,14 @@ import Header from '../../components/Header/Header';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false); 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     useEffect(() => {
         const loggedIn = sessionStorage.getItem("isLoggedIn");
         setIsLoggedIn(loggedIn === "true");
       }, []);
-    // Function to toggle the menu
+    
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
