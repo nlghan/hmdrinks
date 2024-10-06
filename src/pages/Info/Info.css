@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://lottie.host/embed/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json");
+@import url("https://lottie.host/embed/5a6e1322-c693-4426-a249-282707dee448/M5D4IXsC9l.json");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Sử dụng border-box cho toàn bộ phần tử */
+}
+.body-info{
+    background: linear-gradient(to right, #fce5e5, #fffacd);
+    padding: 5px;
+
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    border-radius: 10px; /* Góc bo tròn */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    margin: 20px auto;
+}
+
+.user-info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-info-form h2 {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px; /* Tăng kích thước tiêu đề */
+}
+
+.user-info-form .form-group {
+    display: flex;
+    flex-direction: column; /* Đảm bảo label nằm trên input */
+    gap: 5px; /* Khoảng cách giữa label và input */
+}
+
+.user-info-form label {
+    font-weight: bold;
+    color: #555; /* Màu chữ đậm hơn cho label */
+    margin-bottom: 5px;
+}
+
+.user-info-form input, 
+.user-info-form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9; /* Màu nền nhạt hơn cho input */
+    transition: border-color 0.3s ease; /* Hiệu ứng khi người dùng click vào input */
+}
+
+.user-info-form input:focus, 
+.user-info-form select:focus {
+    border-color: #1daa79; /* Đổi màu viền khi focus */
+    outline: none; /* Bỏ outline khi focus */
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    background-color: #FF7380;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Thêm hiệu ứng chuyển đổi mượt mà */
+    width: 48%; /* Đặt kích thước nút */
+}
+
+.btn:hover {
+    transform: scale(1.05); /* Phóng to nhẹ khi hover */
+    background-color: #FF5E6B; /* Đổi màu nền khi hover */
+}
+
+.btn-back {
+    background-color: #ccc; /* Màu nền cho nút Trở lại */
+}
+
+.btn-back:hover {
+    background-color: #bbb; /* Màu nền cho nút Trở lại khi hover */
+}
+
+.btn-change {
+    background-color: #f17844; /* Màu nền cho nút Trở lại */
+}
+
+.btn-change:hover {
+    background-color: #5fc09a; /* Màu nền cho nút Trở lại khi hover */
+}
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.avatar-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image fits within the circle */
+    border: 3px solid #FF7380; /* Slightly thicker border with soft color */
+    box-shadow: 0 4px 15px rgb(254 54 112 / 20%);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover effect to make the image frame more interactive */
+.avatar-image:hover {
+    transform: scale(1.05); /* Slightly enlarge the image on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Stronger shadow on hover */
+}
+
+
+.btn-upload {
+    padding: 10px 15px;
+    background-color: #FF7380;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Hiệu ứng mượt mà */
+}
+
+.btn-upload:hover {
+    transform: scale(1.05); /* Phóng to nhẹ khi hover */
+    background-color: #FF5E6B; /* Đổi màu nền khi hover */
+}
+
+.up-img {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Container for image buttons */
+.btn-gr-img {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center; /* Center the buttons */
+    margin-top: 10px; /* Space above the buttons */
+}
+
+/* General button styles */
+.btn-upload, .btn-save {
+    padding: 10px 20px; /* Space inside buttons */
+    font-size: 16px;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s; /* Smooth transition on hover */
+}
+
+/* Upload button styles */
+.btn-upload {
+    background-color:#FF5E6B; /* Green background */
+    color: white;
+}
+
+.btn-upload:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Save button styles */
+.btn-save {
+    background-color: #69ccd3; /* Blue background */
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: #007BB5; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Add this to your Info.css */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Ensure it covers other content */
+}
+
+.email_info{
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px 0 0 5px;
+    font-size: 16px;
+}

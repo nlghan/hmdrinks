@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
+
+
+.navbar {
+    width: auto;
+    display: flex; 
+    padding: 0 50px 0 102px;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFF;
+    margin-top: 20px;
+}
+
+.logo {
+    height:80px; 
+    padding-bottom: 10px;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px; 
+    font-size: 20px; 
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.navbar-right {
+    display: flex;
+    gap: 25px; 
+}
+
+.login1, .signup {
+    display: flex;
+    padding: 10px 20px; 
+    align-items: center;
+    border-radius: 12px;
+    border: 2px solid #2E2F35;
+    box-shadow: 3px 3px 0px 0px #2E2F35;
+    font-size: 16px; 
+    cursor: pointer; 
+}
+
+.login1 {
+    background: #FFF;
+}
+
+.signup {
+    background: #FF6D2C;
+    color: #FFF;
+}
+
+/* Thêm hover effect cho các nút */
+.login1:hover, .signup:hover {
+    opacity: 0.9;
+    background-color: rgb(127, 180, 255);
+    color: black;
+}
+
+.navbar .active{
+    font-weight: bold;
+    padding-bottom: 2px;
+    border-bottom: 2px solid #FF7380 ;
+}
+
+.navbar-right {
+    display: flex;
+    gap: 25px; 
+    align-items: center; /* Để căn giữa các phần tử trong navbar */
+}
+
+.navbar-right i {
+    font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+    cursor: pointer; /* Thêm con trỏ để cho biết rằng biểu tượng có thể nhấp được */
+    transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
+}
+
+.navbar-right i:hover {
+    transform: scale(1.1); /* Phóng to biểu tượng khi hover */
+}
+
+/* Nếu bạn muốn thêm khoảng cách giữa các biểu tượng và nút đăng xuất */
+.navbar-right .signup {
+    margin-left: 15px; /* Thêm khoảng cách bên trái cho nút Đăng xuất */
+}

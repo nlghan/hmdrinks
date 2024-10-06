@@ -1,0 +1,157 @@
+.register-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.register-container {
+    display: flex;
+    align-items: stretch; 
+    justify-content: space-between;
+    padding: 20px;
+    flex: 1;
+    background-color: white;
+}
+
+.register-image {
+    flex: 0 0 50%;
+    height: 100%; 
+}
+
+.register-image img {
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.register-form {
+    flex: 1; 
+    max-width: 400px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.register-form h2 {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.input {
+    width: 80%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 1px solid #666;
+    outline: none;
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.button-group-register {
+    display: inline-flex;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.btn-register {
+    padding: 12px 15px;
+    background-color: #FF7380;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80%;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center; /* Căn giữa icon và text theo chiều dọc */
+    justify-content: center; /* Căn giữa icon và text theo chiều ngang */
+    margin-right: 70px;
+    background-color: white;
+    width: 80%;
+    border-color: black;
+    border: 1px solid black;
+    color: black;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: red; /* Màu chữ đỏ để thông báo lỗi rõ ràng hơn */
+    margin: 10px 0; /* Khoảng cách trên và dưới */
+}
+.btn-google i {
+    margin-right: 10px; 
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px; 
+    vertical-align: middle; 
+}
+
+
+.login-image {
+    position: relative; /* Tạo hệ quy chiếu cho các phần tử con */
+    display: inline-block; /* Đảm bảo container có kích thước theo ảnh */
+}
+
+.login-image img {
+    width: 100%; /* Đặt kích thước của ảnh */
+    height: auto;
+}
+
+.login-image i {
+    position: absolute; /* Đặt mũi tên trên ảnh */
+    top: 10px; /* Khoảng cách từ cạnh trên */
+    left: 10px; /* Khoảng cách từ cạnh trái */
+    color: rgb(0, 0, 0); /* Màu của mũi tên, tùy chỉnh theo thiết kế của bạn */
+    font-size: 28px; /* Kích thước của mũi tên */
+    cursor: pointer; /* Thêm con trỏ khi hover */
+    transition: all 0.3s ease-in-out; /* Hiệu ứng mượt mà khi hover */
+}
+
+.login-image i:hover {
+    color: white; /* Đổi màu mũi tên khi hover */
+    transform: scale(1.3) rotate(3deg); /* Tăng kích thước và xoay nhẹ */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Đổ bóng nhẹ cho mũi tên */
+}
+
+.login-text {
+    margin-top: 10px;
+    margin-right: 70px;
+}
+
+.forgot-pass-link {
+    margin-left: 35px;
+    margin-top: 10px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.login-link {
+    color: #FF7380;
+    cursor: pointer;
+}
+
+.small-text {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+

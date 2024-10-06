@@ -1,0 +1,61 @@
+@import url('https://fonts.cdnfonts.com/css/porter-sans-block');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #FDF9FA;
+    /* width: 100%; */
+    margin-top: auto;
+    flex-shrink: 0;
+    position: relative;
+    bottom: 0;
+    
+}
+
+.footer-left,
+.footer-right {
+    width: 33%;
+}
+
+.footer-left h2 {
+    color: #DF6B6B;
+    font-family: "Porter Sans Block";
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 1.2px;
+}
+
+.footer-left p {
+    color: #080B1D;
+
+    font-family: Roboto;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 40px;
+    /* 166.667% */
+    letter-spacing: 0.48px;
+}
+
+.footer-right p{
+    color: #080B1D;
+    font-family: Roboto;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 40px;
+    /* 166.667% */
+    letter-spacing: 0.48px;
+}
+.social-icons a {
+    margin-right: 10px;
+    color: #333;
+}
+
+.social-icons a:hover {
+    color: #f44336;
+}
