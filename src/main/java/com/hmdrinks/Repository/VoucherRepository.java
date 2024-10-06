@@ -8,7 +8,10 @@ import java.util.List;
 
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     Voucher findByVoucherId(int id);
+
     Voucher findByVoucherIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Integer voucherId, Date currentDate,Date currentDate2);
+
     List<Voucher> findAll();
+
     Voucher findByPostPostId(int id);
 }

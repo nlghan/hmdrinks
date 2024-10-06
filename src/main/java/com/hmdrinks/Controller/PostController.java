@@ -37,8 +37,9 @@ public class PostController {
     }
 
     @GetMapping(value = "/view/all")
-    public ResponseEntity<ListAllPostResponse> getAllPosts(){
-        return  ResponseEntity.ok(postService.getAllPost());
+    public ResponseEntity<ListAllPostResponse> getAllPosts(@RequestParam(name = "page") String page,
+                                                           @RequestParam(name = "limit") String limit){
+        return  ResponseEntity.ok(postService.getAllPost(page,limit));
     }
 
     @GetMapping(value = "/view/author/{userId}")

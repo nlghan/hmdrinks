@@ -11,6 +11,9 @@ import com.hmdrinks.Response.CRUDPostResponse;
 import com.hmdrinks.Response.ListAllPostByUserIdResponse;
 import com.hmdrinks.Response.ListAllPostResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -107,8 +110,12 @@ public class PostService {
         );
     }
 
-    public ListAllPostResponse getAllPost() {
-        List<Post> posts = postRepository.findAll();
+    public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAll(pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
@@ -124,6 +131,9 @@ public class PostService {
             ));
         }
         return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
                 responses
         );
     }
@@ -151,6 +161,5 @@ public class PostService {
 
         return new ListAllPostByUserIdResponse(userId, responses);
     }
-///
-    //shhss
+
 }

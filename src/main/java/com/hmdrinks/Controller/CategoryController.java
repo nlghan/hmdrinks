@@ -21,9 +21,10 @@ public class CategoryController {
 
     @GetMapping(value = "/list-category")
     public ResponseEntity<ListCategoryResponse> listAllUser(
-
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(categoryService.listCategory());
+        return ResponseEntity.ok(categoryService.listCategory(page, limit));
     }
 
     @PostMapping(value = "/create-category")
