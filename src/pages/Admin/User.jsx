@@ -5,15 +5,16 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Menu from '../../components/Menu/Menu';
+import FormAddUser from '../../components/FormAddUser'; 
 
 const User = () => {
-    const [users, setUsers] = useState([]); // State to store the fetched user data
-    const [switches, setSwitches] = useState({}); // Store switch states dynamically based on userId
+    const [users, setUsers] = useState([]); 
+    const [switches, setSwitches] = useState({}); 
     const navigate = useNavigate();
     const [error, setError] = useState("");
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // State to handle side menu visibility
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isFormOpen, setIsFormOpen] = useState(false); 
 
-    // Function to decode JWT token and get userId
     const getUserIdFromToken = (token) => {
         try {
             const payload = token.split('.')[1];
@@ -89,41 +90,27 @@ const User = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
-
-    const handleDashboard = () => {
-        navigate('/dashboard');
+     // Function to handle adding a new user
+     const handleAddUserClick = () => {
+        setIsFormOpen(true); // Show the form when clicking the button
     };
 
-    const handleLogout = async () => {
-        const accessToken = Cookies.get('access_token'); // Lấy accessToken từ cookies
-
-        if (!accessToken) {
-            console.error('No access token found. Unable to logout.');
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-
-            console.log("Logged out:", response.data);
-            sessionStorage.removeItem("isLoggedIn");
-            Cookies.remove('access_token');
-            Cookies.remove('refresh_token');
-            setIsLoggedIn(false);
-            navigate('/home');
-            window.location.reload();
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
+    // Function to close the form
+    const handleCloseForm = () => {
+        setIsFormOpen(false); // Close the form
     };
+
+    const handleSubmitForm = (formData) => {
+    console.log("User added:", formData);
+    // Cập nhật lại danh sách người dùng nếu cần
+    setUsers(prevUsers => [...prevUsers, formData]); // Hoặc lấy lại danh sách từ backend nếu cần
+};
+
 
     return (
         <div className="user-table">
             <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} /> 
+            {isFormOpen && <FormAddUser onClose={handleCloseForm} onSubmit={handleSubmitForm} />}
             <div className={`user-table-row ${isMenuOpen ? 'user-dimmed' : ''}`}>
                 <div className="user-main-section">
                     <div className='user-flex'>
@@ -132,7 +119,7 @@ const User = () => {
                     <div className="user-box">
                         <div className="header-user-box">
                             <h2>Danh Sách Người Dùng</h2>
-                            <button className="add-user-btn">Thêm người dùng +</button>
+                            <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
                         </div>
                         {error && <div className="error-message">{error}</div>}
                         <table>
