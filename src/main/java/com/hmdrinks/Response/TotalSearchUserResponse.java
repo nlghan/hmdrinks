@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class ListAllUserResponse {
+public class TotalSearchUserResponse {
     private int currentPage;
     private long totalPage;
     private int limit;

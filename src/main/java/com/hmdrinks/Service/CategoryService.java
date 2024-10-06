@@ -143,7 +143,9 @@ public class CategoryService {
                     product1.getProImg(),
                     product1.getDescription(),
                     product1.getIsDeleted(),
-                    product1.getDateDeleted()
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
             ));
         }
 
@@ -152,6 +154,26 @@ public class CategoryService {
                 crudProductResponseList
         );
 
+    }
+
+    public TotalSearchCategoryResponse totalSearchCategory(String keyword, int page, int limit)
+    {
+        if (limit > 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Category> categoryList = categoryRepository.findAll(pageable);
+        List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
+        for(Category category: categoryList){
+            crudCategoryResponseList.add(new CRUDCategoryResponse(
+                    category.getCateId(),
+                    category.getCateName(),
+                    category.getCateImg(),
+                    category.getIsDeleted(),
+                    category.getDateCreated(),
+                    category.getDateUpdated(),
+                    category.getDateDeleted()
+            ));
+        }
+        return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
 
 }

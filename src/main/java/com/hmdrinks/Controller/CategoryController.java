@@ -47,4 +47,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllProductFromCategory(id));
     }
 
+    @GetMapping(value = "/search")
+    public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") int page, @RequestParam(name = "limit") int limit) {
+        return ResponseEntity.ok(categoryService.totalSearchCategory(keyword,page,limit));
+    }
 }

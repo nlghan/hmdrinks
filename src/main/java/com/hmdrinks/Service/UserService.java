@@ -12,6 +12,9 @@ import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import  org.springframework.mail.*;
 
 import com.hmdrinks.Response.*;
@@ -42,8 +45,12 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public ListAllUserResponse getListAllUser() {
-        List<User> userList = userRepository.findAll();
+    public ListAllUserResponse getListAllUser(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
 
         for (User user : userList) {
@@ -67,13 +74,13 @@ public class UserService {
                         user.getRole().toString()
                 ));
             }
-        return new ListAllUserResponse(detailUserResponseList);
+        return new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
     }
 
     public GetDetailUserInfoResponse getDetailUserInfoResponse(Integer id){
         User userList = userRepository.findByUserId(id);
 
-        if (userList == null) {  // Kiểm tra xem Optional có giá trị hay không
+        if (userList == null) {
             throw new RuntimeException("Khong ton tai user");
         }
 
@@ -242,6 +249,38 @@ public class UserService {
             return new MessageResponse("Your username, email or OTP is not correct.");
         }
     }
+    public TotalSearchUserResponse totalSearchUser(String keyword,String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
+                keyword,keyword,keyword,keyword,keyword,keyword,keyword,pageable);
+        List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
+
+        for (User user : userList) {
+
+            String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
+            detailUserResponseList.add(new DetailUserResponse(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getFullName(),
+                    user.getAvatar(),
+                    user.getBirthDate(),
+                    fullLocation,
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getSex().toString(),
+                    user.getType().toString(),
+                    user.getIsDeleted(),
+                    user.getDateDeleted(),
+                    user.getDateUpdated(),
+                    user.getDateCreated(),
+                    user.getRole().toString()
+            ));
+        }
+        return new TotalSearchUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
+    }
 
     public ChangePasswordResponse changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
@@ -267,6 +306,7 @@ public class UserService {
                 message,
                 req.getNewPassword()
         );
+
     }
 
 }

@@ -17,7 +17,7 @@ public interface ProductVariantsRepository extends JpaRepository<ProductVariants
 
     List<ProductVariants> findByProduct_ProId(Integer proId);
 
-    List<ProductVariants> findAll();
+
 
     Page<ProductVariants> findAll(Pageable pageable);
 }

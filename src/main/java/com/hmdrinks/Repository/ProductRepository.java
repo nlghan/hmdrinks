@@ -17,5 +17,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Product findByProNameAndProIdNot(String proName,Integer proId);
     Page<Product> findAll(Pageable pageable);
 
+    Page<Product> findByProNameContaining(String proName, Pageable pageable);
+
     List<Product> findByCategory_CateId(int cateId);
 }

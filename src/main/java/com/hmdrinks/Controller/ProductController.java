@@ -36,14 +36,20 @@ public class ProductController {
     }
 
     @GetMapping(value = "/list-product")
-    public ResponseEntity<ListProductResponse> listAllUser(
-
+    public ResponseEntity<ListProductResponse> listAllProduct(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(productService.listProduct());
+        return ResponseEntity.ok(productService.listProduct(page, limit));
     }
 
     @GetMapping( value = "/variants/{id}")
     public ResponseEntity<GetProductVariantFromProductIdResponse> viewProduct(@PathVariable Integer id){
         return ResponseEntity.ok(productService.getAllProductVariantFromProduct(id));
+    }
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+        return ResponseEntity.ok(productService.totalSearchProduct(keyword,page,limit));
     }
 }

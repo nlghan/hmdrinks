@@ -3,6 +3,7 @@ package com.hmdrinks.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Date;
 
@@ -33,6 +34,12 @@ public class Product {
 
     @Column(name = "date_deleted")
     private Date dateDeleted;
+
+    @Column(name = "date_updated")
+    private LocalDate dateUpdated;
+
+    @Column(name = "date_created")
+    private LocalDate dateCreated;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

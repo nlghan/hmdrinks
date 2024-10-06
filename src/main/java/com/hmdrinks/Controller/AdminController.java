@@ -27,13 +27,19 @@ public class AdminController {
 
     @GetMapping(value = "/listUser")
     public ResponseEntity<ListAllUserResponse> listAllUser(
-
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(userService.getListAllUser());
+        return ResponseEntity.ok(userService.getListAllUser(page, limit));
     }
 
     @PostMapping(value = "/create-account")
     public ResponseEntity<CRUDAccountUserResponse> createAccount(@RequestBody CreateAccountUserReq req){
         return ResponseEntity.ok(adminService.createAccountUser(req));
+    }
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<?> searchByUser(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+        return ResponseEntity.ok(userService.totalSearchUser(keyword, page, limit));
     }
 }
