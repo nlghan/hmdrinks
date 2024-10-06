@@ -13,6 +13,7 @@ import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
+import FormAddUser from './components/FormAddUser';
 
 const App = () => {
   const location = useLocation();
@@ -46,7 +47,7 @@ const App = () => {
             <Route path="/send-mail" element={<SendMail />} /> 
             <Route path="/user" element={<User/>} />
             <Route path="/category" element={<Category/>} />
-
+            <Route path="/formAddUser" element={<FormAddUser />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup>

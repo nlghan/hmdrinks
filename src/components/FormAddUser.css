@@ -1,0 +1,103 @@
+.form-add-user-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 1000;
+}
+
+.form-add-user {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 100%;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between form fields */
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    gap: 10px; /* Space between label and input */
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px; /* Increase padding for better visibility */
+    font-size: 16px; /* Slightly larger font for better readability */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.submit-btn,
+.cancel-btn {
+    width: 48%; /* Make buttons equal width */
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.submit-btn {
+    background-color: #299742;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #af303c;
+    color: white;
+}
+.submit-btn:hover {
+    background-color: #07a82d;
+    
+}
+
+.cancel-btn:hover {
+    background-color: #c71224;
+    
+}
+
+.submit-btn:hover,
+.cancel-btn:hover {
+    opacity: 0.8;
+}
+
+/* Ensure consistent spacing and alignment */
+.form-add-user input[type="text"],
+.form-add-user input[type="password"],
+.form-add-user input[type="email"],
+.form-add-user select {
+    font-size: 16px;
+    height: 45px; /* Ensure consistent height across all input fields */
+}
+
