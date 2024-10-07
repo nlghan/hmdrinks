@@ -1,6 +1,7 @@
 package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.CreateAccountUserReq;
+import com.hmdrinks.Request.UpdateAccountUserReq;
 import com.hmdrinks.Response.CRUDAccountUserResponse;
 import com.hmdrinks.Response.ListAllUserResponse;
 import com.hmdrinks.Service.AdminService;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/admin")
@@ -35,5 +37,9 @@ public class AdminController {
     @PostMapping(value = "/create-account")
     public ResponseEntity<CRUDAccountUserResponse> createAccount(@RequestBody CreateAccountUserReq req){
         return ResponseEntity.ok(adminService.createAccountUser(req));
+    }
+    @PutMapping(value = "/update-account") // Changed to PutMapping
+    public ResponseEntity<CRUDAccountUserResponse> updateAccount(@Valid @RequestBody UpdateAccountUserReq req) {
+        return ResponseEntity.ok(adminService.updateAccountUser(req));
     }
 }
