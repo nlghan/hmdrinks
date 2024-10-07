@@ -230,12 +230,23 @@ const Info = () => {
     };
 
     if (loading) {
-        return <LoadingAnimation animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json" />;
+        return (
+            <LoadingAnimation 
+                animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json" 
+                isVisible={loading}  // Make sure to set isVisible to true
+            />
+        );
     }
-
+    
     if (error) {
-        return <ErrorMessage path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"} message={error} />;
+        return (
+            <ErrorMessage 
+                path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"} 
+                message={error} 
+            />
+        );
     }
+    
 
     return (
         <>

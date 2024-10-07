@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import lottie from 'lottie-web';
 
-const LoadingAnimation = ({ animationPath, width = 500, height = 500, isVisible }) => {
+const LoadingAnimation = ({ animationPath, width = 500, height = 500, isVisible = true }) => {
     const containerRef = useRef(null);
 
     useEffect(() => {
-        if (animationPath) {
-            const animation = lottie.loadAnimation({
+        let animation;
+
+        if (animationPath && isVisible) {
+            animation = lottie.loadAnimation({
                 container: containerRef.current,
                 renderer: 'svg',
                 loop: true,
@@ -18,12 +20,14 @@ const LoadingAnimation = ({ animationPath, width = 500, height = 500, isVisible 
             animation.addEventListener('data_failed', () => {
                 console.error("Lottie animation failed to load.");
             });
-
-            return () => {
-                animation.destroy(); // Cleanup the animation on unmount
-            };
         }
-    }, [animationPath]);
+
+        return () => {
+            if (animation) {
+                animation.destroy(); // Cleanup the animation on unmount
+            }
+        };
+    }, [animationPath, isVisible]);
 
     // Do not render if not visible
     if (!isVisible) return null;
