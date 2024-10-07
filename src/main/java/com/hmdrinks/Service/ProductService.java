@@ -13,8 +13,12 @@ import com.hmdrinks.Request.CreateCategoryRequest;
 import com.hmdrinks.Request.CreateProductReq;
 import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,12 +46,14 @@ public class ProductService {
         {
             throw new BadRequestException("production name exists");
         }
+        LocalDate currentDate = LocalDate.now();
         Product product1 = new Product();
         product1.setCategory(category);
         product1.setDescription(req.getDescription());
         product1.setProImg(req.getProImg());
         product1.setProName(req.getProName());
         product1.setIsDeleted(false);
+        product1.setDateCreated(currentDate);
         productRepository.save(product1);
 
         return new CRUDProductResponse(
@@ -57,7 +63,9 @@ public class ProductService {
                 product1.getProImg(),
                 product1.getDescription(),
                 product1.getIsDeleted(),
-                product1.getDateDeleted()
+                product1.getDateDeleted(),
+                product1.getDateCreated(),
+                product1.getDateUpdated()
         );
     }
 
@@ -76,7 +84,9 @@ public class ProductService {
                 product1.getProImg(),
                 product1.getDescription(),
                 product1.getIsDeleted(),
-                product1.getDateDeleted()
+                product1.getDateDeleted(),
+                product1.getDateCreated(),
+                product1.getDateUpdated()
         );
     }
 
@@ -102,6 +112,7 @@ public class ProductService {
         product1.setDescription(req.getDescription());
         product1.setProImg(req.getProImg());
         product1.setProName(req.getProName());
+        product1.setDateUpdated(LocalDate.now());
         productRepository.save(product1);
         return new CRUDProductResponse(
                 product1.getProId(),
@@ -110,13 +121,20 @@ public class ProductService {
                 product1.getProImg(),
                 product1.getDescription(),
                 product1.getIsDeleted(),
-                product1.getDateDeleted()
+                product1.getDateDeleted(),
+                product1.getDateCreated(),
+                product1.getDateUpdated()
         );
     }
 
-    public ListProductResponse listProduct()
+    public ListProductResponse listProduct(String pageFromParam, String limitFromParam)
+
     {
-        List<Product> productList = productRepository.findAll();
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Product> productList = productRepository.findAll(pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for(Product product1: productList){
             crudProductResponseList.add(new CRUDProductResponse(
@@ -126,10 +144,12 @@ public class ProductService {
                     product1.getProImg(),
                     product1.getDescription(),
                     product1.getIsDeleted(),
-                    product1.getDateDeleted()
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
             ));
         }
-        return new ListProductResponse(crudProductResponseList);
+        return new ListProductResponse(page,productList.getTotalPages(),limit,crudProductResponseList);
     }
 
     public GetProductVariantFromProductIdResponse getAllProductVariantFromProduct(int id)
@@ -153,7 +173,9 @@ public class ProductService {
                     product1.getPrice(),
                     product1.getStock(),
                     product1.getIsDeleted(),
-                    product1.getDateDeleted()
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
             ));
         }
 
@@ -162,6 +184,30 @@ public class ProductService {
                 crudProductVarResponseList
         );
 
+    }
+
+    public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam)
+    {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Product> productList = productRepository.findByProNameContaining(keyword,pageable);
+        List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        for(Product product1: productList){
+            crudProductResponseList.add(new CRUDProductResponse(
+                    product1.getProId(),
+                    product1.getCategory().getCateId(),
+                    product1.getProName(),
+                    product1.getProImg(),
+                    product1.getDescription(),
+                    product1.getIsDeleted(),
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
+            ));
+        }
+        return new TotalSearchProductResponse(page,productList.getTotalPages(),limit,crudProductResponseList);
     }
 
 }

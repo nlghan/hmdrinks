@@ -10,8 +10,14 @@ import com.hmdrinks.Request.CRUDCategoryRequest;
 import com.hmdrinks.Request.CreateCategoryRequest;
 import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,16 +37,22 @@ public class CategoryService {
         {
             throw new BadRequestException("cateName exists");
         }
-
+        LocalDateTime now = LocalDateTime.now();
         Category cate = new Category();
         cate.setCateName(req.getCateName());
         cate.setCateImg(req.getCateImg());
+        cate.setIsDeleted(false);
+        cate.setDateCreated(LocalDate.from(now));
 
         categoryRepository.save(cate);
         return new CRUDCategoryResponse(
                 cate.getCateId(),
                 cate.getCateName(),
-                cate.getCateImg()
+                cate.getCateImg(),
+                cate.getIsDeleted(),
+                cate.getDateCreated(),
+                cate.getDateUpdated(),
+                cate.getDateDeleted()
         );
     }
 
@@ -55,7 +67,11 @@ public class CategoryService {
         return new CRUDCategoryResponse(
                 category.getCateId(),
                 category.getCateName(),
-                category.getCateImg()
+                category.getCateImg(),
+                category.getIsDeleted(),
+                category.getDateCreated(),
+                category.getDateUpdated(),
+                category.getDateDeleted()
         );
     }
 
@@ -71,28 +87,42 @@ public class CategoryService {
         {
             throw new BadRequestException("cateName exists");
         }
+        LocalDateTime currentDateTime = LocalDateTime.now();
         category.setCateName(category.getCateName());
         category.setCateImg(category.getCateImg());
+        category.setDateUpdated(LocalDate.from(currentDateTime));
         categoryRepository.save(category);
         return new CRUDCategoryResponse(
                 req.getCateId(),
                 req.getCateName(),
-                req.getCateImg()
+                req.getCateImg(),
+                category.getIsDeleted(),
+                category.getDateCreated(),
+                category.getDateUpdated(),
+                category.getDateDeleted()
         );
     }
 
-    public ListCategoryResponse listCategory()
+    public ListCategoryResponse listCategory(String pageFromParam, String limitFromParam)
     {
-        List<Category> categoryList = categoryRepository.findAll();
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Category> categoryList = categoryRepository.findAll(pageable);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
                     category.getCateId(),
                     category.getCateName(),
-                    category.getCateImg()
+                    category.getCateImg(),
+                    category.getIsDeleted(),
+                    category.getDateCreated(),
+                    category.getDateUpdated(),
+                    category.getDateDeleted()
             ));
         }
-        return new ListCategoryResponse(crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
 
     public GetViewProductCategoryResponse getAllProductFromCategory(int id)
@@ -114,7 +144,9 @@ public class CategoryService {
                     product1.getProImg(),
                     product1.getDescription(),
                     product1.getIsDeleted(),
-                    product1.getDateDeleted()
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
             ));
         }
 
@@ -123,6 +155,26 @@ public class CategoryService {
                 crudProductResponseList
         );
 
+    }
+
+    public TotalSearchCategoryResponse totalSearchCategory(String keyword, int page, int limit)
+    {
+        if (limit > 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Category> categoryList = categoryRepository.findByCateNameContaining(keyword,pageable);
+        List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
+        for(Category category: categoryList){
+            crudCategoryResponseList.add(new CRUDCategoryResponse(
+                    category.getCateId(),
+                    category.getCateName(),
+                    category.getCateImg(),
+                    category.getIsDeleted(),
+                    category.getDateCreated(),
+                    category.getDateUpdated(),
+                    category.getDateDeleted()
+            ));
+        }
+        return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
 
 }
