@@ -41,6 +41,7 @@ public class CategoryService {
         Category cate = new Category();
         cate.setCateName(req.getCateName());
         cate.setCateImg(req.getCateImg());
+        cate.setIsDeleted(false);
         cate.setDateCreated(LocalDate.from(now));
 
         categoryRepository.save(cate);
