@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './Category.css'; // CSS cho component
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
-
+import LoadingAnimation from '../../components/Animation/LoadingAnimation';
+import ErrorMessage from '../../components/Animation/ErrorMessage';
 
 const Category = () => {
     const navigate = useNavigate();
+    const [switches, setSwitches] = useState({});
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [categoryName, setCategoryName] = useState('');
@@ -15,7 +17,7 @@ const Category = () => {
     const [categoryImagePreview, setCategoryImagePreview] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOrder, setSortOrder] = useState('desc'); // Mặc định sắp xếp mới nhất trước
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
@@ -23,70 +25,107 @@ const Category = () => {
     const [isUpdateMode, setIsUpdateMode] = useState(false); // Track if we are in update mode
     const [updateCategory, setUpdateCategory] = useState(null); // The category to update
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+    const [limit, setLimit] = useState(5);
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
 
+    // Cơ chế debounce cho searchTerm
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+            setCurrentPage(1); // Reset về trang đầu khi thay đổi từ khóa tìm kiếm
+        }, 500); // Độ trễ 500ms
 
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
 
-    // Thêm biến trạng thái phân trang
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Số danh mục mỗi trang
-    const totalPages = Math.ceil(categories.length / itemsPerPage); // Tổng số trang
-
-    // Hàm lấy userId từ token
-    const getUserIdFromToken = (token) => {
-        try {
-            const payload = token.split('.')[1];
-            const decodedPayload = JSON.parse(atob(payload));
-            return decodedPayload.UserId;
-        } catch (error) {
-            console.error("Không thể giải mã token:", error);
-            return null;
-        }
-    };
 
     // Hàm lấy cookie
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            setLoading(true);
-            try {
-                const token = getCookie('access_token');
-                if (!token) {
-                    setError("Bạn cần đăng nhập để xem thông tin này.");
-                    setLoading(false);
-                    return;
-                }
-
-                // Gọi API để lấy danh sách danh mục
-                const response = await axios.get('http://localhost:1010/api/cate/list-category', {
-                    headers: {
-                        'Accept': '*/*',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                // Kiểm tra dữ liệu trả về
-                if (response.data && response.data.categoryResponseList) {
-                    setCategories(response.data.categoryResponseList); // Cập nhật danh sách danh mục
-                } else {
-                    setError("Không có dữ liệu danh mục.");
-                }
-            } catch (error) {
-                console.error("Lỗi khi lấy danh sách danh mục:", error);
-                setError("Không thể lấy danh sách danh mục.");
-            } finally {
-                setLoading(false);
+    // Hàm sắp xếp client-side
+    const sortCategories = (categories, order) => {
+        return categories.sort((a, b) => {
+            if (order === 'asc') {
+                return a.cateId - b.cateId;
+            } else {
+                return b.cateId - a.cateId;
             }
-        };
+        });
+    };
 
-        fetchCategories();
-    }, []);
+    // Hàm fetchCategories được định nghĩa bên ngoài useEffect
+    const fetchCategories = useCallback(async (page, keyword, sortOrderParam) => {
+        setLoading(true);
+        setError(null);
 
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                setLoading(false);
+                return;
+            }
+
+            // Xây dựng URL API với các tham số
+            let apiUrl = `http://localhost:1010/api/cate/list-category?page=${page}&limit=${limit}`;
+            if (keyword) {
+                apiUrl = `http://localhost:1010/api/cate/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
+            }
+
+            // Gọi API để lấy danh sách danh mục
+            const response = await axios.get(apiUrl, {
+                headers: {
+                    'Accept': '*/*',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            // Kiểm tra dữ liệu trả về
+            if (response.data && response.data.categoryResponseList) {
+                let sortedCategories = response.data.categoryResponseList;
+                // Thực hiện sắp xếp client-side
+                sortedCategories = sortCategories(sortedCategories, sortOrderParam);
+
+                setCategories(sortedCategories); // Cập nhật danh sách danh mục đã sắp xếp
+                setCurrentPage(response.data.currentPage); // Cập nhật trang hiện tại
+                setTotalPages(response.data.totalPage); // Cập nhật tổng số trang
+
+                const initialSwitchStates = {};
+                sortedCategories.forEach(category => {
+                    // Set switch state based on isDeleted, ensure cateId is used as the key
+                    initialSwitchStates[category.cateId] = (category.isDeleted === false || category.isDeleted === null);
+                });
+                setSwitches(initialSwitchStates);
+            } else {
+                setError("Không có dữ liệu danh mục.");
+            }
+
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách danh mục:", error);
+            setError("Không thể lấy danh sách danh mục.");
+        } finally {
+            setLoading(false);
+        }
+    }, [limit]);
+
+    // Gọi fetchCategories khi currentPage, limit, debouncedSearchTerm, hoặc sortOrder thay đổi
+    useEffect(() => {
+        fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
+    }, [currentPage, limit, debouncedSearchTerm, sortOrder, fetchCategories]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage); // Thay đổi trang
+        }
+    };
     if (loading) {
         return <div>Loading...</div>; // Hiển thị khi đang tải
     }
@@ -94,6 +133,7 @@ const Category = () => {
     if (error) {
         return <div>{error}</div>; // Hiển thị thông báo lỗi
     }
+
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -138,10 +178,28 @@ const Category = () => {
         }
     };
 
-    const handleSwitchChange = (index) => {
-        const updatedCategories = [...categories];
-        updatedCategories[index].active = !updatedCategories[index].active;
+    const handleSwitchChange = (cateId) => {
+        // Find the category to get its current isDeleted status
+        const categoryToUpdate = categories.find(cat => cat.cateId === cateId);
+
+        // Determine the new isDeleted status
+        // The switch should be active (isDeleted: false or null) to become inactive and vice versa
+        const newIsDeletedStatus = !(categoryToUpdate.isDeleted === null || categoryToUpdate.isDeleted === false);
+
+        // Update the category state on the client
+        const updatedCategories = categories.map((category) =>
+            category.cateId === cateId ? { ...category, isDeleted: newIsDeletedStatus } : category
+        );
+
+        // Update categories
         setCategories(updatedCategories);
+
+        // Update the switch states to reflect the change
+        const updatedSwitchStates = {
+            ...switches,
+            [cateId]: newIsDeletedStatus // Update the switch state based on the new isDeleted status
+        };
+        setSwitches(updatedSwitchStates);
     };
 
     const handleAddCategory = async () => {
@@ -176,16 +234,14 @@ const Category = () => {
                 const imageUrl = uploadResponse.data.url;
                 newCategory.cateImg = imageUrl;
 
-                setCategories([...categories, newCategory]);
                 setSuccessMessage("Thêm danh mục thành công!");
-                setTimeout(() => setSuccessMessage(''), 1000);
+                setTimeout(() => setSuccessMessage(''), 2000);
 
-                setCategoryName('');
-                setCategoryImage(null);
-                setCategoryImagePreview(null);
-                setIsActive(false);
-                document.getElementById('categoryImage').value = '';
+                // Reset form
+                resetForm();
 
+                // Tải lại danh sách danh mục
+                fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi thêm danh mục:", error);
                 alert("Không thể thêm danh mục. Vui lòng thử lại.");
@@ -195,33 +251,93 @@ const Category = () => {
         }
     };
 
-    const handleDeleteCategory = (index) => {
-        const updatedCategories = [...categories];
-        updatedCategories.splice(index, 1);
-        setCategories(updatedCategories);
+    const handleDeleteCategory = async (cateId) => {
+        const token = getCookie('access_token');
+        try {
+            await axios.delete(`http://localhost:1010/api/cate/delete/${cateId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            setSuccessMessage("Xóa danh mục thành công!");
+            setTimeout(() => setSuccessMessage(''), 2000);
+            // Tải lại danh sách danh mục
+            fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
+        } catch (error) {
+            console.error("Lỗi khi xóa danh mục:", error);
+            alert("Không thể xóa danh mục. Vui lòng thử lại.");
+        }
     };
 
     const handleSortChange = (e) => {
         const order = e.target.value;
         setSortOrder(order);
-        const sortedCategories = [...categories].sort((a, b) => {
-            if (order === 'asc') {
-                return a.cateName.localeCompare(b.cateName);
-            } else {
-                return b.cateName.localeCompare(a.cateName);
-            }
-        });
-        setCategories(sortedCategories);
+        setCurrentPage(1); // Reset về trang đầu khi thay đổi sắp xếp
     };
 
-    // Tính toán danh sách các danh mục để hiển thị dựa trên phân trang
-    const indexOfLastCategory = currentPage * itemsPerPage;
-    const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
-    const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+    const handleUpdateCategory = async () => {
+        if (updateCategory && categoryName) {
+            const token = getCookie('access_token');
+            let updatedCategoryData = {
+                cateId: updateCategory.cateId,  // Đảm bảo đây là ID đúng của danh mục
+                cateName: categoryName,
+                cateImg: updateCategory.cateImg // Mặc định giữ lại hình ảnh cũ nếu không có hình ảnh mới
+            };
 
-    const changePage = (pageNumber) => {
-        if (pageNumber < 1 || pageNumber > totalPages) return; // Ngăn không cho chuyển đến trang không hợp lệ
-        setCurrentPage(pageNumber);
+            try {
+                // Nếu có hình ảnh mới được chọn, upload trước
+                if (categoryImage) {
+                    const formData = new FormData();
+                    formData.append('file', categoryImage);
+
+                    // Upload hình ảnh để lấy URL mới
+                    const uploadResponse = await axios.post(`http://localhost:1010/api/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    // Cập nhật URL hình ảnh sau khi upload thành công
+                    updatedCategoryData.cateImg = uploadResponse.data.url;
+                }
+
+                // Gửi yêu cầu cập nhật danh mục
+                await axios.put('http://localhost:1010/api/cate/update', updatedCategoryData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                setSuccessMessage("Cập nhật danh mục thành công!");
+                setTimeout(() => setSuccessMessage(''), 2000);
+
+                // Reset form
+                resetForm();
+
+                // Tải lại danh sách danh mục
+                fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
+            } catch (error) {
+                console.error("Lỗi khi cập nhật danh mục:", error);
+                alert("Không thể cập nhật danh mục. Vui lòng thử lại.");
+            }
+        } else {
+            alert("Vui lòng nhập tên danh mục.");
+        }
+    };
+
+    const resetForm = () => {
+        setCategoryName('');
+        setCategoryImage(null);
+        setCategoryImagePreview(null);
+        setIsActive(false);
+        setIsUpdateMode(false);
+        setUpdateCategory(null);
+        const categoryImageInput = document.getElementById('categoryImage');
+        if (categoryImageInput) {
+            categoryImageInput.value = ''; // reset input file
+        }
     };
 
     const getPaginationNumbers = () => {
@@ -237,99 +353,27 @@ const Category = () => {
             // Always show the first page
             paginationNumbers.push(1);
 
-            if (currentPage > 1) {
-                paginationNumbers.push('...'); // Ellipsis if the current page is more than 3
+            if (currentPage > 3) {
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại lớn hơn 3
             }
 
-            const startPage = Math.max(2, currentPage - 1); // Start showing pages from the second page
-            const endPage = Math.min(totalPages - 1, currentPage + 1); // End showing pages one before last page
+            const startPage = Math.max(2, currentPage - 1); // Bắt đầu từ trang thứ 2 hoặc trang hiện tại -1
+            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối hoặc trang hiện tại +1
 
             for (let i = startPage; i <= endPage; i++) {
                 paginationNumbers.push(i);
             }
 
             if (currentPage < totalPages - 2) {
-                paginationNumbers.push('...'); // Ellipsis if current page is less than total pages - 2
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại nhỏ hơn tổng trang -2
             }
 
-            paginationNumbers.push(totalPages); // Always show the last page
+            // Luôn hiển thị trang cuối
+            paginationNumbers.push(totalPages);
         }
 
         return paginationNumbers;
     };
-
-    const handleUpdateCategory = async () => {
-        if (updateCategory && categoryName) {
-            const token = getCookie('access_token');
-            let updatedCategoryData = {
-                cateId: updateCategory.cateId,  // Ensure this is the correct category ID
-                cateName: categoryName,
-                cateImg: updateCategory.cateImg // By default, keep the old image if no new image is uploaded
-            };
-
-            try {
-                // If a new image is selected, upload it first
-                if (categoryImage) {
-                    const formData = new FormData();
-                    formData.append('file', categoryImage);
-
-                    // Upload the image to get the new URL
-                    const uploadResponse = await axios.post(`http://localhost:1010/api/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    });
-
-                    // Update the cateImg URL after successful upload
-                    updatedCategoryData.cateImg = uploadResponse.data.url;
-                }
-
-                // Make the PUT request to update the category with the new data
-                await axios.put('http://localhost:1010/api/cate/update', updatedCategoryData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                // Update the categories in the state with the updated category
-                const updatedCategories = categories.map((category) =>
-                    category.cateId === updateCategory.cateId ? updatedCategoryData : category
-                );
-                setCategories(updatedCategories);
-                setSuccessMessage("Cập nhật danh mục thành công!");
-                setTimeout(() => setSuccessMessage(''), 1000);
-
-                // Reset the form after successful update
-                resetForm();
-
-            } catch (error) {
-                console.error("Lỗi khi cập nhật danh mục:", error);
-                alert("Không thể cập nhật danh mục. Vui lòng thử lại.");
-            }
-        } else {
-            alert("Vui lòng nhập tên danh mục.");
-        }
-    };
-    const filteredCategories = categories.filter((category) =>
-        category.cateName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-
-
-    const resetForm = () => {
-        setCategoryName('');
-        setCategoryImage(null);
-        setCategoryImagePreview(null);
-        setIsActive(false);
-        setIsUpdateMode(false);
-        setUpdateCategory(null);
-        document.getElementById('categoryImage').value = ''; // reset input file
-    };
-
-
-
 
     return (
         <div className="category">
@@ -341,7 +385,9 @@ const Category = () => {
 
                         <form className="category-form">
                             <div className="form-group">
-                                <label htmlFor="categoryName">Tên danh mục</label>
+                                <label htmlFor="categoryName"><div className="name-label-cate">
+                                Tên danh mục
+                                    </div></label>
                                 <input
                                     type="text"
                                     id="categoryName"
@@ -351,7 +397,9 @@ const Category = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="categoryImage">Hình ảnh danh mục</label>
+                                <label htmlFor="categoryImage"><div className="name-label-cate">
+                                Hình ảnh danh mục
+                                    </div></label>
                                 {categoryImagePreview && (
                                     <div className="image-preview">
                                         <img src={categoryImagePreview} alt="Preview" />
@@ -364,15 +412,17 @@ const Category = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>
+                                <label className='check-active-cate' style={{fontSize: '18px'}}>
                                     <input
-                                        className='check-box-active'
+                                        className='check-box-active-cate'
                                         type="checkbox"
+                                        style={{ width: '15px' , fontSize: '18px'}} // Fixed here: added quotes around '15px'
                                         checked={isActive}
                                         onChange={(e) => setIsActive(e.target.checked)}
                                     />
                                     Kích hoạt
                                 </label>
+
                             </div>
                             <div className="form-actions">
                                 <button
@@ -382,7 +432,15 @@ const Category = () => {
                                 >
                                     {isUpdateMode ? 'Cập nhật' : 'Thêm danh mục'}
                                 </button>
-
+                                {isUpdateMode && (
+                                    <button
+                                        type="button"
+                                        className="btn-clear"
+                                        onClick={resetForm}
+                                    >
+                                        Hủy
+                                    </button>
+                                )}
                             </div>
                             {successMessage && <div className="success-message">{successMessage}</div>}
                         </form>
@@ -393,6 +451,7 @@ const Category = () => {
                         <div className="list-header">
                             <h2>Danh mục các loại đồ uống</h2>
                             <div className="search-sort-container">
+                                {/* Trường tìm kiếm */}
                                 <input
                                     type="search"
                                     placeholder="Tìm kiếm danh mục..."
@@ -405,8 +464,8 @@ const Category = () => {
                                     onChange={handleSortChange}
                                     className="sort-select"
                                 >
-                                    <option value="asc">Sắp xếp A-Z</option>
-                                    <option value="desc">Sắp xếp Z-A</option>
+                                    <option value="desc">Sắp xếp theo mới nhất</option>
+                                    <option value="asc">Sắp xếp theo cũ nhất</option>
                                 </select>
                             </div>
                         </div>
@@ -417,14 +476,16 @@ const Category = () => {
                                     <th>Hình ảnh</th>
                                     <th>Tên danh mục</th>
                                     <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Ngày cập nhật</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentCategories.length > 0 ? (
-                                    currentCategories.map((category, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1 + indexOfFirstCategory}</td>
+                                {categories.length > 0 ? (
+                                    categories.map((category, index) => (
+                                        <tr key={category.cateId}>
+                                            <td>{index + 1 + (currentPage - 1) * limit}</td>
                                             <td>
                                                 <img src={category.cateImg} alt={category.cateName} className="cate-img" style={{ width: '80px', height: '80px' }} />
                                             </td>
@@ -433,11 +494,26 @@ const Category = () => {
                                                 <label className="cate-switch">
                                                     <input
                                                         type="checkbox"
-                                                        checked={category.active || false}
-                                                        onChange={() => handleSwitchChange(index + indexOfFirstCategory)}
+                                                        checked={switches[category.cateId] || false} // Use the state to check if it is active
+                                                        onChange={() => handleSwitchChange(category.cateId)}
                                                     />
                                                     <span className="cate-slider round"></span>
                                                 </label>
+                                            </td>
+
+
+
+                                            <td>
+                                                {category.dateCreated
+                                                    ? new Date(category.dateCreated).toLocaleDateString('vi-VN')
+                                                    : ''
+                                                }
+                                            </td>
+                                            <td>
+                                                {category.dateUpdated
+                                                    ? new Date(category.dateUpdated).toLocaleDateString('vi-VN')
+                                                    : ''
+                                                }
                                             </td>
                                             <td>
                                                 <div className='gr-btn-cate'>
@@ -452,7 +528,12 @@ const Category = () => {
                                                     >
                                                         Cập nhật
                                                     </button>
-                                                    <button className="btn-clear" onClick={() => handleDeleteCategory(index + indexOfFirstCategory)}>Xóa</button>
+                                                    <button
+                                                        className="btn-clear"
+                                                        onClick={() => handleDeleteCategory(category.cateId)}
+                                                    >
+                                                        Xóa
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -463,43 +544,37 @@ const Category = () => {
                                     </tr>
                                 )}
                             </tbody>
-
                         </table>
                         {/* Phân trang */}
-                        <div className="main-section-cate">
-                            <div className="list-cate-box">
-                                {/* Header and table code here... */}
-                                <div className="pagination">
-                                    <button
-                                        className="btn btn-pre me-2"
-                                        onClick={() => changePage(currentPage - 1)}
-                                        disabled={currentPage === 1}
-                                    >
-                                        &lt;
-                                    </button>
-                                    {getPaginationNumbers().map((number, index) => (
-                                        <button
-                                            key={index}
-                                            className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
-                                            onClick={() => {
-                                                if (number !== '...') {
-                                                    changePage(number);
-                                                }
-                                            }}
-                                            disabled={number === '...'} // Disable button for ellipsis
-                                        >
-                                            {number}
-                                        </button>
-                                    ))}
-                                    <button
-                                        className="btn btn-next"
-                                        onClick={() => changePage(currentPage + 1)}
-                                        disabled={currentPage === totalPages}
-                                    >
-                                        &gt;
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="pagination">
+                            <button
+                                className="btn btn-pre me-2"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                &lt;
+                            </button>
+                            {getPaginationNumbers().map((number, index) => (
+                                <button
+                                    key={index}
+                                    className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
+                                    onClick={() => {
+                                        if (number !== '...') {
+                                            handlePageChange(number);
+                                        }
+                                    }}
+                                    disabled={number === '...'} // Disable button for ellipsis
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                            <button
+                                className="btn btn-next"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                &gt;
+                            </button>
                         </div>
                     </div>
                 </div>
