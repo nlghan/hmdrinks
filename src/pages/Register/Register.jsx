@@ -27,7 +27,7 @@ const Register = () => {
         };
     
         try {
-            const response = await axios.post('http://localhost:1010/api/v1/auth/register', data, {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
                 headers: {
                     'Content-Type': 'application/json' // Đảm bảo rằng content type là JSON
                 }

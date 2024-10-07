@@ -36,7 +36,7 @@ const Dashboard = () => {
     
         try {
           // Gửi yêu cầu đăng xuất đến backend
-          const response = await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
+          const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
             headers: {
               'Authorization': `Bearer ${accessToken}`, // Gửi token trong header
             },

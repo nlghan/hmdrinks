@@ -67,7 +67,7 @@ const Info = () => {
                     return;
                 }
 
-                const response = await axios.get(`http://localhost:1010/api/user/info/${userId}`, {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`
@@ -167,7 +167,7 @@ const Info = () => {
             setIsUploading(true);
 
             try {
-                const response = await axios.post(`http://localhost:1010/api/image/user/upload?userId=${userId}`, formData, {
+                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/user/upload?userId=${userId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -215,7 +215,7 @@ const Info = () => {
         };
 
         try {
-            const response = await axios.put(`http://localhost:1010/api/user/info-update`, updatedData, {
+            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/info-update`, updatedData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
