@@ -161,7 +161,7 @@ public class CategoryService {
     {
         if (limit > 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Category> categoryList = categoryRepository.findAll(pageable);
+        Page<Category> categoryList = categoryRepository.findByCateNameContaining(keyword,pageable);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
