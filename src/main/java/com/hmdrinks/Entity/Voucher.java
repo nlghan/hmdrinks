@@ -47,4 +47,7 @@ public class Voucher {
     @OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserVoucher> userVouchers;
 
+    @OneToMany(mappedBy = "voucher",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Orders> orders;
+
 }

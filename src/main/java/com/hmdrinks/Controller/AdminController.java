@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-    @Autowired
 
+    @Autowired
     private UserService userService;
 
     @Autowired

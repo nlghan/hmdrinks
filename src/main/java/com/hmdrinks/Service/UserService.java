@@ -106,24 +106,17 @@ public class UserService {
         );
     }
     public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
-        // Tìm người dùng hiện tại theo userId
         User userList = userRepository.findByUserId(req.getUserId());
-
         if (userList == null) {
             throw new NotFoundException("User does not exist");
         }
-
-        // Kiểm tra xem email đã được sử dụng bởi người dùng khác hay không
         Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
-        if(user.isPresent()) { // Đảo ngược điều kiện
+        if(user.isPresent()) {
             throw new ConflictException("Email already exists");
         }
-
-        // Kiểm tra số điện thoại
         supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
-        User userWithEmail = userRepository.findByEmail(req.getEmail());
+       // User userWithEmail = userRepository.findByEmail(req.getEmail());
 
-        // Cập nhật thông tin người dùng
         LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
         userList.setEmail(req.getEmail());
@@ -135,8 +128,8 @@ public class UserService {
         userList.setDateUpdated(Date.valueOf(currentDate));
 
         if(locationParts.length >= 3){
-            String street = locationParts[0].trim();   // Lấy phần street
-            String district = locationParts[1].trim();  // Lấy phần district
+            String street = locationParts[0].trim();
+            String district = locationParts[1].trim();
             String city = locationParts[2].trim();
             userList.setCity(city);
             userList.setStreet(street);

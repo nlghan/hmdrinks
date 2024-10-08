@@ -1,16 +1,12 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.DeleteAllCartItemReq;
 import com.hmdrinks.Request.DeleteAllProductImgReq;
-import com.hmdrinks.Request.DeleteOneCartItemReq;
 import com.hmdrinks.Request.DeleteProductImgReq;
-import com.hmdrinks.Response.DeleteCartItemResponse;
 import com.hmdrinks.Service.ProductImageService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
