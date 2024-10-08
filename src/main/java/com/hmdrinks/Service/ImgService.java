@@ -15,6 +15,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Map;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ public class ImgService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private  ProductImageRepository productImageRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -187,6 +191,69 @@ public class ImgService {
             imgResponse.setUrl(imageUrl);
             product.setProImg(imageUrl);
             productRepository.save(product);
+            return imgResponse;
+
+        } catch (Exception e) {
+            System.out.println("Error uploading image: " + e.getMessage());
+            throw new IOException("Could not upload image: " + e.getMessage());
+        }
+    }
+
+    public ImgResponse uploadImgListProduct(MultipartFile multipartFile, int proId) throws IOException {
+
+        if (!processFile(multipartFile)) {
+            throw new BadRequestException("Incorrect formatting");
+        }
+
+
+        Product product = productRepository.findByProId(proId);
+        if (product == null) {
+            throw new NotFoundException("Not found proId");
+        }
+        ProductImage productImage = productImageRepository.findByProduct_ProId(proId);
+        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
+        cloudinary.config.secure = true;
+
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            Map<String, Object> params = ObjectUtils.asMap(
+                    "use_filename", true,
+                    "unique_filename", false,
+                    "overwrite", true
+            );
+            File tempFile = File.createTempFile("upload-", ".tmp");
+            multipartFile.transferTo(tempFile);
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(tempFile, params);
+            String imageUrl = (String) uploadResult.get("secure_url");
+            ImgResponse imgResponse = new ImgResponse();
+            imgResponse.setUrl(imageUrl);
+            if (productImage != null) {
+                String currentProImg = productImage.getProImg();
+
+                // Kiểm tra xem currentProImg có phải là chuỗi rỗng không
+                if (currentProImg.isEmpty()) {
+                    // Nếu rỗng, gán lại số thứ tự bắt đầu từ 1
+                    productImage.setProImg("1: " + imageUrl);
+                } else {
+                    // Nếu không rỗng, tiếp tục xử lý
+                    int currentStt = currentProImg.split(",").length;
+                    int newStt = currentStt + 1;
+                    productImage.setDateUpdated(LocalDate.now());
+                    String newProImg = currentProImg + ", " + newStt + ": " + imageUrl;
+                    productImage.setProImg(newProImg);
+                }
+            } else {
+                // Nếu productImage là null, khởi tạo mới
+                productImage = new ProductImage();
+                productImage.setProImg("1: " + imageUrl);
+                productImage.setProduct(product);
+                productImage.setDateCreated(LocalDate.now());
+                productImage.setIsDeleted(false); // Gán Product nếu cần thiết
+            }
+
+
+            productImageRepository.save(productImage);
+            imgResponse.setUrl(productImage.getProImg());
             return imgResponse;
 
         } catch (Exception e) {

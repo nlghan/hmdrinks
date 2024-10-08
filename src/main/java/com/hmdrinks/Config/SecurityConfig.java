@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user-voucher/view-all/**").permitAll()
                         .requestMatchers("/api/user-voucher/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/product-image/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
                         .requestMatchers("/api/image/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
                         .requestMatchers("/api/image/**").hasAnyAuthority("ADMIN")

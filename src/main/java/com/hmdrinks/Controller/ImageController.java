@@ -1,6 +1,7 @@
 package com.hmdrinks.Controller;
 
 import com.hmdrinks.Exception.BadRequestException;
+import com.hmdrinks.Response.ImgResponse;
 import com.hmdrinks.Service.ImgService;
 import com.hmdrinks.Service.JwtService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -26,8 +29,26 @@ public class ImageController {
     @Autowired
     private SupportFunction supportFunction;
 
+    @PostMapping(value = "/product-image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImgResponse> handleUploadUserImagesFull(
+            @RequestParam("files") List<MultipartFile> files,
+            @RequestParam("proId") Integer id,
+            HttpServletRequest httpRequest) {
+            ImgResponse uploadResults = null;
+        try {
+            for (MultipartFile file : files) {
+                ImgResponse result = imgService.uploadImgListProduct(file, id);
+                uploadResults = result;
+            }
+        } catch (IOException e) {
+
+        }
+        return ResponseEntity.ok(uploadResults);
+    }
+
     @Autowired
     private JwtService jwtService;
+
     @PostMapping(value = "/user/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> handleUploadUserImage(@RequestParam("file") MultipartFile file, @RequestParam("userId") Integer id, HttpServletRequest httpRequest) throws IOException {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
