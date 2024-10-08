@@ -7,6 +7,7 @@ import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.CreateAccountUserReq;
+import com.hmdrinks.Request.UpdateAccountUserReq;
 import com.hmdrinks.Response.CRUDAccountUserResponse;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,4 +87,74 @@ public class AdminService {
                 userNew.getRole().toString()
         );
     }
+    public CRUDAccountUserResponse updateAccountUser(UpdateAccountUserReq req) {
+        // Find the user by userId
+        Optional<User> existingUserOptional = userRepository.findById(req.getUserId());
+
+        if (existingUserOptional.isEmpty() || existingUserOptional.get().getIsDeleted()) {
+            throw new BadRequestException("User not found or has been deleted");
+        }
+
+        User existingUser = existingUserOptional.get();
+
+        // Update user details only if provided in the request
+        if (req.getFullName() != null && !req.getFullName().isEmpty()) {
+            existingUser.setFullName(req.getFullName());
+        }
+
+        if (req.getUserName() != null && !req.getUserName().isEmpty()) {
+            Optional<User> userWithSameUserName = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
+            if (userWithSameUserName.isPresent() && userWithSameUserName.get().getUserId() != req.getUserId()) {
+                throw new ConflictException("User name already exists");
+            }
+            existingUser.setUserName(req.getUserName());
+        }
+
+        if (req.getEmail() != null && !req.getEmail().isEmpty()) {
+            User userWithEmail = userRepository.findByEmail(req.getEmail());
+            if (userWithEmail != null && userWithEmail.getUserId() != req.getUserId()) {
+                throw new ConflictException("Email already exists with another user");
+            }
+            existingUser.setEmail(req.getEmail());
+        }
+
+        if (req.getPassword() != null && !req.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
+        if (req.getRole() != null) {
+            if (!supportFunction.checkRole(req.getRole().toString())) {
+                throw new BadRequestException("Invalid role");
+            }
+            existingUser.setRole(req.getRole());
+        }
+
+        if (req.getPhone() != null && !req.getPhone().isEmpty()) {
+            existingUser.setPhoneNumber(req.getPhone());
+        }
+
+        // Save the updated user details
+        userRepository.save(existingUser);
+
+        // Return updated user information as response
+        return new CRUDAccountUserResponse(
+                existingUser.getUserId(),
+                existingUser.getUserName(),
+                existingUser.getFullName(),
+                existingUser.getAvatar(),
+                existingUser.getBirthDate(),
+                "",
+                existingUser.getEmail(),
+                existingUser.getPhoneNumber(),
+                existingUser.getSex().toString(),
+                existingUser.getType().toString(),
+                existingUser.getIsDeleted(),
+                existingUser.getDateDeleted(),
+                existingUser.getDateUpdated(),
+                existingUser.getDateCreated(),
+                existingUser.getRole().toString()
+        );
+    }
+
+
 }
