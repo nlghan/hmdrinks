@@ -52,7 +52,7 @@ const User = () => {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:1010/api/admin/listUser', {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/admin/listUser`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

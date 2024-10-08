@@ -28,6 +28,9 @@ footer {
     line-height: normal;
     letter-spacing: 1.2px;
 }
+.name-footer{
+    text-align: left;
+}
 
 .footer-left p {
     color: #080B1D;
