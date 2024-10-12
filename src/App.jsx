@@ -14,12 +14,7 @@ import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
-<<<<<<< HEAD
-import FormAddUser from './components/Form/FormAddUser';
-=======
-import FormAddUser from './components/FormAddUser';
 import { useAuth } from './context/AuthProvider'; // Import hook
->>>>>>> 3e078ce2f3ff257f5577cd080bbe318e0b88fa94
 
 const App = () => {
   const location = useLocation();
@@ -40,8 +35,7 @@ const App = () => {
         <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/send-mail" element={<SendMail />} />
         <Route path="/user" element={<User />} />
-        <Route path="/category" element={<Category />} />
-        <Route path="/formAddUser" element={<FormAddUser />} />
+        <Route path="/category" element={<Category />} />    
 
         {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}
         <Route path="*" element={<Navigate to="/" />} />
