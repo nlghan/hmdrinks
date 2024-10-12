@@ -2,18 +2,14 @@ import React, { useEffect, useState } from 'react';
 import './Navbar.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios'; // Nhập axios để gửi yêu cầu HTTP
-import Cookies from 'js-cookie'; // Nhập thư viện js-cookie để quản lý cookies
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useAuth } from '../../context/AuthProvider.jsx'; // Import useAuth để lấy context
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const loggedIn = sessionStorage.getItem("isLoggedIn");
-    setIsLoggedIn(loggedIn === "true");
-  }, []);
+  const { isLoggedIn, logout } = useAuth(); // Lấy trạng thái và hàm logout từ context
 
   const handleLogin = () => {
     navigate('/login');
@@ -33,7 +29,7 @@ const Navbar = () => {
 
     try {
       // Gửi yêu cầu đăng xuất đến backend
-      const response = await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
         headers: {
           'Authorization': `Bearer ${accessToken}`, // Gửi token trong header
         },
@@ -41,14 +37,15 @@ const Navbar = () => {
 
       console.log("Logged out:", response.data);
       
-      // Xóa token và cập nhật trạng thái đăng nhập
-      sessionStorage.removeItem("isLoggedIn");
-      Cookies.remove('access_token'); // Xóa token trong cookies
-      Cookies.remove('refresh_token'); // Xóa refresh token nếu cần
+      // Xóa token trong cookies
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token'); 
 
-      setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
-      navigate('/'); 
-      window.location.reload();
+      // Gọi hàm logout từ AuthContext để cập nhật trạng thái
+      logout();
+
+      // Điều hướng về trang chủ sau khi đăng xuất
+      navigate('/home');
     } catch (error) {
       console.error('Error during logout:', error);
     }

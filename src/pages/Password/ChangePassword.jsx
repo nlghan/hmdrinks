@@ -73,7 +73,7 @@ const ChangePassword = () => {
         };
     
         try {
-            const response = await axios.put('http://localhost:1010/api/user/password/change', data, {
+            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/password/change`, data, {
                 headers: {
                     'Content-Type': 'application/json', 
                     'Authorization': `Bearer ${Cookies.get('access_token')}` // Thêm Authorization Bearer token nếu có

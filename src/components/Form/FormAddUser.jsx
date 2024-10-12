@@ -70,7 +70,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:1010/api/admin/create-account', formData, {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/create-account`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

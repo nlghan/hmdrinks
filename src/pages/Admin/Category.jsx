@@ -74,11 +74,12 @@ const Category = () => {
                 return;
             }
 
-            // Xây dựng URL API với các tham số
-            let apiUrl = `http://localhost:1010/api/cate/list-category?page=${page}&limit=${limit}`;
+
+            let apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=${page}&limit=${limit}`;
             if (keyword) {
-                apiUrl = `http://localhost:1010/api/cate/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
+                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
             }
+
 
             // Gọi API để lấy danh sách danh mục
             const response = await axios.get(apiUrl, {
@@ -146,7 +147,7 @@ const Category = () => {
             return;
         }
         try {
-            await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
@@ -211,7 +212,7 @@ const Category = () => {
             };
 
             try {
-                const response = await axios.post('http://localhost:1010/api/cate/create-category', categoryData, {
+                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cate/create-category`, categoryData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -224,7 +225,7 @@ const Category = () => {
                 const formData = new FormData();
                 formData.append('file', categoryImage);
 
-                const uploadResponse = await axios.post(`http://localhost:1010/api/image/cate/upload?cateId=${cateId}`, formData, {
+                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${cateId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -254,7 +255,7 @@ const Category = () => {
     const handleDeleteCategory = async (cateId) => {
         const token = getCookie('access_token');
         try {
-            await axios.delete(`http://localhost:1010/api/cate/delete/${cateId}`, {
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/cate/delete/${cateId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -291,7 +292,7 @@ const Category = () => {
                     formData.append('file', categoryImage);
 
                     // Upload hình ảnh để lấy URL mới
-                    const uploadResponse = await axios.post(`http://localhost:1010/api/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
+                    const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data'
@@ -303,7 +304,7 @@ const Category = () => {
                 }
 
                 // Gửi yêu cầu cập nhật danh mục
-                await axios.put('http://localhost:1010/api/cate/update', updatedCategoryData, {
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -386,8 +387,8 @@ const Category = () => {
                         <form className="category-form">
                             <div className="form-group">
                                 <label htmlFor="categoryName"><div className="name-label-cate">
-                                Tên danh mục
-                                    </div></label>
+                                    Tên danh mục
+                                </div></label>
                                 <input
                                     type="text"
                                     id="categoryName"
@@ -398,8 +399,8 @@ const Category = () => {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="categoryImage"><div className="name-label-cate">
-                                Hình ảnh danh mục
-                                    </div></label>
+                                    Hình ảnh danh mục
+                                </div></label>
                                 {categoryImagePreview && (
                                     <div className="image-preview">
                                         <img src={categoryImagePreview} alt="Preview" />
@@ -412,11 +413,11 @@ const Category = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className='check-active-cate' style={{fontSize: '18px'}}>
+                                <label className='check-active-cate' style={{ fontSize: '18px' }}>
                                     <input
                                         className='check-box-active-cate'
                                         type="checkbox"
-                                        style={{ width: '15px' , fontSize: '18px'}} // Fixed here: added quotes around '15px'
+                                        style={{ width: '15px' }}
                                         checked={isActive}
                                         onChange={(e) => setIsActive(e.target.checked)}
                                     />

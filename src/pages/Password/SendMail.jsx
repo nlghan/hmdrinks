@@ -19,7 +19,7 @@ const SendMail = () => {
             // Gửi yêu cầu quên mật khẩu
             if (email) {
                 try {
-                    const response = await axios.post('http://localhost:1010/api/public/password/forget/send', {
+                    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/forget/send`, {
                         email: email
                     }, {
                         headers: {
@@ -49,7 +49,7 @@ const SendMail = () => {
             // Nếu đã gửi OTP, xử lý xác thực OTP
             if (otp) {
                 try {
-                    const response = await axios.post('http://localhost:1010/api/public/password/acceptOtp', {
+                    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/acceptOtp`, {
                         email: email,
                         otp: otp
                     }, {

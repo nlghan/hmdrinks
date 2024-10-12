@@ -22,7 +22,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
     
         try {
           // Gửi yêu cầu đăng xuất đến backend
-          const response = await axios.post('http://localhost:1010/api/v1/auth/logout', {}, {
+          const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
             headers: {
               'Authorization': `Bearer ${accessToken}`, // Gửi token trong header
             },
@@ -37,7 +37,6 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
     
           setIsLoggedIn(false); // Cập nhật trạng thái đăng nhập
           navigate('/home'); 
-          window.location.reload();
         } catch (error) {
           console.error('Error during logout:', error);
         }
