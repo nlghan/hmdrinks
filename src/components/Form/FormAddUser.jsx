@@ -20,15 +20,15 @@ const FormAddUser = ({ onClose, onSubmit }) => {
     });
 
     const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // Success message state
+    const [successMessage, setSuccessMessage] = useState(''); 
 
-    // Handle input changes
+    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // Validate email format
+   
     const isValidEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
@@ -45,7 +45,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
         }
 
         // Check for empty fields
-        if (!fullName || !userName || !email || !password || !phone) {
+        if (!fullName || !userName || !email || !password) {
             setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
             return;
         }
@@ -56,12 +56,12 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             return;
         }
 
-        // Validate phone number (must be 10 digits)
-        const phoneRegex = /^[0-9]{10}$/;
-        if (!phoneRegex.test(phone)) {
-            setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại 10 chữ số.");
-            return;
-        }
+        // // Validate phone number (must be 10 digits)
+        // const phoneRegex = /^[0-9]{10}$/;
+        // if (!phoneRegex.test(phone)) {
+        //     setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại 10 chữ số.");
+        //     return;
+        // }
 
         // Validate password (minimum 8 characters)
         if (password.length < 8) {
@@ -77,14 +77,14 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             });
 
             if (response.data) {
-                setSuccessMessage("Thêm người dùng thành công!"); // Set success message
-                setErrorMessage(""); // Clear error message
+                setSuccessMessage("Thêm người dùng thành công!"); 
+                setErrorMessage(""); 
                 console.log('User created successfully:', response.data);
                 onSubmit(formData); // Pass form data back to parent component
                 setTimeout(() => {
                     setSuccessMessage(''); // Clear success message after 2 seconds
                     onClose(); // Close form after success
-                }, 2000);
+                }, 1000);
             }
         } catch (error) {
             console.error('Error creating user:', error);
@@ -103,8 +103,8 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             <div className="form-add-user">
                 <h2>Thêm người dùng</h2>
                 {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-                {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>} {/* Display success message */}
-                <form onSubmit={(e) => e.preventDefault()}> {/* Prevent default form submission */}
+                {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>} 
+                <form onSubmit={(e) => e.preventDefault()}> 
                     <div className="form-group">
                         <label htmlFor="fullName">Họ và tên</label>
                         <input
@@ -162,7 +162,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                             <option value="ADMIN">Admin</option>
                         </select>
                     </div>
-                    <div className="form-group">
+                   {/*<div className="form-group">
                         <label htmlFor="phone">Số điện thoại</label>
                         <input
                             type="text"
@@ -172,7 +172,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                             onChange={handleInputChange}
                             required
                         />
-                    </div>
+                    </div>*/}
                     <div className="form-actions">
                         <button type="button" className="submit-btn" onClick={handleSubmit}>Thêm</button>
                         <button type="button" className="cancel-btn" onClick={onClose}>Hủy</button>

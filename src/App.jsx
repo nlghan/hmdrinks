@@ -13,7 +13,7 @@ import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
-import FormAddUser from './components/FormAddUser';
+import FormAddUser from './components/Form/FormAddUser';
 
 const App = () => {
   const location = useLocation();
