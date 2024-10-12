@@ -1,9 +1,6 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.CRUDCategoryRequest;
-import com.hmdrinks.Request.CRUDProductReq;
-import com.hmdrinks.Request.CreateCategoryRequest;
-import com.hmdrinks.Request.CreateProductReq;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.ProductImageService;
 import com.hmdrinks.Service.ProductService;
@@ -12,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -61,4 +60,15 @@ public class ProductController {
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
         return ResponseEntity.ok(productImageService.getAllProductImages(proId));
     }
+
+    @PostMapping("/filter-product")
+    public ResponseEntity<FilterProductBoxResponse> filterProduct(
+           @RequestBody FilterProductBox req
+            ) {
+
+        return ResponseEntity.ok(productService.filterProduct(req));
+
+
+    }
+
 }

@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/product/view/**", "/api/product/list-product","/api/product/variants/**").permitAll()
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
                         .requestMatchers("/api/post/view/**").permitAll()
+                        .requestMatchers("/api/product/filter-product").permitAll()
                         .requestMatchers("/api/product/search","/api/cate/search").permitAll()
                         .requestMatchers("/api/voucher/view/**").permitAll()
                         .requestMatchers("/api/user-voucher/view-all/**").permitAll()

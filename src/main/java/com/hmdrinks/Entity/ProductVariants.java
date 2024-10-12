@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -45,4 +46,7 @@ public class ProductVariants {
 
     @Column(name = "date_created")
     private LocalDate dateCreated;
+
+    @OneToMany(mappedBy = "productVariants", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 }
