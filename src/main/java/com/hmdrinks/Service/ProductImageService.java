@@ -11,10 +11,7 @@ import com.hmdrinks.Repository.ProductImageRepository;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Response.CRUDPostResponse;
-import com.hmdrinks.Response.ImgResponse;
-import com.hmdrinks.Response.ListAllPostByUserIdResponse;
-import com.hmdrinks.Response.ListAllPostResponse;
+import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +32,7 @@ public class ProductImageService {
     private UserRepository userRepository;
 
 
-    public ImgResponse deleteImageFromProduct(int proId, int deleteStt) {
+    public ListProductImageResponse deleteImageFromProduct(int proId, int deleteStt) {
         ProductImage productImage = productImageRepository.findByProduct_ProId(proId);
         if (productImage == null) {
             throw new NotFoundException("Not found product with ID: " + proId);
@@ -63,7 +60,20 @@ public class ProductImageService {
         productImage.setDateUpdated(LocalDate.now());
         productImageRepository.save(productImage);
 
-        return new  ImgResponse(productImage.getProImg());
+        String currentProImg1 = productImage.getProImg();
+        if (currentProImg == null || currentProImg.isEmpty()) {
+            throw new BadRequestException("No images found for this product.");
+        }
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        String[] imageEntries1 = currentProImg.split(", ");
+        for (String imageEntry : imageEntries1) {
+            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
+            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
+            String url = parts[1];                     // Lấy URL
+
+            productImageResponses.add(new ProductImageResponse(stt, url));
+        }
+        return new ListProductImageResponse(proId,productImageResponses);
     }
 
     public ImgResponse deleteAllImageFromProduct(int proId) {
@@ -77,5 +87,26 @@ public class ProductImageService {
         return new  ImgResponse(productImage.getProImg());
     }
 
+
+    public ListProductImageResponse getAllProductImages(int proId) {
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        ProductImage productImage = productImageRepository.findByProduct_ProId(proId);
+        if (productImage == null) {
+            throw new NotFoundException("Not found product with ID: " + proId);
+        }
+        String currentProImg = productImage.getProImg();
+        if (currentProImg == null || currentProImg.isEmpty()) {
+            throw new BadRequestException("No images found for this product.");
+        }
+        String[] imageEntries = currentProImg.split(", ");
+        for (String imageEntry : imageEntries) {
+            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
+            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
+            String url = parts[1];                     // Lấy URL
+
+            productImageResponses.add(new ProductImageResponse(stt, url));
+        }
+        return new ListProductImageResponse(proId,productImageResponses);
+    }
 
 }

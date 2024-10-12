@@ -22,7 +22,7 @@ public class Orders { // Changed from Orders to Order
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orderId")
-    private int orderId; // Changed from proId to orderId
+    private int orderId;
 
     @Column(name = "orderDate", nullable = false)
     private LocalDateTime orderDate;
@@ -31,7 +31,7 @@ public class Orders { // Changed from Orders to Order
     private LocalDateTime deliveryDate;
 
     @Column(name = "note")
-    private String note; // Changed from proImg to note
+    private String note;
 
     @Column(name = "phoneNumber", nullable = false)
     private String phoneNumber;
@@ -56,9 +56,7 @@ public class Orders { // Changed from Orders to Order
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voucherId", nullable = false)
     private Voucher voucher;
-
-
-
+    
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 

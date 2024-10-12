@@ -253,7 +253,11 @@ public class ImgService {
 
 
             productImageRepository.save(productImage);
+
+
             imgResponse.setUrl(productImage.getProImg());
+
+
             return imgResponse;
 
         } catch (Exception e) {

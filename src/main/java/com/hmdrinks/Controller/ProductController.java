@@ -5,6 +5,7 @@ import com.hmdrinks.Request.CRUDProductReq;
 import com.hmdrinks.Request.CreateCategoryRequest;
 import com.hmdrinks.Request.CreateProductReq;
 import com.hmdrinks.Response.*;
+import com.hmdrinks.Service.ProductImageService;
 import com.hmdrinks.Service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductImageService productImageService;
     @PostMapping(value = "/create")
     public ResponseEntity<CRUDProductResponse> createAccount(@RequestBody CreateProductReq req){
         return ResponseEntity.ok(productService.crateProduct(req));
@@ -51,5 +55,10 @@ public class ProductController {
     @GetMapping(value = "/search")
     public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
         return ResponseEntity.ok(productService.totalSearchProduct(keyword,page,limit));
+    }
+
+    @GetMapping("/list-image/{proId}")
+    public ResponseEntity<?> getListImage(@PathVariable Integer proId){
+        return ResponseEntity.ok(productImageService.getAllProductImages(proId));
     }
 }
