@@ -5,6 +5,7 @@ import com.hmdrinks.Enum.TypeLogin;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +27,18 @@ public class Category {
 
     @Column(name = "cateImg")
     private String cateImg;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "date_deleted")
+    private LocalDate dateDeleted;
+
+    @Column(name = "date_updated")
+    private LocalDate dateUpdated;
+
+    @Column(name = "date_created")
+    private LocalDate dateCreated;
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;

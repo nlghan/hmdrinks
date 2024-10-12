@@ -40,9 +40,10 @@ public class ProductVariantsController {
     }
 
     @GetMapping(value = "/list-product")
-    public ResponseEntity<ListProductVarResponse> listAllUser(
-
+    public ResponseEntity<ListProductVarResponse> listAllProductVariants(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(productVarService.listProduct());
+        return ResponseEntity.ok(productVarService.listProduct(page,limit));
     }
 }

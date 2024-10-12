@@ -4,6 +4,7 @@ import com.hmdrinks.Enum.Size;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -38,4 +39,10 @@ public class ProductVariants {
 
     @Column(name = "date_deleted")
     private Date dateDeleted;
+
+    @Column(name = "date_updated")
+    private LocalDate dateUpdated;
+
+    @Column(name = "date_created")
+    private LocalDate dateCreated;
 }

@@ -11,13 +11,14 @@ import com.hmdrinks.Request.CRUDProductReq;
 import com.hmdrinks.Request.CRUDProductVarReq;
 import com.hmdrinks.Request.CreateProductReq;
 import com.hmdrinks.Request.CreateProductVarReq;
-import com.hmdrinks.Response.CRUDProductResponse;
-import com.hmdrinks.Response.CRUDProductVarResponse;
-import com.hmdrinks.Response.ListProductResponse;
-import com.hmdrinks.Response.ListProductVarResponse;
+import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class ProductVarService {
         productVariants1.setStock(req.getStock());
         productVariants1.setPrice(req.getPrice());
         productVariants1.setIsDeleted(false);
+        productVariants1.setDateCreated(LocalDate.now());
 
         proVarRepository.save(productVariants1);
 
@@ -59,7 +61,9 @@ public class ProductVarService {
                 productVariants1.getPrice(),
                 productVariants1.getStock(),
                 productVariants1.getIsDeleted(),
-                productVariants1.getDateDeleted()
+                productVariants1.getDateDeleted(),
+                productVariants1.getDateCreated(),
+                productVariants1.getDateUpdated()
         );
     }
 
@@ -78,7 +82,9 @@ public class ProductVarService {
                 productVariants1.getPrice(),
                 productVariants1.getStock(),
                 productVariants1.getIsDeleted(),
-                productVariants1.getDateDeleted()
+                productVariants1.getDateDeleted(),
+                productVariants1.getDateCreated(),
+                productVariants1.getDateUpdated()
         );
     }
 
@@ -104,7 +110,7 @@ public class ProductVarService {
         productVariants1.setSize(req.getSize());
         productVariants1.setStock(req.getStock());
         productVariants1.setPrice(req.getPrice());
-        productVariants1.setIsDeleted(false);
+        productVariants1.setDateUpdated(LocalDate.now());
 
         proVarRepository.save(productVariants1);
 
@@ -115,13 +121,19 @@ public class ProductVarService {
                 productVariants1.getPrice(),
                 productVariants1.getStock(),
                 productVariants1.getIsDeleted(),
-                productVariants1.getDateDeleted()
+                productVariants1.getDateDeleted(),
+                productVariants1.getDateCreated(),
+                productVariants1.getDateUpdated()
         );
     }
 
-    public ListProductVarResponse listProduct()
+    public ListProductVarResponse listProduct(String pageFromParam, String limitFromParam)
     {
-        List<ProductVariants> productList = proVarRepository.findAll();
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<ProductVariants> productList = proVarRepository.findAll(pageable);
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
         for(ProductVariants product1: productList){
             crudProductVarResponseList.add(new CRUDProductVarResponse(
@@ -131,9 +143,15 @@ public class ProductVarService {
                     product1.getPrice(),
                     product1.getStock(),
                     product1.getIsDeleted(),
-                    product1.getDateDeleted()
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated()
             ));
         }
-        return new ListProductVarResponse(crudProductVarResponseList);
+        return new ListProductVarResponse(page,productList.getTotalPages(),limit,crudProductVarResponseList);
     }
+
+
+
+
 }

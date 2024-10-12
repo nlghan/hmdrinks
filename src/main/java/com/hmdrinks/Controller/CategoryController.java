@@ -21,9 +21,10 @@ public class CategoryController {
 
     @GetMapping(value = "/list-category")
     public ResponseEntity<ListCategoryResponse> listAllUser(
-
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(categoryService.listCategory());
+        return ResponseEntity.ok(categoryService.listCategory(page, limit));
     }
 
     @PostMapping(value = "/create-category")
@@ -46,4 +47,8 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllProductFromCategory(id));
     }
 
+    @GetMapping(value = "/search")
+    public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") int page, @RequestParam(name = "limit") int limit) {
+        return ResponseEntity.ok(categoryService.totalSearchCategory(keyword,page,limit));
+    }
 }

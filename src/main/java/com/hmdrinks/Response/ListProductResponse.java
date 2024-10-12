@@ -12,5 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ListProductResponse {
+    private int currentPage;
+    private long totalPage;
+    private int limit;
     List<CRUDProductResponse> productResponses;
 }
