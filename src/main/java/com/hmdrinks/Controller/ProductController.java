@@ -2,15 +2,14 @@ package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
-import com.hmdrinks.Service.ProductImageService;
 import com.hmdrinks.Service.ProductService;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -22,7 +21,9 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private ProductImageService productImageService;
+    private SupportFunction supportFunction;
+
+
     @PostMapping(value = "/create")
     public ResponseEntity<CRUDProductResponse> createAccount(@RequestBody CreateProductReq req){
         return ResponseEntity.ok(productService.crateProduct(req));
@@ -58,7 +59,7 @@ public class ProductController {
 
     @GetMapping("/list-image/{proId}")
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
-        return ResponseEntity.ok(productImageService.getAllProductImages(proId));
+        return ResponseEntity.ok(productService.getAllProductImages(proId));
     }
 
     @PostMapping("/filter-product")
@@ -67,8 +68,17 @@ public class ProductController {
             ) {
 
         return ResponseEntity.ok(productService.filterProduct(req));
+    }
 
+    @DeleteMapping(value = "/image/deleteOne")
+    public ResponseEntity<?> deleteAllItem(@RequestBody DeleteProductImgReq req, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getSTT()));
+    }
 
+    @DeleteMapping(value = "/image/deleteAll")
+    public ResponseEntity<?> deleteOneItem(@RequestBody DeleteAllProductImgReq req, HttpServletRequest httpRequest){
+        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        return ResponseEntity.ok(productService.deleteAllImageFromProduct(req.getProId()));
     }
 
 }
