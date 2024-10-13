@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     @Autowired
     private ProductService productService;
-
     @Autowired
     private SupportFunction supportFunction;
 
@@ -70,7 +69,7 @@ public class ProductController {
 
     @DeleteMapping(value = "/image/deleteOne")
     public ResponseEntity<?> deleteAllItem(@RequestBody DeleteProductImgReq req, HttpServletRequest httpRequest) {
-        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getImgPath()));
+        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getId()));
     }
 
     @DeleteMapping(value = "/image/deleteAll")

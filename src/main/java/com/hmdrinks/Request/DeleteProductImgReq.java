@@ -11,5 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DeleteProductImgReq {
     private int proId;
-    private String imgPath;
+    private int id;
 }

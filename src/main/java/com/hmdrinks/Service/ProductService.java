@@ -243,7 +243,7 @@ public class ProductService {
         return new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
     }
 
-    public ListProductImageResponse deleteImageFromProduct(int proId, String imageUrl) {
+    public ListProductImageResponse deleteImageFromProduct(int proId, int deleteStt ) {
         Product product = productRepository.findByProId(proId);
         if (product == null) {
             throw new NotFoundException("Not found product with ID: " + proId);
@@ -255,33 +255,34 @@ public class ProductService {
         String[] imageEntries = currentProImg.split(", ");
         List<String> updatedImageEntries = new ArrayList<>();
         int currentStt = 1;
-        boolean imageFound = false;
         for (String imageEntry : imageEntries) {
-            String[] parts = imageEntry.split(": ");
-            int stt = Integer.parseInt(parts[0]);
-            String url = parts[1];
-            if (url.equals(imageUrl)) {
-                imageFound = true;
+            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
+            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
+            String url = parts[1];                     // Lấy URL
+
+            if (stt == deleteStt) {
                 continue;
             }
             updatedImageEntries.add(currentStt + ": " + url);
             currentStt++;
         }
-        if (!imageFound) {
-            throw new NotFoundException("Image not found with URL: " + imageUrl);
-        }
         String updatedProImg = String.join(", ", updatedImageEntries);
         product.setListProImg(updatedProImg);
         product.setDateUpdated(LocalDate.now());
         productRepository.save(product);
+        String currentProImg1 = product.getListProImg();
+        if (currentProImg == null || currentProImg.trim().isEmpty()) {
+            throw new BadRequestException("No images found for this product.");
+        }
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
-        for (String imageEntry : updatedImageEntries) {
+        String[] imageEntries1 = currentProImg.split(", ");
+        for (String imageEntry : imageEntries1) {
             String[] parts = imageEntry.split(": ");
             int stt = Integer.parseInt(parts[0]);
             String url = parts[1];
             productImageResponses.add(new ProductImageResponse(stt, url));
         }
-        return new ListProductImageResponse(proId, productImageResponses);
+        return new ListProductImageResponse(proId,productImageResponses);
     }
 
     public ImgResponse deleteAllImageFromProduct(int proId) {
