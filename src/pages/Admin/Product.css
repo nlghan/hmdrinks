@@ -256,7 +256,9 @@
 }
 
 .btn-pro-add {
-    background-color: #00B087; /* Màu xanh cho nút Add */
+    color: blue;
+    font-size: 20px;
+    background-color: #ffffff;
 }
 
 .btn-pro-add1 {
@@ -270,12 +272,13 @@
 
 .gr-btn-pro{
     display: flex;
-    gap: 15px;
     justify-content: center;
 }
 
 .btn-pro-clear {
-    background-color: #f96e6e; /* Màu đỏ cho nút Clear */
+    color: red;
+    font-size: 20px;
+    background-color: #ffffff;
 }
 /* Styles for the product price column */
 .product-table td ul {
@@ -336,7 +339,6 @@
 .product-table th, .product-table td {
     border: 1px solid #ddd;
     padding: 10px;
-    text-align: left;
 }
 
 .product-table th {

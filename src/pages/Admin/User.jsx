@@ -29,10 +29,10 @@ const User = () => {
     const [adminCount, setAdminCount] = useState(0);
     const [customerCount, setCustomerCount] = useState(0);
     const [shipperCount, setShipperCount] = useState(0);
-    const [totalUsers, setTotalUsers] = useState(0);    
+    const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(12);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
 
@@ -92,12 +92,12 @@ const User = () => {
                 initialSwitchStates[user.userId] = user.isDelete === false;
             });
             setSwitches(initialSwitchStates);
-           
+
             const adminCount = userData.filter(user => user.role === 'Admin').length;
             const customerCount = userData.filter(user => user.role === 'Customer').length;
             const shipperCount = userData.filter(user => user.role === 'Shipper').length;
             const totalUsers = userData.length;
-            
+
             setAdminCount(adminCount);
             setCustomerCount(customerCount);
             setShipperCount(shipperCount);
@@ -300,11 +300,18 @@ const User = () => {
                                         </td>
                                         <td>
                                             <div className="user-button-container">
-                                                <button className="user-update-btn3" onClick={() => handleDetailsClick(user)}>Chi tiết</button>
-                                                <button className="user-update-btn1" onClick={() => handleUpdateClick(user)}>Cập nhật</button>
-                                                <button className="user-update-btn2">Xóa</button>
+                                                <button className="user-update-btn3" style={{color: "#ea850b"}} onClick={() => handleDetailsClick(user)}>
+                                                    <i className="ti-info-alt"></i> {/* Themify icon for details */}
+                                                </button>
+                                                <button className="user-update-btn1"  style={{color: "blue"}} onClick={() => handleUpdateClick(user)}>
+                                                    <i className="ti-pencil"></i> {/* Themify icon for update */}
+                                                </button>
+                                                <button className="user-update-btn2"  style={{color: "red"}}>
+                                                    <i className="ti-trash"></i> {/* Themify icon for delete */}
+                                                </button>
                                             </div>
                                         </td>
+
                                     </tr>
                                 )) : (
                                     <tr>

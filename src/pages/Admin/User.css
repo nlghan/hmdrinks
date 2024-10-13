@@ -50,13 +50,14 @@
 
 .user-button-container button {
   flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
-  width: 65px;
+  width: 25px;
   margin: 0 5px; /* Thêm khoảng cách giữa các nút */
   border: none; /* Loại bỏ viền mặc định */
   border-radius: 5px; /* Tạo bo góc cho nút */
   cursor: pointer; /* Thay đổi con trỏ khi di chuột qua nút */
   transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
-  text-align: center
+  text-align: center;
+  background: white;
 }
 
 .user-update-btn1 {
@@ -373,28 +374,33 @@ input:checked + .slider:before {
   
   .user-box table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Ensures borders don't double up */
   }
   
   .user-box table th,
   .user-box table td {
-    border: 1px solid #ffffff;
     padding: 8px;
     text-align: left;
     border: none;
   }
   
   .user-box table th {
-    background-color: #ffffff;
-  }
-  .user-box th {
     font-size: 18px;
+    background-color: #ffffff;
+    padding-bottom: 12px; /* Optional padding adjustment */
+    border-bottom: 2px solid #ddd; /* Adds thicker border for header */
   }
+  
   .user-box table td {
     padding: 8px;
     text-align: left;
-    border: none;
+    border-bottom: 1px solid #ddd; /* Adds a light border at the bottom of each row */
   }
+  
+  .user-box table tr:hover {
+    background-color: #f9f9f9; /* Optional: highlights the row when hovered */
+  }
+  
   
   
   .status-approved {
@@ -539,7 +545,7 @@ input:checked + .slider:before {
     flex-direction: row;
     margin-left: 45%;
     position: fixed;
-    bottom: 70px;
+    bottom: 40px;
     right:55%;
     
 }

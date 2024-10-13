@@ -555,6 +555,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             <button
                                 type="button"
                                 onClick={handleFileUpload}
+                                style={{marginLeft:"50px"}}
                             >
                                 Tải lên hình ảnh
                             </button>
