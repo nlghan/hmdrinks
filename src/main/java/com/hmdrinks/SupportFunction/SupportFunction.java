@@ -13,12 +13,7 @@ import java.util.Optional;
 
 @Component
 public class SupportFunction {
-
-    private UserRepository userRepository;
-
     private final JwtService jwtService;
-
-    // Constructor-based dependency injection
     @Autowired
     public SupportFunction(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -48,7 +43,6 @@ public class SupportFunction {
             throw new BadRequestException("Số điện thoại không hợp lệ. Phải chứa 10 chữ số.");
         }
 
-        // Kiểm tra số điện thoại có bị trùng không (trong database)
         Optional<User> existingUserOptional = userRepository.findByPhoneNumberAndIsDeletedFalse(phoneNumber);
 
         // Nếu tồn tại người dùng và người dùng đó không phải là chính người đang cập nhật
@@ -59,6 +53,4 @@ public class SupportFunction {
             }
         }
     }
-
-
 }

@@ -25,10 +25,8 @@ import java.util.List;
 public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
 
     public CRUDCategoryResponse crateCategory(CreateCategoryRequest req)
     {
@@ -63,7 +61,6 @@ public class CategoryService {
         {
             throw new BadRequestException("cateId not exists");
         }
-
         return new CRUDCategoryResponse(
                 category.getCateId(),
                 category.getCateName(),
@@ -137,11 +134,25 @@ public class CategoryService {
 
         for(Product product1: productList)
         {
+            List<ProductImageResponse> productImageResponses = new ArrayList<>();
+            String currentProImg = product1.getListProImg();
+            if(currentProImg != null && !currentProImg.trim().isEmpty())
+            {
+                String[] imageEntries1 = currentProImg.split(", ");
+                for (String imageEntry : imageEntries1) {
+                    String[] parts = imageEntry.split(": ");  // Phân tách stt và url
+                    int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
+                    String url = parts[1];                     // Lấy URL
+
+                    productImageResponses.add(new ProductImageResponse(stt, url));
+                }
+            }
+
             crudProductResponseList.add(new CRUDProductResponse(
                     product1.getProId(),
                     product1.getCategory().getCateId(),
                     product1.getProName(),
-                    product1.getProImg(),
+                    productImageResponses,
                     product1.getDescription(),
                     product1.getIsDeleted(),
                     product1.getDateDeleted(),
@@ -176,5 +187,4 @@ public class CategoryService {
         }
         return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
-
 }

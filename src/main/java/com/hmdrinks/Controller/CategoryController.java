@@ -1,7 +1,6 @@
 package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.CRUDCategoryRequest;
-import com.hmdrinks.Request.CreateAccountUserReq;
 import com.hmdrinks.Request.CreateCategoryRequest;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.CategoryService;
@@ -20,7 +19,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping(value = "/list-category")
-    public ResponseEntity<ListCategoryResponse> listAllUser(
+    public ResponseEntity<ListCategoryResponse> listAllCategory(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit
     ) {
@@ -28,22 +27,22 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/create-category")
-    public ResponseEntity<CRUDCategoryResponse> createAccount(@RequestBody CreateCategoryRequest req){
+    public ResponseEntity<CRUDCategoryResponse> createCategory(@RequestBody CreateCategoryRequest req){
         return ResponseEntity.ok(categoryService.crateCategory(req));
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDCategoryResponse> update(@RequestBody CRUDCategoryRequest req){
+    public ResponseEntity<CRUDCategoryResponse> updateCategory(@RequestBody CRUDCategoryRequest req){
         return ResponseEntity.ok(categoryService.updateCategory(req));
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CRUDCategoryResponse> update( @PathVariable Integer id){
+    public ResponseEntity<CRUDCategoryResponse> getOneCategory( @PathVariable Integer id){
         return ResponseEntity.ok(categoryService.getOneCategory(id));
     }
 
     @GetMapping("/view/{id}/product")
-    public ResponseEntity<GetViewProductCategoryResponse> view(@PathVariable Integer id){
+    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id){
         return ResponseEntity.ok(categoryService.getAllProductFromCategory(id));
     }
 

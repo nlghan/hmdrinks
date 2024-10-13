@@ -2,7 +2,6 @@ package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Request.CreateProductReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.PostService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     @Autowired
     private PostService postService;
-
     @Autowired
     private SupportFunction supportFunction;
 
@@ -31,7 +29,7 @@ public class PostController {
 
     @GetMapping(value ="/view/{id}")
     public ResponseEntity<CRUDPostResponse> getOnePost(
-            @PathVariable Integer id,HttpServletRequest httpRequest
+            @PathVariable Integer id
     ){
         return ResponseEntity.ok(postService.getPostById(id));
     }
@@ -57,5 +55,4 @@ public class PostController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return  ResponseEntity.ok(postService.updatePost(req));
     }
-
 }

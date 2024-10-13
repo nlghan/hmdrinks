@@ -29,7 +29,6 @@ import java.util.Optional;
            String phoneNumber,
            Pageable pageable);
 
-
     Optional<User> findByEmailAndUserIdNot(String email, Integer userId);
     Optional<User> findByUserNameAndIsDeletedFalse(String username);
     Optional<User> findByPhoneNumberAndIsDeletedFalse(String phoneNumber);

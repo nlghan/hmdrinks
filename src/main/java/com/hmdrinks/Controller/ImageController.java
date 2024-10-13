@@ -1,6 +1,5 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Response.ImgResponse;
 import com.hmdrinks.Service.ImgService;
 import com.hmdrinks.Service.JwtService;
@@ -12,9 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin
@@ -22,15 +19,13 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/image")
 public class ImageController {
-
     @Autowired
     private ImgService imgService;
-
     @Autowired
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/product-image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ImgResponse> handleUploadUserImagesFull(
+    public ResponseEntity<ImgResponse> handleUploadProductImagesFull(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("proId") Integer id,
             HttpServletRequest httpRequest) {
@@ -55,10 +50,6 @@ public class ImageController {
         return ResponseEntity.ok(imgService.uploadImgUser(file,id));
     }
 
-    @PostMapping(value = "/product/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> handleUploadProductImage(@RequestParam("file") MultipartFile file, @RequestParam("proId") Integer id) throws IOException {
-        return ResponseEntity.ok(imgService.uploadImgProduct(file,id));
-    }
     @PostMapping(value = "/cate/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> handleUploadCategoryImage(@RequestParam("file") MultipartFile file, @RequestParam("cateId") Integer id) throws IOException {
         return ResponseEntity.ok(imgService.uploadImgCategory(file,id));

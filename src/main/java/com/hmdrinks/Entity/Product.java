@@ -23,8 +23,8 @@ public class Product {
     @Column(name = "proName", nullable = false)
     private String proName;
 
-    @Column(name = "proImg")
-    private String proImg;
+    @Column(name = "listProImg", columnDefinition = "TEXT",nullable = false)
+    private String listProImg;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -41,8 +41,6 @@ public class Product {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)  // mappedBy để ánh xạ với thuộc tính user bên UserInfo
-    private ProductImage productImage;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

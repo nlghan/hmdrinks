@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Data
@@ -14,7 +15,7 @@ public class CRUDProductResponse {
     private int proId;
     private int cateId;
     private String proName;
-    private String proImg;
+    List<ProductImageResponse> productImageResponseList;
     private String description;
     private boolean isDeleted;
     private Date dateDeleted;

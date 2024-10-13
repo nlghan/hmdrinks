@@ -34,14 +34,11 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final  UserRepository userRepository;
     private final OtpRepository otpRepository;
     private final SupportFunction supportFunction;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -52,9 +49,7 @@ public class UserService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
-
         for (User user : userList) {
-
             String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
                         user.getUserId(),
@@ -79,13 +74,9 @@ public class UserService {
 
     public GetDetailUserInfoResponse getDetailUserInfoResponse(Integer id){
         User userList = userRepository.findByUserId(id);
-
         if (userList == null) {
             throw new RuntimeException("Khong ton tai user");
         }
-
-
-
         String fullLocation = userList.getStreet() + ","+ userList.getDistrict() + ","+ userList.getCity();
         return new GetDetailUserInfoResponse(
                 userList.getUserId(),
@@ -106,24 +97,15 @@ public class UserService {
         );
     }
     public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
-        // Tìm người dùng hiện tại theo userId
         User userList = userRepository.findByUserId(req.getUserId());
-
         if (userList == null) {
             throw new NotFoundException("User does not exist");
         }
-
-        // Kiểm tra xem email đã được sử dụng bởi người dùng khác hay không
         Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
-        if(user.isPresent()) { // Đảo ngược điều kiện
+        if(user.isPresent()) {
             throw new ConflictException("Email already exists");
         }
-
-        // Kiểm tra số điện thoại
         supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
-        User userWithEmail = userRepository.findByEmail(req.getEmail());
-
-        // Cập nhật thông tin người dùng
         LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
         userList.setEmail(req.getEmail());
@@ -133,10 +115,9 @@ public class UserService {
         userList.setSex(Sex.valueOf(req.getSex()));
         userList.setBirthDate(req.getBirthDay());
         userList.setDateUpdated(Date.valueOf(currentDate));
-
         if(locationParts.length >= 3){
-            String street = locationParts[0].trim();   // Lấy phần street
-            String district = locationParts[1].trim();  // Lấy phần district
+            String street = locationParts[0].trim();
+            String district = locationParts[1].trim();
             String city = locationParts[2].trim();
             userList.setCity(city);
             userList.setStreet(street);
@@ -144,9 +125,7 @@ public class UserService {
         } else {
             throw new BadRequestException("Invalid address format");
         }
-
         userRepository.save(userList);
-
         return new UpdateUserInfoResponse(
                 userList.getUserId(),
                 userList.getUserName(),
@@ -166,20 +145,16 @@ public class UserService {
         );
     }
 
-
     public SendEmailResponse sendEmail(String email) {
         Random random = new Random();
         User users = userRepository.findByEmail(email);
-
         if (users == null) {
             throw new NotFoundException("Username or email does not exist");
         }
-
         OTP otpEntity = otpRepository.findByEmail(email);
         if (otpEntity != null) {
             otpRepository.deleteById(otpEntity.getOtpId());
         }
-
         int randomNumber = random.nextInt(900000) + 100000;
         String to = users.getEmail();
         SimpleMailMessage message = new SimpleMailMessage();
@@ -257,9 +232,7 @@ public class UserService {
         Page<User> userList = userRepository.findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
                 keyword,keyword,keyword,keyword,keyword,keyword,keyword,pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
-
         for (User user : userList) {
-
             String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
                     user.getUserId(),
@@ -284,15 +257,12 @@ public class UserService {
 
     public ChangePasswordResponse changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
-
         if (users == null) {
             throw new NotFoundException("Not found user");
         }
-
         if (!passwordEncoder.matches(req.getCurrentPassword(), users.getPassword())) {
             throw new BadRequestException("The current password is incorrect");
         }
-
         if (req.getNewPassword().equals(req.getCurrentPassword())) {
             throw new BadRequestException("You're using an old password");
         }
@@ -306,7 +276,5 @@ public class UserService {
                 message,
                 req.getNewPassword()
         );
-
     }
-
 }
