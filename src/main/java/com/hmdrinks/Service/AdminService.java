@@ -20,13 +20,10 @@ import java.util.Optional;
 
 @Service
 public class AdminService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private SupportFunction supportFunction;
-
     @Autowired
     PasswordEncoder passwordEncoder;
 
@@ -46,9 +43,7 @@ public class AdminService {
             // Nếu tìm thấy người dùng có email này nhưng không phải chính người đang tạo
             throw new ConflictException("Email already exists with another user");
         }
-
         // Gọi hàm checkPhoneNumber từ SupportFunction
-
         LocalDate currentDate = LocalDate.now();
         User user1 = new User();
         user1.setType(TypeLogin.BASIC);
@@ -88,13 +83,10 @@ public class AdminService {
         );
     }
     public CRUDAccountUserResponse updateAccountUser(UpdateAccountUserReq req) {
-        // Find the user by userId
         Optional<User> existingUserOptional = userRepository.findById(req.getUserId());
-
         if (existingUserOptional.isEmpty() || existingUserOptional.get().getIsDeleted()) {
             throw new BadRequestException("User not found or has been deleted");
         }
-
         User existingUser = existingUserOptional.get();
 
         // Update user details only if provided in the request
@@ -155,6 +147,4 @@ public class AdminService {
                 existingUser.getRole().toString()
         );
     }
-
-
 }

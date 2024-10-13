@@ -18,19 +18,14 @@ import java.util.List;
 
 @Service
 public class CartItemService {
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private UserRepository userRepository;
 
@@ -41,7 +36,6 @@ public class CartItemService {
         {
             throw  new BadRequestException("Not found user");
         }
-
         Product product= productRepository.findByProId(req.getProId());
         if(product == null)
         {
@@ -65,7 +59,6 @@ public class CartItemService {
         if(req.getQuantity() < 0){
             throw  new BadRequestException("quantity must larger 0");
         }
-
         CartItem cartItem1 = cartItemRepository.findByProductVariants_VarIdAndProductVariants_SizeAndCart_CartId(productVariants.getVarId(),req.getSize(),req.getCartId());
         CartItem cartItem = new CartItem();
         if(cartItem1 == null)
@@ -100,8 +93,6 @@ public class CartItemService {
                     cartItem.getTotalPrice(),
                     cartItem.getQuantity()
             );
-
-
         }
         else
         {
@@ -134,8 +125,6 @@ public class CartItemService {
                     cartItem1.getQuantity()
             );
         }
-
-
     }
 
     public IncreaseDecreaseItemQuantityResponse increaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
@@ -156,8 +145,6 @@ public class CartItemService {
             throw  new BadRequestException("hết hàng rồi lì như trâu ");
         }
         cartItem.setQuantity((Present_Quantity));
-
-
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
         if(cart == null)
@@ -175,7 +162,6 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
-
         return new IncreaseDecreaseItemQuantityResponse(
                 Present_Quantity
         );
@@ -217,7 +203,6 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
-
         return new IncreaseDecreaseItemQuantityResponse(
                 Present_Quantity
         );
@@ -267,6 +252,4 @@ public class CartItemService {
                 "Delete all item success"
         );
     }
-
-
 }

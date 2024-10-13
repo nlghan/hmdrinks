@@ -13,12 +13,7 @@ import java.util.Optional;
 
 @Component
 public class SupportFunction {
-
-    private UserRepository userRepository;
-
     private final JwtService jwtService;
-
-    // Constructor-based dependency injection
     @Autowired
     public SupportFunction(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -58,6 +53,4 @@ public class SupportFunction {
             }
         }
     }
-
-
 }

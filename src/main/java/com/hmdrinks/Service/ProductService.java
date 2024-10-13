@@ -16,20 +16,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ProductService {
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
 
@@ -51,21 +47,18 @@ public class ProductService {
         product1.setIsDeleted(false);
         product1.setDateCreated(currentDate);
         productRepository.save(product1);
-
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         String currentProImg = product1.getListProImg();
         if(currentProImg != null && !currentProImg.trim().isEmpty())
         {
             String[] imageEntries1 = currentProImg.split(", ");
             for (String imageEntry : imageEntries1) {
-                String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                String url = parts[1];                     // Lấy URL
-
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-
         return new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
@@ -90,10 +83,9 @@ public class ProductService {
         {
             String[] imageEntries1 = currentProImg.split(", ");
             for (String imageEntry : imageEntries1) {
-                String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                String url = parts[1];                     // Lấy URL
-
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
@@ -123,7 +115,6 @@ public class ProductService {
         if (product1 == null) {
             throw new BadRequestException("proId not exists");
         }
-
         product1.setCategory(category);
         product1.setDescription(req.getDescription());
         product1.setProName(req.getProName());
@@ -135,10 +126,9 @@ public class ProductService {
         {
             String[] imageEntries1 = currentProImg.split(", ");
             for (String imageEntry : imageEntries1) {
-                String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                String url = parts[1];                     // Lấy URL
-
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
@@ -170,10 +160,9 @@ public class ProductService {
             {
                 String[] imageEntries1 = currentProImg.split(", ");
                 for (String imageEntry : imageEntries1) {
-                    String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                    int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                    String url = parts[1];                     // Lấy URL
-
+                    String[] parts = imageEntry.split(": ");
+                    int stt = Integer.parseInt(parts[0]);
+                    String url = parts[1];
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
@@ -193,15 +182,12 @@ public class ProductService {
     }
 
     public GetProductVariantFromProductIdResponse getAllProductVariantFromProduct(int id) {
-
         Product product = productRepository.findByProId(id);
         if (product == null) {
             throw new BadRequestException("cateId not exists");
         }
         List<ProductVariants> productList = productVariantsRepository.findByProduct_ProId(id);
-
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
-
         for (ProductVariants product1 : productList) {
             crudProductVarResponseList.add(new CRUDProductVarResponse(
                     product1.getVarId(),
@@ -215,7 +201,6 @@ public class ProductService {
                     product1.getDateUpdated()
             ));
         }
-
         return new GetProductVariantFromProductIdResponse(
                 id,
                 crudProductVarResponseList
@@ -233,15 +218,13 @@ public class ProductService {
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
-
             if(currentProImg != null && !currentProImg.trim().isEmpty())
             {
                 String[] imageEntries1 = currentProImg.split(", ");
                 for (String imageEntry : imageEntries1) {
-                    String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                    int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                    String url = parts[1];                     // Lấy URL
-
+                    String[] parts = imageEntry.split(": ");
+                    int stt = Integer.parseInt(parts[0]);
+                    String url = parts[1];
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
@@ -260,7 +243,7 @@ public class ProductService {
         return new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
     }
 
-    public ListProductImageResponse deleteImageFromProduct(int proId, int deleteStt) {
+    public ListProductImageResponse deleteImageFromProduct(int proId, String imageUrl) {
         Product product = productRepository.findByProId(proId);
         if (product == null) {
             throw new NotFoundException("Not found product with ID: " + proId);
@@ -272,36 +255,33 @@ public class ProductService {
         String[] imageEntries = currentProImg.split(", ");
         List<String> updatedImageEntries = new ArrayList<>();
         int currentStt = 1;
+        boolean imageFound = false;
         for (String imageEntry : imageEntries) {
-            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-            String url = parts[1];                     // Lấy URL
-
-            if (stt == deleteStt) {
+            String[] parts = imageEntry.split(": ");
+            int stt = Integer.parseInt(parts[0]);
+            String url = parts[1];
+            if (url.equals(imageUrl)) {
+                imageFound = true;
                 continue;
             }
             updatedImageEntries.add(currentStt + ": " + url);
             currentStt++;
         }
+        if (!imageFound) {
+            throw new NotFoundException("Image not found with URL: " + imageUrl);
+        }
         String updatedProImg = String.join(", ", updatedImageEntries);
         product.setListProImg(updatedProImg);
         product.setDateUpdated(LocalDate.now());
         productRepository.save(product);
-
-        String currentProImg1 = product.getListProImg();
-        if (currentProImg == null || currentProImg.trim().isEmpty()) {
-            throw new BadRequestException("No images found for this product.");
-        }
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
-        String[] imageEntries1 = currentProImg.split(", ");
-        for (String imageEntry : imageEntries1) {
-            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-            String url = parts[1];                     // Lấy URL
-
+        for (String imageEntry : updatedImageEntries) {
+            String[] parts = imageEntry.split(": ");
+            int stt = Integer.parseInt(parts[0]);
+            String url = parts[1];
             productImageResponses.add(new ProductImageResponse(stt, url));
         }
-        return new ListProductImageResponse(proId,productImageResponses);
+        return new ListProductImageResponse(proId, productImageResponses);
     }
 
     public ImgResponse deleteAllImageFromProduct(int proId) {
@@ -315,7 +295,6 @@ public class ProductService {
         return new ImgResponse(product.getListProImg());
     }
 
-
     public ListProductImageResponse getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         Product product = productRepository.findByProId(proId);
@@ -327,14 +306,12 @@ public class ProductService {
         {
             String[] imageEntries = currentProImg.split(", ");
             for (String imageEntry : imageEntries) {
-                String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-                int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-                String url = parts[1];                     // Lấy URL
-
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-
         return new ListProductImageResponse(proId,productImageResponses);
     }
 
@@ -355,14 +332,12 @@ public class ProductService {
         // 3: ngày tạo mới nhất
         // 4: top đánh gia cao đến thấp
         // 5: tu thấp đến cao star
-
         if (req.getO() <= 0) {
             throw new BadRequestException("o must be greater than 0");
         }
         Sort sort;
         int total = 0;
         if (req.getO() == 1) {
-
             sort = Sort.by(Sort.Direction.DESC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
@@ -379,7 +354,6 @@ public class ProductService {
                 ));
                 total += 1;
             }
-
         } else if (req.getO() == 2) {
             sort = Sort.by(Sort.Direction.ASC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
@@ -451,7 +425,6 @@ public class ProductService {
                 total += 1;
             }
         }
-
             return new FilterProductBoxResponse(
                     true,
                     total,

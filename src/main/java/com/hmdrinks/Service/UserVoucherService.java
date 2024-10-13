@@ -23,13 +23,10 @@ import java.util.List;
 public class UserVoucherService {
     @Autowired
     private UserVoucherRepository userVoucherRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private VoucherRepository voucherRepository;
-
     @Autowired
     private PostRepository postRepository;
 
@@ -55,7 +52,6 @@ public class UserVoucherService {
         userVoucher.setVoucher(voucher);
         userVoucher.setStatus(Status_UserVoucher.INACTIVE);
         userVoucherRepository.save(userVoucher);
-
         return  new GetVoucherResponse(
                 userVoucher.getUserVoucherId(),
                 userVoucher.getUser().getUserId(),
@@ -83,5 +79,4 @@ public class UserVoucherService {
          }
          return new ListAllVoucherUserIdResponse(listVoucherResponse);
     }
-
 }

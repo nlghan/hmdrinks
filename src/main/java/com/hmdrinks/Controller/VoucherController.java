@@ -1,7 +1,5 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.CRUDPostReq;
-import com.hmdrinks.Request.CreateNewPostReq;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
@@ -36,7 +34,6 @@ public class VoucherController {
     public ResponseEntity<ListAllVoucherResponse> getAllVouchers(){
         return  ResponseEntity.ok(voucherService.listAllVoucher());
     }
-
 
     @PutMapping(value = "/update")
     public ResponseEntity<CRUDVoucherResponse> updatePost(

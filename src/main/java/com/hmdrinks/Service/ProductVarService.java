@@ -24,10 +24,8 @@ import java.util.List;
 
 @Service
 public class ProductVarService {
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductVariantsRepository proVarRepository;
 
@@ -50,10 +48,7 @@ public class ProductVarService {
         productVariants1.setPrice(req.getPrice());
         productVariants1.setIsDeleted(false);
         productVariants1.setDateCreated(LocalDate.now());
-
         proVarRepository.save(productVariants1);
-
-
         return new CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
@@ -74,7 +69,6 @@ public class ProductVarService {
         {
             throw new BadRequestException("production id not exists");
         }
-
         return new CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
@@ -105,15 +99,12 @@ public class ProductVarService {
         {
             throw new BadRequestException("production variations id not exists");
         }
-
         productVariants1.setProduct(product);
         productVariants1.setSize(req.getSize());
         productVariants1.setStock(req.getStock());
         productVariants1.setPrice(req.getPrice());
         productVariants1.setDateUpdated(LocalDate.now());
-
         proVarRepository.save(productVariants1);
-
         return new CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
@@ -150,8 +141,4 @@ public class ProductVarService {
         }
         return new ListProductVarResponse(page,productList.getTotalPages(),limit,crudProductVarResponseList);
     }
-
-
-
-
 }

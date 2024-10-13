@@ -1,6 +1,4 @@
 package com.hmdrinks.Service;
-
-
 import com.hmdrinks.Entity.Post;
 import com.hmdrinks.Entity.Voucher;
 import com.hmdrinks.Enum.Status_Voucher;
@@ -13,7 +11,6 @@ import com.hmdrinks.Response.CRUDVoucherResponse;
 import com.hmdrinks.Response.ListAllVoucherResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +19,6 @@ import java.util.List;
 public class VoucherService {
     @Autowired
     private VoucherRepository voucherRepository;
-
     @Autowired
     private PostRepository postRepository;
 
@@ -35,10 +31,8 @@ public class VoucherService {
         if(vou != null){
             throw new BadRequestException("Voucher Post already exists");
         }
-
         Date createPost = post.getDateCreate();
         Date currentDate = new Date();
-
         if (req.getStartDate().before(currentDate)) {
             throw new BadRequestException("Start date must be greater than or equal to current date");
         }
@@ -51,7 +45,6 @@ public class VoucherService {
         if(req.getEndDate().before(createPost)){
             throw new BadRequestException("End date must be greater than or equal to post creation date");
         }
-
         Voucher voucher = new Voucher();
         voucher.setPost(post);
         voucher.setStartDate(req.getStartDate());
@@ -81,8 +74,6 @@ public class VoucherService {
             if(post == null){
                 throw new BadRequestException("Not found post");
             }
-
-
             Date createPost = post.getDateCreate();
             Date currentDate = new Date();
 
@@ -123,7 +114,6 @@ public class VoucherService {
             }
             Date createPost = post.getDateCreate();
             Date currentDate = new Date();
-
             if (req.getStartDate().before(currentDate)) {
                 throw new BadRequestException("Start date must be greater than or equal to current date");
             }
@@ -140,7 +130,6 @@ public class VoucherService {
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
-
             return new CRUDVoucherResponse(
                     voucher.getVoucherId(),
                     voucher.getStartDate(),
@@ -150,7 +139,6 @@ public class VoucherService {
                     voucher.getPost().getPostId()
             );
         }
-
     }
 
     public CRUDVoucherResponse getVoucherById(int voucherId){
@@ -167,7 +155,6 @@ public class VoucherService {
                 voucher.getPost().getPostId()
         );
     }
-
     public ListAllVoucherResponse listAllVoucher()
     {
         List<Voucher> voucherList = voucherRepository.findAll();
@@ -184,5 +171,4 @@ public class VoucherService {
         }
         return  new ListAllVoucherResponse(crudVoucherResponses);
     }
-
 }

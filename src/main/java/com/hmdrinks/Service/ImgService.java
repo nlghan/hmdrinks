@@ -25,18 +25,12 @@ import java.util.Optional;
 public class ImgService {
     @Value("${cloudinary.url}")
     private String cloudinaryUrl;
-
-
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private PostRepository postRepository;
-
-
     @Autowired
     private UserRepository userRepository;
 
@@ -45,17 +39,12 @@ public class ImgService {
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         User users = userRepository.findByUserId(userId);
         if (users == null) {
             throw new NotFoundException("Not found userId");
         }
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -84,21 +73,15 @@ public class ImgService {
     }
 
     public ImgResponse uploadImgCategory(MultipartFile multipartFile, int cateId) throws IOException {
-
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Category category = categoryRepository.findByCateId(cateId);
         if (category== null) {
             throw new NotFoundException("Not found cateId");
         }
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -123,18 +106,12 @@ public class ImgService {
     }
 
     public ImgResponse uploadImgPost(MultipartFile multipartFile, int postId) throws IOException {
-
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Post post = postRepository.findByPostId(postId);
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -158,59 +135,16 @@ public class ImgService {
         }
     }
 
-//    public ImgResponse uploadImgProduct(MultipartFile multipartFile, int proId) throws IOException {
-//
-//        if (!processFile(multipartFile)) {
-//            throw new BadRequestException("Incorrect formatting");
-//        }
-//
-//
-//        Product product = productRepository.findByProId(proId);
-//        if (product == null) {
-//            throw new NotFoundException("Not found proId");
-//        }
-//
-//
-//        Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
-//        cloudinary.config.secure = true;
-//
-//        try {
-//            InputStream inputStream = multipartFile.getInputStream();
-//            Map<String, Object> params = ObjectUtils.asMap(
-//                    "use_filename", true,
-//                    "unique_filename", false,
-//                    "overwrite", true
-//            );
-//            File tempFile = File.createTempFile("upload-", ".tmp");
-//            multipartFile.transferTo(tempFile);
-//            Map<String, Object> uploadResult = cloudinary.uploader().upload(tempFile, params);
-//            String imageUrl = (String) uploadResult.get("secure_url");
-//            ImgResponse imgResponse = new ImgResponse();
-//            imgResponse.setUrl(imageUrl);
-//            product.setProImg(imageUrl);
-//            productRepository.save(product);
-//            return imgResponse;
-//
-//        } catch (Exception e) {
-//            System.out.println("Error uploading image: " + e.getMessage());
-//            throw new IOException("Could not upload image: " + e.getMessage());
-//        }
-//    }
-
     public ImgResponse uploadImgListProduct(MultipartFile multipartFile, int proId) throws IOException {
-
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Product product = productRepository.findByProId(proId);
         if (product == null) {
             throw new NotFoundException("Not found proId");
         }
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -239,11 +173,9 @@ public class ImgService {
             } else {
                 product.setListProImg("1: " + imageUrl);
             }
-
             productRepository.save(product);
             imgResponse.setUrl(product.getListProImg());
             return imgResponse;
-
         } catch (Exception e) {
             System.out.println("Error uploading image: " + e.getMessage());
             throw new IOException("Could not upload image: " + e.getMessage());
@@ -274,4 +206,3 @@ public class ImgService {
         return false;
     }
 }
-

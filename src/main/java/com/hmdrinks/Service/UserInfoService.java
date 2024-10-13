@@ -17,11 +17,8 @@ import java.util.Collection;
 
 @Service
 public class UserInfoService implements UserDetailsService {
-
     @Autowired
     private UserRepository userRepository;
-
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User usersEntity = userRepository.findByUserNameAndIsDeletedFalse(username)
@@ -30,7 +27,6 @@ public class UserInfoService implements UserDetailsService {
         role.add(new SimpleGrantedAuthority(usersEntity.getRole().toString()));
         return new org.springframework.security.core.userdetails.User(usersEntity.getUserName(), usersEntity.getPassword(), role);
     }
-
     public MyUserDetails createMyUserDetails(User usersEntity) {
         return new MyUserDetails(usersEntity, usersEntity.getRole());
     }

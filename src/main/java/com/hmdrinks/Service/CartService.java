@@ -22,18 +22,12 @@ import java.util.List;
 
 @Service
 public class CartService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
-    @Autowired
-    private ProductVariantsRepository productVariantsRepository;
 
     public CreateNewCartResponse createCart(CreateNewCart req)
     {
@@ -48,21 +42,18 @@ public class CartService {
         {
             throw  new BadRequestException("NewCart exists");
         }
-
         Cart cart1 = new Cart();
         cart1.setTotalPrice(0);
         cart1.setUser(user);
         cart1.setStatus(Status_Cart.NEW);
         cart1.setTotalProduct(0);
         cartRepository.save(cart1);
-
         return new CreateNewCartResponse(
                 cart1.getCartId(),
                 cart1.getTotalPrice(),
                 cart1.getTotalProduct(),
                 cart1.getUser().getUserId(),
                 cart1.getStatus()
-
         );
     }
 

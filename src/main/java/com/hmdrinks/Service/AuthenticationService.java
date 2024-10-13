@@ -45,12 +45,10 @@ public class AuthenticationService {
         @Value("${application.security.jwt.expiration}")
         private long jwtExpiration;
 
-
         public AuthenticationResponse register(UserCreateReq userCreateReq) {
             Optional<User> userCheck = userRepository.findByUserNameAndIsDeletedFalse(userCreateReq.getUserName());
             if (userCheck.isPresent())
                 throw new ConflictException("User name already exists");
-
             LocalDate currentDate1 = LocalDate.now();
             User user1 = new User();
             user1.setType(TypeLogin.BASIC);
@@ -68,22 +66,16 @@ public class AuthenticationService {
             user1.setPassword(passwordEncoder.encode(userCreateReq.getPassword()));
             user1.setFullName(userCreateReq.getFullName());
             userRepository.save(user1);
-
             Token token = new Token();
             MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user1);
             Date currentDate = new Date();
-
             var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user1.getUserId()), user1.getRole().toString());
             var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user1.getUserId()), user1.getRole().toString());
-
             token.setAccessToken(jwtToken);
             token.setRefreshToken(refreshToken);
             token.setExpire(currentDate);
             token.setUser(user1);
-
             tokenRepository.save(token);
-
-
             return AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .refreshToken(refreshToken)
@@ -93,36 +85,27 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(LoginBasicReq request) {
         var user = userRepository.findByUserNameAndIsDeletedFalse(request.getUserName())
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user name"));
-
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword())
         );
-
         Token token = tokenRepository.findByUserUserId(user.getUserId());
-
         if (token == null) {
             token = new Token();
             token.setUser(user);
         }
-
         MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
         Date currentDate = new Date();
-
         var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
         var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
-
         token.setAccessToken(jwtToken);
         token.setRefreshToken(refreshToken);
         token.setExpire(currentDate);
-
         tokenRepository.save(token);
-
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
-
 
     public AuthenticationResponse refreshToken(
                 HttpServletRequest request,
@@ -136,16 +119,12 @@ public class AuthenticationService {
             }
             refreshToken = authHeader.substring(7);
             userName = jwtService.extractUsername(refreshToken);
-
-
             if (userName != null) {
                 var user = this.userRepository.findByUserNameAndIsDeletedFalse(userName)
                         .orElseThrow(() -> new NotFoundException("REFRESH token not found or expired"));
-
                 MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
                 Date currentDate = new Date();
                 Token token = tokenRepository.findByRefreshToken(refreshToken).orElseThrow(() -> new NotFoundException("REFRESH token not found or expired "));
-
                 if (jwtService.isTokenValid(refreshToken, myUserDetails)) {
                     var accessToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
                     token.setAccessToken(accessToken);
@@ -156,11 +135,7 @@ public class AuthenticationService {
                             .refreshToken(refreshToken)
                             .build();
                 }
-
             }
             throw new MalformedJwtException("token invalid");
         }
-
-
-
     }

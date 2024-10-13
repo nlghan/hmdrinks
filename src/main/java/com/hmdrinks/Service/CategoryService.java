@@ -25,10 +25,8 @@ import java.util.List;
 public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
 
     public CRUDCategoryResponse crateCategory(CreateCategoryRequest req)
     {
@@ -63,7 +61,6 @@ public class CategoryService {
         {
             throw new BadRequestException("cateId not exists");
         }
-
         return new CRUDCategoryResponse(
                 category.getCateId(),
                 category.getCateName(),
@@ -190,5 +187,4 @@ public class CategoryService {
         }
         return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
-
 }

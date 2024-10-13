@@ -1,6 +1,5 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Response.ImgResponse;
 import com.hmdrinks.Service.ImgService;
 import com.hmdrinks.Service.JwtService;
@@ -12,9 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin
@@ -22,15 +19,13 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/image")
 public class ImageController {
-
     @Autowired
     private ImgService imgService;
-
     @Autowired
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/product-image/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ImgResponse> handleUploadUserImagesFull(
+    public ResponseEntity<ImgResponse> handleUploadProductImagesFull(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("proId") Integer id,
             HttpServletRequest httpRequest) {

@@ -24,10 +24,8 @@ import java.util.List;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private UserRepository userRepository;
-
 
     public CRUDPostResponse createPost(CreateNewPostReq req) {
        User user = userRepository.findByUserId(req.getUserId());
@@ -47,7 +45,6 @@ public class PostService {
        post.setShortDes(req.getShortDescription());
        post.setIsDeleted(false);
        post.setDateCreate(currentDate);
-
        postRepository.save(post);
        return new CRUDPostResponse(
                post.getPostId(),
@@ -158,8 +155,6 @@ public class PostService {
                     post.getDateCreate()
             ));
         }
-
         return new ListAllPostByUserIdResponse(userId, responses);
     }
-
 }

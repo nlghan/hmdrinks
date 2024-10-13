@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
-
 @RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class ProductController {
@@ -22,7 +21,6 @@ public class ProductController {
 
     @Autowired
     private SupportFunction supportFunction;
-
 
     @PostMapping(value = "/create")
     public ResponseEntity<CRUDProductResponse> createAccount(@RequestBody CreateProductReq req){
@@ -72,7 +70,7 @@ public class ProductController {
 
     @DeleteMapping(value = "/image/deleteOne")
     public ResponseEntity<?> deleteAllItem(@RequestBody DeleteProductImgReq req, HttpServletRequest httpRequest) {
-        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getSTT()));
+        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getImgPath()));
     }
 
     @DeleteMapping(value = "/image/deleteAll")
@@ -80,5 +78,4 @@ public class ProductController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return ResponseEntity.ok(productService.deleteAllImageFromProduct(req.getProId()));
     }
-
 }

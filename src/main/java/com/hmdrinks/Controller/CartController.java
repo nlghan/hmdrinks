@@ -25,21 +25,21 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     @Autowired
     private CartService cartService;
-
     @Autowired
     private CartItemService cartItemService;
     @Autowired
     private SupportFunction supportFunction;
     @Autowired
     private JwtService jwtService;
+
     @PostMapping(value = "/create")
-    public ResponseEntity<CreateNewCartResponse> create(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
+    public ResponseEntity<CreateNewCartResponse> createCart(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return ResponseEntity.ok(cartService.createCart(req));
     }
 
-    @GetMapping(value = "/list-caritem/{id}")
-    public ResponseEntity<ListItemCartResponse> listAllUser(
+    @GetMapping(value = "/list-cartItem/{id}")
+    public ResponseEntity<ListItemCartResponse> listAllCartItem(
             @PathVariable Integer id
 
     ) {
