@@ -14,7 +14,6 @@ import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
-import FormAddUser from './components/FormAddUser';
 import { useAuth } from './context/AuthProvider'; // Import hook
 import Product from "./pages/Admin/Product";
 
@@ -40,6 +39,7 @@ const App = () => {
         <Route path="/category" element={<Category />} />
         <Route path="/product" element={<Product />} />
         <Route path="/formAddUser" element={<FormAddUser />} />
+
 
         {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}
         <Route path="*" element={<Navigate to="/" />} />

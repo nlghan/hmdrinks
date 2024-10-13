@@ -42,11 +42,12 @@
 .button-container {
   display: flex; /* Sử dụng Flexbox để bố trí các nút */
   justify-content: space-between; /* Căn giữa các nút với khoảng cách đều */
+  margin-left: -80px;
 }
 
 .button-container button {
   flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
-  width: 40px;
+  width: 50px;
   margin: 0 5px; /* Thêm khoảng cách giữa các nút */
   border: none; /* Loại bỏ viền mặc định */
   border-radius: 5px; /* Tạo bo góc cho nút */
@@ -117,17 +118,29 @@
 .add-user-btn:hover {
     background-color: #45a049;
 }
+.search-user-input {
+  padding: 10px;
+  margin-left: -530px; 
+  border: 1px solid #f0c1c1;
+  margin-right: 250px;;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.search-user-input:focus {
+  border-color: rgb(235, 51, 82); 
+  outline: none; 
+}
 
 .switch {
     position: relative;
     display: inline-block;
-    width: 40px; /* Chiều rộng của nút switch */
-    height: 20px; /* Chiều cao của nút switch */
+    width: 40px; 
+    height: 20px; 
     margin-left: 50px;
 }
 
 .switch input {
-    opacity: 0; /* Ẩn checkbox */
+    opacity: 0; 
     width: 0;
     height: 0;
 }
@@ -139,29 +152,29 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc; /* Màu nền khi tắt */
-    transition: .4s; /* Hiệu ứng chuyển đổi */
-    border-radius: 20px; /* Bo góc cho nút */
+    background-color: #ccc; 
+    transition: .4s; 
+    border-radius: 20px;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 16px; /* Chiều cao của nút */
-    width: 16px; /* Chiều rộng của nút */
+    height: 16px; 
+    width: 16px; 
     left: 2px;
     bottom: 2px;
-    background-color: white; /* Màu nền của nút */
-    transition: .4s; /* Hiệu ứng chuyển đổi */
-    border-radius: 50%; /* Bo tròn cho nút */
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
 }
 
 input:checked + .slider {
-    background-color: #4CAF50; /* Màu nền khi bật */
+    background-color: #4CAF50; 
 }
 
 input:checked + .slider:before {
-    transform: translateX(20px); /* Di chuyển nút sang phải */
+    transform: translateX(20px); 
 }
 
   
@@ -377,7 +390,9 @@ input:checked + .slider:before {
   .user-box table th {
     background-color: #ffffff;
   }
-  
+  .user-box th {
+    font-size: 18px;
+  }
   .user-box table td {
     padding: 8px;
     text-align: left;
@@ -419,126 +434,158 @@ input:checked + .slider:before {
     
   }
   .user-table {
-    display: flex; /* Flex container for main layout */
-    position: relative; /* Position for absolute elements inside */
+    display: flex;
+    position: relative;
     padding: 20px;
-  }
-  .user-menu-flex {
-    position: relative; /* Position to contain the button and menu */
-  }
-  
-  /* Button to toggle the menu */
-  .user-menu-toggle {
-    background-color: #007bff; /* Button color */
-    color: white; /* Button text color */
+}
+.user-menu-flex {
+    position: relative;
+}
+.user-menu-toggle {
+    background-color: #007bff;
+    color: white;
     border: none;
     padding: 10px;
     cursor: pointer;
-    width: 7%; /* Full width */
-    border-radius: 4px; /* Rounded corners */
-    margin-bottom: 15px; /* Margin below the button */
+    width: 7%;
+    border-radius: 4px;
+    margin-bottom: 15px;
     transition: background-color 0.3s;
-    margin-left: 480px; /* Adjust margin as needed */
-  }
-  
-  .user-menu-toggle:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }
-  
-  /* Side Menu Styles */
-  .user-side-menu {
-    width: 220px; /* Width of the side menu, slightly increased */
+    margin-left: 480px;
+}
+.user-menu-toggle:hover {
+    background-color: #0056b3;
+}
+.user-side-menu {
+    width: 220px;
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
-    position: fixed; /* Fixed positioning for overlay */
-    top: 0; /* Align it to the top */
-    left: 0; /* Align it to the left */
-    height: 100vh; /* Full height of the viewport */
-    z-index: 1000; /* Ensure it appears above other elements */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
-    transition: transform 0.3s ease; /* Smooth transition */
-  }
-  
-  /* Logo Style */
-  .user-logo-menu {
-    width: 100%; /* Makes the logo fit the width of the menu */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 20px; /* Space below the logo */
-  }
-  
-  /* Menu Items Styles */
-  .user-menu-items {
-    list-style: none; /* Remove default list styles */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+.user-logo-menu {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+.user-menu-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     font-weight: 400;
-  }
-  
-  .user-menu-items li {
-    font-size: 20px; /* Increase font size for menu items */
-    font-weight: 400;/* Make font bold */
-    color: #333; /* Text color */
-    margin-bottom: 15px; /* Space between items */
+}
+.user-menu-items li {
+    font-size: 20px;
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 15px;
     transition: color 0.3s ease;
-     /* Smooth color transition on hover */
-     padding: 20px;
-     font-family: 'Inter';
-     
-  }
-  
-  .user-menu-items li:hover {
-    color: #FF7380; /* Change color on hover */
+    padding: 20px;
+    font-family: 'Inter';
+}
+.user-menu-items li:hover {
+    color: #FF7380;
     cursor: pointer;
     background-color: #e9ece9;
-  }
-  
-  /* Background dimming styles */
-  .user-dim-background {
-    position: fixed; /* Fixed positioning for dim background */
+}
+.user-dim-background {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dimmed effect */
-    z-index: 500; /* Below side menu but above content */
-  }
-  
-/* Main Content Styles */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 500;
+}
 .user-table-row {
-  flex-grow: 1; /* Take the remaining space */
-  transition: filter 0.3s ease; /* Smooth transition for dimming effect */
+    flex-grow: 1;
+    transition: filter 0.3s ease;
 }
-
-/* Dimmed effect for the main content */
 .user-table-row.user-dimmed {
-  filter: blur(2px); /* Blurred effect for the main content */
+    filter: blur(2px);
 }
-
-
 .user-menu-and-user {
-  display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Center items vertically */
-  margin-bottom: 10px; /* Space below each menu item */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
 }
-
 .user-menu-and-user i {
-  margin-left: 10px;
-  margin-right: 12px; /* Space between the icon and text */
-  font-size: 18px; /* Adjust the icon size as needed */
-  color: #333; /* Icon color */
+    margin-left: 10px;
+    margin-right: 12px;
+    font-size: 18px;
+    color: #333;
 }
-
 .user-menu-and-user li {
-  font-size: 18px; /* Adjust font size for the list item */
-  font-weight: 400; /* Make font bold */
-  color: #333; /* Text color */
-  list-style: none; /* Remove default list styling */
-  padding: 1; /* Remove default padding */
-  margin: 0; /* Remove default margin */
+    font-size: 18px;
+    font-weight: 400;
+    color: #333;
+    list-style: none;
+    padding: 1;
+    margin: 0;
 }
-.user-flex{
-  display: flex;
-  position: absolute;
-  top: 40px;
-  left: 50px;    
-} 
-  
+.user-flex {
+    display: flex;
+    position: absolute;
+    top: 40px;
+    left: 50px;    
+}
+.user-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 40%;
+}
+.pagination .btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ed8ca1;
+    color: #ffffff;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+.pagination .btn:hover:not(:disabled) {
+    background-color: #7397b8;
+}
+.pagination .btn:disabled {
+    background-color: #c0c0c0;
+    cursor: not-allowed;
+}
+.pagination .btn-page {
+    background-color: #33a1b4;
+    margin: 5px;
+}
+.pagination .btn-page:hover {
+    background-color: #5a6268;
+}
+.pagination .btn-light {
+    background-color: #f8f9fa;
+    color: #000;
+    margin: 5px;
+}
+.pagination .btn-light:hover {
+    background-color: #e2e6ea;
+}
+.btn-pre, .btn-next {
+    font-weight: bold;
+}
+.overlay-details-user, .overlay-update-user {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}

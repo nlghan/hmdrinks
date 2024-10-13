@@ -233,7 +233,7 @@ const Info = () => {
         return (
             <LoadingAnimation 
                 animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json" 
-                isVisible={loading}  // Make sure to set isVisible to true
+                isVisible={loading}  
             />
         );
     }
