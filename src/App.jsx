@@ -16,6 +16,7 @@ import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
 import FormAddUser from './components/FormAddUser';
 import { useAuth } from './context/AuthProvider'; // Import hook
+import Product from "./pages/Admin/Product";
 
 const App = () => {
   const location = useLocation();
@@ -37,6 +38,7 @@ const App = () => {
         <Route path="/send-mail" element={<SendMail />} />
         <Route path="/user" element={<User />} />
         <Route path="/category" element={<Category />} />
+        <Route path="/product" element={<Product />} />
         <Route path="/formAddUser" element={<FormAddUser />} />
 
         {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}

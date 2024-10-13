@@ -1,0 +1,99 @@
+/* Modal Overlay */
+.form-update-product {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(5px); /* Blur effect for background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure modal is on top */
+}
+
+/* Modal Content */
+.form-update-product > div {
+    background: white; /* Modal background color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Inner spacing */
+    width: 90%; /* Responsive width */
+    max-width: 600px; /* Max width for larger screens */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow effect */
+}
+
+/* Header Style */
+h2 {
+    margin-top: 0; /* Remove default margin */
+}
+
+/* Error message style */
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
+/* Form Group Style */
+.form-group {
+    margin-bottom: 15px; /* Space between form groups */
+}
+
+/* Input Field Styles */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%; /* Full width */
+    padding: 10px; /* Inner spacing */
+    border: 1px solid #ccc; /* Border style */
+    border-radius: 4px; /* Rounded corners */
+}
+
+/* Button Styles */
+button {
+    padding: 10px 15px; /* Inner spacing */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-right: 10px; /* Space between buttons */
+}
+
+button[type="submit"] {
+    background-color: #28a745; /* Green background for submit button */
+    color: white; /* White text */
+}
+
+button[type="submit"]:disabled {
+    background-color: #ccc; /* Gray background when disabled */
+    cursor: not-allowed; /* Not-allowed cursor when disabled */
+}
+
+button[type="button"] {
+    background-color: #dc3545; /* Red background for cancel button */
+    color: white; /* White text */
+}
+
+/* Variant Section */
+.pro-update-variant-container {
+    margin-top: 20px; /* Space above variant section */
+}
+
+.pro-update-variant-group {
+    margin-bottom: 15px; /* Space between variant groups */
+}
+
+.pro-update-variant-fields {
+    display: flex; /* Flexbox for alignment */
+    justify-content: space-between; /* Space between fields */
+}
+
+.pro-update-field-group {
+    flex: 1; /* Equal width for fields */
+    margin-right: 10px; /* Space between fields */
+}
+
+/* Remove margin for last field in each group */
+.pro-update-field-group:last-child {
+    margin-right: 0; /* No margin for last child */
+}

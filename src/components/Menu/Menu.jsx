@@ -55,6 +55,10 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
         navigate('/dashboard'); // Navigate to the user page
     };
 
+    const handleProduct= () => {
+        navigate('/product')
+    }
+
     return (
         <>
             {isMenuOpen && <div className="menu-dim-background" onClick={toggleMenu}></div>}
@@ -73,6 +77,10 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
                         <div className='menu-and-user' onClick={handleCate}>
                             <i className='ti-package' />
                             <li>Danh mục</li>
+                        </div>
+                        <div className='menu-and-user' onClick={handleProduct}>
+                            <i className='ti-paint-bucket' />
+                            <li>Sản phẩm</li>
                         </div>
                         <div className='menu-and-user'>
                             <i className='ti-pencil-alt' />
