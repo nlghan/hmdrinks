@@ -84,11 +84,13 @@ public class AdminService {
     }
     public CRUDAccountUserResponse updateAccountUser(UpdateAccountUserReq req) {
         Optional<User> existingUserOptional = userRepository.findById(req.getUserId());
-        if (existingUserOptional.isEmpty() || existingUserOptional.get().getIsDeleted()) {
-            throw new BadRequestException("User not found or has been deleted");
+        if (existingUserOptional.isEmpty()) {
+            throw new BadRequestException("User not found");
         }
         User existingUser = existingUserOptional.get();
-
+        if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
+            existingUser.setIsDeleted(false); // Khôi phục người dùng
+        }
         // Update user details only if provided in the request
         if (req.getFullName() != null && !req.getFullName().isEmpty()) {
             existingUser.setFullName(req.getFullName());
@@ -121,10 +123,12 @@ public class AdminService {
             existingUser.setRole(req.getRole());
         }
 
-        if (req.getPhone() != null && !req.getPhone().isEmpty()) {
-            existingUser.setPhoneNumber(req.getPhone());
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isEmpty()) {
+            existingUser.setPhoneNumber(req.getPhoneNumber());
         }
-
+        if (req.getIsDeleted() != null) {
+            existingUser.setIsDeleted(req.getIsDeleted());
+        }
 
         userRepository.save(existingUser);
 

@@ -21,7 +21,7 @@ public class DetailUserResponse {
     private Date birth_date;
     private String address;
     private String email;
-    private String phone;
+    private String phoneNumber;
     private String sex;
     private String type;
     private Boolean isDelete;

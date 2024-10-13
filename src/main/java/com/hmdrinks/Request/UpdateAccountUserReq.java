@@ -19,5 +19,6 @@ public class UpdateAccountUserReq {
     private String email;
     private String password;
     private Role role;
-    private String phone;
+    private String phoneNumber;
+    private Boolean isDeleted;
 }
