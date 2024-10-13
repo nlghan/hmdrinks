@@ -41,12 +41,12 @@
     margin-bottom: 10px;
 }
 
-.input-group {
+.register-input-group {
     margin-bottom: 20px;
     width: 100%;
 }
 
-.input {
+.register-input  {
     width: 80%;
     padding: 10px 0;
     border: none;

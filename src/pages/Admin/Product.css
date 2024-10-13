@@ -16,7 +16,7 @@
 
 /* Categories Section Styling */
 .product-categories {
-    width: 27%; /* Adjust width for better appearance */
+    width: 28.5%; /* Adjust width for better appearance */
     border: 1px solid #ddd;
     padding: 15px; /* Add padding for better spacing */
     background-color: white;
@@ -187,16 +187,63 @@
 }
 
 /* Pagination Controls */
-.product-pagination-controls {
-    margin-top: 15px;
+.pro-pagination {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      width: 15%;
+      flex-direction: row;
+      left: 55%;
+      position: fixed;
+      bottom: 20px;
+      
+      
+  }
+  
+  .pro-pagination .btn {
+    padding: 10px 15px; /* Padding cho nút */
+    border: none; /* Bỏ viền */
+    border-radius: 5px; /* Bo góc */
+    cursor: pointer; /* Con trỏ chuột khi hover */
+    background-color: #ed8ca1; /* Màu nền */
+    color: #ffffff; /* Màu chữ */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+    margin:5px
+  }
+  
+  .pro-pagination .btn:hover:not(:disabled) {
+    background-color: #7397b8; /* Màu nền khi hover */
+  }
+  
+  .pro-pagination .btn:disabled {
+    
+    cursor: not-allowed; /* Con trỏ không hợp lệ */
+  }
+  
+  .pro-pagination .btn-page {
+    background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
+    margin:5px
+  }
+  
+  .pro-pagination .btn-page:hover {
+    background-color: #5a6268; /* Màu nền khi hover cho nút trang hiện tại */
+  }
+  
+  .pro-pagination .btn-light {
+    background-color: #f8f9fa; /* Màu nền cho nút trang khác */
+    color: #000; /* Màu chữ cho nút trang khác */
+    margin: 5px;
+  }
+  
+  .pro-pagination .btn-light:hover {
+    background-color: #e2e6ea; /* Màu nền khi hover cho nút trang khác */
+  }
 
 .product-list {
     width: 70%;
     padding-left: 20px;
+    height: 770px;
 }
 
 

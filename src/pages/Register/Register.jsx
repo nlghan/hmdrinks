@@ -1,19 +1,19 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import Footer from "../../components/Footer/Footer.jsx";
 import './Register.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 import Cookies from 'js-cookie'; // Nhập thư viện js-cookie
 
 const Register = () => {
     const navigate = useNavigate();
-    
+
     // State để lưu thông tin đăng ký
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState(""); 
+    const [message, setMessage] = useState("");
 
     const handleLogin = () => {
         navigate('/login');
@@ -25,7 +25,7 @@ const Register = () => {
             userName,
             password
         };
-    
+
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
                 headers: {
@@ -69,34 +69,53 @@ const Register = () => {
         <div className="register-page">
             <div className="register-container">
                 <div className="login-image">
-                    <img src={assets.login} alt=''/>
+                    <img src={assets.login} alt='' />
                     <i className="ti-arrow-left" onClick={handleBack}></i>
 
                 </div>
                 <div className="register-form">
                     <h2>Tạo tài khoản mới</h2>
                     <p className="small-text">Nhập thông tin cá nhân bên dưới</p>
-                    <div className="input-group">
-                        <input 
-                            type="text" 
-                            placeholder="Họ và tên" 
-                            className="input" 
+                    <div className="register-input-group">
+                        <input
+                            type="text"
+                            placeholder="Họ và tên"
+                            className="register-input"
                             value={fullName}
-                            onChange={(e) => setFullName(e.target.value)} 
+                            onChange={(e) => setFullName(e.target.value)}
+                            style={{
+                                width: '80%',  // Wrap percentage value in quotes
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
                         />
-                        <input 
-                            type="text" 
-                            placeholder="Tên tài khoản" 
-                            className="input" 
+
+                        <input
+                            type="text"
+                            placeholder="Tên tài khoản"
+                            className="input"
                             value={userName}
-                            onChange={(e) => setUserName(e.target.value)} 
+                            onChange={(e) => setUserName(e.target.value)}
+                            style={{
+                                width: '80%',  // Wrap percentage value in quotes
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
                         />
-                        <input 
-                            type="password" 
-                            placeholder="Mật khẩu" 
-                            className="input" 
+                        <input
+                            type="password"
+                            placeholder="Mật khẩu"
+                            className="input"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} 
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
                     <div className="button-group-register">

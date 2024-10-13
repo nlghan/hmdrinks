@@ -173,7 +173,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                             required
                         />
                     </div>*/}
-                    <div className="form-actions">
+                    <div className="user-form-actions">
                         <button type="button" className="submit-btn" onClick={handleSubmit}>Thêm</button>
                         <button type="button" className="cancel-btn" onClick={onClose}>Hủy</button>
                     </div>

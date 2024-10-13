@@ -51,7 +51,7 @@ h2 {
     margin-top: 5px;
 }
 
-.form-actions {
+.user-form-actions {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
@@ -68,27 +68,27 @@ h2 {
     text-align: center;
 }
 
-.submit-btn {
+.user-form-actions .submit-btn {
     background-color: #299742;
     color: white;
 }
 
-.cancel-btn {
+.user-form-actions .cancel-btn {
     background-color: #af303c;
     color: white;
 }
-.submit-btn:hover {
+.user-form-actions .submit-btn:hover {
     background-color: #07a82d;
     
 }
 
-.cancel-btn:hover {
+.user-form-actions .cancel-btn:hover {
     background-color: #c71224;
     
 }
 
-.submit-btn:hover,
-.cancel-btn:hover {
+.user-form-actions .submit-btn:hover,
+.user-form-actions .cancel-btn:hover {
     opacity: 0.8;
 }
 

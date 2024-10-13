@@ -38,7 +38,7 @@ const App = () => {
         <Route path="/user" element={<User />} />
         <Route path="/category" element={<Category />} />
         <Route path="/product" element={<Product />} />
-        <Route path="/formAddUser" element={<FormAddUser />} />
+       
 
 
         {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}

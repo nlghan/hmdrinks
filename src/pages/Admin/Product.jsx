@@ -53,7 +53,7 @@ const Product = () => {
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    const LIMIT = 5; // Số lượng sản phẩm mỗi trang
+    const LIMIT = 4; // Số lượng sản phẩm mỗi trang
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -366,6 +366,46 @@ const Product = () => {
         return <ErrorMessage message={error} />;
     }
 
+    const getPaginationNumbers = () => {
+        const paginationNumbers = [];
+        const maxButtons = 5; // Max page buttons to display
+
+        // Show ellipsis khi có nhiều hơn maxButtons trang
+        if (totalPages <= maxButtons) {
+            for (let i = 1; i <= totalPages; i++) {
+                paginationNumbers.push(i);
+            }
+        } else {
+            // Luôn hiển thị trang đầu tiên
+            paginationNumbers.push(1);
+
+            if (currentPage > 3) {
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại lớn hơn 3
+            }
+
+            const startPage = Math.max(2, currentPage - 1); // Bắt đầu từ trang thứ 2 hoặc trang hiện tại -1
+            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối hoặc trang hiện tại +1
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationNumbers.push(i);
+            }
+
+            if (currentPage < totalPages - 2) {
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại nhỏ hơn tổng trang -2
+            }
+
+            // Luôn hiển thị trang cuối
+            paginationNumbers.push(totalPages);
+        }
+
+        return paginationNumbers;
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage); // Thay đổi trang
+        }
+    };
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
@@ -397,7 +437,7 @@ const Product = () => {
                 <div className="product-list">
                     <div className='prodcut-table-header'>
                         <h3 className="product-title-table">
-                            {selectedCateId ? `Sản Phẩm của Danh Mục ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
+                            {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
                         </h3>
                         <div className="search-add-container">
                             {/* Thanh tìm kiếm bằng Autocomplete */}
@@ -418,6 +458,7 @@ const Product = () => {
                                 )}
                                 style={{ width: 300, marginRight: '16px' }} // Adjust width and spacing as needed
                             />
+                            
                             <button className="btn-pro-add1" onClick={() => setIsFormVisible(true)}>
                                 Thêm sản phẩm
                             </button>
@@ -498,15 +539,36 @@ const Product = () => {
                                 </tbody>
                             </table>
 
-                            <div className="product-pagination-controls">
-                                <button onClick={handlePrevPage} disabled={currentPage === 1}>
-                                    Trang Trước
+                            <div className="pro-pagination">
+                            <button
+                                className="btn btn-pre me-2"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                &lt;
+                            </button>
+                            {getPaginationNumbers().map((number, index) => (
+                                <button
+                                    key={index}
+                                    className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
+                                    onClick={() => {
+                                        if (number !== '...') {
+                                            handlePageChange(number);
+                                        }
+                                    }}
+                                    disabled={number === '...'} // Disable button for ellipsis
+                                >
+                                    {number}
                                 </button>
-                                <span>Trang {currentPage} / {totalPages}</span>
-                                <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-                                    Trang Sau
-                                </button>
-                            </div>
+                            ))}
+                            <button
+                                className="btn btn-next"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                &gt;
+                            </button>
+                        </div>
                         </>
                     )}
                 </div>

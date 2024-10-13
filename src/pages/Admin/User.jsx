@@ -257,6 +257,14 @@ const User = () => {
                                 placeholder="Tìm kiếm người dùng..."
                                 className="search-user-input"
                                 onChange={handleSearchChange}
+                                style={{
+                                    padding: '10px',          // Numeric values with units should be strings
+                                    marginLeft: '0px',      // Convert margin-left to marginLeft (camelCase)
+                                    border: '1px solid #f0c1c1',
+                                    marginRight: '250px',      // Convert margin-right to marginRight (camelCase)
+                                    borderRadius: '4px',       // Convert border-radius to borderRadius
+                                    fontSize: '16px'           // Convert font-size to fontSize
+                                }}
                             />
                             <h2>Danh Sách Người Dùng</h2>
                             <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
@@ -291,7 +299,7 @@ const User = () => {
                                             </label>
                                         </td>
                                         <td>
-                                            <div className="button-container">
+                                            <div className="user-button-container">
                                                 <button className="user-update-btn3" onClick={() => handleDetailsClick(user)}>Chi tiết</button>
                                                 <button className="user-update-btn1" onClick={() => handleUpdateClick(user)}>Cập nhật</button>
                                                 <button className="user-update-btn2">Xóa</button>
@@ -306,7 +314,7 @@ const User = () => {
                             </tbody>
 
                         </table>
-                        <div className="pagination">
+                        <div className="user-pagination">
                             <button
                                 className="btn btn-pre me-2"
                                 onClick={() => handlePageChange(currentPage - 1)}

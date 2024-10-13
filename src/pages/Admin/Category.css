@@ -18,6 +18,27 @@
   flex: 2;
   display: flex;
   flex-direction: column;
+  height: 720px;
+  justify-content: space-between; /* Ensure content is spaced out */
+}
+
+.list-cate-box {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%; /* Full width for better alignment */
+  flex-direction: row;
+  margin: 0; /* Remove margins */
 }
 
 .status-approved {
@@ -102,35 +123,24 @@
     border-radius: 4px;
 }
 
-.form-actions {
+.cate-form-actions {
     display: flex;
     gap: 20px;
     justify-content: center;
 }
 
-.btn-add, .btn-clear, .btn-view {
-    padding: 10px 20px;
+.cate-form-actions .cate-btn {
+   
     border: none;
     border-radius: 5px;
     cursor: pointer;
     color: #fff;
+   
 }
 
-.btn-add {
-    background-color: #00B087; /* Màu xanh cho nút Add */
-}
-
-.btn-view{
-  background-color: #78afdc;
-}
-
-.gr-btn-cate{
-  display: flex;
-  gap:15px
-}
-
-.btn-clear {
-    background-color: #f96e6e; /* Màu đỏ cho nút Clear */
+.cate-btn{
+  background-color: white;
+  padding: 3px 3px;
 }
 
 .flex-cate{
@@ -141,48 +151,62 @@
 
 
 
-.list-cate-box{
-        flex: 1;
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      
+.list-cate-box {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .list-cate-box h2 {
-    margin-bottom: 10px;
-    justify-content: center;
-    display: flex;
-  }
+  margin-bottom: 10px;
+  justify-content: center;
+  display: flex;
+}
+
+.list-cate-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.list-cate-box table tr {
+  border-bottom: 1px solid #e0e0e0; /* Light gray border between rows */
+  height: 50px; /* Set a fixed height for the rows */
+  text-align: center;
+}
+
+.list-cate-box table th,
+.list-cate-box table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0; /* Divider for each row */
+  overflow: hidden; /* Hide overflow content */
+  white-space: nowrap; /* Prevent content from wrapping */
+  text-overflow: ellipsis; /* Add ellipsis if content overflows */
+  text-align: center;
+}
+
+.list-cate-box table th {
+  background-color: #ffffff;
+}
+
+.list-cate-box table td {
+  height: 100px; /* Make the height consistent with the row height */
+  vertical-align: middle; /* Align content vertically in the middle */
+}
+
   
-  .list-cate-box table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .list-cate-box table th,
   .list-cate-box table td {
-    border: 1px solid #ffffff;
     padding: 8px;
-    text-align: left;
-    border: none;
-  }
-  
-  .list-cate-box table th {
-    background-color: #ffffff;
-  }
-  
-  .list-cate-box table td {
-    padding: 8px;
-    text-align: left;
+    text-align: center;
     border: none;
   }
   .cate-switch {
     position: relative;
     display: inline-block;
     width: 50px;
-    height: 24px;
+    height: 23px;
 }
 
 .cate-switch input {
@@ -271,12 +295,15 @@
 
 .pagination {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  width: 15%;
-  flex-direction: row;
-  margin-left: 40%;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 45%;
+    position: fixed;
+    bottom: 70px;
+    left: 17%;
 }
 
 .pagination .btn {
@@ -295,7 +322,7 @@
 }
 
 .pagination .btn:disabled {
-  background-color: #c0c0c0; /* Màu nền khi vô hiệu hóa */
+  
   cursor: not-allowed; /* Con trỏ không hợp lệ */
 }
 

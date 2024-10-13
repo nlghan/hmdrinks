@@ -23,6 +23,18 @@
     overflow: auto; /* Enable both vertical and horizontal scrolling */
 }
 
+.add-pro-form-actions{
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-pro-form-actions .submit-btn {
+    background-color: #28a745;
+    color: white;
+    width: 350px;
+    
+}
+
 /* The form itself */
 .form-add-product {
     background: #fff;
@@ -101,8 +113,7 @@ textarea:focus {
 }
 
 /* Button styles */
-.submit-btn,
-.cancel-btn {
+.add-pro-form-actions .cancel-btn {
     padding: 12px 20px; /* More spacious buttons */
     margin-right: 10px;
     border: none;

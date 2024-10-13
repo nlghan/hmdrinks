@@ -34,20 +34,23 @@
     justify-content: center; 
     align-items: center; 
     margin-bottom: 10px;
+    flex-direction: row-reverse;
 }
 
 .user-box h2 {
-    margin: 0;
+  text-align: center;
+  width: 41%;
+  margin-right: 100px;
 }
-.button-container {
+.user-button-container {
   display: flex; /* Sử dụng Flexbox để bố trí các nút */
   justify-content: space-between; /* Căn giữa các nút với khoảng cách đều */
   margin-left: -80px;
 }
 
-.button-container button {
+.user-button-container button {
   flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
-  width: 50px;
+  width: 65px;
   margin: 0 5px; /* Thêm khoảng cách giữa các nút */
   border: none; /* Loại bỏ viền mặc định */
   border-radius: 5px; /* Tạo bo góc cho nút */
@@ -368,12 +371,6 @@ input:checked + .slider:before {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  .user-box h2 {
-    margin-bottom: 30px;
-    text-align: center;
-    
-  }
-  
   .user-box table {
     width: 100%;
     border-collapse: collapse;
@@ -534,45 +531,56 @@ input:checked + .slider:before {
     left: 50px;    
 }
 .user-pagination {
-    display: flex;
+  display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 20px;
     width: 15%;
     flex-direction: row;
-    margin-left: 40%;
+    margin-left: 45%;
+    position: fixed;
+    bottom: 70px;
+    right:55%;
+    
 }
-.pagination .btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #ed8ca1;
-    color: #ffffff;
-    transition: background-color 0.3s;
-    margin: 5px;
+
+.user-pagination .btn {
+  padding: 10px 15px; /* Padding cho nút */
+  border: none; /* Bỏ viền */
+  border-radius: 5px; /* Bo góc */
+  cursor: pointer; /* Con trỏ chuột khi hover */
+  background-color: #ed8ca1; /* Màu nền */
+  color: #ffffff; /* Màu chữ */
+  transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+  margin:5px
 }
-.pagination .btn:hover:not(:disabled) {
-    background-color: #7397b8;
+
+.user-pagination .btn:hover:not(:disabled) {
+  background-color: #7397b8; /* Màu nền khi hover */
 }
-.pagination .btn:disabled {
-    background-color: #c0c0c0;
-    cursor: not-allowed;
+
+.user-pagination .btn:disabled {
+  
+  cursor: not-allowed; /* Con trỏ không hợp lệ */
 }
-.pagination .btn-page {
-    background-color: #33a1b4;
-    margin: 5px;
+
+.user-pagination .btn-page {
+  background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
+  margin:5px
 }
-.pagination .btn-page:hover {
-    background-color: #5a6268;
+
+.user-pagination .btn-page:hover {
+  background-color: #5a6268; /* Màu nền khi hover cho nút trang hiện tại */
 }
-.pagination .btn-light {
-    background-color: #f8f9fa;
-    color: #000;
-    margin: 5px;
+
+.user-pagination .btn-light {
+  background-color: #f8f9fa; /* Màu nền cho nút trang khác */
+  color: #000; /* Màu chữ cho nút trang khác */
+  margin: 5px;
 }
-.pagination .btn-light:hover {
-    background-color: #e2e6ea;
+
+.user-pagination .btn-light:hover {
+  background-color: #e2e6ea; /* Màu nền khi hover cho nút trang khác */
 }
 .btn-pre, .btn-next {
     font-weight: bold;
