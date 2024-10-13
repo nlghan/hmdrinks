@@ -1,0 +1,316 @@
+/* Overall Page Styling */
+.product-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: 100%;
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+}
+
+.product-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Categories Section Styling */
+.product-categories {
+    width: 27%; /* Adjust width for better appearance */
+    border: 1px solid #ddd;
+    padding: 15px; /* Add padding for better spacing */
+    background-color: white;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    display: flex;
+    flex-direction: column;
+}
+
+.product-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333; /* Darker color for better visibility */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.product-title-table {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333; /* Darker color for better visibility */
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.prodcut-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.search-add-container {
+    display: flex;
+    align-items: center;
+}
+
+.product-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột */
+    gap: 8px; /* Khoảng cách giữa các ảnh */
+}
+
+.product-img {
+    width: 100%; /* Chiếm toàn bộ chiều rộng của cột */
+    height: auto; /* Giữ tỉ lệ hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+    border-radius: 4px; /* Bo tròn góc hình ảnh */
+    border: 1px solid #ddd; /* Viền xung quanh hình ảnh */
+}
+
+
+.product-category-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.product-category-item {
+    padding: 12px; /* Increased padding for touch target */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Add transition for color */
+    font-size: 20px;
+    position: relative; /* For pseudo-element positioning */
+}
+
+/* Category Item Hover Effect */
+.product-category-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Active Category Item Styling */
+.product-category-item.active {
+    font-weight: bold;
+    color: #007bff; /* Active color */
+}
+
+/* Add a Heart Icon */
+.product-category-item::before {
+    content: '❤️'; /* Heart icon */
+    margin-right: 8px; /* Spacing between icon and text */
+}
+
+/* Pagination Controls */
+.product-pagination-controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Products Section Styling */
+.product-list {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white; /* Table background */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Clip overflow for rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for the table */
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #ddd; /* Border between cells */
+    padding: 12px; /* Increased padding for better touch */
+    text-align: left;
+    text-align: center;
+}
+
+.product-table td .pro-action{
+    width: 20%;
+}
+/* Header Styling */
+.product-table th {
+    background-color: #f2f2f2; /* Light grey background for header */
+    font-weight: bold; /* Bold text for header */
+    color: #333; /* Darker color for better visibility */
+}
+
+/* Cell Hover Effect */
+.product-table tr:hover {
+    background-color: #f9f9f9; /* Change background color on hover */
+}
+
+/* Action Buttons Styling */
+.product-table .action-button {
+    padding: 8px 12px; /* Padding for buttons */
+    border: none;
+    border-radius: 5px; /* Rounded corners for buttons */
+    cursor: pointer; /* Pointer on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+/* Update Button */
+.product-table .update-button {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+}
+
+/* Delete Button */
+.product-table .delete-button {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+}
+
+/* View Product Button */
+.product-table .view-button {
+    background-color: #2196F3; /* Blue background */
+    color: white; /* White text */
+}
+
+/* Button Hover Effects */
+.product-table .action-button:hover {
+    opacity: 0.8; /* Slightly transparent on hover */
+}
+
+/* Pagination Controls */
+.product-pagination-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-list {
+    width: 70%;
+    padding-left: 20px;
+}
+
+
+.btn-pro-add, .btn-pro-clear, .btn-pro-view, .btn-pro-add1 {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.btn-pro-add {
+    background-color: #00B087; /* Màu xanh cho nút Add */
+}
+
+.btn-pro-add1 {
+    background-color: #e8680d; /* Màu xanh cho nút Add */
+    height: 50%;
+}
+
+.btn-pro-view{
+  background-color: #78afdc;
+}
+
+.gr-btn-pro{
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-pro-clear {
+    background-color: #f96e6e; /* Màu đỏ cho nút Clear */
+}
+/* Styles for the product price column */
+.product-table td ul {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+}
+
+.product-table td ul li {
+    padding: 8px 0; /* Add spacing between items */
+    border-bottom: 1px solid #ddd; /* Add a separator between items */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-table td ul li:last-child {
+    border-bottom: none; /* Remove border for the last item */
+}
+
+.product-table td ul li::before {
+    color: #007bff;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.product-table td ul li span {
+    display: inline-block;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Optional: Styling for the size, price, and stock */
+.product-table td ul li .size {
+    font-weight: bold;
+    margin-right: 5px;
+    list-style: none;
+}
+
+.product-table td ul li .price {
+    color: #28a745;
+    margin-right: 5px;
+    
+}
+
+.product-table td ul li .stock {
+    color: #dc3545;
+    font-size: 12px;
+}
+
+/* General table styles */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.product-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.product-table td img {
+    border-radius: 5px;
+}
+
+.product-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Tạo 2 cột bằng nhau */
+    gap: 8px; /* Khoảng cách giữa các ảnh */
+}
+
+.product-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}

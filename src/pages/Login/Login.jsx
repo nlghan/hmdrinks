@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer.jsx"; 
 import './Login.css'; 
 import { assets } from '../../assets/assets.js';
@@ -9,7 +9,7 @@ import { useAuth } from "../../context/AuthProvider.jsx"; // Import useAuth từ
 
 const Login = () => { 
     const navigate = useNavigate();
-    const { login, isLoggedIn } = useAuth(); // Lấy hàm login và trạng thái isLoggedIn từ AuthProvider
+    const { login, isLoggedIn } = useAuth(); 
     
     // State to store login information
     const [userName, setUserName] = useState("");
@@ -17,19 +17,20 @@ const Login = () => {
     const [message, setMessage] = useState(""); 
     const [error, setError] = useState(""); 
 
-   
+    // State to store usernames for autocomplete
+    const [savedUsernames, setSavedUsernames] = useState([]);
+
+    // Fetch saved usernames from localStorage when component mounts
+    useEffect(() => {
+        const usernames = JSON.parse(localStorage.getItem('usernames')) || [];
+        setSavedUsernames(usernames);
+    }, []);
 
     const getRoleFromToken = (token) => {
         try {
-            // Split the token and get the payload part
             const payload = token.split('.')[1]; 
-            
-            // Decode the base64url encoded payload
             const decodedPayload = JSON.parse(atob(payload)); 
-            console.log(decodedPayload.Roles);
-            
-            // Return the Roles value from the decoded payload
-            return decodedPayload.Roles; // Ensure to use the exact key from the payload
+            return decodedPayload.Roles;
         } catch (error) {
             console.error("Không thể giải mã token:", error);
             return null; 
@@ -51,7 +52,6 @@ const Login = () => {
     
             console.log('Đăng nhập thành công:', response.data);
     
-            // Save tokens to cookies if present in the response
             if (response.data.access_token) {
                 Cookies.set('access_token', response.data.access_token, { expires: 7 }); 
             }
@@ -59,7 +59,6 @@ const Login = () => {
                 Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
             }
     
-            // Retrieve the token from cookies
             const token = Cookies.get('access_token');
             if (!token) {
                 setError("Bạn cần đăng nhập để xem thông tin này.");
@@ -67,17 +66,23 @@ const Login = () => {
             }
     
             const role = getRoleFromToken(token);
-            console.log("role:"+ role);
             if (!role) {
                 setError("Không thể lấy role từ token.");
                 return;
             }
     
+            // Save the username to localStorage
+            const usernames = JSON.parse(localStorage.getItem('usernames')) || [];
+            if (!usernames.includes(userName)) {
+                usernames.push(userName);
+                localStorage.setItem('usernames', JSON.stringify(usernames));
+            }
+
             if (role.includes("ADMIN")) {
-                navigate('/dashboard'); // Navigate to dashboard if ADMIN
+                navigate('/dashboard'); 
             } else if (role.includes("CUSTOMER")){
                 login();
-                navigate('/home'); // Navigate to home for CUSTOMER or other roles
+                navigate('/home'); 
             }
         } catch (error) {
             console.error('Lỗi đăng nhập:', error);
@@ -89,7 +94,6 @@ const Login = () => {
         }
     };
     
-
     const handleRegister = () => {
         navigate('/register'); 
     };
@@ -100,7 +104,7 @@ const Login = () => {
 
     const handleKeyPress = (event) => {
         if (event.key === "Enter") {
-            handleLogin(); // Call login function on Enter key press
+            handleLogin(); 
         }
     };
 
@@ -113,21 +117,26 @@ const Login = () => {
             <div className="login-container">
                 <div className="login-image">
                     <img src={assets.login} alt='' />
-
-                    {/* Back Button */}
                     <i className="ti-arrow-left" onClick={handleBack}></i>
                 </div>
                 <div className="login-form">
                     <h2>Đăng Nhập</h2>
                     <p className="small-text">Nhập thông tin cá nhân bên dưới</p>
                     <div className="input-group">
+                        {/* Input with datalist for username */}
                         <input 
-                            type="text" 
+                            list="usernames" 
                             placeholder="Tên tài khoản" 
                             className="input" 
                             value={userName} 
                             onChange={(e) => setUserName(e.target.value)} 
                         />
+                        <datalist id="usernames">
+                            {savedUsernames.map((username, index) => (
+                                <option key={index} value={username} />
+                            ))}
+                        </datalist>
+
                         <input 
                             type="password" 
                             placeholder="Mật khẩu" 
@@ -146,9 +155,8 @@ const Login = () => {
                     </button>
                     <p className="register-text">Bạn chưa có tài khoản? <span className="register-link" onClick={handleRegister}>Đăng ký</span></p>
 
-                    {/* Display error message if any */}
                     {message && <p className="message">{message}</p>}
-                    {error && <p className="error-message">{error}</p>} {/* Display error state */}
+                    {error && <p className="error-message">{error}</p>}
                 </div>
             </div>
             <Footer />

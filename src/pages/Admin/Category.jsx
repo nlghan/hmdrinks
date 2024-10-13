@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 
 const Category = () => {
     const navigate = useNavigate();
@@ -42,7 +44,6 @@ const Category = () => {
         };
     }, [searchTerm]);
 
-
     // Hàm lấy cookie
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -74,12 +75,10 @@ const Category = () => {
                 return;
             }
 
-
             let apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=${page}&limit=${limit}`;
             if (keyword) {
                 apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
             }
-
 
             // Gọi API để lấy danh sách danh mục
             const response = await axios.get(apiUrl, {
@@ -135,32 +134,8 @@ const Category = () => {
         return <div>{error}</div>; // Hiển thị thông báo lỗi
     }
 
-
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
-    };
-
-    const handleLogout = async () => {
-        const accessToken = Cookies.get('access_token');
-        if (!accessToken) {
-            console.error('No access token found. Unable to logout.');
-            return;
-        }
-        try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-            sessionStorage.removeItem("isLoggedIn");
-            Cookies.remove('access_token');
-            Cookies.remove('refresh_token');
-            setIsLoggedIn(false);
-            navigate('/home');
-            window.location.reload();
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
     };
 
     // Hàm xử lý thay đổi file ảnh và tạo URL xem trước
@@ -345,13 +320,13 @@ const Category = () => {
         const paginationNumbers = [];
         const maxButtons = 5; // Max page buttons to display
 
-        // Show ellipsis when there are more than maxButtons pages
+        // Show ellipsis khi có nhiều hơn maxButtons trang
         if (totalPages <= maxButtons) {
             for (let i = 1; i <= totalPages; i++) {
                 paginationNumbers.push(i);
             }
         } else {
-            // Always show the first page
+            // Luôn hiển thị trang đầu tiên
             paginationNumbers.push(1);
 
             if (currentPage > 3) {
@@ -374,6 +349,10 @@ const Category = () => {
         }
 
         return paginationNumbers;
+    };
+
+    const handleViewProduct = (cateId, cateName) => {
+        navigate('/product', { state: { cateId, cateName } });
     };
 
     return (
@@ -423,7 +402,6 @@ const Category = () => {
                                     />
                                     Kích hoạt
                                 </label>
-
                             </div>
                             <div className="form-actions">
                                 <button
@@ -452,13 +430,22 @@ const Category = () => {
                         <div className="list-header">
                             <h2>Danh mục các loại đồ uống</h2>
                             <div className="search-sort-container">
-                                {/* Trường tìm kiếm */}
-                                <input
-                                    type="search"
-                                    placeholder="Tìm kiếm danh mục..."
-                                    className="search-bar"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                <Autocomplete
+                                    freeSolo
+                                    options={categories.map((option) => option.cateName)}
+                                    inputValue={searchTerm}
+                                    onInputChange={(event, newInputValue) => {
+                                        setSearchTerm(newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tìm kiếm danh mục..."
+                                            variant="outlined"
+                                            className="search-bar"
+                                        />
+                                    )}
+                                    style={{ width: 300 }} // Điều chỉnh kích thước nếu cần
                                 />
                                 <select
                                     value={sortOrder}
@@ -501,9 +488,6 @@ const Category = () => {
                                                     <span className="cate-slider round"></span>
                                                 </label>
                                             </td>
-
-
-
                                             <td>
                                                 {category.dateCreated
                                                     ? new Date(category.dateCreated).toLocaleDateString('vi-VN')
@@ -535,13 +519,19 @@ const Category = () => {
                                                     >
                                                         Xóa
                                                     </button>
+                                                    <button
+                                                        className="btn-view"
+                                                        onClick={() => handleViewProduct(category.cateId, category.cateName)}
+                                                    >
+                                                        Xem sản phẩm
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5">Không có danh mục nào.</td>
+                                        <td colSpan="7">Không có danh mục nào.</td>
                                     </tr>
                                 )}
                             </tbody>

@@ -108,8 +108,8 @@
     justify-content: center;
 }
 
-.btn-add, .btn-clear {
-    padding: 10px 36px;
+.btn-add, .btn-clear, .btn-view {
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -118,6 +118,10 @@
 
 .btn-add {
     background-color: #00B087; /* Màu xanh cho nút Add */
+}
+
+.btn-view{
+  background-color: #78afdc;
 }
 
 .gr-btn-cate{
@@ -244,15 +248,19 @@
 .search-sort-container {
   display: flex;
   align-items: center;
+  gap:10px
 }
 
 .search-bar {
   margin-right: 10px;
   padding: 5px;
+  
 }
 
 .sort-select {
   padding: 5px;
+  border-color: #bcb9b9;
+  border-radius: 4px;
 }
 
 .cate-img {
@@ -317,3 +325,23 @@
 .name-label-cate{
   font-size: 18px;
 }
+
+.search-bar .MuiInputLabel-outlined {
+  transform: translate(15px, 4px) scale(1); /* Căn chỉnh label vào giữa */
+  font-size: 15px;
+}
+
+.search-bar .MuiInputLabel-shrink {
+  transform: translate(14px, -6px) scale(0.75); /* Giữ label nhỏ lại khi nhập */
+}
+
+.search-bar .MuiOutlinedInput-root {
+  height: 28px; /* Điều chỉnh chiều cao */
+  padding: 0; /* Loại bỏ padding bên trong */
+}
+
+.search-bar .MuiInputBase-input {
+  padding: 5px 10px; /* Điều chỉnh padding trong ô tìm kiếm */
+  font-size: 14px; /* Điều chỉnh kích thước chữ */
+}
+
