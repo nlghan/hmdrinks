@@ -5,7 +5,7 @@
     padding: 20px;
     width: 100%;
     margin: 0;
-    height: 100vh;
+    height: 110vh;
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
 }
 
@@ -16,35 +16,26 @@
 
 /* Categories Section Styling */
 .product-categories {
-    width: 28.5%; /* Adjust width for better appearance */
+    width: 28.5%;
     border: 1px solid #ddd;
-    padding: 15px; /* Add padding for better spacing */
+    padding: 15px;
     background-color: white;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
+    height: 760px;
 }
 
-.product-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333; /* Darker color for better visibility */
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-}
-
+.product-title,
 .product-title-table {
     font-size: 24px;
     font-weight: bold;
-    color: #333; /* Darker color for better visibility */
-    align-items: center;
+    color: #333;
     display: flex;
     justify-content: center;
     cursor: pointer;
+    margin-bottom: 15px;
 }
 
 .prodcut-table-header {
@@ -61,18 +52,17 @@
 
 .product-images {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 cột */
-    gap: 8px; /* Khoảng cách giữa các ảnh */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
 }
 
 .product-img {
-    width: 100%; /* Chiếm toàn bộ chiều rộng của cột */
-    height: auto; /* Giữ tỉ lệ hình ảnh */
-    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
-    border-radius: 4px; /* Bo tròn góc hình ảnh */
-    border: 1px solid #ddd; /* Viền xung quanh hình ảnh */
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
 }
-
 
 .product-category-list {
     list-style-type: none;
@@ -80,174 +70,165 @@
 }
 
 .product-category-item {
-    padding: 12px; /* Increased padding for touch target */
+    padding: 12px;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s; /* Add transition for color */
     font-size: 20px;
-    position: relative; /* For pseudo-element positioning */
+    position: relative;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* Category Item Hover Effect */
 .product-category-item:hover {
     background-color: #f0f0f0;
 }
 
-/* Active Category Item Styling */
 .product-category-item.active {
     font-weight: bold;
-    color: #007bff; /* Active color */
+    color: #007bff;
 }
 
-/* Add a Heart Icon */
 .product-category-item::before {
-    content: '❤️'; /* Heart icon */
-    margin-right: 8px; /* Spacing between icon and text */
-}
-
-/* Pagination Controls */
-.product-pagination-controls {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    content: '❤️';
+    margin-right: 8px;
 }
 
 /* Products Section Styling */
-.product-list {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        height: fit-content;
-}
-
+/* Products Section Styling */
+/* Products Section Styling */
 .product-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: white; /* Table background */
-    border-radius: 10px; /* Rounded corners */
-    overflow: hidden; /* Clip overflow for rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for the table */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Distribute columns evenly */
 }
 
-.product-table th,
-.product-table td {
-    border: 1px solid #ddd; /* Border between cells */
-    padding: 12px; /* Increased padding for better touch */
-    text-align: left;
+.product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
     text-align: center;
+    word-wrap: break-word; /* Ensure long text wraps inside cells */
 }
 
-.product-table td .pro-action{
+/* Set the first column to 5% width */
+.product-table th:first-child, .product-table td:first-child {
+    width: 4%; /* Set the width of the first column */
+}
+.product-table th:nth-child(2), .product-table td:nth-child(2) {
+    width: 13%; /* Set the width of the second column */
+}
+.product-table th:nth-child(3), .product-table td:nth-child(3) {
+    width: 15%; /* Set the width of the second column */
+}
+
+.product-table th:last-child, .product-table td:last-child {
+    width: 10%; /* Set the width of the first column */
+}
+
+.product-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+
+.product-table td .pro-action {
     width: 20%;
 }
-/* Header Styling */
-.product-table th {
-    background-color: #f2f2f2; /* Light grey background for header */
-    font-weight: bold; /* Bold text for header */
-    color: #333; /* Darker color for better visibility */
-}
 
-/* Cell Hover Effect */
 .product-table tr:hover {
-    background-color: #f9f9f9; /* Change background color on hover */
+    background-color: #f9f9f9;
 }
 
 /* Action Buttons Styling */
 .product-table .action-button {
-    padding: 8px 12px; /* Padding for buttons */
+    padding: 8px 12px;
     border: none;
-    border-radius: 5px; /* Rounded corners for buttons */
-    cursor: pointer; /* Pointer on hover */
-    transition: background-color 0.3s; /* Smooth transition */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-/* Update Button */
 .product-table .update-button {
-    background-color: #4CAF50; /* Green background */
-    color: white; /* White text */
+    background-color: #4CAF50;
+    color: white;
 }
 
-/* Delete Button */
 .product-table .delete-button {
-    background-color: #f44336; /* Red background */
-    color: white; /* White text */
+    background-color: #f44336;
+    color: white;
 }
 
-/* View Product Button */
 .product-table .view-button {
-    background-color: #2196F3; /* Blue background */
-    color: white; /* White text */
+    background-color: #2196F3;
+    color: white;
 }
 
-/* Button Hover Effects */
 .product-table .action-button:hover {
-    opacity: 0.8; /* Slightly transparent on hover */
+    opacity: 0.8;
 }
 
 /* Pagination Controls */
 .pro-pagination {
     display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 20px;
-      width: 15%;
-      flex-direction: row;
-      left: 55%;
-      position: fixed;
-      bottom: 20px;
-      
-      
-  }
-  
-  .pro-pagination .btn {
-    padding: 10px 15px; /* Padding cho nút */
-    border: none; /* Bỏ viền */
-    border-radius: 5px; /* Bo góc */
-    cursor: pointer; /* Con trỏ chuột khi hover */
-    background-color: #ed8ca1; /* Màu nền */
-    color: #ffffff; /* Màu chữ */
-    transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
-    margin:5px
-  }
-  
-  .pro-pagination .btn:hover:not(:disabled) {
-    background-color: #7397b8; /* Màu nền khi hover */
-  }
-  
-  .pro-pagination .btn:disabled {
-    
-    cursor: not-allowed; /* Con trỏ không hợp lệ */
-  }
-  
-  .pro-pagination .btn-page {
-    background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
-    margin:5px
-  }
-  
-  .pro-pagination .btn-page:hover {
-    background-color: #5a6268; /* Màu nền khi hover cho nút trang hiện tại */
-  }
-  
-  .pro-pagination .btn-light {
-    background-color: #f8f9fa; /* Màu nền cho nút trang khác */
-    color: #000; /* Màu chữ cho nút trang khác */
-    margin: 5px;
-  }
-  
-  .pro-pagination .btn-light:hover {
-    background-color: #e2e6ea; /* Màu nền khi hover cho nút trang khác */
-  }
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 45%;
+}
 
+.pro-pagination .btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ed8ca1;
+    color: #ffffff;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+
+.pro-pagination .btn:hover:not(:disabled) {
+    background-color: #7397b8;
+}
+
+.pro-pagination .btn:disabled {
+    cursor: not-allowed;
+}
+
+.pro-pagination .btn-page {
+    background-color: #33a1b4;
+    margin: 5px;
+}
+
+.pro-pagination .btn-page:hover {
+    background-color: #5a6268;
+}
+
+.pro-pagination .btn-light {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.pro-pagination .btn-light:hover {
+    background-color: #e2e6ea;
+}
+
+/* Product List */
 .product-list {
     width: 70%;
     padding-left: 20px;
-    height: 770px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: fit-content;
 }
 
-
-.btn-pro-add, .btn-pro-clear, .btn-pro-view, .btn-pro-add1 {
+/* Buttons */
+.btn-pro-view, .btn-pro-add1 {
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -255,95 +236,83 @@
     color: #fff;
 }
 
-.btn-pro-add {
+#btn-pro-add {
     color: blue;
     font-size: 20px;
     background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#btn-pro-add:hover {
+    transform: scale(1.2);
 }
 
 .btn-pro-add1 {
-    background-color: #e8680d; /* Màu xanh cho nút Add */
+    background-color: #e8680d;
     height: 50%;
 }
 
-.btn-pro-view{
-  background-color: #78afdc;
+.btn-pro-view {
+    background-color: #78afdc;
 }
 
-.gr-btn-pro{
+.gr-btn-pro {
     display: flex;
+    gap: 15px;
     justify-content: center;
 }
 
-.btn-pro-clear {
+#btn-pro-clear {
     color: red;
     font-size: 20px;
     background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
 }
+
+#btn-pro-clear:hover {
+    transform: scale(1.2);
+}
+
 /* Styles for the product price column */
 .product-table td ul {
-    list-style-type: none; /* Remove bullet points */
-    padding: 0; /* Remove padding */
-    margin: 0; /* Remove margin */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
 .product-table td ul li {
-    padding: 8px 0; /* Add spacing between items */
-    border-bottom: 1px solid #ddd; /* Add a separator between items */
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .product-table td ul li:last-child {
-    border-bottom: none; /* Remove border for the last item */
-}
-
-.product-table td ul li::before {
-    color: #007bff;
-    font-weight: bold;
-    margin-right: 10px;
+    border-bottom: none;
 }
 
 .product-table td ul li span {
     display: inline-block;
-    font-size: 14px;
+    font-size: 16px;
     color: #333;
 }
 
-/* Optional: Styling for the size, price, and stock */
 .product-table td ul li .size {
     font-weight: bold;
     margin-right: 5px;
-    list-style: none;
 }
 
 .product-table td ul li .price {
     color: #28a745;
     margin-right: 5px;
-    
 }
 
 .product-table td ul li .stock {
     color: #dc3545;
-    font-size: 12px;
-}
-
-/* General table styles */
-.product-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-.product-table th, .product-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-}
-
-.product-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
+    font-size: 16px;
 }
 
 .product-table td img {
@@ -351,9 +320,8 @@
 }
 
 .product-images {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Tạo 2 cột bằng nhau */
-    gap: 8px; /* Khoảng cách giữa các ảnh */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
 }
 
 .product-img {

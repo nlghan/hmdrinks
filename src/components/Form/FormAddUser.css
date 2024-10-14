@@ -57,8 +57,8 @@ h2 {
     margin-top: 20px;
 }
 
-.submit-btn,
-.cancel-btn {
+#submit-btn,
+#cancel-btn {
     width: 48%; /* Make buttons equal width */
     padding: 12px;
     font-size: 16px;
@@ -68,27 +68,27 @@ h2 {
     text-align: center;
 }
 
-.user-form-actions .submit-btn {
+.user-form-actions #submit-btn {
     background-color: #299742;
     color: white;
 }
 
-.user-form-actions .cancel-btn {
+.user-form-actions #cancel-btn {
     background-color: #af303c;
     color: white;
 }
-.user-form-actions .submit-btn:hover {
+.user-form-actions #submit-btn:hover {
     background-color: #07a82d;
     
 }
 
-.user-form-actions .cancel-btn:hover {
+.user-form-actions #cancel-btn:hover {
     background-color: #c71224;
     
 }
 
-.user-form-actions .submit-btn:hover,
-.user-form-actions .cancel-btn:hover {
+.user-form-actions #submit-btn:hover,
+.user-form-actions #cancel-btn:hover {
     opacity: 0.8;
 }
 

@@ -536,7 +536,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                                 onClick={() => handleDeleteImage(image.id, index)}
                                                 disabled={deletingImageId === image.id}
                                             >
-                                                {deletingImageId === image.id ? 'Đang xóa...' : 'Xóa'}
+                                                {deletingImageId === image.id ? 'Đang xóa...' : '🗑️'}
                                             </button>
                                         </div>
                                     ))
@@ -555,7 +555,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             <button
                                 type="button"
                                 onClick={handleFileUpload}
-                                style={{marginLeft:"50px"}}
+                                style={{marginLeft:"50px", backgroundColor:'#4095e8'}}
                             >
                                 Tải lên hình ảnh
                             </button>
@@ -619,11 +619,11 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                     </div>
                 </div>
 
-                <div className="form-actions">
-                    <button type="submit" disabled={loading} className="submit-button">
+                <div className="update-pro-form-actions">
+                    <button type="submit" disabled={loading} id="update-pro-submit-button">
                         {loading ? 'Đang cập nhật...' : 'Cập nhật'}
                     </button>
-                    <button type="button" onClick={onClose} className="cancel-button">Hủy</button>
+                    <button type="button" onClick={onClose} id="update-pro-cancel-button">Hủy</button>
                 </div>
             </form>
         </div>

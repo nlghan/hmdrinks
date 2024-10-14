@@ -406,7 +406,7 @@ const Category = () => {
                             <div className="cate-form-actions">
                                 <button
                                     type="button"
-                                    className="btn-add"
+                                    id="btn-add"
                                     onClick={isUpdateMode ? handleUpdateCategory : handleAddCategory}
                                 >
                                     {isUpdateMode ? 'Cập nhật' : 'Thêm danh mục'}
@@ -445,7 +445,7 @@ const Category = () => {
                                             className="search-bar"
                                         />
                                     )}
-                                    style={{ width: 300 }} // Điều chỉnh kích thước nếu cần
+                                    style={{ width: '400px', marginRight: '16px' }} // Điều chỉnh kích thước nếu cần
                                 />
                                 <select
                                     value={sortOrder}

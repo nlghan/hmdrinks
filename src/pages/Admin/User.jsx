@@ -32,7 +32,7 @@ const User = () => {
     const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(12);
+    const [limit, setLimit] = useState(10);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
 
@@ -257,14 +257,8 @@ const User = () => {
                                 placeholder="Tìm kiếm người dùng..."
                                 className="search-user-input"
                                 onChange={handleSearchChange}
-                                style={{
-                                    padding: '10px',          // Numeric values with units should be strings
-                                    marginLeft: '0px',      // Convert margin-left to marginLeft (camelCase)
-                                    border: '1px solid #f0c1c1',
-                                    marginRight: '250px',      // Convert margin-right to marginRight (camelCase)
-                                    borderRadius: '4px',       // Convert border-radius to borderRadius
-                                    fontSize: '16px'           // Convert font-size to fontSize
-                                }}
+                                id="search-user"
+                               
                             />
                             <h2>Danh Sách Người Dùng</h2>
                             <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
@@ -300,13 +294,13 @@ const User = () => {
                                         </td>
                                         <td>
                                             <div className="user-button-container">
-                                                <button className="user-update-btn3" style={{color: "#ea850b"}} onClick={() => handleDetailsClick(user)}>
+                                                <button id="user-update-btn3"  onClick={() => handleDetailsClick(user)}>
                                                     <i className="ti-info-alt"></i> {/* Themify icon for details */}
                                                 </button>
-                                                <button className="user-update-btn1"  style={{color: "blue"}} onClick={() => handleUpdateClick(user)}>
+                                                <button id="user-update-btn1"   onClick={() => handleUpdateClick(user)}>
                                                     <i className="ti-pencil"></i> {/* Themify icon for update */}
                                                 </button>
-                                                <button className="user-update-btn2"  style={{color: "red"}}>
+                                                <button id="user-update-btn2" >
                                                     <i className="ti-trash"></i> {/* Themify icon for delete */}
                                                 </button>
                                             </div>

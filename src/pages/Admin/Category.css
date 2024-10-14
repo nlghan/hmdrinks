@@ -24,14 +24,15 @@
 
 .list-cate-box {
   flex: 1;
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Allow scrolling if content overflows */
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    height: 740px;
 }
 
-.pagination {
+.C {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -295,15 +296,14 @@
 
 .pagination {
   display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    width: 15%;
-    flex-direction: row;
-    margin-left: 45%;
-    position: fixed;
-    bottom: 70px;
-    left: 17%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 15%;
+  flex-direction: row;
+  margin-left: 50%;
+  bottom: 10px;
+  position: absolute;
 }
 
 .pagination .btn {
@@ -329,6 +329,9 @@
 .pagination .btn-page {
   background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
   margin:5px
+}
+#btn-add{
+  background-color: #00B087;
 }
 
 .pagination .btn-page:hover {

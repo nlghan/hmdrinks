@@ -174,8 +174,8 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                         />
                     </div>*/}
                     <div className="user-form-actions">
-                        <button type="button" className="submit-btn" onClick={handleSubmit}>Thêm</button>
-                        <button type="button" className="cancel-btn" onClick={onClose}>Hủy</button>
+                        <button type="button" id="submit-btn" onClick={handleSubmit}>Thêm</button>
+                        <button type="button" id="cancel-btn" onClick={onClose}>Hủy</button>
                     </div>
                 </form>
             </div>

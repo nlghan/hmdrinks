@@ -436,9 +436,13 @@ const Product = () => {
 
                 <div className="product-list">
                     <div className='prodcut-table-header'>
+                        <div>
                         <h3 className="product-title-table">
                             {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
                         </h3>
+
+                        </div>
+                        
                         <div className="search-add-container">
                             {/* Thanh tìm kiếm bằng Autocomplete */}
                             <Autocomplete
@@ -472,7 +476,7 @@ const Product = () => {
                             <table className="product-table">
                                 <thead>
                                     <tr>
-                                        <th>Mã Sản Phẩm</th> {/* Số thứ tự */}
+                                        <th>ID</th> {/* Số thứ tự */}
                                         <th>Tên Sản Phẩm</th>
                                         <th>Hình Ảnh</th>
                                         <th>Mô Tả</th>
@@ -484,7 +488,7 @@ const Product = () => {
                                     {products.map((product, index) => (
                                         <tr key={product.proId}>
                                             {/* Số thứ tự */}
-                                            <td>{(currentPage - 1) * LIMIT + index + 1}</td>
+                                            <td>{product.proId}</td>
                                             <td>{product.proName}</td>
                                             <td>
                                                 {product.images && product.images.length > 0 ? (
@@ -522,12 +526,12 @@ const Product = () => {
 
                                             <td className='pro-action'>
                                                 <div className='gr-btn-pro'>
-                                                    <button className="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
+                                                    <div id="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
                                                         <i className="ti-pencil"></i> {/* Themify icon for updating */}
-                                                    </button>
-                                                    <button className="btn-pro-clear" onClick={() => { /* Delete logic here */ }}>
+                                                    </div>
+                                                    <div id="btn-pro-clear" onClick={() => { /* Delete logic here */ }}>
                                                         <i className="ti-trash"></i> {/* Themify icon for deleting */}
-                                                    </button>
+                                                    </div>
                                                 </div>
 
                                             </td>

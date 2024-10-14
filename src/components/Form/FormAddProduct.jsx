@@ -295,10 +295,10 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                         </div>
 
                         <div className="add-pro-form-actions">
-                            <button type="button" className="submit-btn" onClick={handleSubmit} disabled={loading}>
+                            <button type="button" id="add-submit-btn" onClick={handleSubmit} disabled={loading}>
                                 {loading ? 'Đang thêm...' : 'Thêm'}
                             </button>
-                            <button type="button" className="cancel-btn" onClick={onClose}>Hủy</button>
+                            <button type="button" id="add-cancel-btn" onClick={onClose}>Hủy</button>
                         </div>
                     </div>
                 </div>

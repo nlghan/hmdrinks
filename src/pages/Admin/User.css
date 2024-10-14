@@ -60,51 +60,33 @@
   background: white;
 }
 
-.user-update-btn1 {
-  width:90px;
-  height:30px;
-  border-radius: 5px;
+#user-update-btn1 {
   cursor: pointer;
-  font-size: 16px; 
-  margin-left: -30px;  
-  background-color: #79bbfe;
-  border-color: #1a83ed;  
-}
-.user-update-btn1:hover {
-  background-color: #1a83ed;
-  transform: scale(1.05);
+  font-size: 20px;
+  color: blue;
 }
 
-.user-update-btn2 {
-  width:50px;
-  height:30px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px; 
-  margin-left: 5px;
-  margin-right: 20px;
-  background-color: #f87079;
-  border-color: #ed3b47;
-}
-.user-update-btn2:hover {
-  background-color: #ef2e3b;
-  transform: scale(1.05);
+#user-update-btn1:hover {
+  transform: scale(1.1);
 }
 
-.user-update-btn3 {
-  width:50px;
-  height:30px;
-  border-radius: 5px;
+#user-update-btn2 {
   cursor: pointer;
-  font-size: 16px; 
-  margin-left: 5px;
-  margin-right: 20px;
-  background-color: #dad86c;
-  border-color: #ed3b47;
+  font-size: 20px; 
+  color: red
 }
-.user-update-btn3:hover {
-  background-color: #a9ab33;
-  transform: scale(1.05);
+
+#user-update-btn2:hover {
+  transform: scale(1.01);
+}
+
+#user-update-btn3 {
+  cursor: pointer;
+  font-size: 20px; 
+  color:#545119
+}
+#user-update-btn3:hover {
+  transform: scale(1.1);
 }
 
 .add-user-btn {
@@ -370,6 +352,7 @@ input:checked + .slider:before {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
   }
   
   .user-box table {
@@ -545,8 +528,8 @@ input:checked + .slider:before {
     flex-direction: row;
     margin-left: 45%;
     position: fixed;
-    bottom: 40px;
-    right:55%;
+    bottom: 20px;
+    position: absolute;
     
 }
 
@@ -602,4 +585,13 @@ input:checked + .slider:before {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+}
+
+#search-user {
+  padding: 10px;
+  margin-left: 0px;
+  border: 1px solid #f0c1c1;
+  margin-right: 250px;
+  border-radius: 4px;
+  font-size: 16px;
 }

@@ -188,14 +188,14 @@ button[type="button"] {
 }
 
 /* Form Actions */
-.form-actions {
+.update-pro-form-actions {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 10px;
     margin-top: 20px; /* Space above action buttons */
 }
 
-.submit-button {
+#update-pro-submit-button {
     background-color: #28a745;
     color: white;
     border: none;
@@ -203,9 +203,10 @@ button[type="button"] {
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    width: 57%;
 }
 
-.submit-button:hover {
+#update-pro-submit-button:hover {
     background-color: #218838;
 }
 
@@ -214,13 +215,14 @@ button[type="button"] {
     cursor: not-allowed;
 }
 
-.cancel-button {
+#update-pro-cancel-button {
     background-color: #dc3545;
     color: white;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 4px;
+    width: 50%;
 }
 
 .cancel-button:hover {

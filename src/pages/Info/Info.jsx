@@ -276,7 +276,7 @@ const Info = () => {
                                 <div className="btn-gr-img">
                                     <button
                                         type="button"
-                                        className="btn-upload"
+                                        id="btn-upload"
                                         onClick={() => document.getElementById('file-upload').click()}
                                     >
                                         Tải ảnh lên
@@ -284,7 +284,7 @@ const Info = () => {
 
                                     <button
                                         type="button"
-                                        className="btn-save"
+                                        id="btn-save"
                                         onClick={handleSubmitImg}
                                     >
                                         Lưu
@@ -365,8 +365,8 @@ const Info = () => {
 
                                 <div className="button-group">
                                     <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật thông tin</button>
-                                    <button type="button" className="btn btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
-                                    <button type="button" className="btn btn-back" onClick={handleBack}>Trở lại</button>
+                                    <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
+                                    <button type="button" className="btn" id="btn-back" onClick={handleBack}>Trở lại</button>
                                 </div>
 
                             </div> </div></form>
