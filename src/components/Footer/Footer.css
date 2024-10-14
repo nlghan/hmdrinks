@@ -11,6 +11,7 @@ footer {
     flex-shrink: 0;
     position: relative;
     bottom: 0;
+    z-index: 999999;
     
 }
 

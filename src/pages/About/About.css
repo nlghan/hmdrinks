@@ -1,0 +1,22 @@
+.container-product {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+  }
+  
+  .overlay-product {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: #FDEAF2;
+    border-radius: 0 0 100% 0; /* Creates the curved shape */
+    z-index: 1; /* Make sure it's on top */
+  }
+  
+  .container-content-product {
+    position: relative;
+    z-index: 2; /* Make sure the content is above the overlay */
+    padding: 20px;
+  }

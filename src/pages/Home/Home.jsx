@@ -1,28 +1,30 @@
-import React from 'react'
+import React from 'react';
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
-import Button from '@mui/material/Button';
-import {styled} from '@mui/system'
+import "./Home.css"
+
 const Home = () => {
-
-    const MyButton = styled(Button)({
-        display: 'flex',
-        padding: '10px 20px',
-        alignItems: 'center', // Phải dùng camelCase cho CSS properties
-        borderRadius: '12px',
-        border: '2px solid #2E2F35',
-        boxShadow: '3px 3px 0px 0px #2E2F35',
-        fontSize: '16px',
-        cursor: 'pointer',
-    });
     return (
-        <>
+        <div className="container-home"> {/* This is the container wrapping everything */}
             <Navbar />
-            <div>Home</div>
-            <MyButton>Hello world</MyButton>
+            <div className="content-home">
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                <h1>Home</h1>
+                {/* Other content of the home page can go here */}
+            </div>
             <Footer />
-        </>
-    )
-}
+        </div>
+    );
+};
 
-export default Home
+export default Home;
