@@ -5,7 +5,7 @@ import ProductCard from '../../components/Card/ProductCard';
 import backgroundImage from '../../assets/img/5.jpg'; // Path to your background image
 import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete and TextField
 import "./Menu.css";
-
+import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 const Menu = () => {
     const [products, setProducts] = useState([]); // Products state
     const [categories, setCategories] = useState([]); // Categories state
@@ -19,6 +19,7 @@ const Menu = () => {
     const [searchTerm, setSearchTerm] = useState(''); // Search term state
 
     // Fetch products and their prices from API
+    // Fetch products and their prices and sizes from API
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -32,20 +33,25 @@ const Menu = () => {
 
                 const productList = selectedCategoryId ? data.responseList : data.productResponses;
 
-                // Fetch price for each product and update the product list with price data
-                const productsWithPrices = await Promise.all(productList.map(async (product) => {
+                // Fetch price and size for each product and update the product list with this data
+                const productsWithDetails = await Promise.all(productList.map(async (product) => {
                     try {
-                        const priceResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
-                        const priceData = await priceResponse.json();
-                        const price = priceData.responseList[0]?.price || 'N/A'; // Get the price from the first variant or default to 'N/A'
-                        return { ...product, price };
-                    } catch (priceError) {
-                        console.error(`Error fetching price for product ${product.proId}:`, priceError);
-                        return { ...product, price: 'N/A' }; // Handle error by setting price to 'N/A'
+                        const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
+                        const variantData = await variantResponse.json();
+                        const variant = variantData.responseList[0]; // Get the first variant
+
+                        // Get the price and size from the first variant or set defaults
+                        const price = variant?.price || 'N/A';
+                        const size = variant?.size || 'N/A'; // Assuming 'size' is available in the variant
+
+                        return { ...product, price, size };
+                    } catch (variantError) {
+                        console.error(`Error fetching variant for product ${product.proId}:`, variantError);
+                        return { ...product, price: 'N/A', size: 'N/A' }; // Handle error by setting defaults
                     }
                 }));
 
-                setProducts(productsWithPrices); // Set the products with price information
+                setProducts(productsWithDetails); // Set the products with price and size information
                 setTotalPages(data.totalPage); // Set the total number of pages if applicable
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -55,7 +61,8 @@ const Menu = () => {
         };
 
         fetchProducts();
-    }, [currentPage, selectedCategoryId]); // Refetch products when the page changes or a category is selected
+    }, [currentPage, selectedCategoryId]);
+    // Refetch products when the page changes or a category is selected
 
     // Fetch categories from API
     useEffect(() => {
@@ -122,7 +129,7 @@ const Menu = () => {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        opacity: 0.4, // Background opacity
+                        opacity: 0.25, // Background opacity
                         zIndex: -1,
                     }}
                 ></div>
@@ -218,41 +225,41 @@ const Menu = () => {
                 {/* Product listing */}
                 <div className="product-listing">
                     <div className="filter">
-                    <button>Lọc sản phẩm</button>
+                        <button>Lọc sản phẩm</button>
                         {hasProducts && (
-                        <div className="menu-product-pagination">
-                            {/* Previous Button */}
-                            
-                            <span
-                                className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
-                                onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
-                            >
-                                {'<'}
-                            </span>
+                            <div className="menu-product-pagination">
+                                {/* Previous Button */}
 
-                            {/* Pagination Dots */}
-                            {Array.from({ length: totalPages }, (_, index) => (
                                 <span
-                                    key={index + 1}
-                                    className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
-                                    onClick={() => handleProductPageChange(index + 1)}
+                                    className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
+                                    onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
                                 >
-                                    •
+                                    {'<'}
                                 </span>
-                            ))}
 
-                            {/* Next Button */}
-                            <span
-                                className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
-                                onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
-                            >
-                                {'>'}
-                            </span>
-                        </div>
-                    )}
-                    
+                                {/* Pagination Dots */}
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <span
+                                        key={index + 1}
+                                        className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
+                                        onClick={() => handleProductPageChange(index + 1)}
+                                    >
+                                        •
+                                    </span>
+                                ))}
+
+                                {/* Next Button */}
+                                <span
+                                    className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
+                                    onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
+                                >
+                                    {'>'}
+                                </span>
+                            </div>
+                        )}
+
                     </div>
-                    
+
                     <div className="products">
                         {loading ? (
                             <p>Đang tải sản phẩm...</p> // Display loading message
@@ -262,7 +269,7 @@ const Menu = () => {
                                     key={product.proId}
                                     product={{
                                         name: product.proName,
-                                        description: product.description,
+                                        size: product.size,
                                         price: `${product.price} VND`, // Price fetched from the product variant
                                         image: product.productImageResponseList.length > 0
                                             ? product.productImageResponseList[0].linkImage
@@ -276,7 +283,7 @@ const Menu = () => {
                     </div>
 
                     {/* Show pagination only if there are products */}
-                    
+
                 </div>
             </div>
             <Footer />

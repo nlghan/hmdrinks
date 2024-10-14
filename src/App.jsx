@@ -34,7 +34,7 @@ const App = () => {
         <Route path="/user" element={<User />} />
         <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
-        <Route path="/menu" element={isLoggedIn ? <Menu /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
+        <Route path="/menu" element={ <Menu />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/send-mail" element={<SendMail />} />
         <Route path="/user" element={<User />} />

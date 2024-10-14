@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 .product-card-price{
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
+    
 }
 .product-card-p{
     margin: 0;
@@ -10,8 +14,11 @@
    
 }
 .card-product-price{
-    font-size: 24px;
+    font-size: 20px;
     color: black;
+    margin-bottom: 15px;
+    font-family: 'Taviraj';
+    font-weight: 500;
 }
 .product-card {
     background-color: #fff;
@@ -20,6 +27,11 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 270px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+.product-card:hover {
+    transform: scale(1.05); /* Scale the card to 1.02 on hover */
 }
 
 .product-card img {
@@ -29,8 +41,11 @@
 }
 
 .product-card h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
     margin: 15px 0;
-    font-size: 1.2em;
+    font-size: 22px;
+    text-align: left
 }
 
 .add-cart {
@@ -41,4 +56,21 @@
     border-radius: 5px;
     cursor: pointer;
     margin: 0;
+}
+.product-card-image-container {
+    position: relative;
+}
+
+.favorite-icon {
+    position: absolute;
+    right: -18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 21px;
+    color: red;
+}
+
+.favorite-icon i {
+    transition: color 0.3s ease;
 }

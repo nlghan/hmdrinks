@@ -55,9 +55,14 @@ footer {
     /* 166.667% */
     letter-spacing: 0.48px;
 }
+.social-icons{
+    display: flex;
+    gap:15px
+}
 .social-icons a {
     margin-right: 10px;
     color: #333;
+    font-size: 30px;
 }
 
 .social-icons a:hover {
