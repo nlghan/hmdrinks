@@ -1,0 +1,264 @@
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* When the element is in view, it becomes visible and moves into place */
+.fade-in.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* When scrolling back up, the fade-out effect will smoothly hide the element */
+.fade-in:not(.show) {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+
+.proCon {
+    position: relative;
+    background: linear-gradient(to bottom right, rgb(251, 210, 210), rgb(243, 251, 205));
+}
+
+.proCon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW3m1JHI5UyS4wtJwey5Q1K5B8jPrqmL_U1cCM1_GuMp6xBrE&s');
+    background-size: 800px 800px; /* Increase size for less repetition */
+    background-repeat: repeat; /* Keep repeat */
+    opacity: 0.1; /* Adjust the opacity here */
+    z-index: 1;
+}
+
+
+.proCon > * {
+    position: relative;
+    z-index: 2;
+}
+
+
+
+.product-detail-container {
+    padding: 20px;
+    padding-top: 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
+
+.product-detail-main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.product-image-container {
+    width: 50%;
+    
+}
+
+.product-image {
+    width: 500px;
+    max-width: 500px;
+    height: 500px;
+    border: 1px solid #f4a8a8;
+    transition: transform 0.3s ease; /* Smooth transition */
+    overflow: hidden; /* Hide overflow */
+    position: relative; /* Set position relative for absolute positioning of the magnifying effect */
+    background-color: white;
+    cursor: pointer;
+}
+
+.product-image:hover {
+    transform: scale(1.2); /* Scale the image up when hovered */
+    z-index: 1; /* Bring the image above other elements */
+}
+
+.product-image-detail {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #fa7272;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.product-info-container {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap:12px
+}
+
+.product-info-container h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.product-category {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.product-price {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.product-size {
+    margin-bottom: 20px;
+}
+
+.size-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#soluong{
+    margin-top: 15px;
+    margin-left: 0;
+    width: 98%;
+}
+
+.size-option {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background-color: #f8f8f8;
+}
+
+.size-option.active {
+    border-color: #000;
+    background-color: #ff7979;
+    color: #fff;
+}
+
+.product-quantity {
+    margin-bottom: 20px;
+}
+
+.quantity-input {
+    width: 50px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.add-to-cart-button {
+    padding: 15px 20px;
+    background-color: #ff7979;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: opacity 0.3s ease; 
+}
+
+.add-to-cart-button:hover {
+    background-color: #ffb579;
+    transform: scale(1.05);
+}
+
+.product-description-container {
+    margin-bottom: 30px;
+}
+
+.product-description-container h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.product-rating-container {
+    margin-bottom: 30px;
+}
+
+.product-rating {
+    color: gold;
+    font-size: 24px;
+}
+
+.related-products {
+    display: flex;
+    gap: 20px;
+}
+
+.related-product-card {
+    width: 30%;
+    text-align: center;
+}
+
+.related-product-card img {
+    width: 100%;
+    height: auto;
+}
+
+.related-product-card h3 {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.related-product-card button {
+    padding: 10px 20px;
+    background-color: #ff7979;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+
+#img1-container {
+    position: relative; /* Position relative for child elements */
+    height: 500px;
+    width: 500px; /* Adjust as needed */
+    overflow: hidden; /* Prevent overflow of buttons */
+    margin-bottom: 20px;
+}
+
+
+.navigation-buttons {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between; /* Space out buttons */
+    transform: translateY(-50%); /* Center vertically */
+    z-index: 2; /* Ensure buttons are above the image */
+    opacity: 0; /* Initially hide the buttons */
+    transition: opacity 0.3s ease; /* Smooth transition for opacity */
+}
+
+#img1-container:hover .navigation-buttons {
+    opacity: 1; /* Show buttons on hover */
+}
+
+.arrow-button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    font-size: 30px; /* Adjust size as needed */
+    color: rgb(0, 0, 0); /* Change to desired color */
+    cursor: pointer; /* Change cursor to pointer */
+    padding: 10px; /* Add some padding */
+    transition: color 0.3s; /* Smooth transition for hover effect */
+}
+
+.arrow-button:hover {
+    color: #ff7979; /* Change color on hover */
+}
+
+
+.product-image-detail.active {
+    transform: scale(1.02); /* Slightly enlarge the active thumbnail */
+    border: 2px solid black; /* Highlight border color */
+}
+
