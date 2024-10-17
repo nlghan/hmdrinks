@@ -32,6 +32,7 @@ h2 {
 .error-message {
     color: red;
     margin-bottom: 10px;
+    text-align: center; /* Center the error message */
 }
 
 /* Form Group Style */
@@ -96,4 +97,134 @@ button[type="button"] {
 /* Remove margin for last field in each group */
 .pro-update-field-group:last-child {
     margin-right: 0; /* No margin for last child */
+}
+
+/* Image Upload Styles */
+.image-upload {
+    margin: 20px 0; /* Space above/below image upload section */
+}
+
+.uploaded-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Create two equal columns */
+    gap: 10px; /* Space between the images */
+    padding: 15px;
+}
+
+.image-container {
+    display: flex;
+    flex-direction: column; /* Stack image and button vertically */
+    align-items: center; /* Center align items */
+    text-align: center; /* Center text */
+}
+
+.image-container img {
+    max-width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+    border: 1px solid #ccc; /* Optional: border around images */
+    border-radius: 4px; /* Optional: rounded corners */
+}
+
+.image-container button {
+    margin-top: 8px; /* Space between image and button */
+    padding: 6px 12px; /* Button padding */
+    background-color: #e74c3c; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s; /* Transition effect for hover */
+}
+
+.image-container button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+.image-container button:disabled {
+    background-color: #bdc3c7; /* Gray color for disabled button */
+    cursor: not-allowed; /* Not allowed cursor */
+}
+
+/* Delete All Images Button */
+.delete-all-images-button {
+    margin-top: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.delete-all-images-button:hover {
+    background-color: #c82333;
+}
+
+.delete-all-images-button:disabled {
+    background-color: #e6a1a1;
+    cursor: not-allowed;
+}
+
+/* Form Layout */
+.form-update-product {
+    display: flex;
+    justify-content: center; /* Center the form horizontally */
+    padding: 20px; /* Padding around the form */
+}
+
+.product-info-section {
+    flex: 1; /* Take up remaining space */
+    padding-right: 20px; /* Space between sections */
+}
+
+.variant-section {
+    flex: 1;
+    display: flex;
+    padding-left: 20px;
+    gap: 35px;
+    flex-direction: column;
+    margin-top: 20px;
+    
+}
+
+/* Form Actions */
+.update-pro-form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px; /* Space above action buttons */
+}
+
+#update-pro-submit-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    width: 57%;
+}
+
+#update-pro-submit-button:hover {
+    background-color: #218838;
+}
+
+.submit-button:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+}
+
+#update-pro-cancel-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 50%;
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
 }

@@ -11,7 +11,7 @@ const FormDetailsUser = ({ user, onClose }) => {
             </div>
             <div className="form-content-details-user">
                 <div className="avatar-section">
-                    {user.avatar ? (
+                    {user.avatar && user.avatar !== "None" && user.avatar !== null && user.avatar !== "string" ? (
                         <img src={user.avatar} alt="Avatar" className="user-avatar" />
                     ) : (
                         <img src={assets.avtrang} alt="" className="user-avatar" />

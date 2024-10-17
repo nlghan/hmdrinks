@@ -231,22 +231,22 @@ const Info = () => {
 
     if (loading) {
         return (
-            <LoadingAnimation 
-                animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json" 
-                isVisible={loading}  
+            <LoadingAnimation
+                animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json"
+                isVisible={loading}
             />
         );
     }
-    
+
     if (error) {
         return (
-            <ErrorMessage 
-                path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"} 
-                message={error} 
+            <ErrorMessage
+                path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"}
+                message={error}
             />
         );
     }
-    
+
 
     return (
         <>
@@ -254,120 +254,122 @@ const Info = () => {
 
             <div className="body-info">
                 <div className="container">
+                    <h2>Thông tin cá nhân</h2>
                     <form className="user-info-form">
-                        <h2>Thông tin cá nhân</h2>
+                        <div>
+                            <div className="avatar-container">
+                                {previewImage ? (
+                                    <img src={previewImage} alt="Avatar" className="avatar-image" />
+                                ) : (
+                                    <img src={assets.avtrang} alt="" className="avatar-image" />
+                                )}
+                            </div>
 
-                        <div className="avatar-container">
-                            {previewImage ? (
-                                <img src={previewImage} alt="Avatar" className="avatar-image" />
-                            ) : (
-                                <img src={assets.avtrang} alt="" className="avatar-image" />
-                            )}
-                        </div>
+                            <div className="up-img">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="file-upload"
+                                    onChange={handleFileChange}
+                                    style={{ display: 'none' }}
+                                />
+                                <div className="btn-gr-img">
+                                    <button
+                                        type="button"
+                                        id="btn-upload"
+                                        onClick={() => document.getElementById('file-upload').click()}
+                                    >
+                                        Tải ảnh lên
+                                    </button>
 
-                        <div className="up-img">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                id="file-upload"
-                                onChange={handleFileChange}
-                                style={{ display: 'none' }}
-                            />
-                            <div className="btn-gr-img">
-                                <button
-                                    type="button"
-                                    className="btn-upload"
-                                    onClick={() => document.getElementById('file-upload').click()}
-                                >
-                                    Tải ảnh lên
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="btn-save"
-                                    onClick={handleSubmitImg}
-                                >
-                                    Lưu
-                                </button>
+                                    <button
+                                        type="button"
+                                        id="btn-save"
+                                        onClick={handleSubmitImg}
+                                    >
+                                        Lưu
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label>Email:</label>
-                            <input
-                                className="email_info"
-                                name="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                style={{ borderColor: formErrors.email ? 'red' : '' }}
-                            />
-                            {formErrors.email && <span className="error-message">{formErrors.email}</span>}
-                        </div>
+                        <div>
+                            <div className="form-group">
+                                <label>Email:</label>
+                                <input
+                                    className="email_info"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    style={{ borderColor: formErrors.email ? 'red' : '' }}
+                                />
+                                {formErrors.email && <span className="error-message">{formErrors.email}</span>}
 
-                        <div className="form-group">
-                            <label>Họ và tên:</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label>Họ và tên:</label>
+                                    <input
+                                        type="text"
+                                        name="fullName"
+                                        value={formData.fullName}
+                                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label>Số điện thoại:</label>
-                            <input
-                                type="text"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                style={{ borderColor: formErrors.phoneNumber ? 'red' : '' }}
-                            />
-                            {formErrors.phoneNumber && <span className="error-message">{formErrors.phoneNumber}</span>}
-                        </div>
+                                <div className="form-group">
+                                    <label>Số điện thoại:</label>
+                                    <input
+                                        type="text"
+                                        name="phoneNumber"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                        style={{ borderColor: formErrors.phoneNumber ? 'red' : '' }}
+                                    />
+                                    {formErrors.phoneNumber && <span className="error-message">{formErrors.phoneNumber}</span>}
+                                </div>
 
-                        <div className="form-group">
-                            <label>Giới tính:</label>
-                            <select
-                                name="sex"
-                                value={formData.sex}
-                                onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
-                            >
-                                <option value="">Chọn giới tính</option>
-                                <option value="MALE">Nam</option>
-                                <option value="FEMALE">Nữ</option>
-                                <option value="OTHER">Khác</option>
-                            </select>
-                        </div>
+                                <div className="form-group">
+                                    <label>Giới tính:</label>
+                                    <select
+                                        name="sex"
+                                        value={formData.sex}
+                                        onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
+                                    >
+                                        <option value="">Chọn giới tính</option>
+                                        <option value="MALE">Nam</option>
+                                        <option value="FEMALE">Nữ</option>
+                                        <option value="OTHER">Khác</option>
+                                    </select>
+                                </div>
 
-                        <div className="form-group">
-                            <label>Ngày sinh:</label>
-                            <input
-                                type="date"
-                                name="birthDay"
-                                value={formData.birthDay}
-                                onChange={(e) => setFormData({ ...formData, birthDay: e.target.value })}
-                                style={{ borderColor: formErrors.birthDay ? 'red' : '' }}
-                            />
-                            {formErrors.birthDay && <span className="error-message">{formErrors.birthDay}</span>}
-                        </div>
+                                <div className="form-group">
+                                    <label>Ngày sinh:</label>
+                                    <input
+                                        type="date"
+                                        name="birthDay"
+                                        value={formData.birthDay}
+                                        onChange={(e) => setFormData({ ...formData, birthDay: e.target.value })}
+                                        style={{ borderColor: formErrors.birthDay ? 'red' : '' }}
+                                    />
+                                    {formErrors.birthDay && <span className="error-message">{formErrors.birthDay}</span>}
+                                </div>
 
-                        <div className="form-group">
-                            <label>Địa chỉ:</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={formData.address}
-                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label>Địa chỉ:</label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    />
+                                </div>
 
-                        <div className="button-group">
-                            <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật thông tin</button>
-                            <button type="button" className="btn btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
-                            <button type="button" className="btn btn-back" onClick={handleBack}>Trở lại</button>
-                        </div>
-                    </form>
+                                <div className="button-group">
+                                    <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật thông tin</button>
+                                    <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
+                                    <button type="button" className="btn" id="btn-back" onClick={handleBack}>Trở lại</button>
+                                </div>
+
+                            </div> </div></form>
                 </div>
             </div>
 
@@ -376,6 +378,7 @@ const Info = () => {
                     <LoadingAnimation animationPath="https://lottie.host/bfcb91ed-f6e3-486d-b052-6c0705a6416c/yzsyGYxWhd.json" isVisible={isUploading} />
                 </div>
             )}
+
 
             <Footer />
         </>

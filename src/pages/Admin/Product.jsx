@@ -5,8 +5,8 @@ import Cookies from 'js-cookie';
 import Header from '../../components/Header/Header';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
-import FormAddProduct from '../../components/Form/FormAddProduct'; 
-import FormUpdateProduct from '../../components/Form/FormUpdateProduct'; 
+import FormAddProduct from '../../components/Form/FormAddProduct';
+import FormUpdateProduct from '../../components/Form/FormUpdateProduct';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import './Product.css';
@@ -53,7 +53,7 @@ const Product = () => {
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    const LIMIT = 5; // Số lượng sản phẩm mỗi trang
+    const LIMIT = 4; // Số lượng sản phẩm mỗi trang
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -157,7 +157,7 @@ const Product = () => {
                 throw new Error("Bạn cần đăng nhập để xem thông tin này.");
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=10`; 
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=10`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
@@ -165,7 +165,7 @@ const Product = () => {
                 }
             });
 
-            console.log('API Search Options response:', response.data); 
+            console.log('API Search Options response:', response.data);
 
             if (response.data && response.data.productResponseList) {
                 setSearchOptions(response.data.productResponseList);
@@ -366,6 +366,46 @@ const Product = () => {
         return <ErrorMessage message={error} />;
     }
 
+    const getPaginationNumbers = () => {
+        const paginationNumbers = [];
+        const maxButtons = 5; // Max page buttons to display
+
+        // Show ellipsis khi có nhiều hơn maxButtons trang
+        if (totalPages <= maxButtons) {
+            for (let i = 1; i <= totalPages; i++) {
+                paginationNumbers.push(i);
+            }
+        } else {
+            // Luôn hiển thị trang đầu tiên
+            paginationNumbers.push(1);
+
+            if (currentPage > 3) {
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại lớn hơn 3
+            }
+
+            const startPage = Math.max(2, currentPage - 1); // Bắt đầu từ trang thứ 2 hoặc trang hiện tại -1
+            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối hoặc trang hiện tại +1
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationNumbers.push(i);
+            }
+
+            if (currentPage < totalPages - 2) {
+                paginationNumbers.push('...'); // Ellipsis nếu trang hiện tại nhỏ hơn tổng trang -2
+            }
+
+            // Luôn hiển thị trang cuối
+            paginationNumbers.push(totalPages);
+        }
+
+        return paginationNumbers;
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage); // Thay đổi trang
+        }
+    };
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
@@ -396,9 +436,13 @@ const Product = () => {
 
                 <div className="product-list">
                     <div className='prodcut-table-header'>
+                        <div>
                         <h3 className="product-title-table">
-                            {selectedCateId ? `Sản Phẩm của Danh Mục ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
+                            {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
                         </h3>
+
+                        </div>
+                        
                         <div className="search-add-container">
                             {/* Thanh tìm kiếm bằng Autocomplete */}
                             <Autocomplete
@@ -418,6 +462,7 @@ const Product = () => {
                                 )}
                                 style={{ width: 300, marginRight: '16px' }} // Adjust width and spacing as needed
                             />
+
                             <button className="btn-pro-add1" onClick={() => setIsFormVisible(true)}>
                                 Thêm sản phẩm
                             </button>
@@ -431,11 +476,11 @@ const Product = () => {
                             <table className="product-table">
                                 <thead>
                                     <tr>
-                                        <th>STT</th> {/* Số thứ tự */}
+                                        <th>ID</th> {/* Số thứ tự */}
                                         <th>Tên Sản Phẩm</th>
                                         <th>Hình Ảnh</th>
                                         <th>Mô Tả</th>
-                                        <th>Giá</th>
+                                        <th>Giá Sản Phẩm</th>
                                         <th>Thao Tác</th>
                                     </tr>
                                 </thead>
@@ -443,7 +488,7 @@ const Product = () => {
                                     {products.map((product, index) => (
                                         <tr key={product.proId}>
                                             {/* Số thứ tự */}
-                                            <td>{(currentPage - 1) * LIMIT + index + 1}</td>
+                                            <td>{product.proId}</td>
                                             <td>{product.proName}</td>
                                             <td>
                                                 {product.images && product.images.length > 0 ? (
@@ -481,16 +526,14 @@ const Product = () => {
 
                                             <td className='pro-action'>
                                                 <div className='gr-btn-pro'>
-                                                    <button
-                                                        className="btn-pro-add"
-                                                        onClick={() => handleUpdateClick(product.proId)}
-                                                    >
-                                                        Cập nhật
-                                                    </button>
-                                                    <button className="btn-pro-clear" onClick={() => { /* Delete logic here */ }}>
-                                                        Xóa
-                                                    </button>
+                                                    <div id="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
+                                                        <i className="ti-pencil"></i> {/* Themify icon for updating */}
+                                                    </div>
+                                                    <div id="btn-pro-clear" onClick={() => { /* Delete logic here */ }}>
+                                                        <i className="ti-trash"></i> {/* Themify icon for deleting */}
+                                                    </div>
                                                 </div>
+
                                             </td>
                                         </tr>
                                     ))}
@@ -498,13 +541,34 @@ const Product = () => {
                                 </tbody>
                             </table>
 
-                            <div className="product-pagination-controls">
-                                <button onClick={handlePrevPage} disabled={currentPage === 1}>
-                                    Trang Trước
+                            <div className="pro-pagination">
+                                <button
+                                    className="btn btn-pre me-2"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    &lt;
                                 </button>
-                                <span>Trang {currentPage} / {totalPages}</span>
-                                <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-                                    Trang Sau
+                                {getPaginationNumbers().map((number, index) => (
+                                    <button
+                                        key={index}
+                                        className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
+                                        onClick={() => {
+                                            if (number !== '...') {
+                                                handlePageChange(number);
+                                            }
+                                        }}
+                                        disabled={number === '...'} // Disable button for ellipsis
+                                    >
+                                        {number}
+                                    </button>
+                                ))}
+                                <button
+                                    className="btn btn-next"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    &gt;
                                 </button>
                             </div>
                         </>

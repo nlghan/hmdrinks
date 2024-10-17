@@ -23,6 +23,19 @@
     overflow: auto; /* Enable both vertical and horizontal scrolling */
 }
 
+.add-pro-form-actions{
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-pro-form-actions #add-submit-btn {
+    background-color: #28a745;
+    color: white;
+    width: 365px;
+    padding: 12px 20px;
+    
+}
+
 /* The form itself */
 .form-add-product {
     background: #fff;
@@ -101,8 +114,7 @@ textarea:focus {
 }
 
 /* Button styles */
-.submit-btn,
-.cancel-btn {
+.add-pro-form-actions #add-cancel-btn {
     padding: 12px 20px; /* More spacious buttons */
     margin-right: 10px;
     border: none;
@@ -110,20 +122,16 @@ textarea:focus {
     cursor: pointer;
     font-size: 16px; /* Larger font size */
     transition: background-color 0.2s; /* Transition for button hover */
+    width: 350px;
 }
 
-/* Submit button styles */
-.submit-btn {
-    background-color: #28a745;
-    color: white;
-}
 
-.submit-btn:hover {
+#add-submit-btn:hover {
     background-color: #218838; /* Darker green on hover */
 }
 
 /* Cancel button styles */
-.cancel-btn {
+#add-cancel-btn {
     background-color: #dc3545;
     color: white;
 }

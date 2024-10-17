@@ -1,0 +1,161 @@
+.container-menu {
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    flex:0.4
+    
+  }
+  
+  .overlay-menu {
+    flex:1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: #FDEAF2;
+    border-radius: 0 0 100% 0; /* Creates the curved shape */
+    z-index: 1; /* Make sure it's on top */
+  }
+  
+  .container-content-menu {
+    position: relative;
+    z-index: 2; /* Make sure the content is above the overlay */
+    padding: 20px;
+  }
+
+  .menu-product-category li {
+    font-size: 1.5em;
+    margin: 10px 0;
+    padding: 10px 15px;
+    cursor: pointer;
+    width: 55%;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.menu-product-category li:hover {
+    background-color: rgba(255, 255, 255, 0.3); /* Change background color on hover */
+    color: #fd0404; /* Change text color on hover (optional) */
+    transform: scale(1.05);
+}
+
+
+
+.menu-category{
+    margin-top: 10px;
+}
+
+.menu-product-h2{
+    display: flex;
+    align-items: flex-start;
+    padding-left: 15px;
+    margin-bottom: 0px !important;
+}
+
+.product-listing {
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-right: 20px;
+}
+
+.filter button {
+    padding: 10px 20px;
+    background-color: #ff7f7f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.products {
+    display: flex; /* Use flexbox */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    justify-content: flex-start; /* Align items to the start */
+    gap: 20px; /* Space between items */
+}
+
+.product-card {
+    flex: 0 0 calc(25% - 20px); /* Each product card takes up 25% width, accounting for gap */
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+
+/* Pagination Container */
+.menu-product-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    gap: 10px; /* Khoảng cách giữa các phần tử */
+}
+
+/* Pagination dots */
+.pagination-dot {
+    font-size: 80px; /* Kích thước lớn hơn cho dấu chấm */
+    color: #b1adad; /* Màu sắc dấu chấm mặc định */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.pagination-dot.active {
+    color: #e55a28; /* Màu của dấu chấm khi được chọn */
+}
+
+.pagination-dot:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+/* Pagination arrows */
+.pagination-arrow {
+    font-size: 50px; /* Kích thước của nút mũi tên */
+    color: #f67a28; /* Màu mặc định của mũi tên */
+    cursor: pointer;
+    user-select: none; /* Ngăn người dùng chọn văn bản */
+    transition: color 0.3s ease;
+}
+
+.pagination-arrow:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+.pagination-arrow.disabled {
+    color: #e0e0e0; /* Màu cho mũi tên khi bị vô hiệu hóa */
+    cursor: not-allowed;
+}
+
+
+.menu-category-pagination {
+    display: flex; /* Use flexbox for alignment */
+   justify-content: center;
+    align-items: center; /* Center items vertically */
+    width: 65%; /* Add spacing above the pagination */
+    height: 50px;
+}
+
+.pagination-cate-dot {
+    font-size: 50px; /* Kích thước lớn hơn cho dấu chấm */
+    color: #ccc; /* Màu sắc dấu chấm mặc định */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.pagination-cate-dot.active {
+    color: #e55a28; /* Màu của dấu chấm khi được chọn */
+}
+
+.pagination-cate-dot:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+
+
+

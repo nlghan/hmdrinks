@@ -34,73 +34,59 @@
     justify-content: center; 
     align-items: center; 
     margin-bottom: 10px;
+    flex-direction: row-reverse;
 }
 
 .user-box h2 {
-    margin: 0;
+  text-align: center;
+  width: 41%;
+  margin-right: 100px;
 }
-.button-container {
+.user-button-container {
   display: flex; /* Sử dụng Flexbox để bố trí các nút */
   justify-content: space-between; /* Căn giữa các nút với khoảng cách đều */
   margin-left: -80px;
 }
 
-.button-container button {
+.user-button-container button {
   flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
-  width: 50px;
+  width: 25px;
   margin: 0 5px; /* Thêm khoảng cách giữa các nút */
   border: none; /* Loại bỏ viền mặc định */
   border-radius: 5px; /* Tạo bo góc cho nút */
   cursor: pointer; /* Thay đổi con trỏ khi di chuột qua nút */
   transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
-  text-align: center
+  text-align: center;
+  background: white;
 }
 
-.user-update-btn1 {
-  width:90px;
-  height:30px;
-  border-radius: 5px;
+#user-update-btn1 {
   cursor: pointer;
-  font-size: 16px; 
-  margin-left: -30px;  
-  background-color: #79bbfe;
-  border-color: #1a83ed;  
-}
-.user-update-btn1:hover {
-  background-color: #1a83ed;
-  transform: scale(1.05);
+  font-size: 20px;
+  color: blue;
 }
 
-.user-update-btn2 {
-  width:50px;
-  height:30px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px; 
-  margin-left: 5px;
-  margin-right: 20px;
-  background-color: #f87079;
-  border-color: #ed3b47;
-}
-.user-update-btn2:hover {
-  background-color: #ef2e3b;
-  transform: scale(1.05);
+#user-update-btn1:hover {
+  transform: scale(1.1);
 }
 
-.user-update-btn3 {
-  width:50px;
-  height:30px;
-  border-radius: 5px;
+#user-update-btn2 {
   cursor: pointer;
-  font-size: 16px; 
-  margin-left: 5px;
-  margin-right: 20px;
-  background-color: #dad86c;
-  border-color: #ed3b47;
+  font-size: 20px; 
+  color: red
 }
-.user-update-btn3:hover {
-  background-color: #a9ab33;
-  transform: scale(1.05);
+
+#user-update-btn2:hover {
+  transform: scale(1.01);
+}
+
+#user-update-btn3 {
+  cursor: pointer;
+  font-size: 20px; 
+  color:#545119
+}
+#user-update-btn3:hover {
+  transform: scale(1.1);
 }
 
 .add-user-btn {
@@ -366,38 +352,38 @@ input:checked + .slider:before {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .user-box h2 {
-    margin-bottom: 30px;
-    text-align: center;
-    
+    position: relative;
   }
   
   .user-box table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Ensures borders don't double up */
   }
   
   .user-box table th,
   .user-box table td {
-    border: 1px solid #ffffff;
     padding: 8px;
     text-align: left;
     border: none;
   }
   
   .user-box table th {
-    background-color: #ffffff;
-  }
-  .user-box th {
     font-size: 18px;
+    background-color: #ffffff;
+    padding-bottom: 12px; /* Optional padding adjustment */
+    border-bottom: 2px solid #ddd; /* Adds thicker border for header */
   }
+  
   .user-box table td {
     padding: 8px;
     text-align: left;
-    border: none;
+    border-bottom: 1px solid #ddd; /* Adds a light border at the bottom of each row */
   }
+  
+  .user-box table tr:hover {
+    background-color: #f9f9f9; /* Optional: highlights the row when hovered */
+  }
+  
   
   
   .status-approved {
@@ -534,45 +520,56 @@ input:checked + .slider:before {
     left: 50px;    
 }
 .user-pagination {
-    display: flex;
+  display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 20px;
     width: 15%;
     flex-direction: row;
-    margin-left: 40%;
+    margin-left: 45%;
+    position: fixed;
+    bottom: 20px;
+    position: absolute;
+    
 }
-.pagination .btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #ed8ca1;
-    color: #ffffff;
-    transition: background-color 0.3s;
-    margin: 5px;
+
+.user-pagination .btn {
+  padding: 10px 15px; /* Padding cho nút */
+  border: none; /* Bỏ viền */
+  border-radius: 5px; /* Bo góc */
+  cursor: pointer; /* Con trỏ chuột khi hover */
+  background-color: #ed8ca1; /* Màu nền */
+  color: #ffffff; /* Màu chữ */
+  transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+  margin:5px
 }
-.pagination .btn:hover:not(:disabled) {
-    background-color: #7397b8;
+
+.user-pagination .btn:hover:not(:disabled) {
+  background-color: #7397b8; /* Màu nền khi hover */
 }
-.pagination .btn:disabled {
-    background-color: #c0c0c0;
-    cursor: not-allowed;
+
+.user-pagination .btn:disabled {
+  
+  cursor: not-allowed; /* Con trỏ không hợp lệ */
 }
-.pagination .btn-page {
-    background-color: #33a1b4;
-    margin: 5px;
+
+.user-pagination .btn-page {
+  background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
+  margin:5px
 }
-.pagination .btn-page:hover {
-    background-color: #5a6268;
+
+.user-pagination .btn-page:hover {
+  background-color: #5a6268; /* Màu nền khi hover cho nút trang hiện tại */
 }
-.pagination .btn-light {
-    background-color: #f8f9fa;
-    color: #000;
-    margin: 5px;
+
+.user-pagination .btn-light {
+  background-color: #f8f9fa; /* Màu nền cho nút trang khác */
+  color: #000; /* Màu chữ cho nút trang khác */
+  margin: 5px;
 }
-.pagination .btn-light:hover {
-    background-color: #e2e6ea;
+
+.user-pagination .btn-light:hover {
+  background-color: #e2e6ea; /* Màu nền khi hover cho nút trang khác */
 }
 .btn-pre, .btn-next {
     font-weight: bold;
@@ -588,4 +585,13 @@ input:checked + .slider:before {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+}
+
+#search-user {
+  padding: 10px;
+  margin-left: 0px;
+  border: 1px solid #f0c1c1;
+  margin-right: 250px;
+  border-radius: 4px;
+  font-size: 16px;
 }

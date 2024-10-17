@@ -26,7 +26,17 @@
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     cursor: pointer;
+    
 }
+
+.navbar-menu li{
+    transition: transform 0.3s ease;
+}
+
+.navbar-menu li:hover{
+    transform: scale(1.05);
+}
+
 
 .navbar-right {
     display: flex;

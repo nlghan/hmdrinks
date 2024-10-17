@@ -29,7 +29,7 @@ const User = () => {
     const [adminCount, setAdminCount] = useState(0);
     const [customerCount, setCustomerCount] = useState(0);
     const [shipperCount, setShipperCount] = useState(0);
-    const [totalUsers, setTotalUsers] = useState(0);    
+    const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -92,12 +92,12 @@ const User = () => {
                 initialSwitchStates[user.userId] = user.isDelete === false;
             });
             setSwitches(initialSwitchStates);
-           
+
             const adminCount = userData.filter(user => user.role === 'Admin').length;
             const customerCount = userData.filter(user => user.role === 'Customer').length;
             const shipperCount = userData.filter(user => user.role === 'Shipper').length;
             const totalUsers = userData.length;
-            
+
             setAdminCount(adminCount);
             setCustomerCount(customerCount);
             setShipperCount(shipperCount);
@@ -257,6 +257,8 @@ const User = () => {
                                 placeholder="Tìm kiếm người dùng..."
                                 className="search-user-input"
                                 onChange={handleSearchChange}
+                                id="search-user"
+                               
                             />
                             <h2>Danh Sách Người Dùng</h2>
                             <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
@@ -291,12 +293,19 @@ const User = () => {
                                             </label>
                                         </td>
                                         <td>
-                                            <div className="button-container">
-                                                <button className="user-update-btn3" onClick={() => handleDetailsClick(user)}>Chi tiết</button>
-                                                <button className="user-update-btn1" onClick={() => handleUpdateClick(user)}>Cập nhật</button>
-                                                <button className="user-update-btn2">Xóa</button>
+                                            <div className="user-button-container">
+                                                <button id="user-update-btn3"  onClick={() => handleDetailsClick(user)}>
+                                                    <i className="ti-info-alt"></i> {/* Themify icon for details */}
+                                                </button>
+                                                <button id="user-update-btn1"   onClick={() => handleUpdateClick(user)}>
+                                                    <i className="ti-pencil"></i> {/* Themify icon for update */}
+                                                </button>
+                                                <button id="user-update-btn2" >
+                                                    <i className="ti-trash"></i> {/* Themify icon for delete */}
+                                                </button>
                                             </div>
                                         </td>
+
                                     </tr>
                                 )) : (
                                     <tr>
@@ -306,7 +315,7 @@ const User = () => {
                             </tbody>
 
                         </table>
-                        <div className="pagination">
+                        <div className="user-pagination">
                             <button
                                 className="btn btn-pre me-2"
                                 onClick={() => handlePageChange(currentPage - 1)}

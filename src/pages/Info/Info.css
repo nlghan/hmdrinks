@@ -87,19 +87,19 @@
     background-color: #FF5E6B; /* Đổi màu nền khi hover */
 }
 
-.btn-back {
+#btn-back {
     background-color: #ccc; /* Màu nền cho nút Trở lại */
 }
 
-.btn-back:hover {
+#btn-back:hover {
     background-color: #bbb; /* Màu nền cho nút Trở lại khi hover */
 }
 
-.btn-change {
+#btn-change {
     background-color: #f17844; /* Màu nền cho nút Trở lại */
 }
 
-.btn-change:hover {
+#btn-change:hover {
     background-color: #5fc09a; /* Màu nền cho nút Trở lại khi hover */
 }
 .avatar-container {
@@ -125,7 +125,7 @@
 }
 
 
-.btn-upload {
+#btn-upload {
     padding: 10px 15px;
     background-color: #FF7380;
     color: #fff;
@@ -136,7 +136,7 @@
     transition: transform 0.3s ease, background-color 0.3s ease; /* Hiệu ứng mượt mà */
 }
 
-.btn-upload:hover {
+#btn-upload:hover {
     transform: scale(1.05); /* Phóng to nhẹ khi hover */
     background-color: #FF5E6B; /* Đổi màu nền khi hover */
 }
@@ -156,7 +156,7 @@
 }
 
 /* General button styles */
-.btn-upload, .btn-save {
+ #btn-save {
     padding: 10px 20px; /* Space inside buttons */
     font-size: 16px;
     border: none;
@@ -165,24 +165,15 @@
     transition: background-color 0.3s ease, transform 0.2s; /* Smooth transition on hover */
 }
 
-/* Upload button styles */
-.btn-upload {
-    background-color:#FF5E6B; /* Green background */
-    color: white;
-}
-
-.btn-upload:hover {
-    background-color: #45a049; /* Darker green on hover */
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
 
 /* Save button styles */
-.btn-save {
+#btn-save {
     background-color: #69ccd3; /* Blue background */
     color: white;
+    width: 109px;
 }
 
-.btn-save:hover {
+#btn-save:hover {
     background-color: #007BB5; /* Darker blue on hover */
     transform: scale(1.05); /* Slightly enlarge on hover */
 }

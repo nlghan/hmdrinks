@@ -20,6 +20,7 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [files, setFiles] = useState([]);
+    const [loading, setLoading] = useState(false); // Loading state
 
     const availableSizes = ['S', 'M', 'L'];
 
@@ -99,6 +100,7 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
         }
 
         try {
+            setLoading(true); // Set loading to true when starting to submit
             const productResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/product/create`, {
                 cateId,
                 proName,
@@ -152,9 +154,9 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
             console.error('Error:', error);
             if (error.response) {
                 setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi khi thêm sản phẩm.');
-            } else {
-                setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
-            }
+            } 
+        } finally {
+            setLoading(false); // Set loading to false after the response is received
         }
     };
 
@@ -165,6 +167,7 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                     <h2>Thêm sản phẩm</h2>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
+                    {loading && <p className="loading-message">Đang thêm sản phẩm...</p>} {/* Loading message */}
 
                     <div className="form-sections-add">
                         <div className="form-container-add">
@@ -291,9 +294,11 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                             </div>
                         </div>
 
-                        <div className="form-actions">
-                            <button type="button" className="submit-btn" onClick={handleSubmit}>Thêm</button>
-                            <button type="button" className="cancel-btn" onClick={onClose}>Hủy</button>
+                        <div className="add-pro-form-actions">
+                            <button type="button" id="add-submit-btn" onClick={handleSubmit} disabled={loading}>
+                                {loading ? 'Đang thêm...' : 'Thêm'}
+                            </button>
+                            <button type="button" id="add-cancel-btn" onClick={onClose}>Hủy</button>
                         </div>
                     </div>
                 </div>

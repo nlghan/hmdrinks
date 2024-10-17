@@ -403,10 +403,10 @@ const Category = () => {
                                     Kích hoạt
                                 </label>
                             </div>
-                            <div className="form-actions">
+                            <div className="cate-form-actions">
                                 <button
                                     type="button"
-                                    className="btn-add"
+                                    id="btn-add"
                                     onClick={isUpdateMode ? handleUpdateCategory : handleAddCategory}
                                 >
                                     {isUpdateMode ? 'Cập nhật' : 'Thêm danh mục'}
@@ -445,7 +445,7 @@ const Category = () => {
                                             className="search-bar"
                                         />
                                     )}
-                                    style={{ width: 300 }} // Điều chỉnh kích thước nếu cần
+                                    style={{ width: '400px', marginRight: '16px' }} // Điều chỉnh kích thước nếu cần
                                 />
                                 <select
                                     value={sortOrder}
@@ -503,7 +503,7 @@ const Category = () => {
                                             <td>
                                                 <div className='gr-btn-cate'>
                                                     <button
-                                                        className="btn-add"
+                                                        className="cate-btn"
                                                         onClick={() => {
                                                             setUpdateCategory(category);
                                                             setCategoryName(category.cateName);
@@ -511,20 +511,21 @@ const Category = () => {
                                                             setIsUpdateMode(true);
                                                         }}
                                                     >
-                                                        Cập nhật
+                                                        <i className="ti-pencil" style={{color: "blue", fontSize: "20px"}}></i> {/* Edit icon */}
                                                     </button>
                                                     <button
-                                                        className="btn-clear"
+                                                        className="cate-btn"
                                                         onClick={() => handleDeleteCategory(category.cateId)}
                                                     >
-                                                        Xóa
+                                                        <i className="ti-trash" style={{color: "red", fontSize: "20px"}}></i> {/* Trash/delete icon */}
                                                     </button>
                                                     <button
-                                                        className="btn-view"
+                                                        className="cate-btn"
                                                         onClick={() => handleViewProduct(category.cateId, category.cateName)}
                                                     >
-                                                        Xem sản phẩm
+                                                        <i className="ti-eye" style={{color: "green", fontSize: "20px"}}></i> {/* View/eye icon */}
                                                     </button>
+
                                                 </div>
                                             </td>
                                         </tr>
