@@ -5,6 +5,7 @@ import ProductCard from '../../components/Card/ProductCard';
 import backgroundImage from '../../assets/img/5.jpg'; // Path to your background image
 import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete and TextField
 import "./Menu.css";
+import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 const Menu = () => {
     const [products, setProducts] = useState([]); // Products state
@@ -17,6 +18,7 @@ const Menu = () => {
     const [categoryLimit] = useState(10); // Set the number of categories per page
     const [selectedCategoryId, setSelectedCategoryId] = useState(null); // Track selected category
     const [searchTerm, setSearchTerm] = useState(''); // Search term state
+    const navigate = useNavigate();
 
     // Fetch products and their prices from API
     // Fetch products and their prices and sizes from API
@@ -109,6 +111,10 @@ const Menu = () => {
     // Check if there are any products available for the selected category
     const hasProducts = filteredProducts.length > 0;
 
+    const handleProductCardClick = (product) => {
+        navigate(`/product/${product.proId}`, { state: { product } }); // Navigate and pass product data
+    };
+
     return (
         <>
             <Navbar />
@@ -146,7 +152,7 @@ const Menu = () => {
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
-                                        label="🔍     Bạn muốn uống gì?"
+                                        label="🔍 Bạn muốn uống gì?"
                                         variant="outlined"
                                         margin="normal"
                                         sx={{
@@ -262,7 +268,7 @@ const Menu = () => {
 
                     <div className="products">
                         {loading ? (
-                            <p>Đang tải sản phẩm...</p> // Display loading message
+                            <p>Đang tải sản phẩm...</p>
                         ) : hasProducts ? (
                             filteredProducts.map((product) => (
                                 <ProductCard
@@ -270,15 +276,16 @@ const Menu = () => {
                                     product={{
                                         name: product.proName,
                                         size: product.size,
-                                        price: `${product.price} VND`, // Price fetched from the product variant
+                                        price: `${product.price} VND`,
                                         image: product.productImageResponseList.length > 0
                                             ? product.productImageResponseList[0].linkImage
                                             : backgroundImage
                                     }}
+                                    onClick={() => handleProductCardClick(product)} // Pass the click handler
                                 />
                             ))
                         ) : (
-                            <p>Không có sản phẩm nào thuộc danh mục này.</p> // Message when no products available
+                            <p>Không có sản phẩm nào thuộc danh mục này.</p>
                         )}
                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './ProductCard.css';
 
-function ProductCard({ product }) {
+function ProductCard({ product, onClick }) { // Accept onClick as a prop
     const [isFavorited, setIsFavorited] = useState(false);
 
     const handleFavorite = () => {
@@ -13,9 +13,9 @@ function ProductCard({ product }) {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(parseFloat(product.price));
-    
+
     return (
-        <div className="product-card">
+        <div className="product-card" onClick={onClick}> {/* Trigger onClick when card is clicked */}
             <div className="product-card-image-container">
                 <img src={product.image} alt={product.name} />
                 <button className="favorite-icon" onClick={handleFavorite}>
