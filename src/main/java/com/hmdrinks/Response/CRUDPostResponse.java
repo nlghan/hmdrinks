@@ -2,6 +2,7 @@ package com.hmdrinks.Response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,5 +19,5 @@ public class CRUDPostResponse {
     private int userId;
     private  Boolean isDeleted;
     private Date dateDeleted;
-    private Date dateCreated;
+    private LocalDateTime dateCreated;
 }

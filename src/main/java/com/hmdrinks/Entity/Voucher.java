@@ -5,6 +5,7 @@ import com.hmdrinks.Enum.Status_Voucher;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -22,13 +23,13 @@ public class Voucher {
     private Integer voucherId;
 
     @Column(name = "startDate",nullable = false)
-    private Date startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "discount",nullable = false)
     private Double discount;
 
     @Column(name = "endDate",nullable = false)
-    private Date endDate;
+    private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status" ,nullable = false)
@@ -38,7 +39,7 @@ public class Voucher {
     private Boolean isDeleted;
 
     @Column(name = "date_deleted")
-    private Date dateDeleted;
+    private LocalDateTime dateDeleted;
 
     @OneToOne
     @JoinColumn(name = "postId", nullable = false)
