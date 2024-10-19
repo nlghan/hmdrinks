@@ -81,6 +81,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)  // mappedBy để ánh xạ với thuộc tính user bên UserInfo
     private Token token;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)  // mappedBy để ánh xạ với thuộc tính user bên UserInfo
+    private Favourite favourite;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private  List<Post> posts;
 

@@ -66,6 +66,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/productVar/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/cart/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/cart-item/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
+                        .requestMatchers("/api/fav/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
+                        .requestMatchers("/api/fav-item/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(myAccessDeniedHandler))
