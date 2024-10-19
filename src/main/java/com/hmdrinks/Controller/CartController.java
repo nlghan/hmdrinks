@@ -51,4 +51,9 @@ public class CartController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return ResponseEntity.ok(cartItemService.deleteAllCartItem(req));
     }
+
+    @GetMapping("/list-cart/{userId}")
+    public  ResponseEntity<ListAllCartUserResponse> getAllCartUser(@PathVariable Integer userId){
+        return ResponseEntity.ok(cartService.getAllCartFromUser(userId));
+    }
 }
