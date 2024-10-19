@@ -393,38 +393,38 @@ public class ProductService {
                 ));
                 total += 1;
             }
-        } else if (req.getO() == 4) {
-            List<ProductVariants> productVariants = productVariantsRepository.findTopRatedProductsDesc(req.getC(), req.getP());
-            for (ProductVariants productVariant : productVariants) {
-                crudProductVarResponseList.add(new CRUDProductVarResponse(
-                        productVariant.getVarId(),
-                        productVariant.getProduct().getProId(),
-                        productVariant.getSize(),
-                        productVariant.getPrice(),
-                        productVariant.getStock(),
-                        productVariant.getIsDeleted(),
-                        productVariant.getDateDeleted(),
-                        productVariant.getDateCreated(),
-                        productVariant.getDateUpdated()
-                ));
-                total += 1;
-            }
-        } else if (req.getO() == 5) {
-            List<ProductVariants> productVariants = productVariantsRepository.findTopRatedProductsDesc(req.getC(), req.getP());
-            for (ProductVariants productVariant : productVariants) {
-                crudProductVarResponseList.add(new CRUDProductVarResponse(
-                        productVariant.getVarId(),
-                        productVariant.getProduct().getProId(),
-                        productVariant.getSize(),
-                        productVariant.getPrice(),
-                        productVariant.getStock(),
-                        productVariant.getIsDeleted(),
-                        productVariant.getDateDeleted(),
-                        productVariant.getDateCreated(),
-                        productVariant.getDateUpdated()
-                ));
-                total += 1;
-            }
+//        } else if (req.getO() == 4) {
+//            List<ProductVariants> productVariants = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
+//            for (ProductVariants productVariant : productVariants) {
+//                crudProductVarResponseList.add(new CRUDProductVarResponse(
+//                        productVariant.getVarId(),
+//                        productVariant.getProduct().getProId(),
+//                        productVariant.getSize(),
+//                        productVariant.getPrice(),
+//                        productVariant.getStock(),
+//                        productVariant.getIsDeleted(),
+//                        productVariant.getDateDeleted(),
+//                        productVariant.getDateCreated(),
+//                        productVariant.getDateUpdated()
+//                ));
+//                total += 1;
+//            }
+//        } else if (req.getO() == 5) {
+//            List<ProductVariants> productVariants = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
+//            for (ProductVariants productVariant : productVariants) {
+//                crudProductVarResponseList.add(new CRUDProductVarResponse(
+//                        productVariant.getVarId(),
+//                        productVariant.getProduct().getProId(),
+//                        productVariant.getSize(),
+//                        productVariant.getPrice(),
+//                        productVariant.getStock(),
+//                        productVariant.getIsDeleted(),
+//                        productVariant.getDateDeleted(),
+//                        productVariant.getDateCreated(),
+//                        productVariant.getDateUpdated()
+//                ));
+//                total += 1;
+//            }
         }
             return new FilterProductBoxResponse(
                     true,

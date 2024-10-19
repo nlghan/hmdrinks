@@ -24,8 +24,8 @@ public class Review {
     private int reviewId;
 
     @ManyToOne
-    @JoinColumn(name = "varId", nullable = false)
-    private ProductVariants productVariants;
+    @JoinColumn(name = "proId", nullable = false)
+    private Product product;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
@@ -36,9 +36,6 @@ public class Review {
 
     @Column(name = "ratingStar")
     private Integer ratingStar;
-
-    @Column(name = "date_comment")
-    private LocalDate dateComment;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;

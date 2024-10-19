@@ -11,5 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review,Integer> {
+//  List<Review> findByProduct_ProId(Integer productId);
 
+  Page<Review> findByProduct_ProId(Integer productId, Pageable pageable);
+
+  Review findByReviewId(Integer reviewId);
+  Review findByReviewIdAndUser_UserId(Integer reviewId, Integer userId);
 }

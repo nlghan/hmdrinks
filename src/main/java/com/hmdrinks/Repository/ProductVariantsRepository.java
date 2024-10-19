@@ -30,29 +30,10 @@ public interface ProductVariantsRepository extends JpaRepository<ProductVariants
      */
     List<ProductVariants> findByProduct_Category_CateIdAndProduct_ProIdIn(int categoryId, List<Integer> productIds, Sort sort);
 
-    @Query("SELECT pv FROM ProductVariants pv " +
-            "LEFT JOIN pv.reviews r " +
-            "WHERE pv.product.category.cateId = :categoryId " +
-            "AND pv.product.proId IN :productIds " +
-            "GROUP BY pv.varId " +
-            "HAVING COUNT(r) > 0 " + // Có ít nhất 1 đánh giá
-            "ORDER BY AVG(r.ratingStar) DESC")
-    List<ProductVariants> findTopRatedProductsDesc(
-            @Param("categoryId") int categoryId,
-            @Param("productIds") List<Integer> productIds
-    );
 
-    @Query("SELECT pv FROM ProductVariants pv " +
-            "LEFT JOIN pv.reviews r " +
-            "WHERE pv.product.category.cateId = :categoryId " +
-            "AND pv.product.proId IN :productIds " +
-            "GROUP BY pv.varId " +
-            "HAVING COUNT(r) > 0 " +
-            "ORDER BY AVG(r.ratingStar) ASC")
-    List<ProductVariants> findTopRatedProductsAsc(
-            @Param("categoryId") int categoryId,
-            @Param("productIds") List<Integer> productIds
-    );
 
     Page<ProductVariants> findAll(Pageable pageable);
+
+    @Query(value = "SELECT COUNT(var_id) FROM product_variants", nativeQuery = true)
+    int TotalNumberOfProductVariants();
 }
