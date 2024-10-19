@@ -1,6 +1,5 @@
 package com.hmdrinks.Entity;
 
-import com.hmdrinks.Enum.Size;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,13 +11,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "cart_item")
-public class CartItem {
+@Table(name = "favourite_item")
+public class FavouriteItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cartItemId", nullable = false)
-    private int cartItemId; 
+    @Column(name = "favItemId", nullable = false)
+    private int favItemId;
 
     @ManyToOne
     @JoinColumns({
@@ -28,14 +27,7 @@ public class CartItem {
     private ProductVariants productVariants;
 
     @ManyToOne
-    @JoinColumn(name = "cartId", nullable = false)
-    private Cart cart;
-
-    @Column(name = "totalPrice")
-    private double totalPrice;
-
-    @Column(name = "quantity")
-    private int quantity;
-
+    @JoinColumn(name = "favId", nullable = false)
+    private Favourite favourite;
 }
 
