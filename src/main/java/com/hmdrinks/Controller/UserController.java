@@ -37,6 +37,8 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserInfoResponse(req));
     }
 
+
+
     @PutMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordReq req,HttpServletRequest httpRequest) {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));

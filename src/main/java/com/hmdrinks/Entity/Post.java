@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -30,7 +31,7 @@ public class Post {
     private  String description;
 
     @Column(name = "date_create",nullable = false)
-    private Date dateCreate;
+    private LocalDateTime dateCreate;
 
     @Column(name = "shortDes", nullable = false)
     private String shortDes;

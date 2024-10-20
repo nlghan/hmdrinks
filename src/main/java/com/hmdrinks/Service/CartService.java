@@ -13,6 +13,7 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.CreateNewCart;
 import com.hmdrinks.Response.CRUDCartItemResponse;
 import com.hmdrinks.Response.CreateNewCartResponse;
+import com.hmdrinks.Response.ListAllCartUserResponse;
 import com.hmdrinks.Response.ListItemCartResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,29 @@ public class CartService {
                 cart1.getUser().getUserId(),
                 cart1.getStatus()
         );
+    }
+
+    public ListAllCartUserResponse getAllCartFromUser(int userId)
+    {
+        User user = userRepository.findByUserId(userId);
+        if(user == null)
+        {
+            throw new BadRequestException("UserId not exists");
+        }
+
+        List<Cart> carts = cartRepository.findByUserUserId(userId);
+        List<CreateNewCartResponse> cartResponses = new ArrayList<>();
+        for(Cart cart : carts)
+        {
+            cartResponses.add(new CreateNewCartResponse(
+                    cart.getCartId(),
+                    cart.getTotalPrice(),
+                    cart.getTotalProduct(),
+                    cart.getUser().getUserId(),
+                    cart.getStatus()
+            ));
+        }
+        return new ListAllCartUserResponse(userId, cartResponses);
     }
 
     public ListItemCartResponse getAllItemCart(int id){

@@ -3,6 +3,7 @@ package com.hmdrinks.Controller;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.ProductService;
+import com.hmdrinks.Service.ReviewService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ReviewService reviewService;
     @Autowired
     private SupportFunction supportFunction;
 
@@ -52,6 +56,11 @@ public class ProductController {
     @GetMapping(value = "/search")
     public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
         return ResponseEntity.ok(productService.totalSearchProduct(keyword,page,limit));
+    }
+
+    @GetMapping(value = "/list-review")
+    public ResponseEntity<ListAllReviewProductResponse> listReview(@RequestParam(name = "proId") Integer proId, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+        return ResponseEntity.ok(reviewService.getAllReview(page,limit,proId));
     }
 
     @GetMapping("/list-image/{proId}")

@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetViewProductCategoryResponse {
-    private  int cateId;
+    private int currentPage;
+    private long totalPage;
+    private int limit;
     List<CRUDProductResponse> responseList;
 }

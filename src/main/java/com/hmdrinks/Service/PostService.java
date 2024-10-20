@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +37,7 @@ public class PostService {
        {
            throw new RuntimeException("Not allowed to add post");
        }
-       Date currentDate = new Date();
+       LocalDateTime currentDate = LocalDateTime.now();
        Post post = new Post();
        post.setTitle(req.getTitle());
        post.setDescription(req.getDescription());

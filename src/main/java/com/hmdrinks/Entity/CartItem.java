@@ -37,6 +37,5 @@ public class CartItem {
     @Column(name = "quantity")
     private int quantity;
 
-    // Thêm các phương thức khác nếu cần
 }
 
