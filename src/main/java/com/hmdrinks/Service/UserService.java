@@ -2,17 +2,19 @@ package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.OTP;
 import com.hmdrinks.Entity.User;
-import com.hmdrinks.Entity.UserInfo;
 import com.hmdrinks.Enum.Sex;
 import com.hmdrinks.Exception.BadRequestException;
+import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
 import com.hmdrinks.Repository.OtpRepository;
-import com.hmdrinks.Repository.UserInfoRepository;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.ChangePasswordReq;
-import com.hmdrinks.Request.IdReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import  org.springframework.mail.*;
 
 import com.hmdrinks.Response.*;
@@ -21,6 +23,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,126 +34,127 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private final UserRepository userRepository;
-    private final UserInfoRepository userInfoRepository;
-    private  final OtpRepository otpRepository;
-
+    private final  UserRepository userRepository;
+    private final OtpRepository otpRepository;
+    private final SupportFunction supportFunction;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public ListAllUserResponse getListAllUser() {
-        List<User> userList = userRepository.findAll();
+    public ListAllUserResponse getListAllUser(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
-
         for (User user : userList) {
-            UserInfo userInfoOpt = userInfoRepository.findByUserUserId(user.getUserId());
-            if (userInfoOpt != null) {
-
-                detailUserResponseList.add(new DetailUserResponse(
+            String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
+            detailUserResponseList.add(new DetailUserResponse(
                         user.getUserId(),
                         user.getUserName(),
-                        userInfoOpt.getFullName(), // Thay thế với trường thực tế trong UserInfo mà bạn cần
+                        user.getFullName(),
+                        user.getAvatar(),
+                        user.getBirthDate(),
+                        fullLocation,
+                        user.getEmail(),
+                        user.getPhoneNumber(),
+                        user.getSex().toString(),
+                        user.getType().toString(),
                         user.getIsDeleted(),
+                        user.getDateDeleted(),
+                        user.getDateUpdated(),
+                        user.getDateCreated(),
                         user.getRole().toString()
                 ));
             }
-        }
-
-        return new ListAllUserResponse(detailUserResponseList);
+        return new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
     }
 
     public GetDetailUserInfoResponse getDetailUserInfoResponse(Integer id){
         User userList = userRepository.findByUserId(id);
-
-        if (userList == null) {  // Kiểm tra xem Optional có giá trị hay không
+        if (userList == null) {
             throw new RuntimeException("Khong ton tai user");
         }
-        User user = userList;  // Lấy đối tượng User từ Optional
-        Optional<UserInfo> userInfo = Optional.ofNullable(userInfoRepository.findByUserUserId(user.getUserId()));
-        if(userInfo.isEmpty()){
-            throw new RuntimeException("Khong ton tai thong tin user");
-        }
-
-        UserInfo userInfo1 = userInfo.get();
-        String fullLocation = userInfo1.getStreet() + ","+ userInfo1.getDistrict() + ","+userInfo1.getCity();
-        Sex sexEnum = userInfo1.getSex(); // Lấy giá trị sex dưới dạng enum
-        String sex;
-
-        if (sexEnum == null || sexEnum.toString().isEmpty()) {
-            sex = Sex.OTHER.toString(); // Nếu null hoặc rỗng, gán giá trị mặc định là "OTHER"
-        } else {
-            sex = sexEnum.toString(); // Ngược lại, chuyển sex thành chuỗi
-        }
-
+        String fullLocation = userList.getStreet() + ","+ userList.getDistrict() + ","+ userList.getCity();
         return new GetDetailUserInfoResponse(
-                user.getUserId(),
-                user.getEmail(),
-                userInfo1.getFullName(),
-                userInfo1.getPhoneNumber(),
-                userInfo1.getAvatar(),
-                sex,
-                userInfo1.getBirthDate(),
-                fullLocation
+                userList.getUserId(),
+                userList.getUserName(),
+                userList.getFullName(),
+                userList.getAvatar(),
+                userList.getBirthDate(),
+                fullLocation,
+                userList.getEmail(),
+                userList.getPhoneNumber(),
+                userList.getSex().toString(),
+                userList.getType().toString(),
+                userList.getIsDeleted(),
+                userList.getDateDeleted(),
+                userList.getDateUpdated(),
+                userList.getDateCreated(),
+                userList.getRole().toString()
         );
     }
     public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
         User userList = userRepository.findByUserId(req.getUserId());
-
-        if (userList == null) {  // Kiểm tra xem Optional có giá trị hay không
-            throw new RuntimeException("Khong ton tai user");
+        if (userList == null) {
+            throw new NotFoundException("User does not exist");
         }
-        User user = userList;  // Lấy đối tượng User từ Optional
-        Optional<UserInfo> userInfo = Optional.ofNullable(userInfoRepository.findByUserUserId(user.getUserId()));
-        if(userInfo.isEmpty()){
-            throw new RuntimeException("Khong ton tai thong tin user");
+        Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
+        if(user.isPresent()) {
+            throw new ConflictException("Email already exists");
         }
+        supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
+        LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
-        user.setEmail(req.getEmail());
-        userRepository.save(user);
-        UserInfo userInfo1 = userInfo.get();
-        userInfo1.setFullName(req.getFullName());
-        userInfo1.setPhoneNumber(req.getPhoneNumber());
-        userInfo1.setAvatar(req.getAvatar());
-        userInfo1.setSex(Sex.valueOf(req.getSex()));
-        userInfo1.setBirthDate(req.getBirthDay());
-        String street = locationParts[0].trim();   // Lấy phần street
-        String district = locationParts[1].trim();  // Lấy phần district
-        String city = locationParts[2].trim();
-        userInfo1.setCity(city);
-        userInfo1.setStreet(street);
-        userInfo1.setDistrict(district);
-
-        userInfoRepository.save(userInfo1);
-
+        userList.setEmail(req.getEmail());
+        userList.setFullName(req.getFullName());
+        userList.setPhoneNumber(req.getPhoneNumber());
+        userList.setAvatar(req.getAvatar());
+        userList.setSex(Sex.valueOf(req.getSex()));
+        userList.setBirthDate(req.getBirthDay());
+        userList.setDateUpdated(Date.valueOf(currentDate));
+        if(locationParts.length >= 3){
+            String street = locationParts[0].trim();
+            String district = locationParts[1].trim();
+            String city = locationParts[2].trim();
+            userList.setCity(city);
+            userList.setStreet(street);
+            userList.setDistrict(district);
+        } else {
+            throw new BadRequestException("Invalid address format");
+        }
+        userRepository.save(userList);
         return new UpdateUserInfoResponse(
-                user.getUserId(),
-                user.getEmail(),
-                userInfo1.getFullName(),
-                userInfo1.getPhoneNumber(),
-                userInfo1.getAvatar(),
-                req.getSex(),
-                userInfo1.getBirthDate(),
-                req.getAddress()
+                userList.getUserId(),
+                userList.getUserName(),
+                userList.getFullName(),
+                userList.getAvatar(),
+                userList.getBirthDate(),
+                req.getAddress(),
+                userList.getEmail(),
+                userList.getPhoneNumber(),
+                userList.getSex().toString(),
+                userList.getType().toString(),
+                userList.getIsDeleted(),
+                userList.getDateDeleted(),
+                userList.getDateUpdated(),
+                userList.getDateCreated(),
+                userList.getRole().toString()
         );
     }
 
     public SendEmailResponse sendEmail(String email) {
         Random random = new Random();
         User users = userRepository.findByEmail(email);
-
         if (users == null) {
             throw new NotFoundException("Username or email does not exist");
         }
-
         OTP otpEntity = otpRepository.findByEmail(email);
         if (otpEntity != null) {
             otpRepository.deleteById(otpEntity.getOtpId());
         }
-
         int randomNumber = random.nextInt(900000) + 100000;
         String to = users.getEmail();
         SimpleMailMessage message = new SimpleMailMessage();
@@ -219,18 +224,45 @@ public class UserService {
             return new MessageResponse("Your username, email or OTP is not correct.");
         }
     }
+    public TotalSearchUserResponse totalSearchUser(String keyword,String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
+                keyword,keyword,keyword,keyword,keyword,keyword,keyword,pageable);
+        List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
+        for (User user : userList) {
+            String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
+            detailUserResponseList.add(new DetailUserResponse(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getFullName(),
+                    user.getAvatar(),
+                    user.getBirthDate(),
+                    fullLocation,
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getSex().toString(),
+                    user.getType().toString(),
+                    user.getIsDeleted(),
+                    user.getDateDeleted(),
+                    user.getDateUpdated(),
+                    user.getDateCreated(),
+                    user.getRole().toString()
+            ));
+        }
+        return new TotalSearchUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
+    }
 
     public ChangePasswordResponse changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
-
         if (users == null) {
             throw new NotFoundException("Not found user");
         }
-
         if (!passwordEncoder.matches(req.getCurrentPassword(), users.getPassword())) {
             throw new BadRequestException("The current password is incorrect");
         }
-
         if (req.getNewPassword().equals(req.getCurrentPassword())) {
             throw new BadRequestException("You're using an old password");
         }
@@ -245,6 +277,4 @@ public class UserService {
                 req.getNewPassword()
         );
     }
-
-
 }

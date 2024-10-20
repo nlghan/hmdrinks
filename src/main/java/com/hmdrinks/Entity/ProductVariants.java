@@ -4,7 +4,9 @@ import com.hmdrinks.Enum.Size;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,7 +23,7 @@ public class ProductVariants {
 
     @ManyToOne
     @JoinColumn(name = "proId", nullable = false)
-    private Product product;  // Mối quan hệ ManyToOne đến bảng Product
+    private Product product;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,4 +40,10 @@ public class ProductVariants {
 
     @Column(name = "date_deleted")
     private Date dateDeleted;
+
+    @Column(name = "date_updated")
+    private LocalDate dateUpdated;
+
+    @Column(name = "date_created")
+    private LocalDate dateCreated;
 }

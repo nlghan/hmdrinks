@@ -15,6 +15,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Map;
 
 import java.io.IOException;
@@ -25,17 +26,11 @@ public class ImgService {
     @Value("${cloudinary.url}")
     private String cloudinaryUrl;
     @Autowired
-    private UserInfoRepository userInfoRepository;
-
-    @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private UserRepository userRepository;
 
@@ -44,17 +39,12 @@ public class ImgService {
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         User users = userRepository.findByUserId(userId);
         if (users == null) {
             throw new NotFoundException("Not found userId");
         }
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -68,13 +58,12 @@ public class ImgService {
             String imageUrl = (String) uploadResult.get("secure_url");
             ImgResponse imgResponse = new ImgResponse();
             imgResponse.setUrl(imageUrl);
-            UserInfo userInfo = userInfoRepository.findByUserUserId(userId);
-            if(userInfo == null){
+            User user = userRepository.findByUserId(userId);
+            if(user == null){
                 throw  new RuntimeException("Khong ton tai userId");
             }
-            userInfo.setAvatar(imageUrl);
-            userInfoRepository.save(userInfo);
-
+            user.setAvatar(imageUrl);
+            userRepository.save(user);
             return imgResponse;
 
         } catch (Exception e) {
@@ -84,21 +73,15 @@ public class ImgService {
     }
 
     public ImgResponse uploadImgCategory(MultipartFile multipartFile, int cateId) throws IOException {
-
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Category category = categoryRepository.findByCateId(cateId);
         if (category== null) {
             throw new NotFoundException("Not found cateId");
         }
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -123,18 +106,12 @@ public class ImgService {
     }
 
     public ImgResponse uploadImgPost(MultipartFile multipartFile, int postId) throws IOException {
-
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Post post = postRepository.findByPostId(postId);
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -158,22 +135,16 @@ public class ImgService {
         }
     }
 
-    public ImgResponse uploadImgProduct(MultipartFile multipartFile, int proId) throws IOException {
-
+    public ImgResponse uploadImgListProduct(MultipartFile multipartFile, int proId) throws IOException {
         if (!processFile(multipartFile)) {
             throw new BadRequestException("Incorrect formatting");
         }
-
-
         Product product = productRepository.findByProId(proId);
         if (product == null) {
             throw new NotFoundException("Not found proId");
         }
-
-
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
-
         try {
             InputStream inputStream = multipartFile.getInputStream();
             Map<String, Object> params = ObjectUtils.asMap(
@@ -187,10 +158,24 @@ public class ImgService {
             String imageUrl = (String) uploadResult.get("secure_url");
             ImgResponse imgResponse = new ImgResponse();
             imgResponse.setUrl(imageUrl);
-            product.setProImg(imageUrl);
+            if (!product.getListProImg().isEmpty() || product.getListProImg() == null) {
+                String currentProImg = product.getListProImg();
+                if (currentProImg.trim().isEmpty()) {
+                    product.setListProImg("1: " + imageUrl);
+                } else {
+                    // Nếu không rỗng, tiếp tục xử lý
+                    int currentStt = currentProImg.split(",").length;
+                    int newStt = currentStt + 1;
+                    product.setDateUpdated(LocalDate.now());
+                    String newProImg = currentProImg + ", " + newStt + ": " + imageUrl;
+                    product.setListProImg(newProImg);
+                }
+            } else {
+                product.setListProImg("1: " + imageUrl);
+            }
             productRepository.save(product);
+            imgResponse.setUrl(product.getListProImg());
             return imgResponse;
-
         } catch (Exception e) {
             System.out.println("Error uploading image: " + e.getMessage());
             throw new IOException("Could not upload image: " + e.getMessage());
@@ -221,4 +206,3 @@ public class ImgService {
         return false;
     }
 }
-

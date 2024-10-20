@@ -11,5 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ListAllUserResponse {
+    private int currentPage;
+    private long totalPage;
+    private int limit;
     List<DetailUserResponse> detailUserResponseList;
 }

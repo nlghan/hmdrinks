@@ -2,7 +2,6 @@ package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Request.CreateProductReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.PostService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     @Autowired
     private PostService postService;
-
     @Autowired
     private SupportFunction supportFunction;
 
@@ -31,14 +29,15 @@ public class PostController {
 
     @GetMapping(value ="/view/{id}")
     public ResponseEntity<CRUDPostResponse> getOnePost(
-            @PathVariable Integer id,HttpServletRequest httpRequest
+            @PathVariable Integer id
     ){
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
     @GetMapping(value = "/view/all")
-    public ResponseEntity<ListAllPostResponse> getAllPosts(){
-        return  ResponseEntity.ok(postService.getAllPost());
+    public ResponseEntity<ListAllPostResponse> getAllPosts(@RequestParam(name = "page") String page,
+                                                           @RequestParam(name = "limit") String limit){
+        return  ResponseEntity.ok(postService.getAllPost(page,limit));
     }
 
     @GetMapping(value = "/view/author/{userId}")
@@ -56,5 +55,4 @@ public class PostController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return  ResponseEntity.ok(postService.updatePost(req));
     }
-
 }

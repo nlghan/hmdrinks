@@ -13,6 +13,7 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.CreateNewCart;
 import com.hmdrinks.Response.CRUDCartItemResponse;
 import com.hmdrinks.Response.CreateNewCartResponse;
+import com.hmdrinks.Response.ListAllCartUserResponse;
 import com.hmdrinks.Response.ListItemCartResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,12 @@ import java.util.List;
 
 @Service
 public class CartService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
-    @Autowired
-    private ProductVariantsRepository productVariantsRepository;
 
     public CreateNewCartResponse createCart(CreateNewCart req)
     {
@@ -48,22 +43,42 @@ public class CartService {
         {
             throw  new BadRequestException("NewCart exists");
         }
-
         Cart cart1 = new Cart();
         cart1.setTotalPrice(0);
         cart1.setUser(user);
         cart1.setStatus(Status_Cart.NEW);
         cart1.setTotalProduct(0);
         cartRepository.save(cart1);
-
         return new CreateNewCartResponse(
                 cart1.getCartId(),
                 cart1.getTotalPrice(),
                 cart1.getTotalProduct(),
                 cart1.getUser().getUserId(),
                 cart1.getStatus()
-
         );
+    }
+
+    public ListAllCartUserResponse getAllCartFromUser(int userId)
+    {
+        User user = userRepository.findByUserId(userId);
+        if(user == null)
+        {
+            throw new BadRequestException("UserId not exists");
+        }
+
+        List<Cart> carts = cartRepository.findByUserUserId(userId);
+        List<CreateNewCartResponse> cartResponses = new ArrayList<>();
+        for(Cart cart : carts)
+        {
+            cartResponses.add(new CreateNewCartResponse(
+                    cart.getCartId(),
+                    cart.getTotalPrice(),
+                    cart.getTotalProduct(),
+                    cart.getUser().getUserId(),
+                    cart.getStatus()
+            ));
+        }
+        return new ListAllCartUserResponse(userId, cartResponses);
     }
 
     public ListItemCartResponse getAllItemCart(int id){

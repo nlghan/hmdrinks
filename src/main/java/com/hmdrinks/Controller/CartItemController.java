@@ -1,13 +1,10 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.CRUDCartItemResponse;
-import com.hmdrinks.Response.CreateNewCartResponse;
 import com.hmdrinks.Response.DeleteCartItemResponse;
 import com.hmdrinks.Response.IncreaseDecreaseItemQuantityResponse;
 import com.hmdrinks.Service.CartItemService;
-import com.hmdrinks.Service.CartService;
 import com.hmdrinks.Service.JwtService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,12 +27,12 @@ public class CartItemController {
     @Autowired
     private JwtService jwtService;
     @PostMapping(value = "/insert")
-    public ResponseEntity<CRUDCartItemResponse> create(@RequestBody InsertItemToCart req){
+    public ResponseEntity<CRUDCartItemResponse> createCartItem(@RequestBody InsertItemToCart req){
         return ResponseEntity.ok(cartItemService.insertCartItem(req));
     }
 
     @PutMapping(value = "/increase")
-    public ResponseEntity<IncreaseDecreaseItemQuantityResponse> create(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
+    public ResponseEntity<IncreaseDecreaseItemQuantityResponse> increaseItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return ResponseEntity.ok(cartItemService.increaseCartItemQuantity(req));
     }
@@ -52,6 +49,4 @@ public class CartItemController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return ResponseEntity.ok(cartItemService.deleteOneItem(req));
     }
-
-
 }
