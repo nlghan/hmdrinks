@@ -41,11 +41,13 @@ public class Product {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    // Sửa mối quan hệ OneToMany để ánh xạ đúng với ProductVariants
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariants> productVariants; // Sử dụng List để ánh xạ với các bản ghi của ProductVariants
 }

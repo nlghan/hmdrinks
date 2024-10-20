@@ -40,7 +40,7 @@ public class Category {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category")
     private List<Product> products;
 
 }

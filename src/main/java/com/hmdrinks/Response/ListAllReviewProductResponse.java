@@ -11,9 +11,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetViewProductCategoryResponse {
+public class ListAllReviewProductResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
-    List<CRUDProductResponse> responseList;
+    List<CRUDReviewResponse> listReviews;
 }

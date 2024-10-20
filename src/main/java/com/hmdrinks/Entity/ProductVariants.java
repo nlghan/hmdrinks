@@ -23,7 +23,7 @@ public class ProductVariants {
 
     @ManyToOne
     @JoinColumn(name = "proId", nullable = false)
-    private Product product;  // Mối quan hệ ManyToOne đến bảng Product
+    private Product product;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,7 +46,4 @@ public class ProductVariants {
 
     @Column(name = "date_created")
     private LocalDate dateCreated;
-
-    @OneToMany(mappedBy = "productVariants", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews;
 }
