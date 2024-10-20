@@ -5,6 +5,7 @@ import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.AdminService;
 import com.hmdrinks.Service.ReviewService;
 import com.hmdrinks.Service.UserService;
+import com.hmdrinks.Service.UserVoucherService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ public class AdminController {
     @Autowired
     private ReviewService reviewService;
     @Autowired
-    private SupportFunction supportFunction;
+    private UserVoucherService userVoucherService;
+
     @GetMapping("/list-image/{proId}")
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
         return ResponseEntity.ok(adminService.getAllProductImages(proId));
@@ -90,5 +92,11 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllProductVariantFromProduct(id));
     }
 
+    @GetMapping(value ="/list-voucher/{userId}")
+    public ResponseEntity<ListAllVoucherUserIdResponse> getAllVoucher(
+            @PathVariable Integer userId
+    ){
+        return ResponseEntity.ok(userVoucherService.listAllVoucherUserId(userId));
+    }
 
 }
