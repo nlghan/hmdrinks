@@ -37,7 +37,7 @@ public class UserVoucherService {
         {
             throw new BadRequestException("Not found user");
         }
-        Voucher voucher = voucherRepository.findByVoucherId(req.getVoucherId());
+        Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(req.getVoucherId());
         if(voucher == null)
         {
             throw new BadRequestException("Not found voucher for Post");

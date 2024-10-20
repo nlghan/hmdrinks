@@ -30,11 +30,11 @@ public class ProductService {
     private ProductVariantsRepository productVariantsRepository;
 
     public CRUDProductResponse crateProduct(CreateProductReq req) {
-        Category category = categoryRepository.findByCateId(req.getCateId());
+        Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
             throw new BadRequestException("cateId not exists");
         }
-        Product product = productRepository.findByProName(req.getProName());
+        Product product = productRepository.findByProNameAndIsDeletedFalse(req.getProName());
         if (product != null) {
             throw new BadRequestException("production name exists");
         }
@@ -73,7 +73,7 @@ public class ProductService {
     }
 
     public CRUDProductResponse getOneProduct(Integer id) {
-        Product product1 = productRepository.findByProId(id);
+        Product product1 = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product1 == null) {
             throw new BadRequestException("production id not exists");
         }
@@ -103,7 +103,7 @@ public class ProductService {
     }
 
     public CRUDProductResponse updateProduct(CRUDProductReq req) {
-        Category category = categoryRepository.findByCateId(req.getCateId());
+        Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
             throw new BadRequestException("cateId not exists");
         }
@@ -111,7 +111,7 @@ public class ProductService {
         if (product != null) {
             throw new BadRequestException("production name exists");
         }
-        Product product1 = productRepository.findByProId(req.getProId());
+        Product product1 = productRepository.findByProIdAndIsDeletedFalse(req.getProId());
         if (product1 == null) {
             throw new BadRequestException("proId not exists");
         }
@@ -150,7 +150,7 @@ public class ProductService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Product> productList = productRepository.findAll(pageable);
+        Page<Product> productList = productRepository.findByIsDeletedFalse(pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -182,9 +182,9 @@ public class ProductService {
     }
 
     public GetProductVariantFromProductIdResponse getAllProductVariantFromProduct(int id) {
-        Product product = productRepository.findByProId(id);
+        Product product = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product == null) {
-            throw new BadRequestException("cateId not exists");
+            throw new BadRequestException("proId not exists");
         }
         List<ProductVariants> productList = productVariantsRepository.findByProduct_ProId(id);
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
@@ -213,7 +213,7 @@ public class ProductService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Product> productList = productRepository.findByProNameContaining(keyword, pageable);
+        Page<Product> productList = productRepository.findByProNameContainingAndIsDeletedFalse(keyword, pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -244,7 +244,7 @@ public class ProductService {
     }
 
     public ListProductImageResponse deleteImageFromProduct(int proId, int deleteStt ) {
-        Product product = productRepository.findByProId(proId);
+        Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
             throw new NotFoundException("Not found product with ID: " + proId);
         }
@@ -286,12 +286,13 @@ public class ProductService {
     }
 
     public ImgResponse deleteAllImageFromProduct(int proId) {
-        Product product = productRepository.findByProId(proId);
+        Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
             throw new NotFoundException("Not found product with ID: " + proId);
         }
         product.setListProImg("");
         product.setDateUpdated(LocalDate.now());
+
         productRepository.save(product);
         return new ImgResponse(product.getListProImg());
     }
@@ -318,21 +319,17 @@ public class ProductService {
 
     public FilterProductBoxResponse filterProduct(FilterProductBox req) {
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
-        Category category = categoryRepository.findByCateId(req.getC());
+        Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getC());
         if (category == null) {
             throw new BadRequestException("cateId not exists");
         }
         for (Integer id : req.getP()) {
-            Product product = productRepository.findByProId(id);
+            Product product = productRepository.findByProIdAndIsDeletedFalse(id);
             if (product == null) {
                 throw new BadRequestException("productId not exists");
             }
         }
-        // 1: gia cao den thap
-        // 2: gia thap den cao
-        // 3: ngày tạo mới nhất
-        // 4: top đánh gia cao đến thấp
-        // 5: tu thấp đến cao star
+
         if (req.getO() <= 0) {
             throw new BadRequestException("o must be greater than 0");
         }

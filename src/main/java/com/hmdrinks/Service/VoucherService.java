@@ -31,7 +31,7 @@ public class VoucherService {
             throw new BadRequestException("Not found post");
         }
 
-        Voucher existingVoucher = voucherRepository.findByPostPostId(req.getPostId());
+        Voucher existingVoucher = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
         if (existingVoucher != null) {
             throw new BadRequestException("Voucher Post already exists");
         }
@@ -77,7 +77,7 @@ public class VoucherService {
     }
 
     public CRUDVoucherResponse updateVoucher(CrudVoucherReq req){
-        Voucher voucher = voucherRepository.findByVoucherId(req.getVoucherId());
+        Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(req.getVoucherId());
         if(voucher == null){
             throw new BadRequestException("Not found voucher");
         }
@@ -117,7 +117,7 @@ public class VoucherService {
         }
         else
         {
-            Voucher vou = voucherRepository.findByPostPostId(req.getPostId());
+            Voucher vou = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
             if(vou != null){
                 throw new BadRequestException("Voucher Post already exists");
             }
@@ -155,7 +155,7 @@ public class VoucherService {
     }
 
     public CRUDVoucherResponse getVoucherById(int voucherId){
-        Voucher voucher = voucherRepository.findByVoucherId(voucherId);
+        Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(voucherId);
         if(voucher == null){
             throw new BadRequestException("Not found voucher");
         }

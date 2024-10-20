@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class ReviewService {
 
     public CRUDReviewResponse updateReview(CRUDReviewReq req)
     {
-        Review review = reviewRepository.findByReviewIdAndUser_UserId(req.getReviewId(), req.getUserId());
+        Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
         if (review == null)
         {
             throw new BadRequestException("Review not found");
@@ -86,24 +87,17 @@ public class ReviewService {
 
     public String deleteOneReview(DeleteReviewReq req)
     {
-        Review review = reviewRepository.findByReviewIdAndUser_UserId(req.getReviewId(), req.getUserId());
+        Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
         if (review == null)
         {
             throw new BadRequestException("Review not found");
         }
-
-        reviewRepository.delete(review);
+        review.setIsDeleted(true);
+        review.setDateDeleted(Date.valueOf(LocalDate.now()));
+        reviewRepository.save(review);
         return "Review deleted";
     }
 
-//    public String deleteAllReviewUserFromProduct(DeleteReviewProductReq req)
-//    {
-//        List<Review> reviews = reviewRepository.findByProduct_ProId(req.getProId());
-//        for(Review review : reviews){
-//            reviewRepository.delete(review);
-//        }
-//        return "Review deleted";
-//    }
 
     public ListAllReviewProductResponse getAllReview(String pageFromParam, String limitFromParam,int proId)
     {

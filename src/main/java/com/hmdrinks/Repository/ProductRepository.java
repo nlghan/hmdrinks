@@ -15,14 +15,24 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Product findByProId(Integer proId);
 
+    Product findByProIdAndIsDeletedFalse(Integer proId);
+
     Product findByProName(String proName);
 
+    Product findByProNameAndIsDeletedFalse(String proName);
+
     Product findByProNameAndProIdNot(String proName,Integer proId);
+    Page<Product> findByIsDeletedFalse(Pageable pageable);
+
     Page<Product> findAll(Pageable pageable);
 
     Page<Product> findByProNameContaining(String proName, Pageable pageable);
 
+    Page<Product> findByProNameContainingAndIsDeletedFalse(String proName, Pageable pageable);
+
     List<Product> findByCategory_CateId(int cateId);
+
+    List<Product> findByCategory_CateIdAndIsDeletedFalse(int cateId);
 
     @Query(value = "SELECT COUNT(pro_id) FROM product", nativeQuery = true)
     int TotalNumberOfProduct();

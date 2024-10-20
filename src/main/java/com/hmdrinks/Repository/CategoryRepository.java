@@ -12,6 +12,8 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category,Integer> {
     Category findByCateId(Integer cateId);
 
+    Category findByCateIdAndIsDeletedFalse(Integer cateId);
+
     Category findByCateName(String cateName);
 
     Page<Category> findByCateNameContaining(String cateName, Pageable pageable);
