@@ -80,7 +80,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.listProduct(page, limit));
     }
 
-    @GetMapping(value = "/search")
+    @GetMapping(value = "/search-product")
     public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
         return ResponseEntity.ok(adminService.totalSearchProduct(keyword,page,limit));
     }
