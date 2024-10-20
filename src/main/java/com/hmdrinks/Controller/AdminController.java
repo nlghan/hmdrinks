@@ -87,7 +87,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.totalSearchProduct(keyword,page,limit));
     }
 
-    @GetMapping( value = "/variants/{id}")
+    @GetMapping( value = "/product/variants/{id}")
     public ResponseEntity<GetProductVariantFromProductIdResponse> viewProduct(@PathVariable Integer id){
         return ResponseEntity.ok(adminService.getAllProductVariantFromProduct(id));
     }
@@ -97,6 +97,11 @@ public class AdminController {
             @PathVariable Integer userId
     ){
         return ResponseEntity.ok(userVoucherService.listAllVoucherUserId(userId));
+    }
+
+    @GetMapping("/product/view/{id}")
+    public ResponseEntity<CRUDProductResponse> update( @PathVariable Integer id){
+        return ResponseEntity.ok(adminService.getOneProduct(id));
     }
 
 }

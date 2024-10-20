@@ -42,8 +42,8 @@ public class CategoryController {
     }
 
     @GetMapping("/view/{id}/product")
-    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id){
-        return ResponseEntity.ok(categoryService.getAllProductFromCategory(id));
+    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
+        return ResponseEntity.ok(categoryService.getAllProductFromCategory(id,page,limit));
     }
 
     @GetMapping(value = "/search")

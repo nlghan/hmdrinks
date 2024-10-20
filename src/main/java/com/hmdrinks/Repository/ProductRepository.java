@@ -29,8 +29,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Page<Product> findByProNameContaining(String proName, Pageable pageable);
 
     Page<Product> findByProNameContainingAndIsDeletedFalse(String proName, Pageable pageable);
-
-    List<Product> findByCategory_CateId(int cateId);
+    Page<Product> findByCategory_CateId(int cateId, Pageable pageable);
 
     List<Product> findByCategory_CateIdAndIsDeletedFalse(int cateId);
 

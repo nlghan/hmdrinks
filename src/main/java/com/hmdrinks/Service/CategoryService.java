@@ -122,14 +122,18 @@ public class CategoryService {
         return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
 
-    public GetViewProductCategoryResponse getAllProductFromCategory(int id)
+    public GetViewProductCategoryResponse getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
         Category category = categoryRepository.findByCateId(id);
         if(category == null)
         {
             throw new BadRequestException("cateId not exists");
         }
-        List<Product> productList = productRepository.findByCategory_CateId(id);
+        Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
 
         for(Product product1: productList)
@@ -162,7 +166,9 @@ public class CategoryService {
         }
 
         return new GetViewProductCategoryResponse(
-                id,
+                page,
+                productList.getTotalPages(),
+                limit,
                 crudProductResponseList
         );
 

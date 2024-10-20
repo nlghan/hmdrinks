@@ -435,5 +435,37 @@ public class AdminService {
         return new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
     }
 
+    public CRUDProductResponse getOneProduct(Integer id) {
+        Product product1 = productRepository.findByProId(id);
+        if (product1 == null) {
+            throw new BadRequestException("production id not exists");
+        }
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        String currentProImg = product1.getListProImg();
+        if(currentProImg != null && !currentProImg.trim().isEmpty())
+        {
+            String[] imageEntries1 = currentProImg.split(", ");
+            for (String imageEntry : imageEntries1) {
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
+                productImageResponses.add(new ProductImageResponse(stt, url));
+            }
+        }
+        return new CRUDProductResponse(
+                product1.getProId(),
+                product1.getCategory().getCateId(),
+                product1.getProName(),
+                productImageResponses,
+                product1.getDescription(),
+                product1.getIsDeleted(),
+                product1.getDateDeleted(),
+                product1.getDateCreated(),
+                product1.getDateUpdated()
+        );
+    }
+
+
+
 
 }
