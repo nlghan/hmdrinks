@@ -128,12 +128,12 @@ public class CategoryService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Category category = categoryRepository.findByCateId(id);
+        Category category = categoryRepository.findByCateIdAndIsDeletedFalse(id);
         if(category == null)
         {
             throw new BadRequestException("cateId not exists");
         }
-        Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
+        Page<Product> productList = productRepository.findByCategory_CateIdAndIsDeletedFalse(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
 
         for(Product product1: productList)
@@ -147,7 +147,6 @@ public class CategoryService {
                     String[] parts = imageEntry.split(": ");  // Phân tách stt và url
                     int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
                     String url = parts[1];                     // Lấy URL
-
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }

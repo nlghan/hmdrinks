@@ -31,7 +31,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Page<Product> findByProNameContainingAndIsDeletedFalse(String proName, Pageable pageable);
     Page<Product> findByCategory_CateId(int cateId, Pageable pageable);
 
-    List<Product> findByCategory_CateIdAndIsDeletedFalse(int cateId);
+    Page<Product> findByCategory_CateIdAndIsDeletedFalse(int cateId,Pageable pageable);
 
     @Query(value = "SELECT COUNT(pro_id) FROM product", nativeQuery = true)
     int TotalNumberOfProduct();
