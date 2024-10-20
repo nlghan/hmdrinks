@@ -4,7 +4,8 @@ import './ProductCard.css';
 function ProductCard({ product, onClick }) { // Accept onClick as a prop
     const [isFavorited, setIsFavorited] = useState(false);
 
-    const handleFavorite = () => {
+    const handleFavorite = (event) => {
+        event.stopPropagation(); // Ngăn chặn sự kiện click từ việc lan ra ngoài
         setIsFavorited(!isFavorited);
     };
 

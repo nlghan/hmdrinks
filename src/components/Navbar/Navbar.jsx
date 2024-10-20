@@ -56,7 +56,7 @@ const Navbar = () => {
   };
 
   const handleCartIconClick = () => {
-    // navigate('/cart'); 
+    navigate('/cart'); 
   };
 
   const handleMenuIconClick = () => {

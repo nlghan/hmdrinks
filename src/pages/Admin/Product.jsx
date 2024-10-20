@@ -32,6 +32,9 @@ const Product = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { cateId, cateName } = location.state || {};
+    const [switches, setSwitches] = useState({});
+    const [activeProducts, setActiveProducts] = useState([]);
+
 
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -68,7 +71,7 @@ const Product = () => {
                 return [];
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/variants/${productId}`;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/variants/${productId}`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
@@ -157,7 +160,7 @@ const Product = () => {
                 throw new Error("Bạn cần đăng nhập để xem thông tin này.");
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=10`;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=4`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
@@ -192,19 +195,13 @@ const Product = () => {
 
             let apiUrl;
 
-            // Determine the API URL based on search term or category
             if (debouncedSearchTerm && debouncedSearchTerm.trim() !== '') {
-                // Fetch products based on the search term
-                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`;
+                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/search-product?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`;
             } else if (selectedCateId) {
-                // Fetch products by category if one is selected
                 apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`;
             } else {
-                // If no search term or category, fetch all products
                 apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/list-product?page=${currentPage}&limit=${LIMIT}`;
             }
-
-            console.log('Fetching products from:', apiUrl);
 
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -213,25 +210,20 @@ const Product = () => {
                 }
             });
 
-            console.log('API Products Response:', response.data);
-
-            // Check the structure of the response and process accordingly
             let productData;
             if (response.data && response.data.productResponseList) {
-                // Handle the search response
                 productData = response.data.productResponseList;
             } else if (response.data && response.data.productResponses) {
-                // Handle the list product response
                 productData = response.data.productResponses;
             } else if (response.data && response.data.responseList) {
-                // Handle the category view response
                 productData = response.data.responseList;
             } else {
-                setProducts([]); // Clear products if no valid data found
+                setProducts([]);
                 return;
             }
+            console.log('Products fetched:', products);
 
-            // If there are products, process them
+
             if (productData && productData.length > 0) {
                 const updatedProducts = await Promise.all(productData.map(async (product) => {
                     const variants = await fetchProductVariants(product.proId);
@@ -240,9 +232,15 @@ const Product = () => {
                 }));
 
                 setProducts(updatedProducts);
-                setTotalPages(response.data.totalPage || 1); // Handle total pages if provided
+
+                // Cập nhật danh sách activeProducts
+                const activeIds = updatedProducts.filter(product => !product.deleted).map(product => product.proId);
+                console.log(activeIds);
+                setActiveProducts("delete: " + activeIds);
+
+                setTotalPages(response.data.totalPage || 1);
             } else {
-                setProducts([]); // Clear products if no data is returned
+                setProducts([]);
             }
         } catch (err) {
             console.error("Lỗi khi lấy danh sách sản phẩm:", err);
@@ -335,7 +333,7 @@ const Product = () => {
                 return;
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/view/${productId}`;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/view/${productId}`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
@@ -406,6 +404,35 @@ const Product = () => {
             setCurrentPage(newPage); // Thay đổi trang
         }
     };
+
+    const handleSwitchChange = (proId) => {
+        // Tìm sản phẩm cần cập nhật
+        const productToUpdate = products.find(product => product.proId === proId);
+        if (!productToUpdate) {
+            setError("Không tìm thấy sản phẩm.");
+            return;
+        }
+
+        // Nếu isDeleted = true thì không thể thay đổi trạng thái
+        if (productToUpdate.deleted) {
+            setError("Sản phẩm đã bị xóa. Không thể kích hoạt lại.");
+            return;
+        }
+
+        // Đảo ngược trạng thái isDeleted
+        const newIsDeletedStatus = !productToUpdate.deleted;
+
+        // Cập nhật trạng thái cho switch
+        const updatedProducts = products.map(product =>
+            product.proId === proId ? { ...product, deleted: newIsDeletedStatus } : product
+        );
+
+        setProducts(updatedProducts);
+    };
+
+
+
+
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
@@ -437,12 +464,12 @@ const Product = () => {
                 <div className="product-list">
                     <div className='prodcut-table-header'>
                         <div>
-                        <h3 className="product-title-table">
-                            {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
-                        </h3>
+                            <h3 className="product-title-table">
+                                {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
+                            </h3>
 
                         </div>
-                        
+
                         <div className="search-add-container">
                             {/* Thanh tìm kiếm bằng Autocomplete */}
                             <Autocomplete
@@ -480,6 +507,7 @@ const Product = () => {
                                         <th>Tên Sản Phẩm</th>
                                         <th>Hình Ảnh</th>
                                         <th>Mô Tả</th>
+                                        <th>Trạng Thái</th>
                                         <th>Giá Sản Phẩm</th>
                                         <th>Thao Tác</th>
                                     </tr>
@@ -508,6 +536,19 @@ const Product = () => {
                                                 )}
                                             </td>
                                             <td>{product.description}</td>
+                                            <td>
+                                                <label className="cate-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!product.deleted} // Checkbox sẽ checked nếu isDeleted là false
+                                                        onChange={() => handleSwitchChange(product.proId)}
+                                                        disabled={!activeProducts.includes(product.proId)} // Vô hiệu hóa switch nếu sản phẩm không còn active
+                                                    />
+                                                    <span className="cate-slider round"></span>
+                                                </label>
+                                            </td>
+
+
                                             <td>
                                                 {product.variants && product.variants.length > 0 ? (
                                                     <ul>
