@@ -461,9 +461,46 @@ export const CartProvider = ({ children }) => {
         handleAuthChange();
     }, [getCookie('access_token')]); // Dependency to re-run the effect on token change
 
+    const clearCart = async () => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+    
+        if (!cartId) {
+            console.error('No cart ID provided.');
+            return;
+        }
+    
+        try {
+            const response = await fetch(`http://localhost:1010/api/cart/delete-allItem/${cartId}`, {
+                method: 'DELETE',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    cartId: cartId,
+                }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                console.log('All items deleted from cart:', data.message);
+                // Clear cart items in the state
+                setCartItems([]);
+            } else {
+                console.error('Failed to clear cart items:', data);
+            }
+        } catch (error) {
+            console.error('Error clearing cart items:', error);
+        }
+    };
+    
 
     return (
-        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease }}>
+        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart }}>
             {children}
         </CartContext.Provider>
     );

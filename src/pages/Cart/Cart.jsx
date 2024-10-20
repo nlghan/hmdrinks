@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease } = useCart(); // Destructure clearCart from context
+    const { cartItems, increase, decrease, clearCart } = useCart(); // Destructure clearCart from context
 
     // Helper function to format prices in VND
     const formatCurrency = (value) => {
@@ -62,7 +62,7 @@ const Cart = () => {
                         ) : (
                             <>
                                 <section className="cart-details">
-                                    <div className="delete-all-button" onClick={''}>
+                                    <div className="delete-all-button" onClick={clearCart}>
                                         Xóa tất cả ({totalProducts} sản phẩm)
                                     </div>
                                     <table className="cart-table">
