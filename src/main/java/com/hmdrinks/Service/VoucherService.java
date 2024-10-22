@@ -58,6 +58,7 @@ public class VoucherService {
         voucher.setPost(post);
         voucher.setStartDate(req.getStartDate());
         voucher.setEndDate(req.getEndDate());
+        voucher.setKey(req.getKey());
         voucher.setIsDeleted(false);
         voucher.setDiscount(req.getDiscount());
         voucher.setStatus(Status_Voucher.ACTIVE);
@@ -68,6 +69,7 @@ public class VoucherService {
         // Return response
         return new CRUDVoucherResponse(
                 voucher.getVoucherId(),
+                voucher.getKey(),
                 voucher.getStartDate(),
                 voucher.getEndDate(),
                 voucher.getDiscount(),
@@ -106,8 +108,11 @@ public class VoucherService {
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
+            voucher.setKey(req.getKey());
+            voucherRepository.save(voucher);
             return new CRUDVoucherResponse(
                     voucher.getVoucherId(),
+                    voucher.getKey(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
@@ -143,8 +148,10 @@ public class VoucherService {
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
+            voucherRepository.save(voucher);
             return new CRUDVoucherResponse(
                     voucher.getVoucherId(),
+                    vou.getKey(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
@@ -161,6 +168,7 @@ public class VoucherService {
         }
         return new CRUDVoucherResponse(
                 voucher.getVoucherId(),
+                voucher.getKey(),
                 voucher.getStartDate(),
                 voucher.getEndDate(),
                 voucher.getDiscount(),
@@ -175,6 +183,7 @@ public class VoucherService {
         for(Voucher voucher : voucherList){
             crudVoucherResponses.add(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
+                    voucher.getKey(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
@@ -184,6 +193,4 @@ public class VoucherService {
         }
         return  new ListAllVoucherResponse(crudVoucherResponses);
     }
-
-
 }
