@@ -1,0 +1,46 @@
+package com.hmdrinks.Entity;
+
+import com.hmdrinks.Enum.Status_Contact;
+import com.hmdrinks.Enum.Status_Voucher;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "contact")
+public class Contact {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "contactId",columnDefinition = "BIGINT")
+    private Integer contactId;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "createDate",nullable = false)
+    private LocalDateTime createDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status" ,nullable = false)
+    private Status_Contact status;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "date_deleted")
+    private LocalDateTime dateDeleted;
+
+    @Column(name = "date_updated")
+    private LocalDateTime updateDate;
+
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+}

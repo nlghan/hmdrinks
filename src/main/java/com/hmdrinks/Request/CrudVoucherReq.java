@@ -17,6 +17,7 @@ import java.util.Date;
 public class CrudVoucherReq {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private int voucherId;
+    private String key;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Double discount;

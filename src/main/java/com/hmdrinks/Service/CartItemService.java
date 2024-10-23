@@ -174,7 +174,8 @@ public class CartItemService {
         {
             throw  new BadRequestException("Not found cartItem");
         }
-        if(req.getQuantity() < 0){
+        if(req.getQuantity() <= 0)
+        {
             throw  new BadRequestException("quantity must larger 0");
         }
         ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());

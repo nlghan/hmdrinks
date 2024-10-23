@@ -22,6 +22,9 @@ public class Voucher {
     @Column(name = "voucherId",columnDefinition = "BIGINT")
     private Integer voucherId;
 
+    @Column(name = "keyVoucher")
+    private String key;
+
     @Column(name = "startDate",nullable = false)
     private LocalDateTime startDate;
 
