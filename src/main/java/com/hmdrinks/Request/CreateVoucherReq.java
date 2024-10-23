@@ -23,7 +23,7 @@ public class CreateVoucherReq {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
-    private String key;
+    private String keyVoucher;
     private Double discount;
     private Status_Voucher status;
     private int postId;

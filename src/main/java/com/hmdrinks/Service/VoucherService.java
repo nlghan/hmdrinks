@@ -58,15 +58,12 @@ public class VoucherService {
         voucher.setPost(post);
         voucher.setStartDate(req.getStartDate());
         voucher.setEndDate(req.getEndDate());
-        voucher.setKey(req.getKey());
+        voucher.setKey(req.getKeyVoucher());
         voucher.setIsDeleted(false);
         voucher.setDiscount(req.getDiscount());
         voucher.setStatus(Status_Voucher.ACTIVE);
-
-        // Save voucher to repository
         voucherRepository.save(voucher);
 
-        // Return response
         return new CRUDVoucherResponse(
                 voucher.getVoucherId(),
                 voucher.getKey(),
