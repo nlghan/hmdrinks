@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './ProductCard.css';
 
-function ProductCard({ product, onClick, onAddToCart }) { // Accept onAddToCart as a prop
+function ProductCard({ product, onClick, onAddToCart, className, style }) { // Accept className and style as props
     const [isFavorited, setIsFavorited] = useState(false);
 
     const handleFavorite = (event) => {
@@ -22,7 +22,11 @@ function ProductCard({ product, onClick, onAddToCart }) { // Accept onAddToCart 
     };
 
     return (
-        <div className="product-card" onClick={onClick}> {/* Trigger onClick when card is clicked */}
+        <div 
+            className={`product-card ${className}`} 
+            onClick={onClick} 
+            style={style} // Apply the style passed in for animation delay
+        > 
             <div className="product-card-image-container">
                 <img src={product.image} alt={product.name} />
                 <button className="favorite-icon" onClick={handleFavorite}>

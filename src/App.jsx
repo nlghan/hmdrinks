@@ -18,6 +18,7 @@ import ProductDetail from "./pages/Menu/ProductDetail";
 import { useAuth } from './context/AuthProvider'; 
 import { CartProvider } from "./context/CartContext";
 import Cart from "./pages/Cart/Cart";
+import Favorite from "./pages/Favorite/Favorite";
 const App = () => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="/product" element={<Product />} />
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/favorite" element={<Favorite />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

@@ -142,7 +142,7 @@ const Menu = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={"Thực đơn"}/>
             <div
                 style={{
                     position: 'relative', // Position relative for the container
@@ -302,7 +302,7 @@ const Menu = () => {
                         {loading ? (
                             <p>Đang tải sản phẩm...</p>
                         ) : hasProducts ? (
-                            filteredProducts.map((product) => (
+                            filteredProducts.map((product, index) => (
                                 <ProductCard
                                     key={product.proId}
                                     product={{
@@ -315,13 +315,15 @@ const Menu = () => {
                                     }}
                                     onClick={() => handleProductCardClick(product)} // This will trigger on card click
                                     onAddToCart={() => handleAddToCart(product)} // This will trigger on "Đặt mua" button click
+                                    className="zoom-in"
+                                    style={{ animationDelay: `${index * 0.1}s` }} // Delay each card's fade-in
                                 />
-
                             ))
                         ) : (
                             <p>Không có sản phẩm nào thuộc danh mục này.</p>
                         )}
                     </div>
+
 
                 </div>
             </div>

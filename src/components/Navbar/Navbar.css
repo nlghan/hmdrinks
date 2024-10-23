@@ -83,7 +83,7 @@
 }
 
 .navbar-right i {
-    font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+    font-size: 22px; /* Điều chỉnh kích thước của biểu tượng */
     cursor: pointer; /* Thêm con trỏ để cho biết rằng biểu tượng có thể nhấp được */
     transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
 }
@@ -95,4 +95,41 @@
 /* Nếu bạn muốn thêm khoảng cách giữa các biểu tượng và nút đăng xuất */
 .navbar-right .signup {
     margin-left: 15px; /* Thêm khoảng cách bên trái cho nút Đăng xuất */
+}
+
+
+
+.breadcrumb {
+    position: absolute; /* Position it above other elements */
+    top: 70px; /* Adjust based on your navbar height */
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 226, 226, 0.9); /* Background color with slight transparency */
+    padding: 15px; /* Padding for the breadcrumb */
+    border-radius: 5px; /* Rounded corners */
+    opacity: 0; /* Start hidden */
+    transform: translateY(40px); /* Slightly move up */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition for opacity and position */
+    pointer-events: none; /* Prevent interaction when hidden */
+    z-index: 1000; /* Ensure it appears above other elements */
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space between title and navigation */
+    align-items: center; /* Center vertically */
+}
+
+.breadcrumb.show {
+    opacity: 1; /* Fully visible */
+    transform: translateY(40); /* Move back to original position */
+}
+
+.breadcrumb-title {
+    font-weight: bold; /* Bold title */
+    font-size: 24px; /* Font size for the title */
+    flex: 1; /* Allow title to take up available space */
+}
+
+.breadcrumb-navigation {
+    color: #555; /* Darker color for navigation */
+    font-size: 20px; /* Font size for navigation */
+    margin-left: 10px; /* Add some space between title and navigation */
 }
