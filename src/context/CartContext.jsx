@@ -291,14 +291,92 @@ export const CartProvider = ({ children }) => {
     const increase = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
-        if (!cartItemId) {
-            console.error('No cart item ID provided.');
+    
+        if (!cartItemId || !cartId) {  // Check if both cartItemId and cartId are provided
+            console.error('No cart item ID or cart ID provided.');
             return;
         }
-
+    
         try {
-            const response = await fetch('http://localhost:1010/api/cart-item/increase', {
+            // Step 1: Fetch the cart item to get the productId, size, and current quantity
+            const cartItemResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                },
+            });
+    
+            // Check if the response is OK
+            if (!cartItemResponse.ok) {
+                const errorText = await cartItemResponse.text(); // Read response as text
+                console.error('Failed to fetch cart item data:', errorText);
+                return; // Exit if the response is not OK
+            }
+    
+            // Attempt to parse the response as JSON
+            let cartItemData;
+            try {
+                cartItemData = await cartItemResponse.json();
+            } catch (jsonError) {
+                console.error('Error parsing JSON response:', jsonError);
+                return; // Exit if JSON parsing fails
+            }
+    
+            // Find the specific cart item using the cartItemId
+            const cartItem = cartItemData.listCartItemResponses.find(item => item.cartItemId === cartItemId);
+    
+            if (!cartItem) {
+                console.error(`Cart item with ID ${cartItemId} not found.`);
+                return;
+            }
+    
+            const { proId, size, quantity } = cartItem; // Ensure your API returns productId, size, and quantity fields
+    
+            // Step 2: Fetch stock information using the productId
+            const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${proId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                },
+            });
+    
+            // Check if the response for variants is OK
+            if (!variantResponse.ok) {
+                const variantErrorText = await variantResponse.text(); // Read response as text
+                console.error('Failed to fetch variant data:', variantErrorText);
+                return; // Exit if the response is not OK
+            }
+    
+            // Attempt to parse the variant response as JSON
+            let variantData;
+            try {
+                variantData = await variantResponse.json();
+            } catch (jsonError) {
+                console.error('Error parsing JSON variant response:', jsonError);
+                return; // Exit if JSON parsing fails
+            }
+    
+            // Step 3: Find the specific variant that matches the size
+            const variant = variantData.responseList.find(v => v.size === size);
+    
+            if (!variant) {
+                console.error(`No variant found for size: ${size}`);
+                return;
+            }
+    
+            // Step 4: Check stock information
+            const { stock } = variant; // Ensure your API returns a stock field
+    
+            // Step 5: Check if adding one more exceeds stock
+            if (quantity >= stock) {
+                console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
+                alert(`Đã đạt giới hạn số lượng cho sản phẩm này!`); // Alert the user that stock limit is reached
+                return; // Exit if limit is reached
+            }
+    
+            // Step 6: Proceed to increase the item quantity
+            const updateResponse = await fetch('http://localhost:1010/api/cart-item/increase', {
                 method: 'PUT',
                 headers: {
                     'accept': '*/*',
@@ -311,27 +389,29 @@ export const CartProvider = ({ children }) => {
                     quantity: 1, // Increase quantity by 1
                 }),
             });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Update the cart items in the state if the request is successful
-                setCartItems(prevItems =>
-                    prevItems.map(item =>
-                        item.cartItemId === cartItemId
-                            ? { ...item, quantity: item.quantity + 1 }
-                            : item
-                    )
-                );
-            } else {
-                console.error('Failed to increase item quantity:', data);
+    
+            // Check if the update response is OK
+            if (!updateResponse.ok) {
+                const updateErrorText = await updateResponse.text(); // Read response as text
+                console.error('Failed to increase item quantity:', updateErrorText);
+                return; // Exit if the response is not OK
             }
+    
+            // Update the cart items in the state if the request is successful
+            setCartItems(prevItems =>
+                prevItems.map(item =>
+                    item.cartItemId === cartItemId
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                )
+            );
+    
         } catch (error) {
             console.error('Error increasing item quantity:', error);
         }
     };
+    
 
-    // Decrease quantity of item in cart by calling the API
     // Decrease quantity of item in cart
     const decrease = async (cartItemId) => {
         const token = getCookie('access_token');
@@ -464,12 +544,12 @@ export const CartProvider = ({ children }) => {
     const clearCart = async () => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (!cartId) {
             console.error('No cart ID provided.');
             return;
         }
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/cart/delete-allItem/${cartId}`, {
                 method: 'DELETE',
@@ -483,9 +563,9 @@ export const CartProvider = ({ children }) => {
                     cartId: cartId,
                 }),
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 console.log('All items deleted from cart:', data.message);
                 // Clear cart items in the state
@@ -497,10 +577,52 @@ export const CartProvider = ({ children }) => {
             console.error('Error clearing cart items:', error);
         }
     };
-    
+
+    // Delete one item from cart
+    const deleteOneItem = async (cartItemId) => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+
+        if (!cartItemId) {
+            console.error('No cart item ID provided.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:1010/api/cart-item/delete/${cartItemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    cartItemId: cartItemId,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Item deleted successfully:', data.message);
+
+                // Remove the item from the cart items state
+                setCartItems(prevItems =>
+                    prevItems.filter(item => item.cartItemId !== cartItemId)
+                );
+            } else {
+                console.error('Failed to delete item:', data);
+            }
+        } catch (error) {
+            console.error('Error deleting item:', error);
+        }
+    };
+
+
 
     return (
-        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart }}>
+        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem }}>
             {children}
         </CartContext.Provider>
     );

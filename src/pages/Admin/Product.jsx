@@ -198,9 +198,9 @@ const Product = () => {
             if (debouncedSearchTerm && debouncedSearchTerm.trim() !== '') {
                 apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/search-product?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`;
             } else if (selectedCateId) {
-                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`;
+                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`;
             } else {
-                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/list-product?page=${currentPage}&limit=${LIMIT}`;
+                apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/list-product?page=${currentPage}&limit=${LIMIT}`;
             }
 
             const response = await axios.get(apiUrl, {
@@ -570,9 +570,9 @@ const Product = () => {
                                                     <div id="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
                                                         <i className="ti-pencil"></i> {/* Themify icon for updating */}
                                                     </div>
-                                                    <div id="btn-pro-clear" onClick={() => { /* Delete logic here */ }}>
-                                                        <i className="ti-trash"></i> {/* Themify icon for deleting */}
-                                                    </div>
+                                                    {/* <div id="btn-pro-clear" onClick={() => {  }}>
+                                                        <i className="ti-trash"></i> {}
+                                                    </div> */}
                                                 </div>
 
                                             </td>

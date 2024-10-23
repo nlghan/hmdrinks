@@ -17,6 +17,8 @@ const ProductDetail = () => {
     const [price, setPrice] = useState(product?.price); // State to hold current price based on size
     const [availableSizes, setAvailableSizes] = useState([]); // State to hold available sizes
     const productDetailRef = useRef(null); // Ref to observe scroll
+    const [stock, setStock] = useState(0); // State to hold stock information
+
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -80,24 +82,28 @@ const ProductDetail = () => {
                         'Accept': '*/*'
                     }
                 });
-
+    
                 if (!variantResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-
+    
                 const variantData = await variantResponse.json();
                 setAvailableSizes(variantData.responseList.map(v => v.size)); // Get available sizes
+                
+                // Find the variant based on selected size
                 const variant = variantData.responseList.find(v => v.size === selectedSize);
                 if (variant) {
                     setPrice(variant.price); // Set the price based on selected size
+                    setStock(variant.stock); // Set the stock based on selected size
                 }
             } catch (error) {
                 console.error('Failed to fetch product variants:', error);
             }
         };
-
+    
         fetchProductVariants();
     }, [selectedSize, product.proId]);
+    
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
@@ -147,6 +153,11 @@ const ProductDetail = () => {
     };
 
     const handleAddToCart = () => {
+        if (quantity > stock) {
+            alert(`Quantity exceeds stock. Only ${stock} available.`);
+            return;
+        }
+
         addToCart({
             productId: product.proId,
             name: product.proName,
@@ -155,7 +166,7 @@ const ProductDetail = () => {
             quantity: quantity,
             image: product.productImageResponseList[currentImageIndex].linkImage
         });
-        alert(`${product.proName} đã được thêm vào giỏ hàng!`);
+        alert(`${product.proName} has been added to your cart!`);
     };
 
     const formattedPrice = new Intl.NumberFormat('vi-VN', {
@@ -209,6 +220,7 @@ const ProductDetail = () => {
                             <h1>{product.proName}</h1>
                             <span className="product-category">Danh mục: {categoryName}</span>
                             <span className="product-price">Giá: {formattedPrice} VND</span>
+                            <span className="product-stock">Còn lại: {stock > 0 ? stock : '0'} sản phẩm</span>
 
                             <div className="product-size">
                                 <span>Chọn size:</span>
@@ -227,16 +239,16 @@ const ProductDetail = () => {
                             </div>
 
                             <div className="product-quantity">
-                                <span>Số lượng:</span>
-                                <input
-                                    id='soluong'
-                                    type="number"
-                                    value={quantity}
-                                    min="1"
-                                    onChange={handleQuantityChange}
-                                    className="quantity-input"
-                                />
-                            </div>
+                        <span>Quantity:</span>
+                        <input
+                            type="number"
+                            value={quantity}
+                            min="1"
+                            max={stock}
+                            onChange={handleQuantityChange}
+                            className="quantity-input"
+                        />
+                    </div>
 
                             <button className="add-to-cart-button" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
                             <button className="add-to-cart-button" style={{ marginBottom: '10px', backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>

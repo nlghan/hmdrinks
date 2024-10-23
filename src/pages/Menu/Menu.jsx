@@ -1,225 +1,156 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import ProductCard from '../../components/Card/ProductCard';
-import backgroundImage from '../../assets/img/5.jpg';
-import { Autocomplete, TextField } from '@mui/material';
+import backgroundImage from '../../assets/img/5.jpg'; // Path to your background image
+import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete and TextField
 import "./Menu.css";
 import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import { useCart } from '../../context/CartContext';
 
 const Menu = () => {
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [searchOptions, setSearchOptions] = useState([]); // Search options for Autocomplete
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [limit] = useState(8);
-    const [categoryLimit] = useState(10);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(''); // Debounced search term for optimization
+    const [products, setProducts] = useState([]); // Products state
+    const [categories, setCategories] = useState([]); // Categories state
+    const [loading, setLoading] = useState(true); // To handle loading state
+    const [currentPage, setCurrentPage] = useState(1); // Track the current product page
+    const [currentCategoryPage, setCurrentCategoryPage] = useState(1); // Track the current category page
+    const [totalPages, setTotalPages] = useState(1); // Track the total number of product pages
+    const [limit] = useState(8); // Set the number of products per page
+    const [categoryLimit] = useState(10); // Set the number of categories per page
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null); // Track selected category
+    const [searchTerm, setSearchTerm] = useState(''); // Search term state
     const navigate = useNavigate();
+    const { addToCart } = useCart(); // Cart context
 
-    // Fetch search options (autocomplete suggestions)
-    const fetchSearchOptions = useCallback(async (keyword) => {
-        try {
-            const token = Cookies.get('access_token');
-            if (!token) {
-                throw new Error("Bạn cần đăng nhập để xem thông tin này.");
-            }
-
-            const apiUrl = `http://localhost:1010/api/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=10`;
-            const response = await axios.get(apiUrl, {
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.data && response.data.productResponseList) {
-                setSearchOptions(response.data.productResponseList);
-            } else {
-                setSearchOptions([]);
-            }
-        } catch (err) {
-            console.error("Lỗi khi lấy gợi ý tìm kiếm:", err);
-            setSearchOptions([]);
-        }
-    }, []);
-
-    // Fetch products from API based on search term or category
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const token = Cookies.get('access_token');
-            if (!token) {
-                setError("Bạn cần đăng nhập để xem thông tin này.");
-                setLoading(false);
-                return;
-            }
-
-            let apiUrl;
-            if (debouncedSearchTerm && debouncedSearchTerm.trim() !== '') {
-                // Fetch products based on the search term
-                apiUrl = `http://localhost:1010/api/product/search?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${limit}`;
-            } else if (selectedCategoryId) {
-                // Fetch products by category if one is selected
-                apiUrl = `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`;
-            } else {
-                // Fetch all products if no search term or category
-                apiUrl = `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
-            }
-
-            const response = await axios.get(apiUrl, {
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            let productData;
-            if (response.data && response.data.productResponseList) {
-                productData = response.data.productResponseList;
-            } else if (response.data && response.data.productResponses) {
-                productData = response.data.productResponses;
-            } else if (response.data && response.data.responseList) {
-                productData = response.data.responseList;
-            } else {
-                setProducts([]);
-                return;
-            }
-
-            // Fetch price and size for each product and update the product list with this data
-            const productsWithDetails = await Promise.all(productData.map(async (product) => {
-                try {
-                    const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
-                    const variantData = await variantResponse.json();
-                    const variant = variantData.responseList[0]; // Get the first variant
-
-                    // Get the price and size from the first variant or set defaults
-                    const price = variant?.price || 'N/A';
-                    const size = variant?.size || 'N/A'; // Assuming 'size' is available in the variant
-
-                    return { ...product, price, size };
-                } catch (variantError) {
-                    console.error(`Error fetching variant for product ${product.proId}:`, variantError);
-                    return { ...product, price: 'N/A', size: 'N/A' }; // Handle error by setting defaults
-                }
-            }));
-
-            setProducts(productsWithDetails);
-            setTotalPages(response.data.totalPage || 1);
-        } catch (err) {
-            console.error("Lỗi khi lấy danh sách sản phẩm:", err);
-            setError("Không thể lấy danh sách sản phẩm.");
-        } finally {
-            setLoading(false);
-        }
-    }, [debouncedSearchTerm, selectedCategoryId, currentPage]);
-
-
-    // Fetch product variants for additional product data
-    const fetchProductVariants = async (productId) => {
-        try {
-            const response = await axios.get(`http://localhost:1010/api/product/variants/${productId}`);
-            return response.data.responseList || [];
-        } catch (error) {
-            console.error(`Lỗi khi lấy biến thể sản phẩm ${productId}:`, error);
-            return [];
-        }
-    };
-
-    // Fetch product images
-    const fetchProductImages = async (productId) => {
-        try {
-            const response = await axios.get(`http://localhost:1010/api/product/images/${productId}`);
-            return response.data.responseList || [];
-        } catch (error) {
-            console.error(`Lỗi khi lấy hình ảnh sản phẩm ${productId}:`, error);
-            return [];
-        }
-    };
-
-    // Fetch categories
-    const fetchCategories = useCallback(async () => {
-        try {
-            const response = await axios.get('http://localhost:1010/api/cate/list-category?page=1&limit=100');
-            setCategories(response.data.categoryResponseList);
-        } catch (error) {
-            console.error('Lỗi khi lấy danh mục:', error);
-        }
-    }, []);
-
-    // Debounce search term for optimization
+    // Fetch products and their prices and sizes from API
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 500);
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const url = selectedCategoryId
+                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
+                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
 
-        return () => {
-            clearTimeout(handler);
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const productList = selectedCategoryId ? data.responseList : data.productResponses;
+
+                // Fetch price and size for each product and update the product list with this data
+                const productsWithDetails = await Promise.all(productList.map(async (product) => {
+                    try {
+                        const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
+                        const variantData = await variantResponse.json();
+                        const variant = variantData.responseList[0]; // Get the first variant
+
+                        // Get the price and size from the first variant or set defaults
+                        const price = variant?.price || 'N/A';
+                        const size = variant?.size || 'N/A'; // Assuming 'size' is available in the variant
+                        const stock = variant?.stock || 0; // Get the stock available
+
+                        return { ...product, price, size, stock };
+                    } catch (variantError) {
+                        console.error(`Error fetching variant for product ${product.proId}:`, variantError);
+                        return { ...product, price: 'N/A', size: 'N/A', stock: 0 }; // Handle error by setting defaults
+                    }
+                }));
+
+                setProducts(productsWithDetails); // Set the products with price, size, and stock information
+                setTotalPages(data.totalPage); // Set the total number of pages if applicable
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false); // Turn off loading state after data is fetched
+            }
         };
-    }, [searchTerm]);
 
-    useEffect(() => {
-        fetchCategories();
-    }, [fetchCategories]);
-
-    useEffect(() => {
         fetchProducts();
-    }, [debouncedSearchTerm, fetchProducts]);
+    }, [currentPage, selectedCategoryId]);
 
+    // Fetch categories from API
     useEffect(() => {
-        if (debouncedSearchTerm) {
-            fetchSearchOptions(debouncedSearchTerm);
-        } else {
-            setSearchOptions([]);
-        }
-    }, [debouncedSearchTerm, fetchSearchOptions]);
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:1010/api/cate/list-category?page=1&limit=100'); // Fetch all categories
+                const data = await response.json();
+                setCategories(data.categoryResponseList); // Set the categories from the API response
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
 
-    const handleSearchChange = (event, value) => {
-        setSearchTerm(value);
-        setCurrentPage(1);
-    };
+        fetchCategories();
+    }, []); // Fetch categories only once when the component mounts
 
-    const handleCategorySelect = (categoryId) => {
-        setSelectedCategoryId(categoryId);
-        setCurrentPage(1);
-        setSearchTerm(''); // Clear the search term when selecting a category
-    };
-
+    // Handle product page change
     const handleProductPageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    // Handle category page change
+    const handleCategoryPageChange = (page) => {
+        setCurrentCategoryPage(page);
+    };
+
+    // Handle category selection
+    const handleCategorySelect = (categoryId) => {
+        setSelectedCategoryId(categoryId); // Set the selected category
+        setCurrentPage(1); // Reset to the first page when a category is selected
+    };
+
+    // Handle search input change from Autocomplete
+    const handleSearchChange = (event, value) => {
+        setSearchTerm(value);
+    };
+
+    // Calculate the categories to display for the current category page
+    const displayedCategories = categories.slice((currentCategoryPage - 1) * categoryLimit, currentCategoryPage * categoryLimit);
+
+    // Filtered products based on the search term
+    const filteredProducts = searchTerm ? products.filter(product => product.proName.toLowerCase().includes(searchTerm.toLowerCase())) : products;
+
+    // Check if there are any products available for the selected category
+    const hasProducts = filteredProducts.length > 0;
+
+    // Handle adding the product to the cart with size and stock
+    const handleAddToCart = (product) => {
+        const quantity = 1; // For simplicity, we're setting quantity to 1 for now
+        const { proId, proName, price, size, stock } = product;
+
+        // If stock is less than quantity, prevent adding to cart
+        if (quantity > stock) {
+            alert(`Số lượng vượt quá hàng tồn kho. Chỉ có sẵn ${stock}.`);
+            return;
+        }
+
+        addToCart({
+            productId: proId,
+            name: proName,
+            price: price,
+            size: size,
+            quantity: quantity,
+            image: product.productImageResponseList.length > 0 ? product.productImageResponseList[0].linkImage : backgroundImage,
+        });
+
+        alert(`${proName} đã được thêm vào giỏ hàng!`);
     };
 
     const handleProductCardClick = (product) => {
         navigate(`/product/${product.proId}`, { state: { product } });
     };
 
-    const displayedCategories = categories.slice(
-        (currentPage - 1) * categoryLimit,
-        currentPage * categoryLimit
-    );
-
-    const hasProducts = products.length > 0;
-
     return (
         <>
             <Navbar />
             <div
                 style={{
-                    position: 'relative',
+                    position: 'relative', // Position relative for the container
                     minHeight: '100vh',
                     display: 'flex'
                 }}
             >
+                {/* Background with overlay */}
                 <div
                     style={{
                         background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -229,18 +160,20 @@ const Menu = () => {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        opacity: 0.25,
+                        opacity: 0.25, // Background opacity
                         zIndex: -1,
                     }}
                 ></div>
 
+                {/* Menu content */}
                 <div className="container-menu">
                     <div className="overlay-menu">
                         <div className='menu-category'>
 
+                            {/* MUI Autocomplete for product names */}
                             <Autocomplete
                                 freeSolo
-                                options={searchOptions.map((option) => option.proName)}
+                                options={products.map((product) => product.proName)}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -248,31 +181,81 @@ const Menu = () => {
                                         variant="outlined"
                                         margin="normal"
                                         sx={{
+                                            alignItems: 'center',
                                             width: '80%',
                                             marginLeft: '10px',
-                                            backgroundColor: '#E15959',
-                                            marginBottom: '20px',
+                                            borderRadius: '10px',
+                                            backgroundColor: '#E15959', // Set background color to red
+                                            marginBottom: '20px', // Spacing below the input
                                             '& .MuiOutlinedInput-root': {
-                                                '& fieldset': { border: 'none' },
-                                                '& input': { color: 'white', padding: '10px 0' }
+                                                padding: 0, // Remove padding from the root
+                                                '& fieldset': {
+                                                    border: 'none', // Remove default fieldset border
+                                                },
+                                                '&:hover fieldset': {
+                                                    border: 'none', // No border on hover
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    border: 'none', // No border when focused
+                                                },
+                                                '& input': {
+                                                    color: 'white', // Change text color to white
+                                                    padding: '10px 0', // Add vertical padding for better alignment
+                                                    height: '1.5em', // Adjust height as needed to fit the design
+                                                },
                                             },
-                                            '& .MuiInputLabel-root': { color: 'white' }
+                                            '& .MuiInputLabel-root': {
+                                                color: 'white', // Change label color to white
+                                                paddingBottom: '10px', // Remove padding from the label
+                                                lineHeight: '0.8', // Center the text vertically
+                                                opacity: 1, // Fully opaque by default
+                                                transition: 'opacity 0.2s ease', // Add a smooth transition
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                opacity: 0, // Make label disappear when focused
+                                                color: 'white', // Change label color when focused
+                                            },
                                         }}
-                                        onChange={(event) => handleSearchChange(event, event.target.value)}
                                     />
                                 )}
+                                onChange={(event, newValue) => {
+                                    setSearchTerm(newValue);
+                                }}
                             />
-                            {/* Category listing */}
+
+                            <h2 className='menu-product-h2'>DANH MỤC SẢN PHẨM</h2>
+                            <div className="menu-category-pagination">
+                                {/* Pagination Dots */}
+                                {Array.from({ length: Math.ceil(categories.length / categoryLimit) }, (_, index) => (
+                                    <span
+                                        key={index + 1}
+                                        className={`pagination-cate-dot ${currentCategoryPage === index + 1 ? 'active' : ''}`}
+                                        onClick={() => handleCategoryPageChange(index + 1)}
+                                    >
+                                        •
+                                    </span>
+                                ))}
+                            </div>
                             <ul className="menu-product-category">
-                                <li onClick={() => handleCategorySelect(null)}>
-                                    ❤️ Tất cả
-                                </li>
+                                {currentCategoryPage === 1 && (
+                                    <li
+                                        onClick={() => handleCategorySelect(null)}
+                                        className={!selectedCategoryId ? 'active-category' : ''}
+                                    >
+                                        ❤️ Tất cả
+                                    </li>
+                                )}
                                 {displayedCategories.map((category) => (
-                                    <li key={category.cateId} onClick={() => handleCategorySelect(category.cateId)}>
+                                    <li
+                                        key={category.cateId}
+                                        onClick={() => handleCategorySelect(category.cateId)}
+                                        className={selectedCategoryId === category.cateId ? 'active-category' : ''}
+                                    >
                                         ❤️ {category.cateName}
                                     </li>
                                 ))}
                             </ul>
+
                         </div>
                     </div>
                 </div>
@@ -284,6 +267,7 @@ const Menu = () => {
                         {hasProducts && (
                             <div className="menu-product-pagination">
                                 {/* Previous Button */}
+
                                 <span
                                     className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
                                     onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
@@ -311,30 +295,34 @@ const Menu = () => {
                                 </span>
                             </div>
                         )}
+
                     </div>
 
                     <div className="products">
                         {loading ? (
                             <p>Đang tải sản phẩm...</p>
                         ) : hasProducts ? (
-                            products.map((product) => (
+                            filteredProducts.map((product) => (
                                 <ProductCard
                                     key={product.proId}
                                     product={{
                                         name: product.proName,
                                         size: product.size,
-                                        price: `${product.price} VND`,
+                                        price: `${product.price}`,
                                         image: product.productImageResponseList.length > 0
                                             ? product.productImageResponseList[0].linkImage
                                             : backgroundImage
                                     }}
-                                    onClick={() => handleProductCardClick(product)}
+                                    onClick={() => handleProductCardClick(product)} // This will trigger on card click
+                                    onAddToCart={() => handleAddToCart(product)} // This will trigger on "Đặt mua" button click
                                 />
+
                             ))
                         ) : (
                             <p>Không có sản phẩm nào thuộc danh mục này.</p>
                         )}
                     </div>
+
                 </div>
             </div>
             <Footer />

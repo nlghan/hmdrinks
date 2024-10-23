@@ -12,37 +12,74 @@
     
 }
 
+.cart-table {
+    width: 100%; /* Make the table take full width */
+    border-collapse: collapse; /* Collapse borders for cleaner look */
+}
+
 .cart-table th {
     padding: 10px;
-    border-bottom: 2px solid #249ca3; /* Có thể giữ border phía dưới tiêu đề để phân tách */
+    border-bottom: 2px solid #249ca3; /* Keep the border below the header for separation */
     font-size: 22px;
+    background-color: #f8f8f8; /* Optional: Add a background color for better contrast */
 }
 
-/* Thêm kích thước cố định cho các cột */
-.cart-table th:nth-child(1) { /* Cột Hình ảnh */
-    width: 80px; /* Kích thước cho cột Hình ảnh */
+/* Set fixed widths for the columns */
+.cart-table th:nth-child(1) { /* Checkbox Column (conditionally rendered) */
+    width: 30px; /* Width for Checkbox column */
 }
 
-.cart-table th:nth-child(2) { /* Cột Sản phẩm */
-    width: 100px; /* Kích thước cho cột Sản phẩm */
+.cart-table th:nth-child(2) { /* Column for Image */
+    width: 120px; /* Adjust width for better spacing */
 }
 
-.cart-table th:nth-child(3) { /* Cột Giá */
-    width: 100px; /* Kích thước cho cột Giá */
+.cart-table th:nth-child(3) { /* Column for Product */
+    width: 120px; /* Increased width for longer product names */
 }
 
-.cart-table th:nth-child(4) { /* Cột Size */
-    width: 80px; /* Kích thước cho cột Size */
+.cart-table th:nth-child(4) { /* Column for Price */
+    width: 50px; /* Adjust width for better spacing */
+    
 }
 
-.cart-table th:nth-child(5) { /* Cột Số lượng */
-    width: 120px; /* Kích thước cho cột Số lượng */
+.cart-table th:nth-child(5) { /* Column for Size */
+    width: 120px; /* Adjust width for better spacing */
 }
 
-.cart-table th:nth-child(6) { /* Cột Tổng tiền */
-    width: 150px; /* Kích thước cho cột Tổng tiền */
+.cart-table th:nth-child(6) { /* Column for Quantity */
+    width: 100px; /* Adjust width for better spacing */
 }
 
+.cart-table th:nth-child(7) { /* Column for Total Price */
+    width: 150px; /* Adjust width for better spacing */
+}
+
+/* Styling for table body cells */
+.cart-table td {
+    padding: 10px;
+    border-bottom: 1px solid #b7d3ed; /* Light border for each row */
+    font-size: 18px; /* Font size for table content */
+}
+
+/* Style for the checkbox */
+.cart-table input[type="checkbox"] {
+    width: 20px; /* Size of the checkbox */
+    height: 20px; /* Size of the checkbox */
+}
+
+.selected-size:hover{
+    cursor: pointer;
+}
+
+/* Highlight the size column when selected */
+.selected-size {
+    background-color: #ebfcf8; /* or any color that makes sense */
+    font-weight: bold;
+    color: rgb(0, 0, 0); /* Adjust text color if necessary */
+    cursor: pointer;
+}
+
+ 
 .cart-table td {
     padding: 10px;
     border: none; /* Không có border cho các ô dữ liệu */

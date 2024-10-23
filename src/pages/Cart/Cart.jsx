@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease, clearCart } = useCart(); // Destructure clearCart from context
+    const { cartItems, increase, decrease, clearCart, deleteOneItem } = useCart(); // Destructure clearCart and deleteOneItem from context
 
     // Helper function to format prices in VND
     const formatCurrency = (value) => {
@@ -16,7 +16,16 @@ const Cart = () => {
             maximumFractionDigits: 0,
         }).format(value) + ' VND';
     };
-    
+
+    // Function to handle clearing items (all or selected)
+    const handleClearSelectedItems = async () => {
+        if (selectedItem) {
+            await deleteOneItem(selectedItem); // Delete the selected item using deleteOneItem
+            setSelectedItem(null); // Reset selected item after deletion
+        } else {
+            await clearCart(); // Clear the entire cart if no selected item
+        }
+    };
 
     // Calculate subtotal, discount, shipping, and total
     const subtotal = cartItems.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0);
@@ -24,10 +33,7 @@ const Cart = () => {
     const shipping = 0; // Assume free shipping for now
     const total = subtotal - discount + shipping;
 
-    // Calculate the total number of products in the cart
-    const totalProducts = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-    // Function to group products by productId
+    // Group products by productId
     const groupedItems = cartItems.reduce((acc, item) => {
         const existingGroup = acc.find(group => group.id === item.productId);
         if (existingGroup) {
@@ -38,17 +44,20 @@ const Cart = () => {
         return acc;
     }, []);
 
+    const [selectedItem, setSelectedItem] = useState(null); // State to store selected item
+
+    // Handle row click to select/deselect item
+    const handleRowClick = (itemId) => {
+        setSelectedItem(prevItemId => prevItemId === itemId ? null : itemId);
+    };
+
+    // Navigate back to menu
     const handBack = () => {
         navigate('/menu');
     };
 
-    const handleClearCart = async () => {
-        if (cartId) {
-            await clearCart(userId, cartId);; // Use cartId from context
-        } else {
-            console.error('No cart ID available to clear the cart.');
-        }
-    };
+    // Calculate the total number of products in the cart (this is recalculated after any item is deleted or quantity changes)
+    const totalProducts = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
         <>
@@ -62,8 +71,8 @@ const Cart = () => {
                         ) : (
                             <>
                                 <section className="cart-details">
-                                    <div className="delete-all-button" onClick={clearCart}>
-                                        Xóa tất cả ({totalProducts} sản phẩm)
+                                    <div className="delete-all-button" onClick={handleClearSelectedItems}>
+                                        {selectedItem ? `Xóa sản phẩm` : `Xóa tất cả (${totalProducts} sản phẩm)`}
                                     </div>
                                     <table className="cart-table">
                                         <thead>
@@ -81,33 +90,49 @@ const Cart = () => {
                                                 const totalPrice = group.items.reduce((total, item) => total + item.totalPrice * item.quantity, 0);
                                                 return (
                                                     <React.Fragment key={index}>
-                                                        <tr className="item-row">
-                                                            <td rowSpan={group.items.length}>
-                                                                <img src={group.items[0].image} alt={group.items[0].name} className="img-cart" />
-                                                            </td>
-                                                            <td rowSpan={group.items.length}>{group.items[0].name}</td>
-                                                            <td>{formatCurrency(group.items[0].totalPrice)}</td>
-                                                            <td>{group.items[0].size}</td>
-                                                            <td>
-                                                                <div>
-                                                                    <button onClick={() => decrease(group.items[0].cartItemId)}>-</button>
-                                                                    {group.items[0].quantity}
-                                                                    <button onClick={() => increase(group.items[0].cartItemId)}>+</button>
-                                                                </div>
-                                                            </td>
-                                                            <td rowSpan={group.items.length}>{formatCurrency(totalPrice)}</td>
-                                                        </tr>
-                                                        {group.items.slice(1).map((item, subIndex) => (
-                                                            <tr key={subIndex}>
+                                                        {group.items.map((item, subIndex) => (
+                                                            <tr
+                                                                key={subIndex}
+                                                                onClick={() => handleRowClick(item.cartItemId)} // Handle row click
+                                                            >
+                                                                {subIndex === 0 && (
+                                                                    <>
+                                                                        <td rowSpan={group.items.length}>
+                                                                            <img src={item.image} alt={item.name} className="img-cart" />
+                                                                        </td>
+                                                                        <td rowSpan={group.items.length}>{item.name}</td>
+                                                                    </>
+                                                                )}
                                                                 <td>{formatCurrency(item.totalPrice)}</td>
-                                                                <td>{item.size}</td>
+                                                                {/* Apply special class to the Size column when selected */}
+                                                                <td className={selectedItem === item.cartItemId ? 'selected-size' : ''}>
+                                                                    {item.size}
+                                                                </td>
                                                                 <td>
                                                                     <div>
-                                                                        <button onClick={() => decrease(item.cartItemId)}>-</button>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                decrease(item.cartItemId);
+                                                                            }}
+                                                                        >
+                                                                            -
+                                                                        </button>
                                                                         {item.quantity}
-                                                                        <button onClick={() => increase(item.cartItemId)}>+</button>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                increase(item.cartItemId); // This will now check stock before increasing
+                                                                            }}
+                                                                        >
+                                                                            +
+                                                                        </button>
                                                                     </div>
                                                                 </td>
+
+                                                                {subIndex === 0 && (
+                                                                    <td rowSpan={group.items.length}>{formatCurrency(totalPrice)}</td>
+                                                                )}
                                                             </tr>
                                                         ))}
                                                     </React.Fragment>
@@ -115,6 +140,7 @@ const Cart = () => {
                                             })}
                                         </tbody>
                                     </table>
+
                                     <textarea placeholder="GHI CHÚ" className="cart-note"></textarea>
                                 </section>
 
@@ -136,8 +162,8 @@ const Cart = () => {
                                         <span>Tổng cộng: </span>
                                         <span>{formatCurrency(total)}</span>
                                     </div>
-                                    <button className="checkout-button">Thanh toán <i className='ti-arrow-right' style={{fontSize:'12px'}}/></button>
-                                    <button className="continue-shopping-button" onClick={handBack}>Tìm thêm sản phẩm khác <i className='ti-arrow-right' style={{fontSize:'12px'}}/></button>
+                                    <button className="checkout-button">Thanh toán <i className='ti-arrow-right' style={{ fontSize: '12px' }} /></button>
+                                    <button className="continue-shopping-button" onClick={handBack}>Tìm thêm sản phẩm khác <i className='ti-arrow-right' style={{ fontSize: '12px' }} /></button>
                                 </section>
                             </>
                         )}

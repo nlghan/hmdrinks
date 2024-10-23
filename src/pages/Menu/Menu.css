@@ -38,7 +38,10 @@
     transform: scale(1.05);
 }
 
-
+.menu-product-category li.active-category {
+    font-weight: bold;
+    color: #007bff;
+}
 
 .menu-category{
     margin-top: 10px;

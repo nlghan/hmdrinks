@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import './ProductCard.css';
 
-function ProductCard({ product, onClick }) { // Accept onClick as a prop
+function ProductCard({ product, onClick, onAddToCart }) { // Accept onAddToCart as a prop
     const [isFavorited, setIsFavorited] = useState(false);
 
     const handleFavorite = (event) => {
-        event.stopPropagation(); // Ngăn chặn sự kiện click từ việc lan ra ngoài
+        event.stopPropagation(); // Prevent event from bubbling to parent card click
         setIsFavorited(!isFavorited);
     };
 
@@ -14,6 +14,12 @@ function ProductCard({ product, onClick }) { // Accept onClick as a prop
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(parseFloat(product.price));
+
+    // Handle click on the "Đặt mua" button
+    const handleAddToCartClick = (event) => {
+        event.stopPropagation(); // Prevent the event from bubbling up and triggering the card click
+        onAddToCart(); // Trigger the function passed in as a prop
+    };
 
     return (
         <div className="product-card" onClick={onClick}> {/* Trigger onClick when card is clicked */}
@@ -26,7 +32,7 @@ function ProductCard({ product, onClick }) { // Accept onClick as a prop
             <h3>{product.name} ({product.size})</h3>
             <div className='product-card-price'>
                 <p className='product-card-p card-product-price'>Giá: {formattedPrice} VND</p>
-                <button className="add-cart">
+                <button className="add-cart" onClick={handleAddToCartClick}> {/* Handle Add to Cart click */}
                     <i className="ti-shopping-cart" /> Đặt mua
                 </button>
             </div>
