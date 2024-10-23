@@ -1,17 +1,11 @@
 package com.hmdrinks.Controller;
-
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
-import com.hmdrinks.Service.AdminService;
-import com.hmdrinks.Service.ReviewService;
-import com.hmdrinks.Service.UserService;
-import com.hmdrinks.Service.UserVoucherService;
-import com.hmdrinks.SupportFunction.SupportFunction;
+import com.hmdrinks.Service.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +19,8 @@ public class AdminController {
     private UserService userService;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private ContactService contactService;
     @Autowired
     private ReviewService reviewService;
     @Autowired
@@ -108,4 +104,5 @@ public class AdminController {
     public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
         return ResponseEntity.ok(adminService.getAllProductFromCategory(id,page,limit));
     }
+
 }
