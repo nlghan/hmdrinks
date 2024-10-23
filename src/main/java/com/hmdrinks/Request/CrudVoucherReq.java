@@ -15,7 +15,6 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class CrudVoucherReq {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private int voucherId;
     private String key;
     private LocalDateTime startDate;
