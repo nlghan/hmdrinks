@@ -1,7 +1,5 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-// Tạm thời loại bỏ TransitionGroup và CSSTransition để dễ dàng kiểm tra
-// import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
@@ -17,6 +15,7 @@ import Category from "./pages/Admin/Category";
 import { useAuth } from './context/AuthProvider'; // Import hook
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
+import ProductDetail from "./pages/Menu/ProductDetail"; // Import the new ProductDetail component
 import Post from './pages/Admin/Post';
 import PostVoucher from './pages/Post/PostVoucher';
 
@@ -27,7 +26,7 @@ const App = () => {
   return (
     <div className='app'>
       <Routes location={location}>
-        {/* Nếu truy cập root "/", hiển thị Home luôn */}
+        {/* Other Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
@@ -47,6 +46,10 @@ const App = () => {
        
 
 
+        
+        {/* New Route for Product Detail */}
+        <Route path="/product/:productId" element={<ProductDetail />} /> {/* ProductDetail route */}
+        
         {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
