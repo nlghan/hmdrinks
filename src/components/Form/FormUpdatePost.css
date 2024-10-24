@@ -1,0 +1,115 @@
+.overlay-update-post {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Nền tối với độ trong suốt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-update-post-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.form-update-post-group-image {
+    display: flex;
+    flex-direction: column; /* Sắp xếp theo cột */
+    gap: 10px; /* Khoảng cách giữa các phần tử */
+}
+
+.image-preview {
+    display: flex;
+    align-items: center; /* Căn giữa dọc */
+    gap: 10px; /* Khoảng cách giữa ảnh và văn bản */
+}
+
+.thumbnail {
+    width: 50px; /* Kích thước ảnh */
+    height: 50px; /* Kích thước ảnh */
+    border-radius: 5px; /* Bo tròn góc ảnh */
+}
+
+
+.form-update-post-wrapper {
+    display: flex;  /* Đặt flexbox cho wrapper */
+    flex-direction: column;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    width: 800px;
+}
+.form-update-post-columns {
+    display: flex;  /* Chia các cột thành hàng ngang */
+    justify-content: space-between;  /* Giãn cách đều giữa các cột */
+    gap: 20px; /* Khoảng cách giữa các cột */
+    width: 100%; 
+}
+.form-update-post-column {
+    flex: 1;  /* Đặt mỗi cột chiếm đều không gian */
+    max-width: 48%; /* Đặt chiều rộng tối đa cho mỗi cột để có thể vừa với không gian */
+}
+
+.form-update-post-group {
+    margin-bottom: 20px; /* Khoảng cách giữa các nhóm form */
+}
+
+.form-update-post-actions {
+    margin-top: 20px; /* Khoảng cách trên cho các nút hành động */
+    display: flex;
+    justify-content: space-between; /* Căn chỉnh đều các nút */
+    width: 100%; /* Căn chỉnh đều theo chiều ngang */
+}
+h2 {
+    margin-bottom: 20px;
+}
+
+.form-update-post-group {
+    margin-bottom: 15px;
+}
+
+.form-update-post-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-update-post-group input,
+.form-update-post-group select,
+.form-update-post-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-update-post-submit,
+.form-update-post-cancel {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form-update-post-submit {
+    background-color: #007bff;
+    color: white;
+}
+
+.form-update-post-cancel {
+    background-color: #dc3545;
+    color: white;
+}
+
+.form-update-post-error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.form-update-post-success {
+    color: green;
+    margin-bottom: 10px;
+}

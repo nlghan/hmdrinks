@@ -17,6 +17,8 @@ import Category from "./pages/Admin/Category";
 import { useAuth } from './context/AuthProvider'; // Import hook
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
+import Post from './pages/Admin/Post';
+import PostVoucher from './pages/Post/PostVoucher';
 
 const App = () => {
   const location = useLocation();
@@ -34,12 +36,14 @@ const App = () => {
         <Route path="/user" element={<User />} />
         <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
+        <Route path="/marketing/:postId" element={<PostVoucher/>}/>
         <Route path="/menu" element={ <Menu />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
         <Route path="/send-mail" element={<SendMail />} />
         <Route path="/user" element={<User />} />
         <Route path="/category" element={<Category />} />
         <Route path="/product" element={<Product />} />
+        <Route path="/post" element={<Post />} />
        
 
 

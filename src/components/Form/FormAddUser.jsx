@@ -56,14 +56,6 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             return;
         }
 
-        // // Validate phone number (must be 10 digits)
-        // const phoneRegex = /^[0-9]{10}$/;
-        // if (!phoneRegex.test(phone)) {
-        //     setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại 10 chữ số.");
-        //     return;
-        // }
-
-        // Validate password (minimum 8 characters)
         if (password.length < 8) {
             setErrorMessage("Mật khẩu phải chứa ít nhất 8 ký tự.");
             return;

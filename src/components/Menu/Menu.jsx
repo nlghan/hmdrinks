@@ -57,7 +57,10 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
 
     const handleProduct= () => {
         navigate('/product')
-    }
+    };
+    const handlePost= () => {
+        navigate('/post')
+    };
 
     return (
         <>
@@ -86,7 +89,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
                             <i className='ti-pencil-alt' />
                             <li>Đơn hàng</li>
                         </div>
-                        <div className='menu-and-user'>
+                        <div className='menu-and-user' onClick={handlePost}>
                             <i className='ti-signal' />
                             <li>Tiếp thị</li>
                         </div>

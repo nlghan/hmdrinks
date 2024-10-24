@@ -32,7 +32,7 @@ const User = () => {
     const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(7);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
 
@@ -157,9 +157,6 @@ const User = () => {
             });
         }
     };
-
-
-
 
     const getPaginationNumbers = () => {
         const paginationNumbers = [];
@@ -315,7 +312,7 @@ const User = () => {
                             </tbody>
 
                         </table>
-                        <div className="user-pagination">
+                        <div className="user-admin-pagination">
                             <button
                                 className="btn btn-pre me-2"
                                 onClick={() => handlePageChange(currentPage - 1)}
