@@ -27,23 +27,23 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/create-category")
-    public ResponseEntity<CRUDCategoryResponse> createCategory(@RequestBody CreateCategoryRequest req){
-        return ResponseEntity.ok(categoryService.crateCategory(req));
+    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest req){
+        return categoryService.crateCategory(req);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDCategoryResponse> updateCategory(@RequestBody CRUDCategoryRequest req){
-        return ResponseEntity.ok(categoryService.updateCategory(req));
+    public ResponseEntity<?> updateCategory(@RequestBody CRUDCategoryRequest req){
+        return categoryService.updateCategory(req);
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CRUDCategoryResponse> getOneCategory( @PathVariable Integer id){
-        return ResponseEntity.ok(categoryService.getOneCategory(id));
+    public ResponseEntity<?> getOneCategory( @PathVariable Integer id){
+        return categoryService.getOneCategory(id);
     }
 
     @GetMapping("/view/{id}/product")
-    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
-        return ResponseEntity.ok(categoryService.getAllProductFromCategory(id,page,limit));
+    public ResponseEntity<?> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
+        return categoryService.getAllProductFromCategory(id,page,limit);
     }
 
     @GetMapping(value = "/search")

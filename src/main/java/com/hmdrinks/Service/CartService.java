@@ -16,6 +16,8 @@ import com.hmdrinks.Response.CreateNewCartResponse;
 import com.hmdrinks.Response.ListAllCartUserResponse;
 import com.hmdrinks.Response.ListItemCartResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,18 +32,18 @@ public class CartService {
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    public CreateNewCartResponse createCart(CreateNewCart req)
+    public ResponseEntity<?> createCart(CreateNewCart req)
     {
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null)
         {
-            throw new BadRequestException("UserId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
         }
 
         Cart cart = cartRepository.findByUserUserIdAndStatus(user.getUserId(), Status_Cart.NEW);
         if(cart != null)
         {
-            throw  new BadRequestException("NewCart exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Cart already exists");
         }
         Cart cart1 = new Cart();
         cart1.setTotalPrice(0);
@@ -49,21 +51,21 @@ public class CartService {
         cart1.setStatus(Status_Cart.NEW);
         cart1.setTotalProduct(0);
         cartRepository.save(cart1);
-        return new CreateNewCartResponse(
+        return ResponseEntity.status(HttpStatus.OK).body( new CreateNewCartResponse(
                 cart1.getCartId(),
                 cart1.getTotalPrice(),
                 cart1.getTotalProduct(),
                 cart1.getUser().getUserId(),
                 cart1.getStatus()
-        );
+        ));
     }
 
-    public ListAllCartUserResponse getAllCartFromUser(int userId)
+    public ResponseEntity<?> getAllCartFromUser(int userId)
     {
         User user = userRepository.findByUserId(userId);
         if(user == null)
         {
-            throw new BadRequestException("UserId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
         }
 
         List<Cart> carts = cartRepository.findByUserUserId(userId);
@@ -78,14 +80,14 @@ public class CartService {
                     cart.getStatus()
             ));
         }
-        return new ListAllCartUserResponse(userId, cartResponses);
+        return ResponseEntity.status(HttpStatus.OK).body( new ListAllCartUserResponse(userId, cartResponses));
     }
 
-    public ListItemCartResponse getAllItemCart(int id){
+    public ResponseEntity<?> getAllItemCart(int id){
         Cart cart = cartRepository.findByCartId(id);
         if(cart == null)
         {
-            throw  new BadRequestException("Cart not exists");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Not content");
         }
         List<CartItem> cartItems = cartItemRepository.findByCart_CartId(id);
         List<CRUDCartItemResponse> crudCartItemResponses = new ArrayList<>();
@@ -100,9 +102,9 @@ public class CartService {
                 cartItem.getQuantity()
         ));
         }
-        return new ListItemCartResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new ListItemCartResponse(
                 id,
                 crudCartItemResponses
-        );
+        ));
     }
 }

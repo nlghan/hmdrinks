@@ -8,6 +8,8 @@ import com.hmdrinks.Request.CreateNewCart;
 import com.hmdrinks.Request.CreateNewFavourite;
 import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,18 +26,19 @@ public class FavouriteService {
     @Autowired
     private FavouriteItemRepository favouriteItemRepository;
 
-    public CreateNewFavouriteResponse createFavourite(CreateNewFavourite req)
+    public ResponseEntity<?> createFavourite(CreateNewFavourite req)
     {
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null)
         {
-            throw new BadRequestException("UserId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not exists");
+
         }
         Favourite favourite = favouriteRepository.findByUserUserId(user.getUserId());
 
         if(favourite != null)
         {
-            throw  new BadRequestException("Favourite exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Favourite already exists");
         }
         Favourite favourite1 = new Favourite();
         favourite1.setUser(user);
@@ -43,22 +46,22 @@ public class FavouriteService {
         favourite1.setDateCreated(LocalDate.now());
         favouriteRepository.save(favourite1);
 
-        return new CreateNewFavouriteResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CreateNewFavouriteResponse(
                 favourite1.getFavId(),
                 favourite1.getUser().getUserId(),
                 favourite1.getIsDeleted(),
                 favourite1.getDateDeleted(),
                 favourite1.getDateUpdated(),
                 favourite1.getDateCreated()
-        );
+        ));
     }
 
-    public ListItemFavouriteResponse getAllItemFavourite(int id){
+    public ResponseEntity<?> getAllItemFavourite(int id){
 
         Favourite favourite = favouriteRepository.findByFavId(id);
         if(favourite == null)
         {
-            throw  new BadRequestException("Favourite not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favourite not found");
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(id);;
         List<CRUDFavouriteItemResponse> crudFavouriteItemResponses = new ArrayList<>();
@@ -71,9 +74,9 @@ public class FavouriteService {
                     favouriteItem.getProductVariants().getSize()
             ));
         }
-        return new ListItemFavouriteResponse(
+        return ResponseEntity.status(HttpStatus.OK).body( new ListItemFavouriteResponse(
                 id,
                 crudFavouriteItemResponses
-        );
+        ));
     }
 }

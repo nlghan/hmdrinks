@@ -22,26 +22,24 @@ public class UserController {
     private SupportFunction supportFunction;
 
     @GetMapping(value ="/info/{id}")
-    public ResponseEntity<GetDetailUserInfoResponse> getDetailUserInfoResponseResponseEntity(
+    public ResponseEntity<?> getDetailUserInfoResponseResponseEntity(
             @PathVariable Integer id,HttpServletRequest httpRequest
             ){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
-        return ResponseEntity.ok(userService.getDetailUserInfoResponse(id));
+        return userService.getDetailUserInfoResponse(id);
     }
 
     @PutMapping(value = "/info-update")
-    public ResponseEntity<UpdateUserInfoResponse> updateUserInfoResponseResponseEntity(
+    public ResponseEntity<?> updateUserInfoResponseResponseEntity(
             @RequestBody UserInfoUpdateReq req, HttpServletRequest httpRequest
             ){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(userService.updateUserInfoResponse(req));
+        return userService.updateUserInfoResponse(req);
     }
-
-
 
     @PutMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordReq req,HttpServletRequest httpRequest) {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(userService.changePasswordResponse(req));
+        return userService.changePasswordResponse(req);
     }
 }

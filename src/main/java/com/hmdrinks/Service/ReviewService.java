@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -26,16 +28,17 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    public CRUDReviewResponse createReview(CreateNewReview req)
+    public ResponseEntity<?> createReview(CreateNewReview req)
     {
         Product product = productRepository.findByProId(req.getProId());
         if(product == null)
         {
-            throw new BadRequestException("Product not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not fount product");
         }
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null){
-            throw new BadRequestException("User not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Review not found");
         }
         Review review = new Review();
         review.setContent(req.getContent());
@@ -46,7 +49,7 @@ public class ReviewService {
         review.setIsDeleted(false);
         reviewRepository.save(review);
 
-        return new CRUDReviewResponse (
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDReviewResponse (
                 review.getReviewId(),
                 review.getUser().getUserId(),
                 review.getProduct().getProId(),
@@ -57,21 +60,21 @@ public class ReviewService {
                 review.getDateDeleted(),
                 review.getDateUpdated(),
                 review.getDateCreated()
-        );
+        ));
     }
 
-    public CRUDReviewResponse updateReview(CRUDReviewReq req)
-    {
+    public ResponseEntity<CRUDReviewResponse> updateReview(CRUDReviewReq req) {
         Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
-        if (review == null)
-        {
-            throw new BadRequestException("Review not found");
+        if (review == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new CRUDReviewResponse("Review not found"));
         }
+
         review.setContent(req.getContent());
         review.setRatingStar(req.getRatingStart());
         review.setDateUpdated(LocalDate.now());
         reviewRepository.save(review);
-        return new CRUDReviewResponse (
+        CRUDReviewResponse response = new CRUDReviewResponse(
                 review.getReviewId(),
                 review.getUser().getUserId(),
                 review.getProduct().getProId(),
@@ -83,23 +86,27 @@ public class ReviewService {
                 review.getDateUpdated(),
                 review.getDateCreated()
         );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    public String deleteOneReview(DeleteReviewReq req)
-    {
+    public ResponseEntity<String> deleteOneReview(DeleteReviewReq req) {
         Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
-        if (review == null)
-        {
-            throw new BadRequestException("Review not found");
+
+        if (review == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Review not found");
         }
+
         review.setIsDeleted(true);
         review.setDateDeleted(Date.valueOf(LocalDate.now()));
         reviewRepository.save(review);
-        return "Review deleted";
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Review deleted successfully");
     }
 
 
-    public ListAllReviewProductResponse getAllReview(String pageFromParam, String limitFromParam,int proId)
+    public ResponseEntity<ListAllReviewProductResponse> getAllReview(String pageFromParam, String limitFromParam,int proId)
     {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -122,10 +129,9 @@ public class ReviewService {
                     review.getDateCreated()
             ));
         }
-
-        return new ListAllReviewProductResponse(page,
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllReviewProductResponse (page,
                 reviews.getTotalPages(),
                 limit,
-                crudReviewResponseList);
+                crudReviewResponseList));
     }
 }

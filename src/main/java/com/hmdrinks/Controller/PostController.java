@@ -22,13 +22,13 @@ public class PostController {
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDPostResponse> createPost(@RequestBody CreateNewPostReq req, HttpServletRequest httpRequest){
+    public ResponseEntity<?> createPost(@RequestBody CreateNewPostReq req, HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(postService.createPost(req));
+        return postService.createPost(req);
     }
 
     @GetMapping(value ="/view/{id}")
-    public ResponseEntity<CRUDPostResponse> getOnePost(
+    public ResponseEntity<?> getOnePost(
             @PathVariable Integer id
     ){
         return ResponseEntity.ok(postService.getPostById(id));
@@ -41,18 +41,18 @@ public class PostController {
     }
 
     @GetMapping(value = "/view/author/{userId}")
-    public ResponseEntity<ListAllPostByUserIdResponse> getOnePostByUserId(
+    public ResponseEntity<?> getOnePostByUserId(
             @PathVariable Integer userId
     ){
-        return  ResponseEntity.ok(postService.listAllPostByUserId(userId));
+        return  postService.listAllPostByUserId(userId);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDPostResponse> updatePost(
+    public ResponseEntity<?> updatePost(
             @RequestBody CRUDPostReq req, HttpServletRequest httpRequest
     )
     {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return  ResponseEntity.ok(postService.updatePost(req));
+        return  postService.updatePost(req);
     }
 }

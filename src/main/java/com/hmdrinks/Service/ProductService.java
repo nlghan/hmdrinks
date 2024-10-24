@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,14 +31,14 @@ public class ProductService {
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
 
-    public CRUDProductResponse crateProduct(CreateProductReq req) {
+    public ResponseEntity<?> crateProduct(CreateProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cateId not exists");
         }
         Product product = productRepository.findByProNameAndIsDeletedFalse(req.getProName());
         if (product != null) {
-            throw new BadRequestException("production name exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("product already exists");
         }
         LocalDate currentDate = LocalDate.now();
         Product product1 = new Product();
@@ -59,7 +61,7 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return new CRUDProductResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
                 product1.getProName(),
@@ -69,13 +71,13 @@ public class ProductService {
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
                 product1.getDateUpdated()
-        );
+        ));
     }
 
-    public CRUDProductResponse getOneProduct(Integer id) {
+    public ResponseEntity<?> getOneProduct(Integer id) {
         Product product1 = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product1 == null) {
-            throw new BadRequestException("production id not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         String currentProImg = product1.getListProImg();
@@ -89,7 +91,7 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return new CRUDProductResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
                 product1.getProName(),
@@ -99,21 +101,21 @@ public class ProductService {
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
                 product1.getDateUpdated()
-        );
+        ));
     }
 
-    public CRUDProductResponse updateProduct(CRUDProductReq req) {
+    public ResponseEntity<?> updateProduct(CRUDProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not exists");
         }
         Product product = productRepository.findByProNameAndProIdNot(req.getProName(), req.getProId());
         if (product != null) {
-            throw new BadRequestException("production name exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("product already exists");
         }
         Product product1 = productRepository.findByProIdAndIsDeletedFalse(req.getProId());
         if (product1 == null) {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         product1.setCategory(category);
         product1.setDescription(req.getDescription());
@@ -132,7 +134,7 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return new CRUDProductResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
                 product1.getProName(),
@@ -142,10 +144,10 @@ public class ProductService {
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
                 product1.getDateUpdated()
-        );
+        ));
     }
 
-    public ListProductResponse listProduct(String pageFromParam, String limitFromParam) {
+    public ResponseEntity<?> listProduct(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
@@ -178,13 +180,13 @@ public class ProductService {
                     product1.getDateUpdated()
             ));
         }
-        return new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList));
     }
 
-    public GetProductVariantFromProductIdResponse getAllProductVariantFromProduct(int id) {
+    public ResponseEntity<?> getAllProductVariantFromProduct(int id) {
         Product product = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product == null) {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         List<ProductVariants> productList = productVariantsRepository.findByProduct_ProId(id);
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
@@ -201,14 +203,14 @@ public class ProductService {
                     product1.getDateUpdated()
             ));
         }
-        return new GetProductVariantFromProductIdResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new GetProductVariantFromProductIdResponse(
                 id,
                 crudProductVarResponseList
-        );
+        ));
 
     }
 
-    public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
+    public ResponseEntity<?> totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
@@ -240,17 +242,17 @@ public class ProductService {
                     product1.getDateUpdated()
             ));
         }
-        return new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
+        return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList));
     }
 
-    public ListProductImageResponse deleteImageFromProduct(int proId, int deleteStt ) {
+    public ResponseEntity<?> deleteImageFromProduct(int proId, int deleteStt ) {
         Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
-            throw new NotFoundException("Not found product with ID: " + proId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         String currentProImg = product.getListProImg();
         if (currentProImg == null || currentProImg.trim().isEmpty()) {
-            throw new BadRequestException("No images found for this product.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No images found for this product.");
         }
         String[] imageEntries = currentProImg.split(", ");
         List<String> updatedImageEntries = new ArrayList<>();
@@ -272,7 +274,7 @@ public class ProductService {
         productRepository.save(product);
         String currentProImg1 = product.getListProImg();
         if (currentProImg == null || currentProImg.trim().isEmpty()) {
-            throw new BadRequestException("No images found for this product.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No images found for this product.");
         }
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         String[] imageEntries1 = currentProImg.split(", ");
@@ -282,26 +284,26 @@ public class ProductService {
             String url = parts[1];
             productImageResponses.add(new ProductImageResponse(stt, url));
         }
-        return new ListProductImageResponse(proId,productImageResponses);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
     }
 
-    public ImgResponse deleteAllImageFromProduct(int proId) {
+    public ResponseEntity<?> deleteAllImageFromProduct(int proId) {
         Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
-            throw new NotFoundException("Not found product with ID: " + proId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         product.setListProImg("");
         product.setDateUpdated(LocalDate.now());
 
         productRepository.save(product);
-        return new ImgResponse(product.getListProImg());
+        return ResponseEntity.status(HttpStatus.OK).body(new ImgResponse(product.getListProImg()));
     }
 
-    public ListProductImageResponse getAllProductImages(int proId) {
+    public ResponseEntity<?> getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         Product product = productRepository.findByProId(proId);
         if (product == null) {
-            throw new NotFoundException("Not found product with ID: " + proId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         String currentProImg = product.getListProImg();
         if(currentProImg != null && !currentProImg.trim().isEmpty())
@@ -314,24 +316,24 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return new ListProductImageResponse(proId,productImageResponses);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
     }
 
-    public FilterProductBoxResponse filterProduct(FilterProductBox req) {
+    public ResponseEntity<?> filterProduct(FilterProductBox req) {
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getC());
         if (category == null) {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not exists");
         }
         for (Integer id : req.getP()) {
             Product product = productRepository.findByProIdAndIsDeletedFalse(id);
             if (product == null) {
-                throw new BadRequestException("productId not exists");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
             }
         }
 
         if (req.getO() <= 0) {
-            throw new BadRequestException("o must be greater than 0");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("o must be greater than 0");
         }
         Sort sort;
         int total = 0;
@@ -423,12 +425,12 @@ public class ProductService {
 //                total += 1;
 //            }
         }
-            return new FilterProductBoxResponse(
+            return ResponseEntity.status(HttpStatus.OK).body(new FilterProductBoxResponse(
                     true,
                     total,
                     crudProductVarResponseList,
                     "OK",
                     false
-            );
+            ));
         }
 }

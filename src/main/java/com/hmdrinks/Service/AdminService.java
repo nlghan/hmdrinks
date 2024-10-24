@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,23 +51,21 @@ public class AdminService {
     @Autowired
     private ProductRepository productRepository;
 
-    public CRUDAccountUserResponse createAccountUser(CreateAccountUserReq req){
+    public ResponseEntity<?> createAccountUser(CreateAccountUserReq req){
         Optional<User> user = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
 
         if (user.isPresent()) {
-            throw new ConflictException("User name already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name already exists");
         }
 
         if (!supportFunction.checkRole(req.getRole().toString())) {
-            throw new BadRequestException("Role is wrong");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role is wrong");
         }
 
         User userWithEmail = userRepository.findByEmail(req.getEmail());
         if (userWithEmail != null && !(userWithEmail.getUserName() == (req.getUserName()))) {
-            // Nếu tìm thấy người dùng có email này nhưng không phải chính người đang tạo
-            throw new ConflictException("Email already exists with another user");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name already exists");
         }
-        // Gọi hàm checkPhoneNumber từ SupportFunction
         LocalDate currentDate = LocalDate.now();
         User user1 = new User();
         user1.setType(TypeLogin.BASIC);
@@ -87,7 +86,7 @@ public class AdminService {
 
         Optional<User> userNewq = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
         User userNew = userNewq.get();
-        return new CRUDAccountUserResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDAccountUserResponse(
                 userNew.getUserId(),
                 userNew.getUserName(),
                 userNew.getFullName(),
@@ -103,12 +102,13 @@ public class AdminService {
                 userNew.getDateUpdated(),
                 userNew.getDateCreated(),
                 userNew.getRole().toString()
-        );
+        ));
     }
-    public CRUDAccountUserResponse updateAccountUser(UpdateAccountUserReq req) {
+    public ResponseEntity<?>  updateAccountUser(UpdateAccountUserReq req) {
         Optional<User> existingUserOptional = userRepository.findById(req.getUserId());
         if (existingUserOptional.isEmpty()) {
-            throw new BadRequestException("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+
         }
         User existingUser = existingUserOptional.get();
         if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
@@ -122,7 +122,7 @@ public class AdminService {
         if (req.getUserName() != null && !req.getUserName().isEmpty()) {
             Optional<User> userWithSameUserName = userRepository.findByUserNameAndIsDeletedFalse(req.getUserName());
             if (userWithSameUserName.isPresent() && userWithSameUserName.get().getUserId() != req.getUserId()) {
-                throw new ConflictException("User name already exists");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User name already exists");
             }
             existingUser.setUserName(req.getUserName());
         }
@@ -130,7 +130,7 @@ public class AdminService {
         if (req.getEmail() != null && !req.getEmail().isEmpty()) {
             User userWithEmail = userRepository.findByEmail(req.getEmail());
             if (userWithEmail != null && userWithEmail.getUserId() != req.getUserId()) {
-                throw new ConflictException("Email already exists with another user");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
             }
             existingUser.setEmail(req.getEmail());
         }
@@ -141,7 +141,7 @@ public class AdminService {
 
         if (req.getRole() != null) {
             if (!supportFunction.checkRole(req.getRole().toString())) {
-                throw new BadRequestException("Invalid role");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid role");
             }
             existingUser.setRole(req.getRole());
         }
@@ -156,7 +156,7 @@ public class AdminService {
         userRepository.save(existingUser);
 
         // Return updated user information as response
-        return new CRUDAccountUserResponse(
+        return ResponseEntity.status(HttpStatus.OK).body( new CRUDAccountUserResponse(
                 existingUser.getUserId(),
                 existingUser.getUserName(),
                 existingUser.getFullName(),
@@ -172,7 +172,7 @@ public class AdminService {
                 existingUser.getDateUpdated(),
                 existingUser.getDateCreated(),
                 existingUser.getRole().toString()
-        );
+        ));
     }
     public String deleteOneReview(int reviewId)
     {

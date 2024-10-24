@@ -26,64 +26,64 @@ public class ProductController {
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDProductResponse> createAccount(@RequestBody CreateProductReq req){
-        return ResponseEntity.ok(productService.crateProduct(req));
+    public ResponseEntity<?> createProduct(@RequestBody CreateProductReq req){
+        return productService.crateProduct(req);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDProductResponse> update(@RequestBody CRUDProductReq req){
-        return ResponseEntity.ok(productService.updateProduct(req));
+    public ResponseEntity<?> update(@RequestBody CRUDProductReq req){
+        return productService.updateProduct(req);
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CRUDProductResponse> update( @PathVariable Integer id){
-        return ResponseEntity.ok(productService.getOneProduct(id));
+    public ResponseEntity<?> update( @PathVariable Integer id){
+        return productService.getOneProduct(id);
     }
 
     @GetMapping(value = "/list-product")
-    public ResponseEntity<ListProductResponse> listAllProduct(
+    public ResponseEntity<?> listAllProduct(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(productService.listProduct(page, limit));
+        return productService.listProduct(page, limit);
     }
 
     @GetMapping( value = "/variants/{id}")
-    public ResponseEntity<GetProductVariantFromProductIdResponse> viewProduct(@PathVariable Integer id){
-        return ResponseEntity.ok(productService.getAllProductVariantFromProduct(id));
+    public ResponseEntity<?> viewProduct(@PathVariable Integer id){
+        return productService.getAllProductVariantFromProduct(id);
     }
 
     @GetMapping(value = "/search")
     public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
-        return ResponseEntity.ok(productService.totalSearchProduct(keyword,page,limit));
+        return productService.totalSearchProduct(keyword,page,limit);
     }
 
     @GetMapping(value = "/list-review")
-    public ResponseEntity<ListAllReviewProductResponse> listReview(@RequestParam(name = "proId") Integer proId, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
-        return ResponseEntity.ok(reviewService.getAllReview(page,limit,proId));
+    public ResponseEntity<?> listReview(@RequestParam(name = "proId") Integer proId, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+        return reviewService.getAllReview(page,limit,proId);
     }
 
     @GetMapping("/list-image/{proId}")
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
-        return ResponseEntity.ok(productService.getAllProductImages(proId));
+        return productService.getAllProductImages(proId);
     }
 
     @PostMapping("/filter-product")
-    public ResponseEntity<FilterProductBoxResponse> filterProduct(
+    public ResponseEntity<?> filterProduct(
            @RequestBody FilterProductBox req
             ) {
 
-        return ResponseEntity.ok(productService.filterProduct(req));
+        return productService.filterProduct(req);
     }
 
     @DeleteMapping(value = "/image/deleteOne")
     public ResponseEntity<?> deleteAllItem(@RequestBody DeleteProductImgReq req, HttpServletRequest httpRequest) {
-        return ResponseEntity.ok(productService.deleteImageFromProduct(req.getProId(), req.getId()));
+        return productService.deleteImageFromProduct(req.getProId(), req.getId());
     }
 
     @DeleteMapping(value = "/image/deleteAll")
     public ResponseEntity<?> deleteOneItem(@RequestBody DeleteAllProductImgReq req, HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(productService.deleteAllImageFromProduct(req.getProId()));
+        return productService.deleteAllImageFromProduct(req.getProId());
     }
 }
