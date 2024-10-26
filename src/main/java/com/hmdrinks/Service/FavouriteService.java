@@ -79,4 +79,31 @@ public class FavouriteService {
                 crudFavouriteItemResponses
         ));
     }
+
+    public ResponseEntity<?> getFavoriteById(int userId) {
+        // Check if user exists
+        User user = userRepository.findByUserId(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
+        }
+
+        // Retrieve the favorite item by ID for the specified user
+        Favourite favourite = favouriteRepository.findByUserUserId(userId);
+        if (favourite == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite not found");
+        }
+
+        // Create a response object based on the favorite found
+        CreateNewFavouriteResponse favouriteResponse = new CreateNewFavouriteResponse(
+                favourite.getFavId(), // Assuming you have a cart ID in your Favourite entity
+                favourite.getUser().getUserId(),
+                favourite.getIsDeleted(),
+                favourite.getDateDeleted(),
+                favourite.getDateUpdated(),
+                favourite.getDateCreated()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(favouriteResponse);
+    }
+
 }

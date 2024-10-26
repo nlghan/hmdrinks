@@ -47,4 +47,12 @@ public class FavouriteController {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return favouriteItemService.deleteAllFavouriteItem(req);
     }
+
+    @GetMapping(value = "/list-fav/{userId}")
+    public ResponseEntity<?> getFavoriteById(
+            @PathVariable Integer userId
+
+    ) {
+        return favouriteService.getFavoriteById(userId);
+    }
 }
