@@ -1,0 +1,92 @@
+/* Favorite.css */
+
+.favorites-container {
+    display: flex; /* Use flexbox to create rows */
+    flex-wrap: wrap; /* Allow items to wrap onto the next line */
+    justify-content: center; /* Space between items */
+    margin: 20px; /* Add margin around the container */
+    padding: 20px; /* Add padding if necessary */
+    gap:100px
+}
+
+.fav-container{
+    padding: 20px;
+    padding-top: 50px;
+    margin: 0 auto;
+    height: auto;
+}
+.fav-title{
+    text-align: center; /* Giữa chữ Giỏ hàng */
+    font-family: "Inter";
+}
+
+.fav-container {
+    position: relative; /* Make sure the parent container is positioned */
+}
+
+.fav-container::before {
+    content: ''; /* Create an empty element */
+    position: absolute; /* Position it absolutely */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    right: 0; /* Stretch to the right */
+    bottom: 0; /* Stretch to the bottom */
+    background-image: url('../../assets/img/back_sec1.jpg'); /* Set the background image */
+    background-size: cover; /* Ensure it covers the entire area */
+    background-position: center; /* Center the background image */
+    z-index: -1; /* Behind the content */
+    height: auto; /* Auto height to stretch */
+}
+
+
+/* Styles for each favorite card */
+.fav-card {
+    flex: 0 1 calc(33.333% - 20px); /* 3 items per row, accounting for margin */
+    box-sizing: border-box; /* Include padding and border in width calculation */
+    margin: 10px; /* Add margin around each card */
+    border: 1px solid #ddd; /* Border around the card */
+    border-radius: 8px; /* Rounded corners */
+    overflow: hidden; /* Clip child elements */
+    transition: box-shadow 0.3s; /* Add a smooth transition for hover effect */
+    background-color: #fff; /* White background for the card */
+    position: relative; /* Position for z-index to work */
+    z-index: 1; /* Ensure cards are above the SVG */
+}
+
+.fav-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Shadow effect on hover */
+}
+
+/* Add any specific styles for images and card content here */
+.fav-card img {
+    width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.fav-card-content {
+    padding: 15px; /* Padding inside the card */
+}
+
+.fav-card-content h2 {
+    font-size: 18px; /* Heading font size */
+    margin: 0; /* Remove default margin */
+}
+
+.fav-card-content .size {
+    color: #555; /* Gray color for size text */
+    margin: 5px 0; /* Spacing above and below */
+}
+
+.view-details {
+    background-color: #28a745; /* Green button */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px; /* Padding inside the button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.view-details:hover {
+    background-color: #218838; /* Darker green on hover */
+}

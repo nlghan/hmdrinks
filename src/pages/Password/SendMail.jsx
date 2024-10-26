@@ -91,7 +91,7 @@ const SendMail = () => {
             <div className="send-mail-page">
                 <div className="send-mail-container">
                     {/* Nút quay lại */}
-                    <i className="ti-arrow-left" onClick={handleBack} style={{ cursor: 'pointer', marginBottom: '20px' }}></i>
+                    <i className="ti-arrow-left" onClick={handleBack} style={{ cursor: 'pointer', marginBottom: '20px', display:"flex" }}></i>
                     <h2 className="send">Quên mật khẩu?</h2>
                     <p>{isOtpSent ? "Vui lòng nhập mã OTP đã gửi đến email của bạn." : "Vui lòng nhập lại email của bạn. Chúng tôi sẽ gửi mã xác nhận thông qua email này."}</p>
                     <form onSubmit={handleSubmitChange} className="send-mail-form">

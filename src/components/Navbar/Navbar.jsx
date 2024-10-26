@@ -11,8 +11,8 @@ const Navbar = ({ currentPage }) => {
   const location = useLocation();
   const { isLoggedIn, logout } = useAuth();
 
-  // Hide breadcrumb if on homepage or product detail page
-  const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home');
+  // Hide breadcrumb if on homepage, product detail page, or root URL
+  const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '');
   // State to manage box shadow visibility
   const [showBoxShadow, setShowBoxShadow] = useState(location.pathname === '/home' || location.pathname.startsWith('/product/'));
 
@@ -94,7 +94,7 @@ const Navbar = ({ currentPage }) => {
   // Update breadcrumb and box shadow visibility when route changes
   useEffect(() => {
     const isProductDetailPage = location.pathname.startsWith('/product/');
-    setShowBreadcrumb(location.pathname !== '/home' && !isProductDetailPage);
+    setShowBreadcrumb(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '' && !isProductDetailPage);
     setShowBoxShadow(location.pathname === '/home' || isProductDetailPage);
   }, [location.pathname]);
 

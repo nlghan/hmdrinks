@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
     // Ensure cart exists
     const ensureCartExists = async (userId) => {
         const token = getCookie('access_token');
-
+    
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -28,15 +28,22 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
+                // Access the cart list from the body of the response
+                const cartList = data.body.listCart;
+    
+                // Log the cart list for debugging
+                console.log('Cart List:', cartList);
+    
                 // If the user has carts, find the one with 'NEW' status
-                const newCart = data.listCart.find(cart => cart.statusCart === 'NEW');
+                const newCart = cartList.find(cart => cart.statusCart === 'NEW');
                 if (newCart) {
                     setCartId(newCart.cartId);
-                    await fetchCartItems(newCart.cartId); // Fetch items for the new cart
+                    console.log("New cart ID:", newCart.cartId); // Log the cart ID
+                    await fetchCartItemsByCartId(newCart.cartId); // Fetch items for the new cart
                 } else {
                     // If no NEW cart, create a new one
                     const newCartId = await createCart(userId);
@@ -54,6 +61,15 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    useEffect(() => {
+        const initializeCart = async () => {
+            const userId = getUserIdFromToken(getCookie('access_token'));
+            await ensureCartExists(userId);
+        };
+        initializeCart();
+    }, []);
+    
+    
     // Create a new cart
     const createCart = async (userId) => {
         const token = getCookie('access_token');
@@ -84,70 +100,47 @@ export const CartProvider = ({ children }) => {
     };
 
     // Fetch cart items for a specific user by userId
-    const fetchCartItemsByUserId = async (userId) => {
+    const fetchCartItemsByCartId = async (cartId) => {
         const token = getCookie('access_token');
-
+    
         try {
-            // First, fetch the user's carts
-            const cartResponse = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
+            // Fetch the cart items using the provided cartId
+            const itemsResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
                 method: 'GET',
                 headers: {
                     'accept': '*/*',
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
-            const cartData = await cartResponse.json();
-
-            if (cartResponse.ok) {
-                // Find the NEW cart for the user
-                const newCart = cartData.listCart.find(cart => cart.statusCart === 'NEW');
-                if (newCart) {
-                    const cartId = newCart.cartId; // Get the cartId of the NEW cart
-                    setCartId(cartId);
-                    console.log("cartId là: " + cartId)
-
-                    // Now fetch the cart items using the cartId
-                    const itemsResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
-                        method: 'GET',
-                        headers: {
-                            'accept': '*/*',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    });
-
-                    const itemsData = await itemsResponse.json();
-
-                    if (itemsResponse.ok) {
-                        const itemsWithDetails = await Promise.all(
-                            itemsData.listCartItemResponses.map(async (item) => {
-                                const productDetails = await fetchProductDetails(item.proId, item.size);
-                                return {
-                                    cartItemId: item.cartItemId,
-                                    productId: item.proId,
-                                    size: item.size,
-                                    quantity: item.quantity,
-                                    totalPrice: item.totalPrice,
-                                    name: productDetails?.name || 'Unknown Product',
-                                    image: productDetails?.image || '',
-                                };
-                            })
-                        );
-
-                        setCartItems(itemsWithDetails); // Set enriched cart items state
-                    } else {
-                        console.error('Failed to fetch cart items:', itemsData);
-                    }
-                } else {
-                    console.error('No NEW cart found for user.');
-                }
+    
+            const itemsData = await itemsResponse.json();
+    
+            if (itemsResponse.ok) {
+                // Enrich each item with product details
+                const itemsWithDetails = await Promise.all(
+                    itemsData.listCartItemResponses.map(async (item) => {
+                        const productDetails = await fetchProductDetails(item.proId, item.size);
+                        return {
+                            cartItemId: item.cartItemId,
+                            productId: item.proId,
+                            size: item.size,
+                            quantity: item.quantity,
+                            totalPrice: item.totalPrice,
+                            name: productDetails?.name || 'Unknown Product',
+                            image: productDetails?.image || '',
+                        };
+                    })
+                );
+    
+                setCartItems(itemsWithDetails); // Set enriched cart items state
             } else {
-                console.error('Failed to fetch user carts:', cartData);
+                console.error('Failed to fetch cart items:', itemsData);
             }
         } catch (error) {
             console.error('Error fetching cart items:', error);
         }
     };
+    
 
     // Fetch product details by product ID and size
     const fetchProductDetails = async (productId, size) => {
@@ -210,33 +203,24 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // Add product to cart
-    // Add product to cart
-    // Add product to cart
+
     const addToCart = async (product) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
-        // Ensure the cart exists
         if (!cartId) {
-            console.log('Cart ID is null. Ensuring cart exists...');
-            await ensureCartExists(userId); // Wait for the cart to be ensured
+            await ensureCartExists(userId);
         }
 
-        // Check again if cartId is still null after attempting to ensure it
-        if (!cartId) {
-            console.error('Cart could not be created or fetched. Cannot add to cart.');
-            return; // Exit if cartId is still null
-        }
-
+        console.log(cartId)
+    
         // Fetch product details including the price based on size
         const productDetails = await fetchProductDetails(product.productId, product.size);
-
+    
         if (!productDetails) {
             console.error('Could not fetch product details');
             return; // Exit if product details couldn't be fetched
         }
-
+    
         // Prepare the request body
         const requestBody = {
             userId: userId,
@@ -245,7 +229,7 @@ export const CartProvider = ({ children }) => {
             size: product.size,
             quantity: product.quantity,
         };
-
+    
         try {
             const response = await fetch('http://localhost:1010/api/cart-item/insert', {
                 method: 'POST',
@@ -256,9 +240,9 @@ export const CartProvider = ({ children }) => {
                 },
                 body: JSON.stringify(requestBody),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 console.log('Item added to cart successfully:', data);
                 // Update cart items
@@ -271,7 +255,7 @@ export const CartProvider = ({ children }) => {
                                 : item
                         );
                     }
-
+    
                     return [...prevItems, {
                         ...product,
                         cartItemId: data.cartItemId,
@@ -287,6 +271,7 @@ export const CartProvider = ({ children }) => {
             console.error('Error while adding item to cart:', error);
         }
     };
+    
 
     const increase = async (cartItemId) => {
         const token = getCookie('access_token');
@@ -510,16 +495,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // Call fetchCart when component mounts
-    useEffect(() => {
-        const token = getCookie('access_token');
-        if (token) {
-            const userId = getUserIdFromToken(token);
-            if (userId) {
-                fetchCartItemsByUserId(userId); // Fetch cart items based on userId
-            }
-        }
-    }, []);
+   
 
     // Handle user login and logout
     const handleAuthChange = async () => {
@@ -528,7 +504,8 @@ export const CartProvider = ({ children }) => {
 
         if (userId) {
             console.log('User logged in, fetching cart items for userId:', userId);
-            await fetchCartItemsByUserId(userId);
+            ensureCartExists(userId)
+            await fetchCartItemsByCartId(cartId);
         } else {
             console.log('User logged out, clearing cart items');
             setCartItems([]); // Clear cart items on logout

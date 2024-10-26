@@ -1,16 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url("https://lottie.host/embed/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json");
 @import url("https://lottie.host/embed/5a6e1322-c693-4426-a249-282707dee448/M5D4IXsC9l.json");
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; /* Sử dụng border-box cho toàn bộ phần tử */
 }
+
 .body-info {
     position: relative;
     padding: 15px; /* Padding for the content */
     background-color: rgba(252, 238, 238, 0.9); /* Optional: Solid color background if needed */
     z-index: 1; /* Ensure content is on top */
+}
+
+.form-control {
+    width: 100%; /* Make inputs take the full width of their parent container */
+    max-width: 400px; /* Set a maximum width for the inputs (adjust as needed) */
+    height: 40px; /* Set a consistent height for all inputs */
+    padding: 10px; /* Add some padding inside the inputs for better appearance */
+    border: 1px solid #ccc; /* Border styling */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Optional: Add styles for focus state */
+.form-control:focus {
+    border-color: #66afe9; /* Change border color on focus */
+    outline: none; /* Remove default outline */
 }
 
 .body-info::after {
@@ -28,11 +46,10 @@
     z-index: -1; /* Send the background behind the content */
 }
 
-
 .container {
     background-color: #fff;
     padding: 20px;
-    max-width: 600px;
+    max-width: 900px;
     width: 100%;
     border-radius: 10px; /* Góc bo tròn */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
@@ -43,6 +60,17 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust the spacing between columns */
+}
+
+.form-column {
+    flex: 1; /* Allow columns to grow equally */
+    min-width: 400px; /* Minimum width for each column */
 }
 
 .user-info-form h2 {
@@ -57,6 +85,8 @@
     display: flex;
     flex-direction: column; /* Đảm bảo label nằm trên input */
     gap: 5px; /* Khoảng cách giữa label và input */
+    width: 500px;
+    margin-top: 20px;
 }
 
 .user-info-form label {
@@ -65,7 +95,9 @@
     margin-bottom: 5px;
 }
 
-.user-info-form input, 
+.user-info-form input,
+.user-info-form input[type="email"],
+.user-info-form input[type="text"],
 .user-info-form select {
     padding: 10px;
     border: 1px solid #ccc;
@@ -73,6 +105,7 @@
     font-size: 16px;
     background-color: #f9f9f9; /* Màu nền nhạt hơn cho input */
     transition: border-color 0.3s ease; /* Hiệu ứng khi người dùng click vào input */
+    margin-bottom: 0px;
 }
 
 .user-info-form input:focus, 
@@ -83,7 +116,7 @@
 
 .button-group {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 20px;
 }
 
@@ -96,7 +129,7 @@
     font-size: 16px;
     cursor: pointer;
     transition: transform 0.3s ease, background-color 0.3s ease; /* Thêm hiệu ứng chuyển đổi mượt mà */
-    width: 48%; /* Đặt kích thước nút */
+    width:200px; /* Change to auto width to adapt to content */
 }
 
 .btn:hover {
@@ -104,11 +137,11 @@
     background-color: #FF5E6B; /* Đổi màu nền khi hover */
 }
 
-#btn-back {
+#btn-back-info {
     background-color: #ccc; /* Màu nền cho nút Trở lại */
 }
 
-#btn-back:hover {
+#btn-back-info:hover {
     background-color: #bbb; /* Màu nền cho nút Trở lại khi hover */
 }
 
@@ -119,20 +152,62 @@
 #btn-change:hover {
     background-color: #5fc09a; /* Màu nền cho nút Trở lại khi hover */
 }
+
 .avatar-container {
     display: flex;
     justify-content: center;
     margin-top: 20px;
+    position: relative;
+}
+
+.avatar-image-wrapper {
+    position: relative; /* Required for absolute positioning of buttons */
+    transition: transform 0.3s ease;
+}
+
+/* Default state for buttons */
+.btn-gr-img {
+    display: none; /* Hide buttons by default */
+    position: absolute; /* Position the buttons */
+    bottom: 10px; /* Adjust as needed */
+    left: 50%; /* Center horizontally */
+    gap: 10px; /* Space between buttons */
+    transition: transform 0.3s ease; /* Smooth transition for the transform */
+}
+
+/* Show buttons and slide them up on hover */
+.avatar-image-wrapper:hover .btn-gr-img {
+    display: flex; /* Change display to flex on hover */
+    transform: translate(-50%, -280%); /* Slide to normal position */
+}
+
+/* Overlay for blur effect */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(54, 50, 50, 0.5); /* Semi-transparent background */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease; /* Smooth transition for opacity */
+    border-radius: 50%; /* Match the circular shape */
+}
+
+/* Show overlay on hover */
+.avatar-image-wrapper:hover .image-overlay {
+    opacity: 1; /* Show the overlay */
 }
 
 .avatar-image {
-    width: 200px;
-    height: 200px;
+    width: 280px;
+    height: 280px;
     border-radius: 50%; /* Makes the image circular */
     object-fit: cover; /* Ensures the image fits within the circle */
     border: 3px solid #FF7380; /* Slightly thicker border with soft color */
     box-shadow: 0 4px 15px rgb(254 54 112 / 20%);
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    animation: zoomIn 1s ease forwards; /* Apply zoomIn animation */
 }
 
 /* Hover effect to make the image frame more interactive */
@@ -142,76 +217,60 @@
 }
 
 
-#btn-upload {
+/* Button styles */
+#btn-upload, #btn-save {
     padding: 10px 15px;
-    background-color: #FF7380;
-    color: #fff;
     border: none;
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    transition: transform 0.3s ease, background-color 0.3s ease; /* Hiệu ứng mượt mà */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+}
+
+#btn-upload {
+    background-color: #FF7380;
+    color: #fff;
 }
 
 #btn-upload:hover {
-    transform: scale(1.05); /* Phóng to nhẹ khi hover */
-    background-color: #FF5E6B; /* Đổi màu nền khi hover */
+    transform: scale(1.05); /* Slightly enlarge when hover */
+    background-color: #FF5E6B; /* Change background color on hover */
 }
 
-.up-img {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-/* Container for image buttons */
-.btn-gr-img {
-    display: flex;
-    gap: 10px; /* Space between buttons */
-    justify-content: center; /* Center the buttons */
-    margin-top: 10px; /* Space above the buttons */
-}
-
-/* General button styles */
- #btn-save {
-    padding: 10px 20px; /* Space inside buttons */
-    font-size: 16px;
-    border: none;
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s; /* Smooth transition on hover */
-}
-
-
-/* Save button styles */
 #btn-save {
-    background-color: #69ccd3; /* Blue background */
+    padding: 10px 15px;
+    background-color: #f17844; /* Background color */
     color: white;
-    width: 109px;
 }
 
 #btn-save:hover {
-    background-color: #007BB5; /* Darker blue on hover */
-    transform: scale(1.05); /* Slightly enlarge on hover */
+    transform: scale(1.05); /* Slightly enlarge when hover */
+    background-color: #5fc09a; /* Change background color on hover */
 }
 
-/* Add this to your Info.css */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999; /* Ensure it covers other content */
+@keyframes slideUp {
+    0% {
+        opacity: 0; /* Start fully transparent */
+        transform: translate(-50%, 0); /* Move to its original position */
+    }
+    100% {
+        opacity: 1; /* End fully visible */
+        transform: translate(-50%, -280); /* Move to its original position */
+    }
 }
 
-.email_info{
-    padding: 15px;
-    border: 1px solid #ced4da;
-    border-radius: 5px 0 0 5px;
-    font-size: 16px;
+.slideUp {
+    opacity: 0; /* Ensure the element is hidden before animation */
+    animation: slideUp 0.5s ease-in-out forwards; /* Call the slideUp animation */
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0; /* Start fully transparent */
+        transform: scale(0.8); /* Start smaller */
+    }
+    100% {
+        opacity: 1; /* End fully visible */
+        transform: scale(1); /* End at original size */
+    }
 }

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
 import './Info.css'; // Nhập CSS
-import '../../assets/assets.js'
+import '../../assets/assets.js';
 import { assets } from "../../assets/assets.js";
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import ErrorMessage from "../../components/Animation/ErrorMessage.jsx";
@@ -31,6 +31,7 @@ const Info = () => {
         phoneNumber: '',
         birthDay: ''
     });
+    const [isEditing, setIsEditing] = useState(false); // New state for editing mode
 
     const getUserIdFromToken = (token) => {
         try {
@@ -223,6 +224,7 @@ const Info = () => {
             });
 
             alert("Cập nhật thông tin thành công!");
+            setIsEditing(!isEditing);
         } catch (error) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", error);
             setError("Không thể cập nhật thông tin.");
@@ -247,138 +249,143 @@ const Info = () => {
         );
     }
 
-
     return (
         <>
-            <Navbar currentPage={'Thông tin cá nhân'}/>
+            <Navbar currentPage={'Thông tin cá nhân'} />
 
             <div className="body-info">
                 <div className="container">
-                    <h2>Thông tin cá nhân</h2>
+                    <h2>
+                        Thông tin cá nhân 
+                        <i
+                            className="ti-pencil"
+                            style={{ fontSize: '20px', color: 'green', cursor: 'pointer' , marginLeft:'5px'}}
+                            onClick={() => setIsEditing(!isEditing)}
+                        />
+                    </h2>
+
                     <form className="user-info-form">
-                        <div>
-                            <div className="avatar-container">
+                        <div className="avatar-container">
+                            <div className="avatar-image-wrapper">
                                 {previewImage ? (
-                                    <img src={previewImage} alt="Avatar" className="avatar-image" />
+                                    <>
+                                        <img src={previewImage} alt="Avatar" className="avatar-image" />
+                                        <div className="image-overlay"></div> {/* Overlay for the blur effect */}
+                                        <div className="btn-gr-img slideUp">
+                                            <button
+                                                type="button"
+                                                id="btn-upload"
+                                                onClick={() => document.getElementById('file-upload').click()}
+                                            >
+                                                < i className="ti-cloud-up"/>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                id="btn-save"
+                                                onClick={handleSubmitImg}
+                                            >
+                                                < i className="ti-save"/>
+                                            </button>
+                                        </div>
+                                    </>
                                 ) : (
                                     <img src={assets.avtrang} alt="" className="avatar-image" />
                                 )}
                             </div>
 
-                            <div className="up-img">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    id="file-upload"
-                                    onChange={handleFileChange}
-                                    style={{ display: 'none' }}
-                                />
-                                <div className="btn-gr-img">
-                                    <button
-                                        type="button"
-                                        id="btn-upload"
-                                        onClick={() => document.getElementById('file-upload').click()}
-                                    >
-                                        Tải ảnh lên
-                                    </button>
 
-                                    <button
-                                        type="button"
-                                        id="btn-save"
-                                        onClick={handleSubmitImg}
-                                    >
-                                        Lưu
-                                    </button>
-                                </div>
-                            </div>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                id="file-upload"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
                         </div>
 
-                        <div>
-                            <div className="form-group">
-                                <label>Email:</label>
-                                <input
-                                    className="email_info"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    style={{ borderColor: formErrors.email ? 'red' : '' }}
-                                />
-                                {formErrors.email && <span className="error-message">{formErrors.email}</span>}
 
+                        <div className="form-grid">
+                            <div className="form-column">
                                 <div className="form-group">
-                                    <label>Họ và tên:</label>
+                                    <label>Email:</label>
                                     <input
+                                        className="form-control"
+                                        type="email"
+                                        value={formData.email}
+                                        disabled={!isEditing} // Disable based on editing mode
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    />
+                                    {formErrors.email && <span className="error">{formErrors.email}</span>}
+                                </div>
+                                <div className="form-group">
+                                    <label>Họ tên:</label>
+                                    <input
+                                        className="form-control"
                                         type="text"
-                                        name="fullName"
                                         value={formData.fullName}
+                                        disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                                     />
                                 </div>
-
                                 <div className="form-group">
                                     <label>Số điện thoại:</label>
                                     <input
+                                        className="form-control"
                                         type="text"
-                                        name="phoneNumber"
                                         value={formData.phoneNumber}
+                                        disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        style={{ borderColor: formErrors.phoneNumber ? 'red' : '' }}
                                     />
-                                    {formErrors.phoneNumber && <span className="error-message">{formErrors.phoneNumber}</span>}
+                                    {formErrors.phoneNumber && <span className="error">{formErrors.phoneNumber}</span>}
                                 </div>
-
+                            </div>
+                            <div className="form-column">
                                 <div className="form-group">
                                     <label>Giới tính:</label>
                                     <select
-                                        name="sex"
+                                        className="form-control"
                                         value={formData.sex}
+                                        disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
                                     >
-                                        <option value="">Chọn giới tính</option>
+                                        <option value="" disabled>Select your option</option>
                                         <option value="MALE">Nam</option>
                                         <option value="FEMALE">Nữ</option>
                                         <option value="OTHER">Khác</option>
                                     </select>
                                 </div>
-
                                 <div className="form-group">
                                     <label>Ngày sinh:</label>
                                     <input
+                                        className="form-control"
                                         type="date"
-                                        name="birthDay"
                                         value={formData.birthDay}
+                                        disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, birthDay: e.target.value })}
-                                        style={{ borderColor: formErrors.birthDay ? 'red' : '' }}
                                     />
-                                    {formErrors.birthDay && <span className="error-message">{formErrors.birthDay}</span>}
+                                    {formErrors.birthDay && <span className="error">{formErrors.birthDay}</span>}
                                 </div>
-
                                 <div className="form-group">
                                     <label>Địa chỉ:</label>
                                     <input
+                                        className="form-control"
                                         type="text"
-                                        name="address"
                                         value={formData.address}
+                                        disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                     />
                                 </div>
+                            </div>
+                        </div>
 
-                                <div className="button-group">
-                                    <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật thông tin</button>
-                                    <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
-                                    <button type="button" className="btn" id="btn-back" onClick={handleBack}>Trở lại</button>
-                                </div>
-
-                            </div> </div></form>
+                        <div className="button-group">
+                            <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật</button>
+                            <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
+                            <button type="button" className="btn" id="btn-back-info" onClick={handleBack}>Trở lại</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            {isUploading && (
-                <div className="overlay">
-                    <LoadingAnimation animationPath="https://lottie.host/bfcb91ed-f6e3-486d-b052-6c0705a6416c/yzsyGYxWhd.json" isVisible={isUploading} />
-                </div>
-            )}
-
 
             <Footer />
         </>

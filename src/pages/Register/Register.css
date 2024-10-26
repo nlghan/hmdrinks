@@ -155,3 +155,13 @@
 }
 
 
+.message{
+    color: red;
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: left;
+
+}
+.input-error {
+    border-bottom: 1px solid red !important; /* Set the border color to red */
+}

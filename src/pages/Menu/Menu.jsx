@@ -9,19 +9,60 @@ import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 
+
 const Menu = () => {
-    const [products, setProducts] = useState([]); // Products state
-    const [categories, setCategories] = useState([]); // Categories state
-    const [loading, setLoading] = useState(true); // To handle loading state
-    const [currentPage, setCurrentPage] = useState(1); // Track the current product page
-    const [currentCategoryPage, setCurrentCategoryPage] = useState(1); // Track the current category page
-    const [totalPages, setTotalPages] = useState(1); // Track the total number of product pages
-    const [limit] = useState(8); // Set the number of products per page
-    const [categoryLimit] = useState(10); // Set the number of categories per page
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null); // Track selected category
-    const [searchTerm, setSearchTerm] = useState(''); // Search term state
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentCategoryPage, setCurrentCategoryPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit] = useState(8);
+    const [categoryLimit] = useState(10);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [favoritedProIds, setFavoritedProIds] = useState([]); // State for favorited product IDs
     const navigate = useNavigate();
-    const { addToCart } = useCart(); // Cart context
+    const { addToCart } = useCart();
+
+    const getUserIdFromToken = (token) => {
+        try {
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
+            return decodedPayload.UserId;
+        } catch (error) {
+            console.error("Không thể giải mã token:", error);
+            return null;
+        }
+    };
+
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+
+    const userId = getUserIdFromToken(getCookie('access_token')); // Get userId from token
+
+    // Fetch favorited product IDs
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                const response = await fetch(`http://localhost:1010/api/favorites/${userId}`);
+                const data = await response.json();
+                const favoriteIds = data.favorites.map(favorite => favorite.proId);
+                setFavoritedProIds(favoriteIds);
+            } catch (error) {
+                console.error('Error fetching favorites:', error);
+            }
+        };
+
+        if (userId) {
+            fetchFavorites();
+        }
+    }, [userId]);
 
     // Fetch products and their prices and sizes from API
     useEffect(() => {
@@ -29,45 +70,40 @@ const Menu = () => {
             setLoading(true);
             try {
                 const url = selectedCategoryId
-                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
-                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
+                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=8`
+                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=8`;
 
                 const response = await fetch(url);
                 const data = await response.json();
-
                 const productList = selectedCategoryId ? data.responseList : data.productResponses;
 
-                // Fetch price and size for each product and update the product list with this data
                 const productsWithDetails = await Promise.all(productList.map(async (product) => {
                     try {
                         const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
                         const variantData = await variantResponse.json();
-                        const variant = variantData.responseList[0]; // Get the first variant
-
-                        // Get the price and size from the first variant or set defaults
+                        const variant = variantData.responseList[0];
                         const price = variant?.price || 'N/A';
-                        const size = variant?.size || 'N/A'; // Assuming 'size' is available in the variant
-                        const stock = variant?.stock || 0; // Get the stock available
+                        const size = variant?.size || 'N/A';
+                        const stock = variant?.stock || 0;
 
                         return { ...product, price, size, stock };
                     } catch (variantError) {
                         console.error(`Error fetching variant for product ${product.proId}:`, variantError);
-                        return { ...product, price: 'N/A', size: 'N/A', stock: 0 }; // Handle error by setting defaults
+                        return { ...product, price: 'N/A', size: 'N/A', stock: 0 };
                     }
                 }));
 
-                setProducts(productsWithDetails); // Set the products with price, size, and stock information
-                setTotalPages(data.totalPage); // Set the total number of pages if applicable
+                setProducts(productsWithDetails);
+                setTotalPages(data.totalPage);
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
-                setLoading(false); // Turn off loading state after data is fetched
+                setLoading(false);
             }
         };
 
         fetchProducts();
     }, [currentPage, selectedCategoryId]);
-
     // Fetch categories from API
     useEffect(() => {
         const fetchCategories = async () => {
@@ -140,6 +176,12 @@ const Menu = () => {
         navigate(`/product/${product.proId}`, { state: { product } });
     };
 
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+    useEffect(() => {
+        // Set `isFirstLoad` to false after the first render
+        setIsFirstLoad(false);
+    }, []);
+
     return (
         <>
             <Navbar currentPage={"Thực đơn"}/>
@@ -166,7 +208,7 @@ const Menu = () => {
                 ></div>
 
                 {/* Menu content */}
-                <div className="container-menu">
+                <div className={`container-menu ${isFirstLoad ? 'slide-left' : ''}`}>
                     <div className="overlay-menu">
                         <div className='menu-category'>
 
@@ -299,30 +341,33 @@ const Menu = () => {
                     </div>
 
                     <div className="products">
-                        {loading ? (
-                            <p>Đang tải sản phẩm...</p>
-                        ) : hasProducts ? (
-                            filteredProducts.map((product, index) => (
-                                <ProductCard
-                                    key={product.proId}
-                                    product={{
-                                        name: product.proName,
-                                        size: product.size,
-                                        price: `${product.price}`,
-                                        image: product.productImageResponseList.length > 0
-                                            ? product.productImageResponseList[0].linkImage
-                                            : backgroundImage
-                                    }}
-                                    onClick={() => handleProductCardClick(product)} // This will trigger on card click
-                                    onAddToCart={() => handleAddToCart(product)} // This will trigger on "Đặt mua" button click
-                                    className="zoom-in"
-                                    style={{ animationDelay: `${index * 0.1}s` }} // Delay each card's fade-in
-                                />
-                            ))
-                        ) : (
-                            <p>Không có sản phẩm nào thuộc danh mục này.</p>
-                        )}
-                    </div>
+                    {loading ? (
+                        <p>Đang tải sản phẩm...</p>
+                    ) : (
+                        products.map((product) => (
+                            <ProductCard
+                                key={product.proId}
+                                product={{
+                                    proId: product.proId,
+                                    name: product.proName,
+                                    size: product.size,
+                                    price: `${product.price}`,
+                                    image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
+                                }}
+                                isFavorited={favoritedProIds.includes(product.proId)} // Check if product is favorited
+                                onClick={() => handleProductCardClick(product)}
+                                onAddToCart={() => addToCart({
+                                    productId: product.proId,
+                                    name: product.proName,
+                                    price: product.price,
+                                    size: product.size,
+                                    quantity: 1,
+                                    image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
+                                })}
+                            />
+                        ))
+                    )}
+                </div>
 
 
                 </div>

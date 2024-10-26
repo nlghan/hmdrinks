@@ -1,0 +1,119 @@
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    font-family: Arial, sans-serif;
+    border-left: 8px solid #ff7f7f;
+    border-bottom: 5px solid #ff7f7f;
+    border-top:  1px solid #ff7f7f; ;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Dark overlay effect on hover */
+  .card-image:hover::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1;
+  }
+  
+  .card-image {
+    position: relative;
+  }
+  
+  .card-image img {
+    width: 400px;
+    height: 250px;
+  }
+  
+  /* Remove button styling */
+  .remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+  
+  /* Show the remove button when hovering over the image or the button itself */
+  .card-image:hover .remove-btn,
+  .remove-btn:hover {
+    display: flex;
+  }
+  
+  /* Remaining styles */
+  
+  .card-content {
+    display: flex;
+    flex-direction: row;
+    padding: 16px;
+    background-color: white;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .event-tag {
+    background-color: #4c9d66;
+    color: white;
+    text-align: center;
+    width: 150px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    top: -50px;
+    border: 4px solid white;
+  }
+  
+  .card-details {
+    width: 70%;
+    padding-left: 16px;
+  }
+  
+  .card-details h2 {
+    color: #f05a28;
+    margin: 0 0 8px;
+    font-size: 1.2em;
+  }
+  
+  .card-details .description {
+    font-size: 0.9em;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .view-details {
+    width: 100%;
+    padding: 10px 0;
+    background-color: #ff7f7f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .view-details:hover {
+    background-color: #d94c21;
+  }
+  

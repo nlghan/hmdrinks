@@ -14,6 +14,7 @@ const Register = () => {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [error, setError] = useState(""); // Added error state
 
     const handleLogin = () => {
         navigate('/login');
@@ -43,7 +44,6 @@ const Register = () => {
                 Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
             }
 
-
             // Điều hướng đến trang home sau một khoảng thời gian
             setTimeout(() => {
                 navigate('/login');
@@ -52,11 +52,12 @@ const Register = () => {
             console.error('Lỗi đăng ký:', error);
             // Kiểm tra lỗi cụ thể
             if (error.response) {
-                console.log('Dữ liệu phản hồi:', error.response.data);
-                console.log('Trạng thái:', error.response.status);
-                console.log('Headers:', error.response.headers);
-                // Cập nhật thông báo lỗi
-                setMessage("Có lỗi xảy ra, vui lòng thử lại.");
+                const { status, data } = error.response;
+                if (status === 409) {
+                    console.log(data)
+                    setError("Tài khoản đã tồn tại"); // Set error message
+                    setMessage(""); // Clear any previous messages
+                } 
             }
         }
     };
@@ -65,26 +66,37 @@ const Register = () => {
         navigate('/home'); // Điều hướng đến trang Register
     };
 
+    // Handler for input change
+    const handleInputChange = (setter) => (event) => {
+        setter(event.target.value);
+        setError(""); // Clear error message on input change
+        setMessage(""); // Optionally clear message if you want
+    };
+
     return (
         <div className="register-page">
             <div className="register-container">
                 <div className="login-image">
                     <img src={assets.login} alt='' />
                     <i className="ti-arrow-left" onClick={handleBack}></i>
-
                 </div>
                 <div className="register-form">
                     <h2>Tạo tài khoản mới</h2>
-                    <p className="small-text">Nhập thông tin cá nhân bên dưới</p>
+                    {/* Conditional rendering for prompt message */}
+                    {!message && !error && <p className="small-text">Nhập thông tin cá nhân bên dưới</p>}
+
+                    {/* Display error if it exists */}
+                    {error && <p className="message">{error}</p>}
+
                     <div className="register-input-group">
                         <input
                             type="text"
                             placeholder="Họ và tên"
                             className="register-input"
                             value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
+                            onChange={handleInputChange(setFullName)} // Use the new handler
                             style={{
-                                width: '80%',  // Wrap percentage value in quotes
+                                width: '80%',
                                 padding: '10px 0',
                                 border: 'none',
                                 borderBottom: '1px solid #666',
@@ -93,15 +105,14 @@ const Register = () => {
                                 fontSize: '16px'
                             }}
                         />
-
                         <input
                             type="text"
                             placeholder="Tên tài khoản"
-                            className="input"
+                            className={`input ${error ? 'input-error' : ''}`}
                             value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
+                            onChange={handleInputChange(setUserName)} // Use the new handler
                             style={{
-                                width: '80%',  // Wrap percentage value in quotes
+                                width: '80%',
                                 padding: '10px 0',
                                 border: 'none',
                                 borderBottom: '1px solid #666',
@@ -115,7 +126,7 @@ const Register = () => {
                             placeholder="Mật khẩu"
                             className="input"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={handleInputChange(setPassword)} // Use the new handler
                         />
                     </div>
                     <div className="button-group-register">
@@ -125,7 +136,6 @@ const Register = () => {
                         <img src={assets.gg} alt='' className="google-icon" />Đăng Nhập bằng Google
                     </button>
                     <p className="login-text">Bạn đã có tài khoản? <span className="login-link" onClick={handleLogin}>Đăng nhập</span></p>
-
                 </div>
             </div>
             <Footer />
