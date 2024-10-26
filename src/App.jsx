@@ -12,48 +12,48 @@ import About from "./pages/About/About";
 import ChangePassword from "./pages/Password/ChangePassword";
 import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
-import { useAuth } from './context/AuthProvider'; // Import hook
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
-import ProductDetail from "./pages/Menu/ProductDetail"; // Import the new ProductDetail component
+
 import Post from './pages/Admin/Post';
 import PostVoucher from './pages/Post/PostVoucher';
+import ProductDetail from "./pages/Menu/ProductDetail"; 
+import { useAuth } from './context/AuthProvider'; 
+import { CartProvider } from "./context/CartContext";
+import Cart from "./pages/Cart/Cart";
+import Favorite from "./pages/Favorite/Favorite";
 
 const App = () => {
   const location = useLocation();
-  const { isLoggedIn } = useAuth(); // Sử dụng trạng thái đăng nhập từ context
+  const { isLoggedIn } = useAuth();
 
   return (
-    <div className='app'>
-      <Routes location={location}>
-        {/* Other Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
-        <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
-        <Route path="/marketing/:postId" element={<PostVoucher/>}/>
-        <Route path="/menu" element={ <Menu />} /> {/* Cập nhật route cho trang Info */}
-        <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} /> {/* Cập nhật route cho trang Info */}
-        <Route path="/send-mail" element={<SendMail />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/category" element={<Category />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/post" element={<Post />} />
-       
-
-
-        
-        {/* New Route for Product Detail */}
-        <Route path="/product/:productId" element={<ProductDetail />} /> {/* ProductDetail route */}
-        
-        {/* Wildcard route để chuyển bất kỳ đường dẫn nào không hợp lệ về Home */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </div>
+    <CartProvider> {/* Bọc toàn bộ ứng dụng bằng CartProvider */}
+      <div className='app'>
+        <Routes location={location}>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
+          <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/user" element={<User />} />
+          <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
+          <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} />
+          <Route path="/menu" element={ <Menu />} />
+          <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
+          <Route path="/send-mail" element={<SendMail />} />
+          <Route path="/user" element={<User />} />
+          <Route path="/category" element={<Category />} />
+          <Route path="/product" element={<Product />} />
+          <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/favorite" element={<Favorite />} />
+          <Route path="/marketing/:postId" element={<PostVoucher/>}
+          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/post" element={<Post />} />
+        </Routes>
+      </div>
+    </CartProvider>
   );
 };
 

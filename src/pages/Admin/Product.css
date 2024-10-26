@@ -1,4 +1,4 @@
-/* Overall Page Styling */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
 .product-page {
     display: flex;
     flex-direction: column;
@@ -122,8 +122,16 @@
     width: 15%; /* Set the width of the second column */
 }
 
+.product-table th:nth-child(4), .product-table td:nth-child(3) {
+    width: 20%; /* Set the width of the second column */
+}
+
+.product-table th:nth-child(5), .product-table td:nth-child(3) {
+    width: 10%; /* Set the width of the second column */
+}
+
 .product-table th:last-child, .product-table td:last-child {
-    width: 10%; /* Set the width of the first column */
+    width: 12%; /* Set the width of the first column */
 }
 
 .product-table th {
@@ -331,3 +339,4 @@
     border-radius: 4px;
     border: 1px solid #ddd;
 }
+

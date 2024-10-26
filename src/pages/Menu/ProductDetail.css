@@ -20,28 +20,36 @@
 
 .proCon {
     position: relative;
-    background: linear-gradient(to bottom right, rgb(251, 210, 210), rgb(243, 251, 205));
+    background: white
 }
 
-.proCon::before {
-    content: '';
+
+
+.proCon svg {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW3m1JHI5UyS4wtJwey5Q1K5B8jPrqmL_U1cCM1_GuMp6xBrE&s');
-    background-size: 800px 800px; /* Increase size for less repetition */
-    background-repeat: repeat; /* Keep repeat */
-    opacity: 0.1; /* Adjust the opacity here */
-    z-index: 1;
-}
-
-
-.proCon > * {
-    position: relative;
+    width: 66%; /* Adjust size */
+    height: 1400px;
     z-index: 2;
+    opacity: 1
+    ; /* Adjust the opacity of the SVG */
 }
+
+.proCon > *:not(svg) {
+    position: relative;
+    z-index: 3;
+}
+
+#img-phai{
+    position: absolute;
+    top: 700px; /* Adjust for placement */
+    right: -200px;
+    width: 250px; /* Adjust size */
+    height: auto;
+    z-index: 2;
+    opacity: 0.2; /* Adjust the opacity of the SVG */
+}
+
+
 
 
 
@@ -101,33 +109,40 @@
 .product-info-container h1 {
     font-size: 32px;
     margin-bottom: 10px;
+    font-family: 'Inter';
 }
 
 .product-category {
     font-size: 18px;
     margin-bottom: 10px;
+    font-family: 'Inter';
 }
 
 .product-price {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
+    font-family: 'Inter';
 }
 
 .product-size {
     margin-bottom: 20px;
+    font-family: 'Inter';
+    font-weight: 700;
 }
 
 .size-options {
     display: flex;
     gap: 10px;
     margin-top: 15px;
+    font-family: 'Inter';
 }
 
 #soluong{
     margin-top: 15px;
     margin-left: 0;
     width: 98%;
+    font-family: 'Inter';
 }
 
 .size-option {
@@ -135,22 +150,27 @@
     border: 1px solid #ccc;
     cursor: pointer;
     background-color: #f8f8f8;
+    font-family: 'Inter';
 }
 
 .size-option.active {
     border-color: #000;
     background-color: #ff7979;
     color: #fff;
+    font-family: 'Inter';
 }
 
 .product-quantity {
     margin-bottom: 20px;
+    font-family: 'Inter';
+    
 }
 
 .quantity-input {
     width: 50px;
     text-align: center;
     margin-left: 10px;
+    font-family: 'Inter';
 }
 
 .add-to-cart-button {
@@ -162,6 +182,7 @@
     font-size: 16px;
     margin-top: 20px;
     transition: opacity 0.3s ease; 
+    font-family: 'Inter';
 }
 
 .add-to-cart-button:hover {
@@ -170,16 +191,34 @@
 }
 
 .product-description-container {
-    margin-bottom: 30px;
+    margin-bottom: 50px;
+    font-family: 'Inter';
 }
 
 .product-description-container h2 {
     font-size: 28px;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    font-family: 'Inter';
+}
+
+.h2-maybe{
+    font-size: 28px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    font-family: 'Inter';
+}
+
+.des-product{
+    font-size: 22px;
+    font-family: 'Inter';
+    color: #000;
+    text-align: justify;
+    font-weight: 300;
 }
 
 .product-rating-container {
-    margin-bottom: 30px;
+    margin-bottom: 50px;
 }
 
 .product-rating {
@@ -262,3 +301,35 @@
     border: 2px solid black; /* Highlight border color */
 }
 
+.review-container {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 100%; /* Optional: Adjust width as needed */
+}
+
+#input-text-review {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 10px; /* Optional: Adjust padding as needed */
+    height: 70px;
+}
+
+.send-button {
+    border: none;
+    background-color: rgb(9, 148, 148);
+    cursor: pointer;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    font-size: 25px;
+}
+
+.send-button i {
+    color: white;
+}

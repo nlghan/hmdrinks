@@ -7,6 +7,8 @@ import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete 
 import "./Menu.css";
 import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
+import { useCart } from '../../context/CartContext';
+
 const Menu = () => {
     const [products, setProducts] = useState([]); // Products state
     const [categories, setCategories] = useState([]); // Categories state
@@ -19,15 +21,15 @@ const Menu = () => {
     const [selectedCategoryId, setSelectedCategoryId] = useState(null); // Track selected category
     const [searchTerm, setSearchTerm] = useState(''); // Search term state
     const navigate = useNavigate();
+    const { addToCart } = useCart(); // Cart context
 
-    // Fetch products and their prices from API
     // Fetch products and their prices and sizes from API
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
                 const url = selectedCategoryId
-                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product`
+                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
                     : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
 
                 const response = await fetch(url);
@@ -45,15 +47,16 @@ const Menu = () => {
                         // Get the price and size from the first variant or set defaults
                         const price = variant?.price || 'N/A';
                         const size = variant?.size || 'N/A'; // Assuming 'size' is available in the variant
+                        const stock = variant?.stock || 0; // Get the stock available
 
-                        return { ...product, price, size };
+                        return { ...product, price, size, stock };
                     } catch (variantError) {
                         console.error(`Error fetching variant for product ${product.proId}:`, variantError);
-                        return { ...product, price: 'N/A', size: 'N/A' }; // Handle error by setting defaults
+                        return { ...product, price: 'N/A', size: 'N/A', stock: 0 }; // Handle error by setting defaults
                     }
                 }));
 
-                setProducts(productsWithDetails); // Set the products with price and size information
+                setProducts(productsWithDetails); // Set the products with price, size, and stock information
                 setTotalPages(data.totalPage); // Set the total number of pages if applicable
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -64,7 +67,6 @@ const Menu = () => {
 
         fetchProducts();
     }, [currentPage, selectedCategoryId]);
-    // Refetch products when the page changes or a category is selected
 
     // Fetch categories from API
     useEffect(() => {
@@ -111,13 +113,36 @@ const Menu = () => {
     // Check if there are any products available for the selected category
     const hasProducts = filteredProducts.length > 0;
 
+    // Handle adding the product to the cart with size and stock
+    const handleAddToCart = (product) => {
+        const quantity = 1; // For simplicity, we're setting quantity to 1 for now
+        const { proId, proName, price, size, stock } = product;
+
+        // If stock is less than quantity, prevent adding to cart
+        if (quantity > stock) {
+            alert(`Số lượng vượt quá hàng tồn kho. Chỉ có sẵn ${stock}.`);
+            return;
+        }
+
+        addToCart({
+            productId: proId,
+            name: proName,
+            price: price,
+            size: size,
+            quantity: quantity,
+            image: product.productImageResponseList.length > 0 ? product.productImageResponseList[0].linkImage : backgroundImage,
+        });
+
+        alert(`${proName} đã được thêm vào giỏ hàng!`);
+    };
+
     const handleProductCardClick = (product) => {
-        navigate(`/product/${product.proId}`, { state: { product } }); // Navigate and pass product data
+        navigate(`/product/${product.proId}`, { state: { product } });
     };
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={"Thực đơn"}/>
             <div
                 style={{
                     position: 'relative', // Position relative for the container
@@ -213,17 +238,24 @@ const Menu = () => {
                             </div>
                             <ul className="menu-product-category">
                                 {currentCategoryPage === 1 && (
-                                    <li onClick={() => handleCategorySelect(null)}>
+                                    <li
+                                        onClick={() => handleCategorySelect(null)}
+                                        className={!selectedCategoryId ? 'active-category' : ''}
+                                    >
                                         ❤️ Tất cả
                                     </li>
                                 )}
-                                {/* Map through displayed categories */}
                                 {displayedCategories.map((category) => (
-                                    <li key={category.cateId} onClick={() => handleCategorySelect(category.cateId)}>
+                                    <li
+                                        key={category.cateId}
+                                        onClick={() => handleCategorySelect(category.cateId)}
+                                        className={selectedCategoryId === category.cateId ? 'active-category' : ''}
+                                    >
                                         ❤️ {category.cateName}
                                     </li>
                                 ))}
                             </ul>
+
                         </div>
                     </div>
                 </div>
@@ -270,18 +302,21 @@ const Menu = () => {
                         {loading ? (
                             <p>Đang tải sản phẩm...</p>
                         ) : hasProducts ? (
-                            filteredProducts.map((product) => (
+                            filteredProducts.map((product, index) => (
                                 <ProductCard
                                     key={product.proId}
                                     product={{
                                         name: product.proName,
                                         size: product.size,
-                                        price: `${product.price} VND`,
+                                        price: `${product.price}`,
                                         image: product.productImageResponseList.length > 0
                                             ? product.productImageResponseList[0].linkImage
                                             : backgroundImage
                                     }}
-                                    onClick={() => handleProductCardClick(product)} // Pass the click handler
+                                    onClick={() => handleProductCardClick(product)} // This will trigger on card click
+                                    onAddToCart={() => handleAddToCart(product)} // This will trigger on "Đặt mua" button click
+                                    className="zoom-in"
+                                    style={{ animationDelay: `${index * 0.1}s` }} // Delay each card's fade-in
                                 />
                             ))
                         ) : (
@@ -289,7 +324,6 @@ const Menu = () => {
                         )}
                     </div>
 
-                    {/* Show pagination only if there are products */}
 
                 </div>
             </div>

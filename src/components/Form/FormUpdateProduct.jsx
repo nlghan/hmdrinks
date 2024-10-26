@@ -106,7 +106,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                     return;
                 }
 
-                const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/variants/${proId}`;
+                const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/variants/${proId}`;
                 const response = await axios.get(apiUrl, {
                     headers: {
                         'Accept': '*/*',
@@ -162,7 +162,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 return;
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/view/${proId}`;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/view/${proId}`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
