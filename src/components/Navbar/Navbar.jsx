@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Navbar.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -10,8 +10,11 @@ const Navbar = ({ currentPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, logout } = useAuth();
-  
-  const [showBreadcrumb, setShowBreadcrumb] = useState(false); // State to manage breadcrumb visibility
+
+  // Hide breadcrumb if on homepage or product detail page
+  const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home');
+  // State to manage box shadow visibility
+  const [showBoxShadow, setShowBoxShadow] = useState(location.pathname === '/home' || location.pathname.startsWith('/product/'));
 
   const handleLogin = () => {
     navigate('/login');
@@ -58,61 +61,74 @@ const Navbar = ({ currentPage }) => {
     navigate('/favorite');
   };
 
-  const handleMouseEnter = () => {
-    setShowBreadcrumb(true); // Show breadcrumb on hover
-  };
+  useEffect(() => {
+    const handleClick = (e) => {
+      createBubble(e);
+    };
 
-  const handleMouseLeave = () => {
-    setShowBreadcrumb(false); // Hide breadcrumb when not hovering
-  };
+    const createBubble = (e) => {
+      const bubble = document.createElement('span');
+      bubble.classList.add('bubble');
+      document.body.appendChild(bubble);
+
+      const x = e.pageX;
+      const y = e.pageY;
+
+      bubble.style.left = `${x}px`;
+      bubble.style.top = `${y}px`;
+
+      setTimeout(() => {
+        bubble.remove(); // Remove the bubble after animation ends
+      }, 1000); // Match the animation duration in CSS
+    };
+
+    // Add event listener to the entire document for click events
+    document.addEventListener('click', handleClick);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []); // Run only once when the component mounts
+
+  // Update breadcrumb and box shadow visibility when route changes
+  useEffect(() => {
+    const isProductDetailPage = location.pathname.startsWith('/product/');
+    setShowBreadcrumb(location.pathname !== '/home' && !isProductDetailPage);
+    setShowBoxShadow(location.pathname === '/home' || isProductDetailPage);
+  }, [location.pathname]);
 
   return (
     <>
-      <div style={{
-        backgroundColor: 'rgb(243, 208, 208)',
-        height: "30px",
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontWeight: 'bold',
-        fontSize: '16px'
-      }}>
-        Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!
-      </div>
-
-      <div 
-        className='navbar' 
-        onMouseEnter={handleMouseEnter} 
-        onMouseLeave={handleMouseLeave} // Apply hover events to the entire navbar
-      >
+      <div className={`navbar ${showBoxShadow ? 'box-shadow' : ''}`}>
         <img src={assets.logo} alt='' className="logo" />
         <ul className="navbar-menu">
-          <li 
-            onClick={() => navigate('/home')} 
+          <li
+            onClick={() => navigate('/home')}
             className={location.pathname === '/home' ? 'active' : ''}
           >
             TRANG CHỦ
           </li>
-          <li 
-            onClick={() => navigate('/about')} 
+          <li
+            onClick={() => navigate('/about')}
             className={location.pathname === '/about' ? 'active' : ''}
           >
             GIỚI THIỆU
           </li>
-          <li 
-            onClick={() => navigate('/menu')} 
+          <li
+            onClick={() => navigate('/menu')}
             className={location.pathname === '/menu' ? 'active' : ''}
           >
             THỰC ĐƠN
           </li>
-          <li 
-            onClick={() => navigate('/news')} 
+          <li
+            onClick={() => navigate('/news')}
             className={location.pathname === '/news' ? 'active' : ''}
           >
             TIN TỨC
           </li>
-          <li 
-            onClick={() => navigate('/contact')} 
+          <li
+            onClick={() => navigate('/contact')}
             className={location.pathname === '/contact' ? 'active' : ''}
           >
             LIÊN HỆ
@@ -135,15 +151,16 @@ const Navbar = ({ currentPage }) => {
         </div>
       </div>
 
-      {/* Conditionally render the breadcrumb based on state */}
-      <div className={`breadcrumb ${showBreadcrumb ? 'show' : ''}`}>
-        <div className="breadcrumb-title">
-          {currentPage}
+      {/* Breadcrumb is hidden on homepage and product detail page */}
+      {showBreadcrumb && (
+        <div className="progress-bar">
+          <div className="progress-navigation">
+            <span className="nav-item">Trang chủ</span>
+            <span className="separator"> &gt; </span>
+            <span className="nav-item">{currentPage}</span>
+          </div>
         </div>
-        <div className="breadcrumb-navigation">
-          {`Trang chủ > ${currentPage}`}
-        </div>
-      </div>
+      )}
     </>
   );
 };

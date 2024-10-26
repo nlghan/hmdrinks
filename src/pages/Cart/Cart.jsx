@@ -61,7 +61,7 @@ const Cart = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={'Giỏ hàng'}/>
             <div className="cart-background-container">
                 <div className="cart-all-container">
                     <h1 className="cart-title">Giỏ hàng</h1>

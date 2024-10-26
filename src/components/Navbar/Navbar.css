@@ -9,8 +9,12 @@
     padding: 0 50px 0 102px;
     justify-content: space-between;
     align-items: center;
-    background: #FFF;
-    
+    background-color: white;
+    /* background: linear-gradient(to top,white, rgb(254, 235, 235)); */
+}
+
+.box-shadow {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
 }
 
 .logo {
@@ -98,38 +102,91 @@
 }
 
 
-
 .breadcrumb {
-    position: absolute; /* Position it above other elements */
-    top: 70px; /* Adjust based on your navbar height */
-    left: 0;
-    right: 0;
-    background-color: rgba(255, 226, 226, 0.9); /* Background color with slight transparency */
+    
+    background-color:  rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
     padding: 15px; /* Padding for the breadcrumb */
-    border-radius: 5px; /* Rounded corners */
-    opacity: 0; /* Start hidden */
-    transform: translateY(40px); /* Slightly move up */
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition for opacity and position */
-    pointer-events: none; /* Prevent interaction when hidden */
-    z-index: 1000; /* Ensure it appears above other elements */
     display: flex; /* Use flexbox for layout */
-    justify-content: space-between; /* Space between title and navigation */
-    align-items: center; /* Center vertically */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 80px;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50% ;
 }
 
 .breadcrumb.show {
-    opacity: 1; /* Fully visible */
-    transform: translateY(40); /* Move back to original position */
+    /* The show class can be removed or modified as needed since it is always visible now */
+    /* If you still want to keep it, you can keep the transition effects */
 }
+
 
 .breadcrumb-title {
     font-weight: bold; /* Bold title */
     font-size: 24px; /* Font size for the title */
     flex: 1; /* Allow title to take up available space */
+    text-align: center; /* Center text for title */
 }
 
 .breadcrumb-navigation {
     color: #555; /* Darker color for navigation */
     font-size: 20px; /* Font size for navigation */
-    margin-left: 10px; /* Add some space between title and navigation */
+    margin-top: 5px; /* Add space between title and navigation */
 }
+
+.bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(173, 216, 230, 0.7); /* Light blue */
+    border-radius: 50%;
+    pointer-events: none; /* Prevent interaction */
+    animation: bubble-animation 1s ease-out forwards;
+    z-index: 9999; /* Ensure the bubble appears above other content */
+  }
+  
+  @keyframes bubble-animation {
+    0% {
+      transform: scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+.progress-bar {
+   
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 30px;
+    /* border-bottom-left-radius: 10%;
+    border-bottom-right-radius: 10%; */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
+}
+
+
+.progress-navigation {
+    display: flex; /* Use flexbox for navigation layout */
+    align-items: center; /* Center items vertically */
+    font-size: 20px; /* Font size for navigation */
+    width: 100%; /* Ensure it takes full width */
+    padding-left: 42%;
+}
+
+.nav-item {
+    margin: 0 20px; /* Space around the items */
+    color: rgb(43, 118, 118);
+    font-weight: bold; /* Bold text for navigation items */
+}
+
+.separator {
+    margin: 0 10px; /* Space around the separator */
+    color: #555; /* Color for the separator */
+}
+
+

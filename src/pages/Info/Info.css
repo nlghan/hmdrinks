@@ -6,11 +6,28 @@
     padding: 0;
     box-sizing: border-box; /* Sử dụng border-box cho toàn bộ phần tử */
 }
-.body-info{
-    background: linear-gradient(to right, #fce5e5, #fffacd);
-    padding: 5px;
-
+.body-info {
+    position: relative;
+    padding: 15px; /* Padding for the content */
+    background-color: rgba(252, 238, 238, 0.9); /* Optional: Solid color background if needed */
+    z-index: 1; /* Ensure content is on top */
 }
+
+.body-info::after {
+    content: "";
+    background-image: url('../../assets/img/bg.png'); /* Path to your image */
+    background-size: cover; /* Ensure the image covers the entire background */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    opacity: 0.6; /* Adjust transparency of the background image */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1; /* Send the background behind the content */
+}
+
 
 .container {
     background-color: #fff;

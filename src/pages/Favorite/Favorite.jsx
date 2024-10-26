@@ -3,7 +3,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import ProductCard from '../../components/Card/ProductCard';
 import './Favorite.css';
-import backgroundImage from '../../assets/img/5.jpg'; // Use the same background image
+import backgroundImage from '../../assets/img/2.jpg'; // Use the same background image
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
@@ -72,7 +72,7 @@ const Favorite = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={'Yêu thích'} />
             <div
                 style={{
                     position: 'relative',
@@ -90,59 +90,14 @@ const Favorite = () => {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        opacity: 0.25,
+                        opacity: 0.5,
                         zIndex: -1,
                     }}
                 ></div>
 
-                {/* Favorite products content */}
-                <div className="container-favorite">
-                    <div className="overlay-favorite">
-                        <div className='menu-category'>
-                            <h2 className='menu-product-h2'>DANH MỤC YÊU THÍCH</h2>
-                            <ul className="menu-product-category">
-                                <li
-                                    onClick={() => handleCategorySelect(null)}
-                                    className={!selectedCategoryId ? 'active-category' : ''}
-                                >
-                                    ❤️ Tất cả
-                                </li>
-                                {categories.map((category) => (
-                                    <li
-                                        key={category.cateId}
-                                        onClick={() => handleCategorySelect(category.cateId)}
-                                        className={selectedCategoryId === category.cateId ? 'active-category' : ''}
-                                    >
-                                        ❤️ {category.cateName}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
+                
 
-                    <h2 className='favorite-title'>Sản Phẩm Yêu Thích</h2>
-                    <div className="favorite-products">
-                        {filteredProducts.length > 0 ? (
-                            filteredProducts.map((product, index) => (
-                                <ProductCard
-                                    key={product.proId}
-                                    product={{
-                                        name: product.name,
-                                        size: product.size,
-                                        price: product.price,
-                                        image: product.image || backgroundImage,
-                                    }}
-                                    onClick={() => handleProductCardClick(product)} // Handle card click
-                                    onAddToCart={() => handleAddToCart(product)} // Handle "Đặt mua" click
-                                    className="zoom-in"
-                                    style={{ animationDelay: `${index * 0.1}s` }} // Delay for animation
-                                />
-                            ))
-                        ) : (
-                            <p>Không có sản phẩm yêu thích nào trong danh mục này.</p>
-                        )}
-                    </div>
-                </div>
+                
             </div>
             <Footer />
         </>
