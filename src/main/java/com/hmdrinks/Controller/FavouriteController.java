@@ -35,16 +35,16 @@ public class FavouriteController {
     }
 
     @GetMapping(value = "/list-favItem/{id}")
-    public ResponseEntity<ListItemFavouriteResponse> listAllFavouriteItem(
+    public ResponseEntity<?> listAllFavouriteItem(
             @PathVariable Integer id
 
     ) {
-        return ResponseEntity.ok(favouriteService.getAllItemFavourite(id));
+        return favouriteService.getAllItemFavourite(id);
     }
 
     @DeleteMapping(value = "/delete-allItem/{id}")
-    public ResponseEntity<DeleteFavouriteItemResponse> deleteAllItem(@RequestBody DeleteAllFavouriteItemReq req, HttpServletRequest httpRequest){
+    public ResponseEntity<?> deleteAllItem(@RequestBody DeleteAllFavouriteItemReq req, HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(favouriteItemService.deleteAllFavouriteItem(req));
+        return favouriteItemService.deleteAllFavouriteItem(req);
     }
 }

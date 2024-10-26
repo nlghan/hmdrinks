@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -28,12 +30,12 @@ public class CategoryService {
     @Autowired
     private ProductRepository productRepository;
 
-    public CRUDCategoryResponse crateCategory(CreateCategoryRequest req)
+    public ResponseEntity<?> crateCategory(CreateCategoryRequest req)
     {
         Category category = categoryRepository.findByCateName(req.getCateName());
         if(category != null)
         {
-            throw new BadRequestException("cateName exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("cateName exists");
         }
         LocalDateTime now = LocalDateTime.now();
         Category cate = new Category();
@@ -43,7 +45,7 @@ public class CategoryService {
         cate.setDateCreated(LocalDate.from(now));
 
         categoryRepository.save(cate);
-        return new CRUDCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
                 cate.getCateId(),
                 cate.getCateName(),
                 cate.getCateImg(),
@@ -51,17 +53,17 @@ public class CategoryService {
                 cate.getDateCreated(),
                 cate.getDateUpdated(),
                 cate.getDateDeleted()
-        );
+        ));
     }
 
-    public CRUDCategoryResponse getOneCategory(Integer id)
+    public ResponseEntity<?> getOneCategory(Integer id)
     {
         Category category = categoryRepository.findByCateId(id);
         if(category == null)
         {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
         }
-        return new CRUDCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
                 category.getCateId(),
                 category.getCateName(),
                 category.getCateImg(),
@@ -69,27 +71,27 @@ public class CategoryService {
                 category.getDateCreated(),
                 category.getDateUpdated(),
                 category.getDateDeleted()
-        );
+        ));
     }
 
-    public CRUDCategoryResponse updateCategory(CRUDCategoryRequest req)
+    public ResponseEntity<?> updateCategory(CRUDCategoryRequest req)
     {
         Category category = categoryRepository.findByCateId(req.getCateId());
         if(category == null)
         {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
         }
         Category category1 = categoryRepository.findByCateNameAndCateIdNot(req.getCateName(),req.getCateId());
         if(category1 != null)
         {
-            throw new BadRequestException("cateName exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("category already exists");
         }
         LocalDateTime currentDateTime = LocalDateTime.now();
         category.setCateName(category.getCateName());
         category.setCateImg(category.getCateImg());
         category.setDateUpdated(LocalDate.from(currentDateTime));
         categoryRepository.save(category);
-        return new CRUDCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
                 req.getCateId(),
                 req.getCateName(),
                 req.getCateImg(),
@@ -97,7 +99,7 @@ public class CategoryService {
                 category.getDateCreated(),
                 category.getDateUpdated(),
                 category.getDateDeleted()
-        );
+        ));
     }
 
     public ListCategoryResponse listCategory(String pageFromParam, String limitFromParam)
@@ -122,7 +124,7 @@ public class CategoryService {
         return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
     }
 
-    public GetViewProductCategoryResponse getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
+    public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -131,7 +133,7 @@ public class CategoryService {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(id);
         if(category == null)
         {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
         }
         Page<Product> productList = productRepository.findByCategory_CateIdAndIsDeletedFalse(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
@@ -164,12 +166,12 @@ public class CategoryService {
             ));
         }
 
-        return new GetViewProductCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body( new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
                 crudProductResponseList
-        );
+        ));
 
     }
 

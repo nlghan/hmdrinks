@@ -11,6 +11,8 @@ import com.hmdrinks.Response.CRUDVoucherResponse;
 import com.hmdrinks.Response.ListAllVoucherResponse;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,35 +27,36 @@ public class VoucherService {
     @Autowired
     private PostRepository postRepository;
 
-    public CRUDVoucherResponse createVoucher(CreateVoucherReq req) {
+    public ResponseEntity<?> createVoucher(CreateVoucherReq req) {
         Post post = postRepository.findByPostId(req.getPostId());
         if (post == null) {
-            throw new BadRequestException("Not found post");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Post not found");
         }
 
         Voucher existingVoucher = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
         if (existingVoucher != null) {
-            throw new BadRequestException("Voucher Post already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Voucher Post already exists");
         }
 
-        LocalDateTime createPostDate = post.getDateCreate(); // Assuming post creation date is LocalDateTime
-        LocalDateTime currentDate = LocalDateTime.now(); // Get current date and time
+        LocalDateTime createPostDate = post.getDateCreate();
+        LocalDateTime currentDate = LocalDateTime.now();
 
-        // Check start date
         if (req.getStartDate().isBefore(currentDate)) {
-            throw new BadRequestException("Start date must be greater than or equal to the current date");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Start date must be greater than or equal to the current date");
         }
-
-        // Check end date
         if (req.getEndDate().isBefore(createPostDate) || req.getEndDate().isBefore(currentDate)) {
-            throw new BadRequestException("End date must be greater than or equal to post creation date and current date");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("End date must be greater than or equal to post creation date and current date");
         }
 
         if (req.getStartDate().isBefore(createPostDate)) {
-            throw new BadRequestException("Start date must be greater than or equal to post creation date");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Start date must be greater than or equal to post creation date");
         }
 
-        // Create new voucher and set fields
         Voucher voucher = new Voucher();
         voucher.setPost(post);
         voucher.setStartDate(req.getStartDate());
@@ -63,8 +66,7 @@ public class VoucherService {
         voucher.setDiscount(req.getDiscount());
         voucher.setStatus(Status_Voucher.ACTIVE);
         voucherRepository.save(voucher);
-
-        return new CRUDVoucherResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
                 voucher.getKey(),
                 voucher.getStartDate(),
@@ -72,34 +74,40 @@ public class VoucherService {
                 voucher.getDiscount(),
                 voucher.getStatus(),
                 voucher.getPost().getPostId()
-        );
+        ));
     }
 
-    public CRUDVoucherResponse updateVoucher(CrudVoucherReq req){
+    public ResponseEntity<?> updateVoucher(CrudVoucherReq req){
         Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(req.getVoucherId());
         if(voucher == null){
-            throw new BadRequestException("Not found voucher");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Voucher not found");
         }
         if(voucher.getPost().getPostId() == req.getVoucherId())
         {
             Post post = postRepository.findByPostId(voucher.getPost().getPostId());
             if(post == null){
-                throw new BadRequestException("Not found post");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Post not found");
             }
             LocalDateTime createPost = post.getDateCreate();
             LocalDateTime currentDate = LocalDateTime.now();
 
             if (req.getStartDate().isBefore(currentDate)) {
-                throw new BadRequestException("Start date must be greater than or equal to current date");
+                return ResponseEntity.status(HttpStatus.valueOf(400))
+                        .body("Start date must be greater than or equal to current date");
             }
             if (req.getEndDate().isBefore(createPost) || req.getEndDate().isBefore(currentDate)) {
-                throw new BadRequestException("End date must be greater than start date and current date");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("End date must be greater than start date and current date");
             }
             if (req.getStartDate().isBefore(createPost)) {
-                throw new BadRequestException("Start date must be greater than or equal to post creation date");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Start date must be greater than or equal to post creation date");
             }
             if(req.getEndDate().isBefore(createPost)){
-                throw new BadRequestException("End date must be greater than or equal to post creation date");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("End date must be greater than or equal to post creation date");
             }
             voucher.setPost(post);
             voucher.setStartDate(req.getStartDate());
@@ -107,7 +115,7 @@ public class VoucherService {
             voucher.setDiscount(req.getDiscount());
             voucher.setKey(req.getKey());
             voucherRepository.save(voucher);
-            return new CRUDVoucherResponse(
+            return  ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
                     voucher.getKey(),
                     voucher.getStartDate(),
@@ -115,7 +123,7 @@ public class VoucherService {
                     voucher.getDiscount(),
                     voucher.getStatus(),
                     voucher.getPost().getPostId()
-            );
+            ));
         }
         else
         {
@@ -130,40 +138,40 @@ public class VoucherService {
             LocalDateTime createPost = post.getDateCreate();
             LocalDateTime currentDate = LocalDateTime.now();
             if (req.getStartDate().isBefore(currentDate)) {
-                throw new BadRequestException("Start date must be greater than or equal to current date");
+                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be greater than or equal to current date");
             }
             if (req.getEndDate().isBefore(createPost) || req.getEndDate().isBefore(currentDate)) {
-                throw new BadRequestException("End date must be greater than start date and current date");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than start date and current date");
             }
             if (req.getStartDate().isBefore(createPost)) {
-                throw new BadRequestException("Start date must be greater than or equal to post creation date");
+                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be greater than or equal to post creation date");
             }
             if(req.getEndDate().isBefore(createPost)){
-                throw new BadRequestException("End date must be greater than or equal to post creation date");
+                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than post creation date");
             }
             voucher.setPost(post);
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
             voucherRepository.save(voucher);
-            return new CRUDVoucherResponse(
+            return  ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
-                    vou.getKey(),
+                    voucher.getKey(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
                     voucher.getStatus(),
                     voucher.getPost().getPostId()
-            );
+            ));
         }
     }
 
-    public CRUDVoucherResponse getVoucherById(int voucherId){
+    public ResponseEntity<?> getVoucherById(int voucherId){
         Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(voucherId);
         if(voucher == null){
-            throw new BadRequestException("Not found voucher");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
         }
-        return new CRUDVoucherResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
                 voucher.getKey(),
                 voucher.getStartDate(),
@@ -171,9 +179,9 @@ public class VoucherService {
                 voucher.getDiscount(),
                 voucher.getStatus(),
                 voucher.getPost().getPostId()
-        );
+        ));
     }
-    public ListAllVoucherResponse listAllVoucher()
+    public ResponseEntity<?> listAllVoucher()
     {
         List<Voucher> voucherList = voucherRepository.findAll();
         List<CRUDVoucherResponse> crudVoucherResponses = new ArrayList<>();
@@ -188,6 +196,6 @@ public class VoucherService {
                     voucher.getPost().getPostId()
             ));
         }
-        return  new ListAllVoucherResponse(crudVoucherResponses);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(crudVoucherResponses));
     }
 }

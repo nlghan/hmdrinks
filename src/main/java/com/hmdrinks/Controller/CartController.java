@@ -33,27 +33,27 @@ public class CartController {
     private JwtService jwtService;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CreateNewCartResponse> createCart(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
+    public ResponseEntity<?> createCart(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartService.createCart(req));
+        return cartService.createCart(req);
     }
 
     @GetMapping(value = "/list-cartItem/{id}")
-    public ResponseEntity<ListItemCartResponse> listAllCartItem(
+    public ResponseEntity<?> listAllCartItem(
             @PathVariable Integer id
 
     ) {
-        return ResponseEntity.ok(cartService.getAllItemCart(id));
+        return cartService.getAllItemCart(id);
     }
 
     @DeleteMapping(value = "/delete-allItem/{id}")
-    public ResponseEntity<DeleteCartItemResponse> deleteAllItem(@RequestBody DeleteAllCartItemReq req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> deleteAllItem(@RequestBody DeleteAllCartItemReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartItemService.deleteAllCartItem(req));
+        return cartItemService.deleteAllCartItem(req);
     }
 
     @GetMapping("/list-cart/{userId}")
-    public  ResponseEntity<ListAllCartUserResponse> getAllCartUser(@PathVariable Integer userId){
+    public  ResponseEntity<?> getAllCartUser(@PathVariable Integer userId){
         return ResponseEntity.ok(cartService.getAllCartFromUser(userId));
     }
 }

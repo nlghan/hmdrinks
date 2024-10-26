@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -35,10 +37,10 @@ public class ContactService {
     @Autowired
     private JavaMailSender javaMailSender1;
 
-    public CRUDContactResponse createContact(CreateContactReq req) {
+    public ResponseEntity<?> createContact(CreateContactReq req) {
         User user = userRepository.findByUserId(req.getUserId());
         if (user == null) {
-            throw new BadRequestException("Not found User");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         Contact contact = new Contact();
         contact.setDescription(req.getDescription());
@@ -65,7 +67,7 @@ public class ContactService {
             javaMailSender1.send(message);
         }
 
-        return new CRUDContactResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDContactResponse(
                 contact.getContactId(),
                 contact.getUser().getUserId(),
                 contact.getDescription(),
@@ -74,20 +76,20 @@ public class ContactService {
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
                 contact.getDateDeleted()
-        );
+        ));
     }
 
-    public CRUDContactResponse updateContact(CrudContactReq req){
+    public ResponseEntity<?> updateContact(CrudContactReq req){
         Contact contact = contactRepository.findByContactIdAndUserUserId(req.getContactId(), req.getUserId());
         if (contact == null) {
-            throw new BadRequestException("Not found Contact");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
         contact.setDescription(req.getDescription());
         contact.setUser(contact.getUser());
         contact.setUpdateDate(LocalDateTime.now());
         contactRepository.save(contact);
 
-        return new CRUDContactResponse(
+        return ResponseEntity.status(HttpStatus.OK).body( new CRUDContactResponse(
                 contact.getContactId(),
                 contact.getUser().getUserId(),
                 contact.getDescription(),
@@ -96,15 +98,15 @@ public class ContactService {
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
                 contact.getDateDeleted()
-        );
+        ));
     }
 
-    public CRUDContactResponse getContactById(int contactId){
+    public ResponseEntity<?> getContactById(int contactId){
         Contact contact = contactRepository.findByContactId(contactId);
         if (contact == null) {
-            throw new BadRequestException("Not found Contact");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
-        return new CRUDContactResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDContactResponse(
                 contact.getContactId(),
                 contact.getUser().getUserId(),
                 contact.getDescription(),
@@ -113,7 +115,7 @@ public class ContactService {
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
                 contact.getDateDeleted()
-        );
+        ));
     }
 
     public String deleteContact(int contactId){
@@ -129,10 +131,10 @@ public class ContactService {
 
 
 
-    public String responseContact(AcceptContactReq req){
+    public ResponseEntity<?> responseContact(AcceptContactReq req){
         Contact contact = contactRepository.findByContactId(req.getContactId());
         if (contact == null) {
-            throw new BadRequestException("Not found Contact");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
         User user = userRepository.findByUserId(contact.getUser().getUserId());
         String to = user.getEmail();
@@ -154,7 +156,7 @@ public class ContactService {
         contact.setUpdateDate(LocalDateTime.now());
         contact.setStatus(Status_Contact.COMPLETED);
         contactRepository.save(contact);
-        return "Response success";
+        return ResponseEntity.status(HttpStatus.OK).body("Response success");
     }
 
     public ListAllContactResponse listAllContact(String pageFromParam, String limitFromParam)

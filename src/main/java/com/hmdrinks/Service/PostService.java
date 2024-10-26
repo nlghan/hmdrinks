@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,14 +30,14 @@ public class PostService {
     @Autowired
     private UserRepository userRepository;
 
-    public CRUDPostResponse createPost(CreateNewPostReq req) {
+    public ResponseEntity<?> createPost(CreateNewPostReq req) {
        User user = userRepository.findByUserId(req.getUserId());
        if(user == null) {
-           throw new RuntimeException("Not found user");
+           return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
        }
        if(user.getRole() != Role.ADMIN)
        {
-           throw new RuntimeException("Not allowed to add post");
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not allowed to create a post");
        }
        LocalDateTime currentDate = LocalDateTime.now();
        Post post = new Post();
@@ -47,7 +49,7 @@ public class PostService {
        post.setIsDeleted(false);
        post.setDateCreate(currentDate);
        postRepository.save(post);
-       return new CRUDPostResponse(
+       return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                post.getPostId(),
                post.getBannerUrl(),
                post.getDescription(),
@@ -57,14 +59,14 @@ public class PostService {
                post.getIsDeleted(),
                post.getDateDeleted(),
                post.getDateCreate()
-       );
+       ));
     }
-    public CRUDPostResponse getPostById(int postId) {
+    public ResponseEntity<?> getPostById(int postId) {
         Post post= postRepository.findByPostId(postId);
         if(post == null) {
-            throw new RuntimeException("Not found post");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found post");
         }
-        return new CRUDPostResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                 post.getPostId(),
                 post.getBannerUrl(),
                 post.getDescription(),
@@ -74,28 +76,28 @@ public class PostService {
                 post.getIsDeleted(),
                 post.getDateDeleted(),
                 post.getDateCreate()
-        );
+        ));
     }
 
-    public CRUDPostResponse updatePost(CRUDPostReq req) {
+    public ResponseEntity<?> updatePost(CRUDPostReq req) {
         Post post = postRepository.findByPostId(req.getPostId());
         if(post == null) {
-            throw new RuntimeException("Not found post");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found post");
         }
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null) {
-            throw new RuntimeException("Not found user");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
         if(user.getRole() != Role.ADMIN)
         {
-            throw new RuntimeException("Not allowed to add post");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not allowed to update a post");
         }
         post.setTitle(req.getTitle());
         post.setDescription(req.getDescription());
         post.setShortDes(req.getShortDescription());
         post.setBannerUrl(req.getUrl());
         postRepository.save(post);
-        return new CRUDPostResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                 post.getPostId(),
                 post.getBannerUrl(),
                 post.getDescription(),
@@ -105,7 +107,7 @@ public class PostService {
                 post.getIsDeleted(),
                 post.getDateDeleted(),
                 post.getDateCreate()
-        );
+        ));
     }
 
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
@@ -136,10 +138,10 @@ public class PostService {
         );
     }
 
-    public ListAllPostByUserIdResponse listAllPostByUserId(int userId) {
+    public ResponseEntity<?> listAllPostByUserId(int userId) {
         User user = userRepository.findByUserId(userId);
         if(user == null) {
-            throw new RuntimeException("Not found user");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
         List<Post> posts = postRepository.findByUserUserId(userId);
         List<CRUDPostResponse> responses = new ArrayList<>();
@@ -156,6 +158,6 @@ public class PostService {
                     post.getDateCreate()
             ));
         }
-        return new ListAllPostByUserIdResponse(userId, responses);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPostByUserIdResponse(userId, responses));
     }
 }
