@@ -519,7 +519,7 @@ input:checked + .slider:before {
     top: 40px;
     left: 50px;    
 }
-.user-pagination {
+.user-admin-pagination {
   display: flex;
     align-items: center;
     justify-content: center;
@@ -533,7 +533,7 @@ input:checked + .slider:before {
     
 }
 
-.user-pagination .btn {
+.user-admin-pagination .btn {
   padding: 10px 15px; /* Padding cho nút */
   border: none; /* Bỏ viền */
   border-radius: 5px; /* Bo góc */
@@ -544,31 +544,31 @@ input:checked + .slider:before {
   margin:5px
 }
 
-.user-pagination .btn:hover:not(:disabled) {
+.user-admin-pagination .btn:hover:not(:disabled) {
   background-color: #7397b8; /* Màu nền khi hover */
 }
 
-.user-pagination .btn:disabled {
+.user-admin-pagination .btn:disabled {
   
   cursor: not-allowed; /* Con trỏ không hợp lệ */
 }
 
-.user-pagination .btn-page {
+.user-admin-pagination .btn-page {
   background-color: #33a1b4; /* Màu nền cho nút trang hiện tại */
   margin:5px
 }
 
-.user-pagination .btn-page:hover {
+.user-admin-pagination .btn-page:hover {
   background-color: #5a6268; /* Màu nền khi hover cho nút trang hiện tại */
 }
 
-.user-pagination .btn-light {
+.user-admin-pagination .btn-light {
   background-color: #f8f9fa; /* Màu nền cho nút trang khác */
   color: #000; /* Màu chữ cho nút trang khác */
   margin: 5px;
 }
 
-.user-pagination .btn-light:hover {
+.user-admin-pagination .btn-light:hover {
   background-color: #e2e6ea; /* Màu nền khi hover cho nút trang khác */
 }
 .btn-pre, .btn-next {

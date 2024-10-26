@@ -14,11 +14,15 @@ import SendMail from "./pages/Password/SendMail";
 import Category from "./pages/Admin/Category";
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
+
+import Post from './pages/Admin/Post';
+import PostVoucher from './pages/Post/PostVoucher';
 import ProductDetail from "./pages/Menu/ProductDetail"; 
 import { useAuth } from './context/AuthProvider'; 
 import { CartProvider } from "./context/CartContext";
 import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
+
 const App = () => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
@@ -44,7 +48,9 @@ const App = () => {
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/favorite" element={<Favorite />} />
+          <Route path="/marketing/:postId" element={<PostVoucher/>}
           <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/post" element={<Post />} />
         </Routes>
       </div>
     </CartProvider>

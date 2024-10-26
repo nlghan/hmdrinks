@@ -1,0 +1,366 @@
+.post-container {
+  flex-direction: row;
+  width: 100%;
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+}
+.header-post-container {
+  position: relative;
+  top: 20px;
+  left: 22px;
+}
+
+.post-voucher-table {
+  display: flex;
+   /* Sử dụng Flexbox để tạo bố cục ngang */
+  justify-content: space-between;
+}
+.post-table {
+  margin: 10px 15px;
+  width: 100%;
+  display: flex;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex-direction: column; /* Đặt chiều dọc để các phần tử xếp chồng lên nhau */
+  align-items: center;
+
+}
+.voucher-table {
+  max-height: 300px; /* Giới hạn độ cao tối đa của bảng */
+  margin: 10px;
+  width: 40%;
+  overflow: hidden; /* Ẩn phần tràn ra ngoài */
+}
+
+.voucher-table table {
+  width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng của phần chứa */
+  border-collapse: collapse; /* Gộp viền của các ô lại với nhau */
+}
+
+.voucher-table thead {
+  display: table; /* Đảm bảo phần thead có thể hiển thị như bảng */
+  width: 100%; /* Đảm bảo chiều rộng của thead bằng với bảng */
+  table-layout: fixed; /* Để chiều rộng của các cột cố định */
+}
+
+.voucher-table-body {
+  display: block; /* Để tbody có thể cuộn */
+  max-height: 100px; /* Giới hạn độ cao tối đa cho tbody */
+  overflow-y: auto; /* Thêm thanh cuộn dọc khi dữ liệu vượt quá độ cao */
+}
+
+.voucher-table-body tr {
+  display: table; /* Để mỗi hàng trong tbody hiển thị như một hàng bảng */
+  table-layout: fixed; /* Để chiều rộng của các cột cố định */
+  width: 100%; /* Đảm bảo hàng chiếm toàn bộ chiều rộng */
+}
+
+.voucher-table th, .voucher-table td {
+  padding: 10px; /* Thêm khoảng cách bên trong ô */
+  text-align: left; /* Căn trái cho nội dung ô */
+  border-bottom: 1px solid #ccc; /* Thêm viền dưới cho các ô */
+}
+
+.user-voucher-table {
+  max-height: 300px; /* Giới hạn độ cao tối đa của bảng */
+  margin: 10px;
+  width: 40%;
+  overflow: hidden; /* Ẩn phần tràn ra ngoài */
+}
+
+.user-voucher-table table {
+  width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng của phần chứa */
+  border-collapse: collapse; /* Gộp viền của các ô lại với nhau */
+}
+
+.user-voucher-table thead {
+  display: table; /* Đảm bảo phần thead có thể hiển thị như bảng */
+  width: 100%; /* Đảm bảo chiều rộng của thead bằng với bảng */
+  table-layout: fixed; /* Để chiều rộng của các cột cố định */
+}
+
+.user-voucher-table-body {
+  display: block; /* Để tbody có thể cuộn */
+  max-height: 100px; /* Giới hạn độ cao tối đa cho tbody */
+  overflow-y: auto; /* Thêm thanh cuộn dọc khi dữ liệu vượt quá độ cao */
+}
+
+.user-voucher-table-body tr {
+  display: table; /* Để mỗi hàng trong tbody hiển thị như một hàng bảng */
+  table-layout: fixed; /* Để chiều rộng của các cột cố định */
+  width: 100%; /* Đảm bảo hàng chiếm toàn bộ chiều rộng */
+}
+
+.user-voucher-table th, .user-voucher-table td {
+  padding: 10px; /* Thêm khoảng cách bên trong ô */
+  text-align: left; /* Căn trái cho nội dung ô */
+  border-bottom: 1px solid #ccc; /* Thêm viền dưới cho các ô */
+}
+.post-content {
+  margin-left: 20px;
+  width: 100%;
+  margin-top: 60px;
+}
+.header-post-table {  
+  position:absolute;
+  display: flex;
+  justify-content:space-between; 
+  align-items: center;   
+  flex-direction:row-reverse;
+  width: 58%;  
+  top: 110px;
+  left: 20px;
+}
+.header-post-table input{  
+  width: 30%;
+}
+.header-post-table h2{
+  position:absolute;
+  left: 10px;
+  margin-right: 30px;
+}
+.search-post-admin-input {
+ position: relative;
+ left: -130px;
+}
+.post-table-add-btn {
+  position: absolute;
+  right: 0; /* Căn về cuối dòng */
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #ffffff;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+.admin-post-button-container {
+  display: flex; /* Sử dụng Flexbox để bố trí các nút */
+  justify-content: space-between; /* Căn giữa các nút với khoảng cách đều */
+  margin-left: -80px;
+}
+
+.admin-post-button-container button {
+  flex: 1; /* Tất cả các nút sẽ có cùng kích thước */
+  width: 25px;
+  margin: 0 5px; /* Thêm khoảng cách giữa các nút */
+  border: none; /* Loại bỏ viền mặc định */
+  border-radius: 5px; /* Tạo bo góc cho nút */
+  cursor: pointer; /* Thay đổi con trỏ khi di chuột qua nút */
+  transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+  text-align: center;
+  background: white;
+}
+
+#admin-post-update-btn1 {
+  cursor: pointer;
+  font-size: 20px;
+  color: blue;
+}
+
+#admin-post-update-btn1:hover {
+  transform: scale(1.1);
+}
+
+#admin-post-update-btn2 {
+  cursor: pointer;
+  font-size: 20px; 
+  color: red
+}
+
+#admin-post-update-btn2:hover {
+  transform: scale(1.01);
+}
+
+#admin-post-update-btn3 {
+  cursor: pointer;
+  font-size: 20px; 
+  color:#545119
+}
+#admin-post-update-btn3:hover {
+  transform: scale(1.1);
+}
+
+.post-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 15%; /* Chiếm toàn bộ chiều rộng của bảng */
+  flex-direction: row;
+  
+}
+
+.post-pagination .btn {
+  padding: 10px 15px;
+  /* Padding cho nút */
+  border: none;
+  /* Bỏ viền */
+  border-radius: 5px;
+  /* Bo góc */
+  cursor: pointer;
+  /* Con trỏ chuột khi hover */
+  background-color: #ed8ca1;
+  /* Màu nền */
+  color: #ffffff;
+  /* Màu chữ */
+  transition: background-color 0.3s;
+  /* Hiệu ứng chuyển màu nền */
+  margin: 5px
+}
+
+.post-pagination .btn:hover:not(:disabled) {
+  background-color: #7397b8;
+  /* Màu nền khi hover */
+}
+
+.post-pagination .btn:disabled {
+
+  cursor: not-allowed;
+  /* Con trỏ không hợp lệ */
+}
+
+.post-pagination .btn-page {
+  background-color: #33a1b4;
+  /* Màu nền cho nút trang hiện tại */
+  margin: 5px
+}
+
+.post-pagination .btn-page:hover {
+  background-color: #5a6268;
+  /* Màu nền khi hover cho nút trang hiện tại */
+}
+
+.post-pagination .btn-light {
+  background-color: #f8f9fa;
+  /* Màu nền cho nút trang khác */
+  color: #000;
+  /* Màu chữ cho nút trang khác */
+  margin: 5px;
+}
+
+.post-pagination .btn-light:hover {
+  background-color: #e2e6ea;
+  /* Màu nền khi hover cho nút trang khác */
+}
+
+.btn-pre,
+.btn-next {
+  font-weight: bold;
+}
+
+.post-tab-navigation {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.post-tab-btn {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f1f1f1;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.post-tab-btn:hover {
+  background-color: #ddd;
+}
+
+.post-tab-btn.active {
+  background-color: #007bff;
+  color: white;
+}
+
+
+.voucher-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 15%;
+  flex-direction: row;
+  margin-left: 45%;
+  position: fixed;
+  bottom: 20px;
+  position: absolute;
+
+}
+
+.voucher-pagination .btn {
+  padding: 10px 15px;
+  /* Padding cho nút */
+  border: none;
+  /* Bỏ viền */
+  border-radius: 5px;
+  /* Bo góc */
+  cursor: pointer;
+  /* Con trỏ chuột khi hover */
+  background-color: #ed8ca1;
+  /* Màu nền */
+  color: #ffffff;
+  /* Màu chữ */
+  transition: background-color 0.3s;
+  /* Hiệu ứng chuyển màu nền */
+  margin: 5px
+}
+
+.voucher-pagination .btn:hover:not(:disabled) {
+  background-color: #7397b8;
+  /* Màu nền khi hover */
+}
+
+.voucher-pagination .btn:disabled {
+
+  cursor: not-allowed;
+  /* Con trỏ không hợp lệ */
+}
+
+.voucher-pagination .btn-page {
+  background-color: #33a1b4;
+  /* Màu nền cho nút trang hiện tại */
+  margin: 5px
+}
+
+.voucher-pagination .btn-page:hover {
+  background-color: #5a6268;
+  /* Màu nền khi hover cho nút trang hiện tại */
+}
+
+.voucher-pagination .btn-light {
+  background-color: #f8f9fa;
+  /* Màu nền cho nút trang khác */
+  color: #000;
+  /* Màu chữ cho nút trang khác */
+  margin: 5px;
+}
+
+.voucher-pagination .btn-light:hover {
+  background-color: #e2e6ea;
+  /* Màu nền khi hover cho nút trang khác */
+}

@@ -1,0 +1,151 @@
+.form-details-post-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Nền tối với độ trong suốt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-details-post-container {
+    width: 800px; /* Độ rộng tối đa của khung bài đăng */
+    margin: 20px auto; /* Căn giữa khung bài đăng */
+    padding: 20px;
+    border: 1px solid #ddd; /* Đường viền xung quanh khung */
+    border-radius: 8px; /* Bo góc khung */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    background-color: #fff; /* Màu nền trắng */
+  
+}
+
+.form-details-post-header {
+    display: flex;
+    justify-content: space-between; /* Căn giữa tiêu đề và nút đóng */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+.form-details-post-title {
+    font-size: 24px; /* Kích thước tiêu đề */
+    font-weight: bold; /* Chữ đậm */
+}
+
+.form-details-post-close-button {
+    background: none; /* Không nền cho nút */
+    border: none; /* Không viền */
+    color: rgb(144, 31, 31); /* Màu chữ đỏ */
+    font-size: 24px; /* Kích thước chữ lớn */
+    cursor: pointer; /* Con trỏ chuột khi hover */
+}
+
+.form-details-post-content {
+    padding: 10px 0; /* Khoảng cách trong phần nội dung */
+}
+
+.form-details-post-details {
+    display: block;
+    max-width: 800px; /* Để tbody có thể cuộn */
+    max-height: 500px; /* Giới hạn độ cao tối đa cho tbody */
+    overflow-y: auto;
+    padding: 10px; /* Khoảng cách trong phần chi tiết bài đăng */
+}
+
+.form-details-post-item-title {
+    font-size: 20px; /* Kích thước tiêu đề bài đăng */
+    font-weight: bold; /* Chữ đậm */
+    margin-bottom: 10px; /* Khoảng cách dưới tiêu đề bài đăng */
+}
+
+.form-details-post-item-date {
+    font-size: 12px; /* Kích thước chữ ngày tạo */
+    color: #000000; /* Màu chữ xám */
+    margin-bottom: 10px; /* Khoảng cách dưới ngày tạo */
+}
+
+.form-details-post-item-description{
+    font-size: 16px; /* Kích thước chữ mô tả */
+    margin-bottom: 10px;
+    color: #000000;
+}
+.form-details-post-item-short-description {
+    font-size: 17px; /* Kích thước chữ mô tả */
+    margin-bottom: 10px; /* Khoảng cách dưới mô tả */
+    font-weight: bold; 
+    color: #000000;
+}
+
+.form-details-post-image {
+    text-align: center; /* Căn giữa hình ảnh */
+}
+
+.form-details-post-image img {
+    width: 500px; /* Chiều rộng hình ảnh */
+    height: 400px; /* Chiều cao hình ảnh */
+    object-fit: cover; /* Giữ tỷ lệ hình ảnh */
+    border-radius: 4px; /* Bo góc hình ảnh */
+}
+
+.form-details-post-status {
+    font-size: 16px; /* Kích thước chữ trạng thái */
+    color: red; /* Màu chữ đỏ cho trạng thái đã xóa */
+    font-weight: bold; /* Chữ đậm */
+    margin-top: 10px; /* Khoảng cách trên trạng thái */
+}
+
+.form-details-post-voucher {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-details-post-voucher h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.voucher-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.voucher-key {
+    font-size: 18px; /* Kích thước chữ cho key */
+    font-weight: bold; /* In đậm chữ key */
+    color: green; /* Màu xanh lá cho key */
+    margin-right: 10px; /* Khoảng cách bên phải key */
+    transition: color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+.voucher-key:hover {
+    color: darkgreen; /* Màu tối hơn khi hover */
+}
+
+.voucher-discount {
+    font-size: 16px; /* Kích thước chữ cho discount */
+    margin-right: 10px; /* Khoảng cách bên phải discount */
+}
+
+.voucher-status {
+    font-size: 16px; /* Kích thước chữ cho status */
+}
+
+.voucher-status.inactive {
+    color: gray; /* Màu xám nếu không phải ACTIVE */
+}
+
+.voucher-dates {
+    font-size: 14px; /* Kích thước chữ cho ngày */
+    color: #555; /* Màu chữ cho ngày */
+}
+
+.voucher-start-date, .voucher-end-date {
+    display: block; /* Mỗi ngày sẽ nằm trên một dòng riêng */
+    margin-top: 5px; /* Khoảng cách trên giữa các ngày */
+}
