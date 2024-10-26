@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import  org.springframework.mail.*;
 
 import com.hmdrinks.Response.*;
@@ -42,7 +45,7 @@ public class UserService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public ListAllUserResponse getListAllUser(String pageFromParam, String limitFromParam) {
+    public ResponseEntity<?> getListAllUser(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
@@ -69,16 +72,16 @@ public class UserService {
                         user.getRole().toString()
                 ));
             }
-        return new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
     }
 
-    public GetDetailUserInfoResponse getDetailUserInfoResponse(Integer id){
+    public ResponseEntity<?> getDetailUserInfoResponse(Integer id){
         User userList = userRepository.findByUserId(id);
         if (userList == null) {
-            throw new RuntimeException("Khong ton tai user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
         String fullLocation = userList.getStreet() + ","+ userList.getDistrict() + ","+ userList.getCity();
-        return new GetDetailUserInfoResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new GetDetailUserInfoResponse(
                 userList.getUserId(),
                 userList.getUserName(),
                 userList.getFullName(),
@@ -94,16 +97,16 @@ public class UserService {
                 userList.getDateUpdated(),
                 userList.getDateCreated(),
                 userList.getRole().toString()
-        );
+        ));
     }
-    public UpdateUserInfoResponse updateUserInfoResponse(UserInfoUpdateReq req){
+    public ResponseEntity<?> updateUserInfoResponse(UserInfoUpdateReq req){
         User userList = userRepository.findByUserId(req.getUserId());
         if (userList == null) {
-            throw new NotFoundException("User does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
         if(user.isPresent()) {
-            throw new ConflictException("Email already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         }
         supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
         LocalDate currentDate = LocalDate.now();
@@ -123,10 +126,10 @@ public class UserService {
             userList.setStreet(street);
             userList.setDistrict(district);
         } else {
-            throw new BadRequestException("Invalid address format");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid address format");
         }
         userRepository.save(userList);
-        return new UpdateUserInfoResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new UpdateUserInfoResponse(
                 userList.getUserId(),
                 userList.getUserName(),
                 userList.getFullName(),
@@ -142,14 +145,14 @@ public class UserService {
                 userList.getDateUpdated(),
                 userList.getDateCreated(),
                 userList.getRole().toString()
-        );
+        ));
     }
 
-    public SendEmailResponse sendEmail(String email) {
+    public ResponseEntity<?> sendEmail(String email) {
         Random random = new Random();
         User users = userRepository.findByEmail(email);
         if (users == null) {
-            throw new NotFoundException("Username or email does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username or email does not exist");
         }
         OTP otpEntity = otpRepository.findByEmail(email);
         if (otpEntity != null) {
@@ -182,10 +185,10 @@ public class UserService {
         otp.setTimeOtp(currentDateTime);
         otp.setStatus(Boolean.TRUE);
         otpRepository.save(otp);
-        return new SendEmailResponse(otp.getEmail(), "OTP has been sent to your email.");
+        return ResponseEntity.status(HttpStatus.OK).body(new SendEmailResponse(otp.getEmail(), "OTP has been sent to your email."));
     }
 
-    public MessageResponse AcceptOTP(String email, int OTP) {
+    public ResponseEntity<?> AcceptOTP(String email, int OTP) {
         String newPass = "pass12345";
         OTP otp = otpRepository.findOTP(email, String.valueOf(OTP));
         User users = userRepository.findByEmail(email);
@@ -214,17 +217,17 @@ public class UserService {
                 javaMailSender.send(message);
                 otp.setStatus(Boolean.FALSE);
                 otpRepository.save(otp);
-                return new MessageResponse("Your new password was sent to your email. Please check email.");
+                return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("Your new password was sent to your email. Please check email."));
             } else {
                 otp.setStatus(Boolean.FALSE);
                 otpRepository.save(otp);
-                return new MessageResponse("OTP existing time is expired.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("OTP existing time is expired.");
             }
         } else {
-            return new MessageResponse("Your username, email or OTP is not correct.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Your username, email or OTP is not correct.");
         }
     }
-    public TotalSearchUserResponse totalSearchUser(String keyword,String pageFromParam, String limitFromParam) {
+    public ResponseEntity<?> totalSearchUser(String keyword,String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
@@ -252,29 +255,29 @@ public class UserService {
                     user.getRole().toString()
             ));
         }
-        return new TotalSearchUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList);
+        return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
     }
 
-    public ChangePasswordResponse changePasswordResponse(ChangePasswordReq req) {
+    public ResponseEntity<?> changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
         if (users == null) {
-            throw new NotFoundException("Not found user");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
         if (!passwordEncoder.matches(req.getCurrentPassword(), users.getPassword())) {
-            throw new BadRequestException("The current password is incorrect");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The current password is incorrect");
         }
         if (req.getNewPassword().equals(req.getCurrentPassword())) {
-            throw new BadRequestException("You're using an old password");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You're using an old password");
         }
         if (!req.getNewPassword().matches(req.getConfirmNewPassword())) {
-            throw new BadRequestException("No overlap");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No overlap");
         }
         users.setPassword(passwordEncoder.encode(req.getNewPassword()));
         userRepository.save(users);
         String message = "Password change successfully";
-        return new ChangePasswordResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new ChangePasswordResponse(
                 message,
                 req.getNewPassword()
-        );
+        ));
     }
 }

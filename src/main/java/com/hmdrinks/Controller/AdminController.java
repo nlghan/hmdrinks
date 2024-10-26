@@ -31,15 +31,15 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllProductImages(proId));
     }
     @GetMapping(value = "/listUser")
-    public ResponseEntity<ListAllUserResponse> listAllUser(
+    public ResponseEntity<?> listAllUser(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(userService.getListAllUser(page, limit));
+        return userService.getListAllUser(page, limit);
     }
 
     @PostMapping(value = "/create-account")
-    public ResponseEntity<CRUDAccountUserResponse> createAccount(@RequestBody CreateAccountUserReq req){
+    public ResponseEntity<?> createAccount(@RequestBody CreateAccountUserReq req){
         return ResponseEntity.ok(adminService.createAccountUser(req));
     }
 
@@ -48,8 +48,8 @@ public class AdminController {
         return ResponseEntity.ok(userService.totalSearchUser(keyword, page, limit));
     }
     @PutMapping(value = "/update-account") // Changed to PutMapping
-    public ResponseEntity<CRUDAccountUserResponse> updateAccount(@Valid @RequestBody UpdateAccountUserReq req) {
-        return ResponseEntity.ok(adminService.updateAccountUser(req));
+    public ResponseEntity<?> updateAccount(@Valid @RequestBody UpdateAccountUserReq req) {
+        return adminService.updateAccountUser(req);
     }
 
     @DeleteMapping(value = "/product/review/deleteOne")
@@ -89,10 +89,10 @@ public class AdminController {
     }
 
     @GetMapping(value ="/list-voucher/{userId}")
-    public ResponseEntity<ListAllVoucherUserIdResponse> getAllVoucher(
+    public ResponseEntity<?> getAllVoucher(
             @PathVariable Integer userId
     ){
-        return ResponseEntity.ok(userVoucherService.listAllVoucherUserId(userId));
+        return  userVoucherService.listAllVoucherUserId(userId);
     }
 
     @GetMapping("/product/view/{id}")

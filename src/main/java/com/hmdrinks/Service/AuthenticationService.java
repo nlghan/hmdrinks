@@ -18,9 +18,12 @@ import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.sparkproject.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,10 +48,10 @@ public class AuthenticationService {
         @Value("${application.security.jwt.expiration}")
         private long jwtExpiration;
 
-        public AuthenticationResponse register(UserCreateReq userCreateReq) {
+        public ResponseEntity<?> register(UserCreateReq userCreateReq) {
             Optional<User> userCheck = userRepository.findByUserNameAndIsDeletedFalse(userCreateReq.getUserName());
             if (userCheck.isPresent())
-                throw new ConflictException("User name already exists");
+                return ResponseEntity.status(409).body("User name already exists");
             LocalDate currentDate1 = LocalDate.now();
             User user1 = new User();
             user1.setType(TypeLogin.BASIC);
@@ -76,38 +79,63 @@ public class AuthenticationService {
             token.setExpire(currentDate);
             token.setUser(user1);
             tokenRepository.save(token);
-            return AuthenticationResponse.builder()
+            return ResponseEntity.status(HttpStatus.OK_200).body(AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .refreshToken(refreshToken)
-                    .build();
+                    .build());
         }
 
-    public AuthenticationResponse authenticate(LoginBasicReq request) {
-        var user = userRepository.findByUserNameAndIsDeletedFalse(request.getUserName())
-                .orElseThrow(() -> new UsernameNotFoundException("Not found user name"));
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword())
-        );
-        Token token = tokenRepository.findByUserUserId(user.getUserId());
-        if (token == null) {
-            token = new Token();
-            token.setUser(user);
+    public ResponseEntity<?> authenticate(LoginBasicReq request) {
+        try {
+            // Tìm người dùng theo tên đăng nhập
+            var user = userRepository.findByUserNameAndIsDeletedFalse(request.getUserName())
+                    .orElseThrow(() -> new UsernameNotFoundException("Not found user name"));
+
+            // Xác thực người dùng
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword())
+            );
+
+            // Lấy hoặc tạo mới Token
+            Token token = tokenRepository.findByUserUserId(user.getUserId());
+            if (token == null) {
+                token = new Token();
+                token.setUser(user);
+            }
+
+            // Tạo chi tiết người dùng
+            MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
+            Date currentDate = new Date();
+
+            // Tạo token và refresh token
+            var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
+            var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
+
+            // Thiết lập token
+            token.setAccessToken(jwtToken);
+            token.setRefreshToken(refreshToken);
+            token.setExpire(currentDate);
+            tokenRepository.save(token);
+
+            // Trả về phản hồi thành công
+            return ResponseEntity.status(HttpStatus.OK_200).body(AuthenticationResponse.builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .build());
+
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body(e.getMessage());
+        } catch (BadCredentialsException e) {
+            // Trả về mã trạng thái 401 khi thông tin xác thực không đúng
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED_401).body("Invalid username or password");
+        } catch (Exception e) {
+            // Trả về mã trạng thái 500 cho các lỗi khác
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR_500).body("An error occurred: " + e.getMessage());
         }
-        MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
-        Date currentDate = new Date();
-        var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
-        var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
-        token.setAccessToken(jwtToken);
-        token.setRefreshToken(refreshToken);
-        token.setExpire(currentDate);
-        tokenRepository.save(token);
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
-    public AuthenticationResponse refreshToken(
+
+    public ResponseEntity<?> refreshToken(
                 HttpServletRequest request,
                 HttpServletResponse response
         ) {
@@ -115,7 +143,7 @@ public class AuthenticationService {
             final String refreshToken;
             final String userName;
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                throw new BadRequestException("header is null or didnt not start with Bearer");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED_401).body("header is null or didnt not start with Beare");
             }
             refreshToken = authHeader.substring(7);
             userName = jwtService.extractUsername(refreshToken);
@@ -130,10 +158,10 @@ public class AuthenticationService {
                     token.setAccessToken(accessToken);
                     token.setExpire(currentDate);
                     tokenRepository.save(token);
-                    return AuthenticationResponse.builder()
+                    return ResponseEntity.status(HttpStatus.OK_200).body(AuthenticationResponse.builder()
                             .accessToken(accessToken)
                             .refreshToken(refreshToken)
-                            .build();
+                            .build());
                 }
             }
             throw new MalformedJwtException("token invalid");

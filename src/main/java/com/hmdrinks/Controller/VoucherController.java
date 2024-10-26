@@ -19,27 +19,27 @@ public class VoucherController {
     private VoucherService voucherService;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDVoucherResponse> createVoucher(@RequestBody CreateVoucherReq req){
+    public ResponseEntity<?> createVoucher(@RequestBody CreateVoucherReq req){
         return ResponseEntity.ok(voucherService.createVoucher(req));
     }
 
     @GetMapping(value ="/view/{id}")
-    public ResponseEntity<CRUDVoucherResponse> getOneVoucher(
+    public ResponseEntity<?> getOneVoucher(
             @PathVariable Integer id,HttpServletRequest httpRequest
     ){
         return ResponseEntity.ok(voucherService.getVoucherById(id));
     }
 
     @GetMapping(value = "/view/all")
-    public ResponseEntity<ListAllVoucherResponse> getAllVouchers(){
+    public ResponseEntity<?> getAllVouchers(){
         return  ResponseEntity.ok(voucherService.listAllVoucher());
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDVoucherResponse> updatePost(
+    public ResponseEntity<?> updatePost(
             @RequestBody CrudVoucherReq req, HttpServletRequest httpRequest
     )
     {
-        return  ResponseEntity.ok(voucherService.updateVoucher(req));
+        return ResponseEntity.ok(voucherService.updateVoucher(req));
     }
 }

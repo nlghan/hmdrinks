@@ -22,4 +22,8 @@ public class CRUDReviewResponse {
     private Date dateDeleted;
     private LocalDate dateUpdated;
     private LocalDate dateCreated;
+
+    public CRUDReviewResponse(String reviewNotFound) {
+
+    }
 }

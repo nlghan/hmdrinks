@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,17 +31,17 @@ public class ProductVarService {
     @Autowired
     private ProductVariantsRepository proVarRepository;
 
-    public CRUDProductVarResponse crateProductVariants(CreateProductVarReq req)
+    public ResponseEntity<?> crateProductVariants(CreateProductVarReq req)
     {
         Product product= productRepository.findByProId(req.getProId());
         if(product == null)
         {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
         }
         ProductVariants productVariants = proVarRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
         if(productVariants != null)
         {
-            throw new BadRequestException("production size exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Variant Size Already Exists");
         }
         ProductVariants productVariants1 = new ProductVariants();
         productVariants1.setProduct(product);
@@ -49,7 +51,8 @@ public class ProductVarService {
         productVariants1.setIsDeleted(false);
         productVariants1.setDateCreated(LocalDate.now());
         proVarRepository.save(productVariants1);
-        return new CRUDProductVarResponse(
+
+        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
                 productVariants1.getSize(),
@@ -59,17 +62,17 @@ public class ProductVarService {
                 productVariants1.getDateDeleted(),
                 productVariants1.getDateCreated(),
                 productVariants1.getDateUpdated()
-        );
+        ));
     }
 
-    public CRUDProductVarResponse getOneVarProduct(Integer id)
+    public ResponseEntity<?> getOneVarProduct(Integer id)
     {
         ProductVariants productVariants1 = proVarRepository.findByVarId(id);
         if(productVariants1 == null)
         {
-            throw new BadRequestException("production id not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
         }
-        return new CRUDProductVarResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
                 productVariants1.getSize(),
@@ -79,25 +82,25 @@ public class ProductVarService {
                 productVariants1.getDateDeleted(),
                 productVariants1.getDateCreated(),
                 productVariants1.getDateUpdated()
-        );
+        ));
     }
 
-    public CRUDProductVarResponse updateProduct(CRUDProductVarReq req)
+    public ResponseEntity<?> updateProduct(CRUDProductVarReq req)
     {
         Product product= productRepository.findByProId(req.getProId());
         if(product == null)
         {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
         }
         ProductVariants productVariants = proVarRepository.findBySizeAndProduct_ProIdAndVarIdNot(req.getSize(),req.getProId(), req.getVarId());
         if(productVariants != null)
         {
-            throw new BadRequestException("production size exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Variant Size Already Exists");
         }
         ProductVariants productVariants1 = proVarRepository.findByVarId(req.getVarId());
         if(productVariants1 == null)
         {
-            throw new BadRequestException("production variations id not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Variant Not Found");
         }
         productVariants1.setProduct(product);
         productVariants1.setSize(req.getSize());
@@ -105,7 +108,7 @@ public class ProductVarService {
         productVariants1.setPrice(req.getPrice());
         productVariants1.setDateUpdated(LocalDate.now());
         proVarRepository.save(productVariants1);
-        return new CRUDProductVarResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new  CRUDProductVarResponse(
                 productVariants1.getVarId(),
                 productVariants1.getProduct().getProId(),
                 productVariants1.getSize(),
@@ -115,7 +118,7 @@ public class ProductVarService {
                 productVariants1.getDateDeleted(),
                 productVariants1.getDateCreated(),
                 productVariants1.getDateUpdated()
-        );
+        ));
     }
 
     public ListProductVarResponse listProduct(String pageFromParam, String limitFromParam)

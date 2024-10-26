@@ -7,6 +7,8 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -23,18 +25,19 @@ public class SupportFunction {
         return role.equals("ADMIN") || role.equals("CUSTOMER") || role.equals("SHIPPER");
     }
 
-    public void checkUserAuthorization(HttpServletRequest httpRequest, Long userIdFromRequest) {
+    public ResponseEntity<?> checkUserAuthorization(HttpServletRequest httpRequest, Long userIdFromRequest) {
         String authHeader = httpRequest.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new BadRequestException("Authorization header is missing or invalid");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header is missing or invalid");
         }
 
         String jwt = authHeader.substring(7);
         String userIdFromToken = jwtService.extractUserId(jwt);
 
         if (!String.valueOf(userIdFromRequest).equals(userIdFromToken)) {
-            throw new BadRequestException("You do not have permission to perform this action");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to perform this action");
         }
+        return ResponseEntity.ok("Authorization successful");
     }
 
     public void checkPhoneNumber(String phoneNumber, Integer userId, UserRepository userRepository) {

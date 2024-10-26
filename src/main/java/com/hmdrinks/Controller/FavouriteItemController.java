@@ -26,15 +26,15 @@ public class FavouriteItemController {
     @Autowired
     private JwtService jwtService;
     @PostMapping(value = "/insert")
-    public ResponseEntity<CRUDFavouriteItemResponse> createCartItem(@RequestBody InsertItemToFavourite req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> createCartItem(@RequestBody InsertItemToFavourite req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(favouriteItemService.insertFavouriteItem(req));
+        return favouriteItemService.insertFavouriteItem(req);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<DeleteFavouriteItemResponse> deleteOneItem(@RequestBody DeleteOneFavouriteItemReq req, HttpServletRequest httpRequest){
+    public ResponseEntity<?> deleteOneItem(@RequestBody DeleteOneFavouriteItemReq req, HttpServletRequest httpRequest){
 
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(favouriteItemService.deleteOneItem(req));
+        return favouriteItemService.deleteOneItem(req);
     }
 }

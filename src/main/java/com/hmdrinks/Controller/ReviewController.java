@@ -23,22 +23,21 @@ public class ReviewController {
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDReviewResponse> createReview(@RequestBody CreateNewReview req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> createReview(@RequestBody CreateNewReview req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(reviewService.createReview(req));
+        return reviewService.createReview(req);
     }
 
     @PutMapping(value = "/update")
     public ResponseEntity<CRUDReviewResponse> updateReview(@RequestBody CRUDReviewReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(reviewService.updateReview(req));
+        return reviewService.updateReview(req);
     }
-
 
     @DeleteMapping(value = "/delete")
     public ResponseEntity<?> deleteReview(@RequestBody DeleteReviewReq req, HttpServletRequest httpRequest) {
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(reviewService.deleteOneReview(req));
+        return reviewService.deleteOneReview(req);
     }
 
 

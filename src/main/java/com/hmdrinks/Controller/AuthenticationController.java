@@ -24,24 +24,24 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
+    public ResponseEntity<?> authenticate(
             @RequestBody LoginBasicReq request
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        return authenticationService.authenticate(request);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<?> register(
             @RequestBody UserCreateReq req
     ){
-        return ResponseEntity.ok(authenticationService.register(req));
+        return authenticationService.register(req);
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponse> refreshToken(
+    public ResponseEntity<?> refreshToken(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        return ResponseEntity.ok(authenticationService.refreshToken(request, response));
+        return authenticationService.refreshToken(request, response);
     }
 }

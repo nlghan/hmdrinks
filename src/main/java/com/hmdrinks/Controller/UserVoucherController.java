@@ -22,16 +22,16 @@ public class UserVoucherController {
     private SupportFunction supportFunction;
 
     @PostMapping(value = "/get-voucher")
-    public ResponseEntity<GetVoucherResponse> createVoucher(@RequestBody GetVoucherReq req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> createVoucher(@RequestBody GetVoucherReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(userVoucherService.getVoucher(req));
+        return userVoucherService.getVoucher(req);
     }
 
     @GetMapping(value ="/view-all/{id}")
-    public ResponseEntity<ListAllVoucherUserIdResponse> getAllVoucher(
+    public ResponseEntity<?> getAllVoucher(
             @PathVariable Integer id, HttpServletRequest httpRequest
     ){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
-        return ResponseEntity.ok(userVoucherService.listAllVoucherUserId(id));
+        return userVoucherService.listAllVoucherUserId(id);
     }
 }

@@ -24,23 +24,23 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDContactResponse> createVoucher(@RequestBody CreateContactReq req){
-        return ResponseEntity.ok(contactService.createContact(req));
+    public ResponseEntity<?> createVoucher(@RequestBody CreateContactReq req){
+        return contactService.createContact(req);
     }
 
     @GetMapping(value ="/view/{id}")
-    public ResponseEntity<CRUDContactResponse> getOneContact(
+    public ResponseEntity<?> getOneContact(
             @PathVariable Integer id,HttpServletRequest httpRequest
     ){
-        return ResponseEntity.ok(contactService.getContactById(id));
+        return contactService.getContactById(id);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDContactResponse> updateContact(
+    public ResponseEntity<?> updateContact(
             @RequestBody CrudContactReq req, HttpServletRequest httpRequest
     )
     {
-        return  ResponseEntity.ok(contactService.updateContact(req));
+        return  contactService.updateContact(req);
     }
 
     @GetMapping(value = "/view/all")

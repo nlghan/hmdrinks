@@ -14,6 +14,8 @@ import com.hmdrinks.Response.GetVoucherResponse;
 import com.hmdrinks.Response.ListAllVoucherUserIdResponse;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,41 +32,41 @@ public class UserVoucherService {
     @Autowired
     private PostRepository postRepository;
 
-    public GetVoucherResponse getVoucher(GetVoucherReq req)
+    public ResponseEntity<?> getVoucher(GetVoucherReq req)
     {
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null)
         {
-            throw new BadRequestException("Not found user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
         Voucher voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(req.getVoucherId());
         if(voucher == null)
         {
-            throw new BadRequestException("Not found voucher for Post");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found voucher for Post");
         }
         UserVoucher userVoucher1 = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(user.getUserId(), req.getVoucherId());
         if(userVoucher1 != null)
         {
-            throw new BadRequestException("Voucher already exists");
+            return  ResponseEntity.status(HttpStatus.CONFLICT).body("Voucher already exists");
         }
         UserVoucher userVoucher = new UserVoucher();
         userVoucher.setUser(user);
         userVoucher.setVoucher(voucher);
         userVoucher.setStatus(Status_UserVoucher.INACTIVE);
         userVoucherRepository.save(userVoucher);
-        return  new GetVoucherResponse(
+        return  ResponseEntity.status(HttpStatus.OK).body(new GetVoucherResponse(
                 userVoucher.getUserVoucherId(),
                 userVoucher.getUser().getUserId(),
                 userVoucher.getVoucher().getVoucherId(),
                 userVoucher.getStatus().toString()
-        );
+        ));
     }
 
-    public ListAllVoucherUserIdResponse listAllVoucherUserId(int userId){
+    public ResponseEntity<?> listAllVoucherUserId(int userId){
         User user = userRepository.findByUserId(userId);
         if(user == null)
         {
-            throw new BadRequestException("Not found user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
          List<UserVoucher> userVoucherList = userVoucherRepository.findByUserUserId(userId);
          List<GetVoucherResponse> listVoucherResponse = new ArrayList<>();
@@ -77,6 +79,6 @@ public class UserVoucherService {
                      userVoucher.getStatus().toString()
              ));
          }
-         return new ListAllVoucherUserIdResponse(listVoucherResponse);
+         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(listVoucherResponse));
     }
 }

@@ -27,26 +27,26 @@ public class CartItemController {
     @Autowired
     private JwtService jwtService;
     @PostMapping(value = "/insert")
-    public ResponseEntity<CRUDCartItemResponse> createCartItem(@RequestBody InsertItemToCart req){
-        return ResponseEntity.ok(cartItemService.insertCartItem(req));
+    public ResponseEntity<?> createCartItem(@RequestBody InsertItemToCart req){
+        return cartItemService.insertCartItem(req);
     }
 
     @PutMapping(value = "/increase")
-    public ResponseEntity<IncreaseDecreaseItemQuantityResponse> increaseItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> increaseItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartItemService.increaseCartItemQuantity(req));
+        return cartItemService.increaseCartItemQuantity(req);
     }
 
     @PutMapping(value = "/decrease")
-    public ResponseEntity<IncreaseDecreaseItemQuantityResponse> decreaseItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
+    public ResponseEntity<?> decreaseItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartItemService.decreaseCartItemQuantity(req));
+        return cartItemService.decreaseCartItemQuantity(req);
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity<DeleteCartItemResponse> deleteOneItem(@RequestBody DeleteOneCartItemReq req, HttpServletRequest httpRequest){
+    public ResponseEntity<?> deleteOneItem(@RequestBody DeleteOneCartItemReq req, HttpServletRequest httpRequest){
 
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartItemService.deleteOneItem(req));
+        return cartItemService.deleteOneItem(req);
     }
 }

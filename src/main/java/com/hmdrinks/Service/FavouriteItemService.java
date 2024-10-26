@@ -6,7 +6,9 @@ import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
+import org.sparkproject.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,32 +27,32 @@ public class FavouriteItemService {
     @Autowired
     private UserRepository userRepository;
 
-    public CRUDFavouriteItemResponse insertFavouriteItem(InsertItemToFavourite req)
+    public ResponseEntity<?> insertFavouriteItem(InsertItemToFavourite req)
     {
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null)
         {
-            throw  new BadRequestException("Not found user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("User not found");
         }
         Product product= productRepository.findByProId(req.getProId());
         if(product == null)
         {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Product not found");
         }
         ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
         if(productVariants == null)
         {
-            throw new BadRequestException("production size not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("production size not exists");
         }
         Favourite favourite= favouriteRepository.findByUserUserId(req.getUserId());
         if(favourite == null)
         {
-            throw  new BadRequestException("Favourite for userId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Favourite for userId not exists");
         }
         Favourite favourite1 = favouriteRepository.findByFavId(req.getFavId());
         if(favourite1 == null)
         {
-            throw  new BadRequestException("Not found favourite");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Favourite not found");
         }
         FavouriteItem favouriteItem1 = favouriteItemRepository.findByProductVariants_VarIdAndProductVariants_SizeAndFavourite_FavId(req.getFavId(),req.getSize(),req.getFavId());
         FavouriteItem favouriteItem = new FavouriteItem();
@@ -61,40 +63,40 @@ public class FavouriteItemService {
             favouriteItemRepository.save(favouriteItem);
             favourite.setDateUpdated(LocalDate.now());
             favouriteRepository.save(favourite);
-            return new CRUDFavouriteItemResponse (
+            return ResponseEntity.status(HttpStatus.OK_200).body(new CRUDFavouriteItemResponse (
                     favouriteItem.getFavItemId(),
                     favouriteItem.getFavourite().getFavId(),
                     favouriteItem.getProductVariants().getProduct().getProId(),
                     favouriteItem.getProductVariants().getSize()
-            );
+            ));
         }
         else {
-            throw  new BadRequestException("Favourite item already exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST_400).body("Favourite item already exists");
         }
     }
 
-    public DeleteFavouriteItemResponse deleteOneItem(DeleteOneFavouriteItemReq req)
+    public ResponseEntity<?> deleteOneItem(DeleteOneFavouriteItemReq req)
     {
         FavouriteItem favouriteItem = favouriteItemRepository.findByFavItemId(req.getFavItemId());
         if(favouriteItem == null)
         {
-            throw  new BadRequestException("Not found FavouriteItem");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Favourite item not found");
         }
         favouriteItemRepository.delete(favouriteItem);
         Favourite favourite = favouriteRepository.findByFavId(favouriteItem.getFavourite().getFavId());
         favourite.setDateUpdated(LocalDate.now());
         favouriteRepository.save(favourite);
-        return new DeleteFavouriteItemResponse(
+        return ResponseEntity.status(HttpStatus.OK_200).body(new DeleteFavouriteItemResponse(
                 "Delete item success"
-        );
+        ));
     }
 
-    public DeleteFavouriteItemResponse deleteAllFavouriteItem(DeleteAllFavouriteItemReq req)
+    public ResponseEntity<?> deleteAllFavouriteItem(DeleteAllFavouriteItemReq req)
     {
         Favourite favourite = favouriteRepository.findByFavId(req.getFavId());
         if(favourite == null)
         {
-            throw  new BadRequestException("Not found favourite");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Favourite not found");
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(req.getFavId());
         for(FavouriteItem favouriteItem: favouriteItems)
@@ -103,8 +105,8 @@ public class FavouriteItemService {
         }
         favourite.setDateUpdated(LocalDate.now());
         favouriteRepository.save(favourite);
-        return new DeleteFavouriteItemResponse(
+        return ResponseEntity.status(HttpStatus.OK_200).body(new DeleteFavouriteItemResponse(
                 "Delete all item success"
-        );
+        ));
     }
 }
