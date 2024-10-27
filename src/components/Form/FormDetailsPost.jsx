@@ -24,7 +24,8 @@ const FormDetailsPost = ({ postId, onClose }) => {
                         'Authorization': `Bearer ${token}` // Gửi token trong header
                     }
                 });
-                setPost(response.data); // Thiết lập dữ liệu bài đăng
+                // Truy cập dữ liệu bài đăng đúng cách
+                setPost(response.data.body); // Thiết lập dữ liệu bài đăng
 
                 // Fetch all vouchers
                 const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
@@ -32,13 +33,19 @@ const FormDetailsPost = ({ postId, onClose }) => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
+                console.log("Raw API response:", responseVouchers.data); // Kiểm tra phản hồi đầy đủ từ API
+                const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
+                console.log("Fetched Vouchers:", fetchedVouchers); // Log dữ liệu voucher
 
-                const fetchedVouchers = responseVouchers.data.voucherResponseList;
-                // Tìm voucher tương ứng với post
-                const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === postId);
-                setVoucher(matchingVoucher || null); // Cập nhật voucher
+                if (Array.isArray(fetchedVouchers)) {
+                    // Tìm voucher tương ứng với post
+                    const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === postId);
+                    setVoucher(matchingVoucher || null); // Cập nhật voucher
+                } else {
+                    console.error("voucherResponseList is not an array or is undefined");
+                    setVoucher(null);
+                }
 
-                console.log('Post details:', response.data); // In ra log chi tiết bài đăng
             } catch (err) {
                 setError(err.message);
                 console.error('Error fetching post details:', err); // In ra lỗi nếu có
@@ -49,6 +56,12 @@ const FormDetailsPost = ({ postId, onClose }) => {
 
         fetchPostDetails();
     }, [postId]);
+
+    // Log giá trị của post và voucher sau khi cập nhật
+    useEffect(() => {
+        console.log('post:', post);
+        console.log('voucher:', voucher);
+    }, [post, voucher]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -69,49 +82,55 @@ const FormDetailsPost = ({ postId, onClose }) => {
             </div>
             <div className="form-details-post-content">
                 <div className="form-details-post-details">
-                    <h3 className="form-details-post-item-title">{post.title}</h3>
-                    <p className="form-details-post-item-date">
-                        <strong></strong> {formatDate(post.dateCreated)}
-                    </p>
-                    <p className="form-details-post-item-short-description">
-                        <strong> </strong> {post.shortDescription}
-                    </p>
-                    <p className="form-details-post-item-description">
-                        <strong> </strong> {post.description}
-                    </p>
-                    <div className="form-details-post-voucher">
-                        <h4>Thông Tin Voucher</h4>
-                        <div className="voucher-item">
-                            <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'expired'}`}>
-                                {voucher ? voucher.key : 'N/A'}
-                            </span>
-                            <span className="voucher-discount">
-                                {voucher ? `${voucher.discount} VNĐ` : 'N/A'}
-                            </span>
-                            {/* <span className="voucher-status">
-                                {voucher ? voucher.status : 'N/A'}
-                            </span> */}
-                        </div>
-                        <div className="voucher-dates">
-                            <span className="voucher-start-date">
-                                {voucher ? `Ngày bắt đầu: ${new Date(voucher.startDate).toLocaleDateString('vi-VN')}` : 'N/A'}
-                            </span>
-                            <span className="voucher-end-date">
-                                {voucher ? `Ngày kết thúc: ${new Date(voucher.endDate).toLocaleDateString('vi-VN')}` : 'N/A'}
-                            </span>
-                        </div>
-                    </div>
+                    {post ? (
+                        <>
+                            <h3 className="form-details-post-item-title">{post.title}</h3>
+                            <p className="form-details-post-item-date">
+                                <strong></strong> {post.dateCreated ? formatDate(post.dateCreated) : 'N/A'}
+                            </p>
 
-
-                    <div className="form-details-post-image">
-                        <img src={post.url} alt={post.title} />
-                    </div>
-                    {post.isDeleted && <p className="form-details-post-status"><strong>Trạng Thái:</strong> Đã xóa</p>}
-
+                            <p className="form-details-post-item-short-description">
+                                <strong> </strong> {post.shortDescription}
+                            </p>
+                            <p className="form-details-post-item-description">
+                                <strong> </strong> {post.description}
+                            </p>
+                            <div className="form-details-post-voucher">
+                                <h4>Thông Tin Voucher</h4>
+                                <div className="voucher-item">
+                                    <span className={`voucher-key ${voucher && voucher.status === 'ACTIVE' ? 'active' : 'expired'}`}>
+                                        {voucher ? voucher.key : 'N/A'}
+                                    </span>
+                                    <span className="voucher-discount">
+                                        {voucher ? `${voucher.discount} VNĐ` : 'N/A'}
+                                    </span>
+                                </div>
+                                <div className="voucher-dates">
+                                    <span className="voucher-start-date">
+                                        {voucher ? `Ngày bắt đầu: ${new Date(voucher.startDate).toLocaleDateString('vi-VN')}` : 'N/A'}
+                                    </span>
+                                    <span className="voucher-end-date">
+                                        {voucher ? `Ngày kết thúc: ${new Date(voucher.endDate).toLocaleDateString('vi-VN')}` : 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="form-details-post-image">
+                                {post.bannerUrl ? (
+                                    <img src={post.bannerUrl} alt={post.title} />
+                                ) : (
+                                    <p>Hình ảnh không có sẵn</p>
+                                )}
+                            </div>
+                            {post.isDeleted && <p className="form-details-post-status"><strong>Trạng Thái:</strong> Đã xóa</p>}
+                        </>
+                    ) : (
+                        <p>Đang tải bài đăng...</p>
+                    )}
                 </div>
             </div>
         </div>
     );
+
 };
 
 export default FormDetailsPost;

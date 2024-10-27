@@ -1,14 +1,14 @@
 /* PostVoucher.css */
-
 .marketing-post-voucher-container {
-    margin: 0 auto; /* Canh giữa container */
+    position: relative;
+    overflow: hidden; /* Đảm bảo phần nền không tràn ra ngoài */
     padding: 20px;
-    background-color: #fff3e6; /* Màu nền nhẹ nhàng */
-    border-radius: 8px; /* Bo góc cho container */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng cho container */
-     /* Đặt chiều rộng tối đa cho container */
+    background-color: #fff3e6;
+    background-position: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-size: 200%;    
 }
-
 #btn-back {
     background-color: #ff8c94; /* Màu nền cho nút */
     color: white; /* Màu chữ */
@@ -45,27 +45,7 @@
     color: #777; /* Màu chữ nhẹ nhàng */
 }
 
-.marketing-form-details-post-voucher {
-    background-color: #ffe6f2; /* Màu nền cho voucher */
-    border-radius: 8px; /* Bo góc cho phần voucher */
-    padding: 20px; /* Padding cho voucher */
-    margin: 20px auto; /* Khoảng cách giữa voucher và bài đăng */
-    text-align: center; /* Canh giữa nội dung voucher */
-    width: 50%;
-}
 
-.marketing-voucher-key {
-    font-size: 1.5em; /* Kích thước chữ cho voucher key */
-    font-weight: bold; /* Đậm chữ */
-    display: block; /* Mỗi dòng nằm trên một dòng mới */
-    margin-bottom: 10px; /* Khoảng cách dưới voucher key */
-}
-
-.marketing-voucher-discount,
-.marketing-voucher-status,
-.marketing-voucher-dates {
-    margin-top: 10px; /* Khoảng cách trên cho các thông tin */
-}
 
 .marketing-no-voucher {
     text-align: center; /* Canh giữa nội dung không có voucher */
@@ -83,3 +63,47 @@
     border-radius: 8px; /* Bo góc cho hình ảnh */
     object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
 }
+.marketing-form-details-post-voucher {
+    position: relative; /* Để sử dụng pseudo-element cho rìa khung */
+    background-color: #ffe6f2; /* Màu nền cho voucher */
+    border-radius: 10px; /* Bo góc cho phần voucher */
+    padding: 30px; /* Padding cho voucher */
+    margin: 20px auto; /* Khoảng cách giữa voucher và bài đăng */
+    text-align: left;  /* Canh giữa nội dung voucher */
+    width: 400px;
+    height: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Đổ bóng cho voucher */
+}
+.marketing-form-details-post-voucher-img{
+    position: relative;
+    width: 700px;
+    top: -640px;
+    left: -180px;
+}
+
+/* Tùy chỉnh các phần tử bên trong voucher */
+.marketing-voucher-details,
+h4 {
+    position: relative;
+    z-index: 1; /* Đặt nội dung ở lớp trên cùng */
+}
+
+.marketing-voucher-key {
+    font-size: 34px; /* Kích thước chữ cho voucher key */
+    font-weight: bold;
+    margin-left: 40px; /* Đậm */
+}
+
+.marketing-voucher-discount,
+.marketing-voucher-status {
+    font-size: 18px; 
+    font-weight: bold;
+    margin-left: 40px;/* Kích thước chữ cho discount và status */
+}
+
+.marketing-voucher-dates small {
+    font-size: 14px;
+    margin-left: 40px;
+    /* Kích thước chữ cho ngày tháng */
+}
+

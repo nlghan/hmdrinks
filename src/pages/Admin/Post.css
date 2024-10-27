@@ -110,25 +110,77 @@
   justify-content:space-between; 
   align-items: center;   
   flex-direction:row-reverse;
-  width: 58%;  
+  width: 99%;  
   top: 110px;
   left: 20px;
+  padding: 0 20px;
 }
 .header-post-table input{  
-  width: 30%;
+  position:absolute;
+  bottom: -30px;
+  left: 400px;
+  width: 40%;
+  margin-left: auto;
 }
 .header-post-table h2{
   position:absolute;
+  bottom: -40px;
   left: 10px;
   margin-right: 30px;
 }
 .search-post-admin-input {
  position: relative;
  left: -130px;
+   width: 100%; /* Để đảm bảo input chiếm toàn bộ chiều rộng của container */
+  padding: 10px; /* Thêm padding cho input */
+  border: 1px solid #ccc; /* Thêm border cho input */
+  border-radius: 5px; /* Thêm border-radius cho input */
+}
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .header-post-table {
+    flex-direction: column; /* Đổi hướng flex thành cột */
+    align-items: flex-start; /* Căn trái cho các phần tử */
+  }
+
+  .header-post-table h2 {
+    margin-right: 0; /* Xóa margin bên phải */
+    margin-bottom: 10px; /* Thêm margin dưới h2 */
+  }
+
+  .header-post-table input {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    margin-bottom: 10px; /* Thêm margin dưới input */
+  }
+}
+
+@media (max-width: 800px) {
+  .header-post-table {
+    padding: 0 10px; /* Giảm padding */
+  }
+
+  .header-post-table input {
+    width: 90%; /* Chiếm 90% chiều rộng */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-post-table {
+    padding: 0 5px; /* Giảm padding cho màn hình nhỏ */
+  }
+
+  .header-post-table input {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+  }
+
+  .post-table-add-btn {
+    font-size: 14px; /* Giảm kích thước chữ cho button */
+    padding: 8px 15px; /* Giảm padding cho button */
+  }
 }
 .post-table-add-btn {
-  position: absolute;
-  right: 0; /* Căn về cuối dòng */
+  position:absolute;
+  bottom:  -30px;
   padding: 10px 20px;
   background-color: #4CAF50;
   color: white;
@@ -363,4 +415,118 @@ tr:hover {
 .voucher-pagination .btn-light:hover {
   background-color: #e2e6ea;
   /* Màu nền khi hover cho nút trang khác */
+}
+
+/* Responsive Styles */
+
+/* 1200px and below */
+@media (max-width: 1200px) {
+  .post-container {
+    flex-direction: column; /* Thay đổi bố cục thành cột */
+    height: auto; /* Đặt chiều cao tự động */
+  }
+
+  .post-voucher-table {
+    flex-direction: column; /* Chuyển sang cột */
+    align-items: center; /* Căn giữa các phần tử */
+  }
+
+  .voucher-table,
+  .user-voucher-table {
+    width: 90%; /* Mở rộng chiều rộng của bảng */
+  }
+
+  .header-post-table {
+    flex-direction: column; /* Đặt thành cột */
+    align-items: flex-start; /* Căn trái các phần tử */
+    top: 20px; /* Giảm khoảng cách từ trên */
+  }
+
+  .header-post-table input {
+    position: relative;
+    bottom: 0; /* Đặt lại vị trí */
+    width: 80%; /* Mở rộng chiều rộng của input */
+  }
+
+  .header-post-table h2 {
+    bottom: 0; /* Đặt lại vị trí */
+  }
+
+  .admin-post-button-container {
+    flex-direction: column; /* Chuyển sang cột */
+    align-items: center; /* Căn giữa */
+  }
+
+  .post-pagination,
+  .voucher-pagination {
+    width: 90%; /* Mở rộng chiều rộng */
+    flex-direction: row; /* Giữ cho nút ở dạng hàng ngang */
+    margin: 10px auto; /* Căn giữa */
+  }
+}
+
+/* 800px and below */
+@media (max-width: 800px) {
+  .post-container {
+    height: auto; /* Chiều cao tự động */
+  }
+
+  .voucher-table,
+  .user-voucher-table {
+    width: 95%; /* Mở rộng chiều rộng của bảng */
+  }
+
+  .header-post-table input {
+    width: 100%; /* Mở rộng chiều rộng của input */
+  }
+
+  .post-table {
+    margin: 5px; /* Giảm khoảng cách giữa các bảng */
+  }
+
+  .admin-post-button-container {
+    flex-direction: column; /* Chuyển sang cột */
+    align-items: center; /* Căn giữa */
+  }
+
+  .post-pagination,
+  .voucher-pagination {
+    width: 95%; /* Mở rộng chiều rộng */
+    flex-direction: row; /* Giữ cho nút ở dạng hàng ngang */
+    margin: 10px auto; /* Căn giữa */
+  }
+}
+
+/* 480px and below */
+@media (max-width: 480px) {
+  .header-post-table {
+    flex-direction: column; /* Chuyển sang cột */
+    align-items: center; /* Căn giữa */
+  }
+
+  .header-post-table input {
+    width: 100%; /* Mở rộng chiều rộng của input */
+    margin-bottom: 10px; /* Thêm khoảng cách dưới cho input */
+  }
+
+  .header-post-table h2 {
+    font-size: 18px; /* Giảm kích thước chữ */
+  }
+
+  .post-table {
+    margin: 5px 0; /* Giảm khoảng cách giữa các bảng */
+  }
+
+  .admin-post-button-container {
+    flex-direction: column; /* Chuyển sang cột */
+    align-items: center; /* Căn giữa */
+    margin: 10px 0; /* Thêm khoảng cách giữa các nút */
+  }
+
+  .post-pagination,
+  .voucher-pagination {
+    width: 100%; /* Mở rộng chiều rộng */
+    flex-direction: row; /* Giữ cho nút ở dạng hàng ngang */
+    margin: 10px auto; /* Căn giữa */
+  }
 }

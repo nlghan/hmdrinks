@@ -9,7 +9,7 @@ const getCookie = (name) => {
     if (parts.length === 2) return parts.pop().split(';').shift();
 };
 
-const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
+const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -21,11 +21,13 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
         endDate: '',
         status: 'ACTIVE',
         imageUrl: '',
-        fileName: ''
+        fileName: '',
+        voucherId: '',
     });
 
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+
 
     useEffect(() => {
         const fetchPostDetails = async () => {
@@ -42,13 +44,13 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
 
                 console.log('Post details response:', postResponse.data); // Log phản hồi của bài đăng
 
-                const { title, description, shortDescription, url } = postResponse.data;
+                const { title, description, shortDescription, bannerUrl } = postResponse.data.body; // Sửa để truy cập đúng dữ liệu
                 setFormData(prevState => ({
                     ...prevState,
                     title,
                     description,
                     shortDescription,
-                    imageUrl: url,
+                    imageUrl: bannerUrl,
                 }));
 
                 // 2. Fetch all vouchers
@@ -61,25 +63,29 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
                 console.log('Vouchers response:', voucherResponse.data); // Log phản hồi của vouchers
 
                 // Kiểm tra cấu trúc của response
-                const fetchedVouchers = voucherResponse.data.voucherResponseList; // Kiểm tra đúng thuộc tính
+                const fetchedVouchers = voucherResponse.data.body.voucherResponseList || []; // Sửa để đảm bảo có giá trị mặc định
                 console.log('Fetched vouchers list:', fetchedVouchers); // Log danh sách vouchers đã lấy
 
-                const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === postId);
-                console.log(`No voucher found for postId: ${postId}`);
-
-                if (matchingVoucher) {
-                    console.log('Found matching voucher:', matchingVoucher); // Log voucher tìm thấy
-                    // Cập nhật voucher nếu tìm thấy
-                    setFormData(prevState => ({
-                        ...prevState,
-                        keyVoucher: matchingVoucher.key,
-                        discount: matchingVoucher.discount,
-                        startDate: matchingVoucher.startDate,
-                        endDate: matchingVoucher.endDate,
-                        status: matchingVoucher.status,
-                    }));
+                if (Array.isArray(fetchedVouchers)) {
+                    // Tìm voucher tương ứng với post
+                    const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === postId);
+                    if (matchingVoucher) {
+                        console.log('Found matching voucher:', matchingVoucher); // Log voucher tìm thấy
+                        // Cập nhật voucher nếu tìm thấy
+                        setFormData(prevState => ({
+                            ...prevState,
+                            keyVoucher: matchingVoucher.key,
+                            discount: matchingVoucher.discount,
+                            startDate: matchingVoucher.startDate,
+                            endDate: matchingVoucher.endDate,
+                            status: matchingVoucher.status,
+                            voucherId: matchingVoucher.voucherId,
+                        }));
+                    } else {
+                        console.log(`No voucher found for postId: ${postId}`); // Log nếu không tìm thấy voucher
+                    }
                 } else {
-                    console.log(`No voucher found for postId: ${postId}`); // Log nếu không tìm thấy voucher
+                    console.error("voucherResponseList is not an array or is undefined");
                 }
             } catch (err) {
                 console.error('Error fetching post details:', err); // In ra lỗi nếu có
@@ -91,6 +97,7 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
 
         fetchPostDetails();
     }, [postId]);
+
 
 
     const handleInputChange = (event) => {
@@ -123,87 +130,120 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status, voucherId } = formData;
+        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status, voucherId } = formData; // Đảm bảo voucherId có trong formData
         const token = getCookie('access_token');
-
+        const userId = 1; // Thay đổi ID người dùng nếu cần
+    
         if (!token) {
             setErrorMessage("Bạn cần đăng nhập để cập nhật bài đăng.");
             return;
         }
-
+    
         if (!title || !description || !shortDescription) {
             setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
             return;
         }
-
+    
+        // Kiểm tra voucherId có tồn tại
+        if (!voucherId) {
+            setErrorMessage("Voucher ID không hợp lệ.");
+            return;
+        }
+    
         try {
-            // 1. Update the post
+            // 1. Cập nhật bài đăng mà không có hình ảnh trước
             const postData = {
                 postId,
                 title,
                 description,
                 shortDescription,
-                url: "", // Bổ sung thêm trường 'url' nếu cần gửi thông tin này từ form
-                userId: 1 // userId luôn là 1 như yêu cầu
+                userId,
+                bannerUrl: "" // Khởi tạo biến cho bannerUrl, sẽ cập nhật sau khi tải ảnh
             };
-
+    
             console.log("Updating post with data:", postData);
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, postData, {
+            const postResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, postData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-
-            // 2. Upload the image if there's any
+    
+            // 2. Tải hình ảnh nếu có
+            let bannerUrl = ""; // Khởi tạo biến để lưu URL hình ảnh
             if (file) {
                 const imageFormData = new FormData();
                 imageFormData.append('file', file);
-
+                imageFormData.append('postId', postId); // Thêm postId vào form data
+    
                 console.log("Uploading image with data:", imageFormData);
-                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/post/upload?postId=${postId}`, imageFormData, {
+                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/post/upload`, imageFormData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-
-                console.log("Image uploaded successfully with URL:", uploadResponse.data.url);
+    
+                bannerUrl = uploadResponse.data.bannerUrl; // Lưu URL hình ảnh
+                console.log("Image uploaded successfully with URL:", bannerUrl);
             }
-
-            // 3. Update the voucher
+    
+            // 3. Cập nhật bannerUrl cho bài đăng nếu có
+            if (bannerUrl) {
+                postData.bannerUrl = bannerUrl; // Cập nhật bannerUrl vào dữ liệu bài đăng
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, postData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+            }
+    
+            // 4. Cập nhật voucher
             const formattedStartDate = formatDateTime(startDate);
             const formattedEndDate = formatDateTime(endDate);
+            
+            // Cập nhật dữ liệu voucher theo yêu cầu từ backend
             const voucherData = {
-                voucherId, // Thêm voucherId vào request
-                keyVoucher,
+                voucherId,
+                key: keyVoucher,
                 discount,
                 startDate: formattedStartDate,
                 endDate: formattedEndDate,
                 status,
-                postId,  // Liên kết voucher với bài post
+                postId, // postId từ formData hoặc giá trị đã xác định
             };
-
+    
             console.log("Updating voucher with data:", voucherData);
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/voucher/update`, voucherData, {
+            const voucherResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/voucher/update`, voucherData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-
-            // Set success message and clear error
+    
+            console.log("Voucher updated successfully:", voucherResponse.data); // Log phản hồi khi cập nhật voucher
+    
+            // Thiết lập thông báo thành công
             setSuccessMessage("Bài đăng và voucher đã được cập nhật thành công!");
             setErrorMessage("");
-            onSubmit();
+    
+            // Gọi hàm onSave thay vì onSubmit
+            if (typeof onSave === 'function') {
+                onSave({ ...postResponse.data, bannerUrl, voucherResponse: voucherResponse.data }); // Truyền dữ liệu bài đăng đã cập nhật về component cha
+            } else {
+                console.error('onSave is not a function');
+            }
+    
             setTimeout(() => {
                 setSuccessMessage('');
                 onClose();
             }, 2000);
-
+    
         } catch (error) {
             console.error('Error updating post or voucher:', error);
-
+    
+            // Thêm log chi tiết lỗi
             if (error.response) {
                 console.log("Response data:", error.response.data);
                 setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi trong quá trình cập nhật.');
@@ -212,6 +252,9 @@ const FormUpdatePost = ({ postId, onClose, onSubmit }) => {
             }
         }
     };
+    
+    
+    
 
 
 
