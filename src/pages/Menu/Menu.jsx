@@ -278,7 +278,7 @@ const Menu = () => {
                                     </span>
                                 ))}
                             </div>
-                            <ul className="menu-product-category">
+                            <ul className="menu-product-category" style={{listStyle:'none',paddingLeft:'0px'}}>
                                 {currentCategoryPage === 1 && (
                                     <li
                                         onClick={() => handleCategorySelect(null)}

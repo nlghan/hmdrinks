@@ -1,7 +1,7 @@
 /* Cart.css */
 
 .cart-details {
-    flex: 0.7;
+    flex: 1;
     margin-bottom: 20px;
 }
 
@@ -22,6 +22,7 @@
     border-bottom: 2px solid #249ca3; /* Keep the border below the header for separation */
     font-size: 22px;
     background-color: #f8f8f8; /* Optional: Add a background color for better contrast */
+    text-align: center;
 }
 
 /* Set fixed widths for the columns */
@@ -155,18 +156,9 @@
     border-radius: 50%;
 }
 
-.cart-background-container {
-    background-color: #f0f0f0; /* Màu xám nhạt */
-    padding: 20px; /* Thêm khoảng cách để nội dung không sát viền */
-    min-height: auto; /* Đảm bảo chiều cao tối thiểu là 100% chiều cao viewport */
-    align-items: center;
-}
 
-.cart-all-container {
-   background: white;
-   border-radius: 8px; /* Bo tròn góc */
-   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng cho hộp */
-}
+
+
 
 .cart-title {
     text-align: center; /* Giữa chữ Giỏ hàng */
@@ -181,7 +173,10 @@
     justify-content: center;
     gap: 70px;
     background-color: #fff; /* Màu nền trắng cho giỏ hàng */
+    min-height: 345px;
 }
+
+
 
 .delete-all-button{
     display: flex; 
@@ -192,3 +187,37 @@
     font-family: "Inter";
     cursor: pointer;
 }
+
+.cart-background-container {
+    position: relative; /* Required for positioning the overlay */
+    background-image: url('../../assets/img/fav.jpg'); /* Path to your background image */
+    background-size: cover; /* Ensure the image covers the entire container */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    padding: 20px; /* Space around content */
+    min-height: auto; /* Ensures the container expands with content */
+    display: flex; /* Allows for flex properties */
+    align-items: center; /* Center aligns children vertically */
+}
+
+/* Overlay effect for darkening */
+.cart-background-container::before {
+    content: '';
+    position: absolute; /* Position overlay absolutely */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(190, 188, 188, 0.5); /* Semi-transparent dark overlay */
+    z-index: 1; /* Ensure it sits above the background but below content */
+}
+
+.cart-all-container {
+    position: relative; /* Required to layer content on top of the overlay */
+    background: white; /* Background for your content box */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    z-index: 2; /* Ensure it sits above the overlay */
+    width: 80%;
+    margin-left: 10%;
+ }

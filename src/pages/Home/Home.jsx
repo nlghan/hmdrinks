@@ -70,21 +70,22 @@ const Home = () => {
     };
 
     return (
+        <><Navbar />
         <div className="home-container">
-            <Navbar />
+
             <div className="home-content">
                 <div className="post-grid">
                     {posts.slice(0, visiblePosts).map((post) => (
-                       <PostCard
-                       key={post.postId}
-                       image={post.url || "defaultImage.jpg"}
-                       title={post.title}
-                       description={post.shortDescription}
-                       buttonText="Chi tiết"
-                       onClick={() => handleDetailsClick(post.postId)} // Đảm bảo rằng bạn truyền hàm này
-                   />
-                   
-                   
+                        <PostCard
+                            key={post.postId}
+                            image={post.url || "defaultImage.jpg"}
+                            title={post.title}
+                            description={post.shortDescription}
+                            buttonText="Chi tiết"
+                            onClick={() => handleDetailsClick(post.postId)} // Đảm bảo rằng bạn truyền hàm này
+                        />
+
+
                     ))}
                 </div>
                 {visiblePosts < posts.length && (
@@ -103,7 +104,7 @@ const Home = () => {
                 </div>
             )}
             <Footer />
-        </div>
+        </div></>
     );
 };
 

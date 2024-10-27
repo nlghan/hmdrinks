@@ -4,6 +4,7 @@
     height: 400px; /* Adjust height as needed */
     overflow: hidden; /* Hide overflowing images */
     border-bottom: 2px solid rgb(255, 128, 0);
+    background-color: rgb(249, 249, 249);
 }
 
 .slide {

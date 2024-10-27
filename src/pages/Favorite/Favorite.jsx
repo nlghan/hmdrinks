@@ -5,6 +5,7 @@ import './Favorite.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import FavCard from '../../components/Card/FavCard';
+import la from "../../assets/img/la.png"
 
 const Favorite = () => {
     const navigate = useNavigate();
@@ -12,6 +13,9 @@ const Favorite = () => {
     const [productDetails, setProductDetails] = useState({});
     const [categoryDetails, setCategoryDetails] = useState({});
     const [errorMessage, setErrorMessage] = useState(null);
+    const [visibleIndex, setVisibleIndex] = useState(0); // Manage visible items index
+
+    const itemsPerPage = 3; // Maximum items to show at a time
 
     const getUserIdFromToken = (token) => {
         try {
@@ -27,13 +31,11 @@ const Favorite = () => {
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
     const token = getCookie('access_token');
 
-    // Fetch favorite items, product details, and category details on component mount
     useEffect(() => {
         const fetchFavoriteItems = async () => {
             const userId = getUserIdFromToken(token);
@@ -47,8 +49,7 @@ const Favorite = () => {
 
                 const items = response.data.favouriteItemResponseList;
                 setFavoriteItems(items);
-                
-                // Fetch product details for each item
+
                 const productRequests = items.map(item => 
                     axios.get(`http://localhost:1010/api/product/view/${item.proId}`, {
                         headers: {
@@ -71,7 +72,6 @@ const Favorite = () => {
 
                 setProductDetails(products);
 
-                // Fetch category details for each product
                 const categoryRequests = Object.values(products).map(product =>
                     axios.get(`http://localhost:1010/api/cate/view/${product.cateId}`, {
                         headers: {
@@ -112,15 +112,26 @@ const Favorite = () => {
                 },
                 data: {
                     userId: userId,
-                    favItemId: favItemId // Pass the ID of the favorite item to delete
+                    favItemId: favItemId
                 }
             });
 
-            // Filter out the deleted item from the state
             setFavoriteItems(prevItems => prevItems.filter(item => item.favItemId !== favItemId));
         } catch (error) {
             setErrorMessage("An error occurred while deleting the favorite item. Please try again.");
             console.error("Delete error:", error);
+        }
+    };
+
+    const handleNext = () => {
+        if (visibleIndex + itemsPerPage < favoriteItems.length) {
+            setVisibleIndex(visibleIndex + itemsPerPage);
+        }
+    };
+
+    const handlePrev = () => {
+        if (visibleIndex - itemsPerPage >= 0) {
+            setVisibleIndex(visibleIndex - itemsPerPage);
         }
     };
 
@@ -131,21 +142,29 @@ const Favorite = () => {
             
             <div className="fav-container">
                 <h1 className="fav-title">Danh sách yêu thích</h1>
-                <div className="favorites-container">
-                    {favoriteItems.map(item => (
-                        <FavCard 
-                            key={item.favItemId} 
-                            product={{
-                                proId: item.proId, 
-                                size: item.size,
-                                proName: productDetails[item.proId]?.proName || "Loading...", // Default loading text
-                                images: productDetails[item.proId]?.images || [], // Pass all images to the slider
-                                cateName: categoryDetails[productDetails[item.proId]?.cateId]?.cateName || "Loading...", // Default loading text for category
-                            }} 
-                            onClick={() => navigate(`/product/${item.proId}`)} // Navigate to product details on card click
-                            onDeleteFavorite={() => handleDeleteFavorite(item.favItemId)} // Pass the delete function
-                        />
-                    ))}
+                <image src={la}/>
+                
+                <div className="carousel-container">
+                    <button onClick={handlePrev} disabled={visibleIndex === 0} className="carousel-button">{"<"}</button>
+                    
+                    <div className="favorites-container">
+                        {favoriteItems.slice(visibleIndex, visibleIndex + itemsPerPage).map(item => (
+                            <FavCard 
+                                key={item.favItemId} 
+                                product={{
+                                    proId: item.proId, 
+                                    size: item.size,
+                                    proName: productDetails[item.proId]?.proName || "Loading...", 
+                                    images: productDetails[item.proId]?.images || [], 
+                                    cateName: categoryDetails[productDetails[item.proId]?.cateId]?.cateName || "Loading...", 
+                                }} 
+                                onClick={() => navigate(`/product/${item.proId}`)}
+                                onDeleteFavorite={() => handleDeleteFavorite(item.favItemId)} 
+                            />
+                        ))}
+                    </div>
+
+                    <button onClick={handleNext} disabled={visibleIndex + itemsPerPage >= favoriteItems.length} className="carousel-button">{">"}</button>
                 </div>
             </div>
             <Footer />

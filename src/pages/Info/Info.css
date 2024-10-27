@@ -33,14 +33,14 @@
 
 .body-info::after {
     content: "";
-    background-image: url('../../assets/img/bg.png'); /* Path to your image */
+    background-image: url('../../assets/img/la_tra.png'); /* Path to your image */
     background-size: cover; /* Ensure the image covers the entire background */
     background-position: center; /* Center the background image */
     background-repeat: no-repeat; /* Prevent the image from repeating */
-    opacity: 0.6; /* Adjust transparency of the background image */
+    opacity: 1; /* Adjust transparency of the background image */
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100px;
     right: 0;
     bottom: 0;
     z-index: -1; /* Send the background behind the content */
@@ -53,7 +53,7 @@
     width: 100%;
     border-radius: 10px; /* Góc bo tròn */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
-    margin: 20px auto;
+    margin: 10px auto;
 }
 
 .user-info-form {
@@ -65,13 +65,16 @@
 .form-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Adjust the spacing between columns */
+    justify-content: center; /* Center the columns */
+    gap: 50px; /* Adjust the spacing between columns */
 }
 
 .form-column {
     flex: 1; /* Allow columns to grow equally */
-    min-width: 400px; /* Minimum width for each column */
+    max-width: 400px; /* Set a maximum width for each column (optional) */
+    width: 100%; /* Allow columns to take full width within max-width */
 }
+
 
 .user-info-form h2 {
     font-family: 'Inter', sans-serif;
@@ -272,5 +275,12 @@
     100% {
         opacity: 1; /* End fully visible */
         transform: scale(1); /* End at original size */
+    }
+}
+
+@media (max-width: 1000px) {
+
+    .form-grid{
+        gap:0px
     }
 }
