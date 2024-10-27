@@ -6,7 +6,7 @@ import "./About.css"
 
 const About = () => {
     return (
-        <><><Navbar />
+        <><><Navbar currentPage="Giới thiệu"/>
             <div style={{
                 background: `url(${backgroundImage}) no-repeat center center fixed`,
                 backgroundSize: 'cover',
@@ -15,7 +15,7 @@ const About = () => {
                 display: 'flex', // Căn giữa nội dung
                 alignItems: 'center',
                 justifyContent: 'center',
-                opacity: 0.5
+                opacity: 0.1
             }}>
                 <div class="container-product">
                 <div class="overlay-product"></div>

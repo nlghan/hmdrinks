@@ -9,8 +9,12 @@
     padding: 0 50px 0 102px;
     justify-content: space-between;
     align-items: center;
-    background: #FFF;
-    
+    background-color: white;
+    /* background: linear-gradient(to top,white, rgb(254, 235, 235)); */
+}
+
+.box-shadow {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
 }
 
 .logo {
@@ -83,7 +87,7 @@
 }
 
 .navbar-right i {
-    font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+    font-size: 22px; /* Điều chỉnh kích thước của biểu tượng */
     cursor: pointer; /* Thêm con trỏ để cho biết rằng biểu tượng có thể nhấp được */
     transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
 }
@@ -96,3 +100,93 @@
 .navbar-right .signup {
     margin-left: 15px; /* Thêm khoảng cách bên trái cho nút Đăng xuất */
 }
+
+
+.breadcrumb {
+    
+    background-color:  rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 80px;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50% ;
+}
+
+.breadcrumb.show {
+    /* The show class can be removed or modified as needed since it is always visible now */
+    /* If you still want to keep it, you can keep the transition effects */
+}
+
+
+.breadcrumb-title {
+    font-weight: bold; /* Bold title */
+    font-size: 24px; /* Font size for the title */
+    flex: 1; /* Allow title to take up available space */
+    text-align: center; /* Center text for title */
+}
+
+.breadcrumb-navigation {
+    color: #555; /* Darker color for navigation */
+    font-size: 20px; /* Font size for navigation */
+    margin-top: 5px; /* Add space between title and navigation */
+}
+
+.bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(173, 216, 230, 0.7); /* Light blue */
+    border-radius: 50%;
+    pointer-events: none; /* Prevent interaction */
+    animation: bubble-animation 1s ease-out forwards;
+    z-index: 9999; /* Ensure the bubble appears above other content */
+  }
+  
+  @keyframes bubble-animation {
+    0% {
+      transform: scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+.progress-bar {
+   
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 30px;
+    /* border-bottom-left-radius: 10%;
+    border-bottom-right-radius: 10%; */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
+}
+
+
+.progress-navigation {
+    display: flex; /* Use flexbox for navigation layout */
+    align-items: center; /* Center items vertically */
+    font-size: 20px; /* Font size for navigation */
+    width: 100%; /* Ensure it takes full width */
+    padding-left: 42%;
+}
+
+.nav-item {
+    margin: 0 20px; /* Space around the items */
+    color: rgb(43, 118, 118);
+    font-weight: bold; /* Bold text for navigation items */
+}
+
+.separator {
+    margin: 0 10px; /* Space around the separator */
+    color: #555; /* Color for the separator */
+}
+
+

@@ -528,7 +528,7 @@ input:checked + .slider:before {
     flex-direction: row;
     margin-left: 45%;
     position: fixed;
-    bottom: 20px;
+    bottom: 4px;
     position: absolute;
     
 }

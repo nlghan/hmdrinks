@@ -250,7 +250,7 @@ const Info = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={'Thông tin cá nhân'}/>
 
             <div className="body-info">
                 <div className="container">

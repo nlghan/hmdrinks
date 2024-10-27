@@ -1,7 +1,8 @@
 .container-menu {
     width: 100%;
     height: 100vh; /* Full viewport height */
-    flex:0.4
+    flex:0.4;
+    padding-top: 150px;
     
   }
   
@@ -38,7 +39,10 @@
     transform: scale(1.05);
 }
 
-
+.menu-product-category li.active-category {
+    font-weight: bold;
+    color: #007bff;
+}
 
 .menu-category{
     margin-top: 10px;
@@ -83,9 +87,26 @@
     gap: 20px; /* Space between items */
 }
 
+
 .product-card {
     flex: 0 0 calc(25% - 20px); /* Each product card takes up 25% width, accounting for gap */
     box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95); /* Start closer to full size for a gentler zoom */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1); /* End at full size */
+    }
+}
+
+.zoom-in {
+    opacity: 0;
+    animation: zoomIn 1s ease-in-out forwards; /* Reduced duration for a softer movement */
 }
 
 

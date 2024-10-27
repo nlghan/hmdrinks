@@ -513,17 +513,12 @@ const Category = () => {
                                                     >
                                                         <i className="ti-pencil" style={{color: "blue", fontSize: "20px"}}></i> {/* Edit icon */}
                                                     </button>
-                                                    <button
-                                                        className="cate-btn"
-                                                        onClick={() => handleDeleteCategory(category.cateId)}
-                                                    >
-                                                        <i className="ti-trash" style={{color: "red", fontSize: "20px"}}></i> {/* Trash/delete icon */}
-                                                    </button>
+                                                
                                                     <button
                                                         className="cate-btn"
                                                         onClick={() => handleViewProduct(category.cateId, category.cateName)}
                                                     >
-                                                        <i className="ti-eye" style={{color: "green", fontSize: "20px"}}></i> {/* View/eye icon */}
+                                                        <i className="ti-eye" style={{color: "red", fontSize: "20px"}}></i> {/* View/eye icon */}
                                                     </button>
 
                                                 </div>
