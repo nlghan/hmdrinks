@@ -1,0 +1,118 @@
+/* Favorite.css */
+
+.favorites-container {
+    display: flex; /* Use flexbox to create rows */
+    flex-wrap: wrap; /* Allow items to wrap onto the next line */
+    justify-content: center; /* Center items */
+    margin: 20px; /* Add margin around the container */
+    padding: 20px; /* Add padding if necessary */
+    gap: 100px; /* Space between items */
+    width: 100%;
+}
+
+.fav-container {
+    padding: 20px;
+    padding-top: 50px;
+    margin: 0 auto;
+    width: 100%;
+    height: 800px;
+    position: relative;
+    overflow: hidden; /* Ensures the background image fills the container */
+}
+
+.carousel-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 100vw;
+}
+
+.carousel-button {
+    background-color: #888;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.carousel-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fav-title {
+    text-align: center;
+    font-family: "Inter";
+}
+
+.fav-container::before {
+    content: ''; /* Create an empty element */
+    position: absolute;
+    top: -440px;
+    left: 0;
+    right:-280px;
+    bottom: 0;
+    background-image: url('../../assets/img/d.jpg'); /* Set the background image */
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    opacity: 1; /* Make the background faint so content is readable */
+}
+
+/* Styles for each favorite card */
+.fav-card {
+    flex: 0 1 calc(33.333% - 20px); /* 3 items per row, accounting for margin */
+    box-sizing: border-box;
+    margin: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    background-color: #e0dddd;
+    position: relative;
+    z-index: 1;
+}
+
+.fav-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for images inside fav-card */
+.fav-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Ensures images maintain aspect ratio */
+    border-bottom: 1px solid #ddd; /* Separates image from content */
+}
+
+.fav-card-content {
+    padding: 15px;
+}
+
+.fav-card-content h2 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.fav-card-content .size {
+    color: #555;
+    margin: 5px 0;
+}
+
+.view-details {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.view-details:hover {
+    background-color: #218838;
+}

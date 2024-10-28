@@ -11,10 +11,14 @@ const Navbar = ({ currentPage }) => {
   const location = useLocation();
   const { isLoggedIn, logout } = useAuth();
 
-  // Hide breadcrumb if on homepage or product detail page
-  const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home');
+  // Hide breadcrumb if on homepage, product detail page, or root URL
+  const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '');
   // State to manage box shadow visibility
   const [showBoxShadow, setShowBoxShadow] = useState(location.pathname === '/home' || location.pathname.startsWith('/product/'));
+  // State to manage the visibility of the navbar menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // State to determine if the screen is small
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Adjust threshold as needed
 
   const handleLogin = () => {
     navigate('/login');
@@ -62,6 +66,20 @@ const Navbar = ({ currentPage }) => {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 1571); // Adjust threshold as needed
+    };
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleClick = (e) => {
       createBubble(e);
     };
@@ -94,15 +112,26 @@ const Navbar = ({ currentPage }) => {
   // Update breadcrumb and box shadow visibility when route changes
   useEffect(() => {
     const isProductDetailPage = location.pathname.startsWith('/product/');
-    setShowBreadcrumb(location.pathname !== '/home' && !isProductDetailPage);
+    setShowBreadcrumb(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '' && !isProductDetailPage);
     setShowBoxShadow(location.pathname === '/home' || isProductDetailPage);
   }, [location.pathname]);
+
+  // Toggle menu visibility
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
 
   return (
     <>
       <div className={`navbar ${showBoxShadow ? 'box-shadow' : ''}`}>
         <img src={assets.logo} alt='' className="logo" />
-        <ul className="navbar-menu">
+        {/* Only show the toggle button on small screens */}
+        {isSmallScreen && (
+          <div className="navbar-toggle" onClick={toggleMenu}>
+            ☰
+          </div>
+        )}
+        <ul className={`navbar-menu ${isMenuOpen ? 'show' : ''}`}>
           <li
             onClick={() => navigate('/home')}
             className={location.pathname === '/home' ? 'active' : ''}
@@ -133,22 +162,37 @@ const Navbar = ({ currentPage }) => {
           >
             LIÊN HỆ
           </li>
-        </ul>
-        <div className="navbar-right">
-          {!isLoggedIn ? (
-            <>
-              <button className='login1' onClick={handleLogin}>Đăng Nhập</button>
-              <button className='signup' onClick={handleRegister}>Đăng Ký</button>
-            </>
-          ) : (
-            <>
-              <i className="ti-shopping-cart" onClick={handleCartIconClick}></i>
-              <i className="ti-heart" onClick={handleFavIconClick}></i>
-              <i className="ti-user" onClick={handleUserIconClick}></i>
-              <button className='signup' onClick={handleLogout}>Đăng Xuất</button>
-            </>
+          
+          {/* Group icons in a single div for better spacing control */}
+          {isLoggedIn && (
+            <div className="icon-group">
+              <li onClick={handleCartIconClick}>
+                <i className="ti-shopping-cart"></i>
+                {isSmallScreen && <span> Giỏ Hàng</span>}
+              </li>
+              <li onClick={handleFavIconClick}>
+                <i className="ti-heart"></i>
+                {isSmallScreen && <span> Yêu Thích</span>}
+              </li>
+              <li onClick={handleUserIconClick}>
+                <i className="ti-user"></i>
+                {isSmallScreen && <span> Thông Tin</span>}
+              </li>
+            </div>
           )}
-        </div>
+          <li>
+            {isLoggedIn ? (
+              <button className='signup' style={{marginRight:'80px'}} onClick={handleLogout}>Đăng Xuất</button>
+            ) : (
+              <button className='login1' onClick={handleLogin}>Đăng Nhập</button>
+            )}
+          </li>
+          {!isLoggedIn && (
+            <li style={{marginRight:'10px'}}>
+              <button className='signup' onClick={handleRegister}>Đăng Ký</button>
+            </li>
+          )}
+        </ul>
       </div>
 
       {/* Breadcrumb is hidden on homepage and product detail page */}

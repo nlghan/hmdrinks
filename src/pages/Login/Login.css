@@ -41,12 +41,11 @@
 
 .login-form {
     flex: 1; 
-    max-width: 400px;
+    max-width: 600px;
     margin: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
     padding: 20px;
 }
 
@@ -214,16 +213,6 @@
 
 
 
-.login-form {
-    flex: 1; 
-    max-width: 400px;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
 
 .login-form h2 {
     text-align: left;
@@ -304,15 +293,6 @@
     vertical-align: middle; 
 }
 
-/* Login.css */
-/* Đặt mặc định opacity là 0 và không hiển thị */
-/* Đặt mặc định opacity là 0 và không hiển thị */
-/* Đặt mặc định opacity là 0 và phần tử ở vị trí dịch xuống */
-/* Đặt mặc định opacity là 0 để phần tử không hiển thị */
-/* Đặt mặc định opacity là 0 và phần tử ở vị trí dịch xuống */
-/* Đặt mặc định opacity là 0 và phần tử ở vị trí dịch xuống */
-
-
 
   .fade-enter, .fade-exit {
     opacity: 1;
@@ -344,4 +324,111 @@
     width: 100%;
     margin-bottom: 10px;
     color: #666;
+}
+
+/* Media Queries for Responsiveness */
+/* Media Queries for Responsiveness */
+@media (max-width: 1200px) {
+    .login-container {
+        flex-direction: column; /* Stack image and form vertically */
+        padding: 15px; /* Adjust padding for medium screens */
+    }
+
+    .login-image {
+        margin-bottom: 15px; /* Add space below image */
+    }
+
+    .login-form {
+        width: 1000px; /* Allow form to take full width */
+        padding: 20px; /* Adjust padding for the form */
+    }
+
+    .input {
+        width: 90%; /* Make input fields wider on medium screens */
+        font-size: 16px; /* Ensure font size is readable */
+    }
+
+    .button-group-login {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: center; /* Center buttons */
+    }
+
+    .btn-login, .btn-google {
+        width:80%; /* Make buttons take full width */
+        margin-right: 20%;
+        margin-bottom: 10px; /* Add space between buttons */
+        padding: 8px 12px; /* Adjust padding for smaller buttons */
+        font-size: 14px; /* Smaller font size */
+        height: 40px;
+    }
+    .register-text{
+        text-align: center;
+    }
+    .forgot-pass-link{
+        margin-right: 130px;
+    }
+}
+
+@media (max-width: 800px) {
+    .login-container {
+        flex-direction: column; /* Stack image and form vertically */
+        padding: 10px;
+    }
+
+    .login-image {
+        margin-bottom: 20px; /* Add space below image */
+    }
+
+    .login-form {
+        max-width: 100%; /* Make the form take 90% of the available width */
+        padding: 25px; /* Increase padding for a more spacious look */
+       
+       
+    }
+
+    .input {
+        width: 100%; /* Make input fields take full width of the form */
+    }
+
+    .button-group-login {
+        flex-direction: column; /* Stack buttons vertically */
+    }
+
+    .btn-login, .btn-google {
+        height: 35px;
+        margin-right: 20%;
+        width: 80%;
+        font-size: 12px; /* Consistent smaller font size */
+    }
+    .forgot-pass-link{
+        margin-right: 130px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form h2 {
+        font-size: 24px; /* Adjust font size for headings */
+    }
+
+    .input {
+        font-size: 14px; /* Reduce font size of input */
+    }
+
+    .btn-login, .btn-google {  
+        height: 35px;
+        margin-right: 20%;
+        width: 80%;
+        font-size: 12px; /* Consistent smaller font size */
+    }
+
+    .btn-google {
+        margin-right: 0; /* Remove right margin for smaller screens */
+    }
+
+    .register-text, .forgot-pass-link {
+        font-size: 14px; /* Adjust font size for links */
+    }
+    .forgot-pass-link{
+        margin-right: 150px;
+    }
 }

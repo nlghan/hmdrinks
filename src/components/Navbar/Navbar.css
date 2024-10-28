@@ -1,7 +1,7 @@
+/* Import fonts as before */
 @import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
-
 
 .navbar {
     width: auto;
@@ -10,7 +10,8 @@
     justify-content: space-between;
     align-items: center;
     background-color: white;
-    /* background: linear-gradient(to top,white, rgb(254, 235, 235)); */
+    position: relative; /* For absolute positioning of the toggle menu */
+    
 }
 
 .box-shadow {
@@ -18,7 +19,7 @@
 }
 
 .logo {
-    height:80px; 
+    height: 80px; 
     padding-bottom: 10px;
 }
 
@@ -30,21 +31,26 @@
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     cursor: pointer;
+    margin-bottom: 0px;
+    align-items: center;
+    flex-grow: 1; /* Allow it to grow */
+    margin-left: 13%;
+    
     
 }
 
-.navbar-menu li{
+.navbar-menu li {
     transition: transform 0.3s ease;
 }
 
-.navbar-menu li:hover{
+.navbar-menu li:hover {
     transform: scale(1.05);
 }
-
 
 .navbar-right {
     display: flex;
     gap: 25px; 
+    align-items: center;
 }
 
 .login1, .signup {
@@ -60,6 +66,9 @@
 
 .login1 {
     background: #FFF;
+    margin-left: 138px;
+
+    
 }
 
 .signup {
@@ -67,44 +76,35 @@
     color: #FFF;
 }
 
-/* Thêm hover effect cho các nút */
+/* Hover effect for buttons */
 .login1:hover, .signup:hover {
     opacity: 0.9;
     background-color: rgb(127, 180, 255);
     color: black;
 }
 
-.navbar .active{
+.navbar .active {
     font-weight: bold;
     padding-bottom: 2px;
     border-bottom: 2px solid #FF7380 ;
 }
 
-.navbar-right {
-    display: flex;
-    gap: 25px; 
-    align-items: center; /* Để căn giữa các phần tử trong navbar */
-}
-
 .navbar-right i {
-    font-size: 22px; /* Điều chỉnh kích thước của biểu tượng */
-    cursor: pointer; /* Thêm con trỏ để cho biết rằng biểu tượng có thể nhấp được */
-    transition: transform 0.3s ease; /* Hiệu ứng chuyển tiếp khi hover */
+    font-size: 22px; /* Adjust icon size */
+    cursor: pointer; /* Indicate clickable icon */
+    transition: transform 0.3s ease; /* Transition effect on hover */
 }
 
 .navbar-right i:hover {
-    transform: scale(1.1); /* Phóng to biểu tượng khi hover */
+    transform: scale(1.1); /* Scale icon on hover */
 }
 
-/* Nếu bạn muốn thêm khoảng cách giữa các biểu tượng và nút đăng xuất */
 .navbar-right .signup {
-    margin-left: 15px; /* Thêm khoảng cách bên trái cho nút Đăng xuất */
+    margin-left: 15px; /* Space between icons and buttons */
 }
-
 
 .breadcrumb {
-    
-    background-color:  rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
+    background-color: rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
     padding: 15px; /* Padding for the breadcrumb */
     display: flex; /* Use flexbox for layout */
     flex-direction: column; /* Change to column layout */
@@ -112,14 +112,8 @@
     align-items: center; /* Center content horizontally */
     height: 80px;
     border-bottom-left-radius: 50%;
-    border-bottom-right-radius: 50% ;
+    border-bottom-right-radius: 50%;
 }
-
-.breadcrumb.show {
-    /* The show class can be removed or modified as needed since it is always visible now */
-    /* If you still want to keep it, you can keep the transition effects */
-}
-
 
 .breadcrumb-title {
     font-weight: bold; /* Bold title */
@@ -143,32 +137,28 @@
     pointer-events: none; /* Prevent interaction */
     animation: bubble-animation 1s ease-out forwards;
     z-index: 9999; /* Ensure the bubble appears above other content */
-  }
+}
   
-  @keyframes bubble-animation {
+@keyframes bubble-animation {
     0% {
-      transform: scale(0.5);
-      opacity: 1;
+        transform: scale(0.5);
+        opacity: 1;
     }
     100% {
-      transform: scale(3);
-      opacity: 0;
+        transform: scale(3);
+        opacity: 0;
     }
-  }
+}
 
 .progress-bar {
-   
     padding: 15px; /* Padding for the breadcrumb */
     display: flex; /* Use flexbox for layout */
     flex-direction: column; /* Change to column layout */
     justify-content: center; /* Center content vertically */
     align-items: center; /* Center content horizontally */
     height: 30px;
-    /* border-bottom-left-radius: 10%;
-    border-bottom-right-radius: 10%; */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
 }
-
 
 .progress-navigation {
     display: flex; /* Use flexbox for navigation layout */
@@ -188,5 +178,115 @@
     margin: 0 10px; /* Space around the separator */
     color: #555; /* Color for the separator */
 }
+.navbar-toggle {
+    display: none; /* Hide toggle button by default */
+  }
+/* Responsive styles */
+@media (max-width: 1571px) {
+    .navbar {
+        padding: 0 20px; /* Reduce padding for smaller screens */
+    }
+
+    .navbar-menu {
+        display: none; /* Hide the menu by default */
+        flex-direction: column; /* Stack items vertically */
+        position: absolute; /* Overlay menu */
+        top: 80px; /* Adjust based on navbar height */
+        left: 0; /* Align to left */
+        width: 100%; /* Full width */
+        background-color: white; /* Background color */
+        z-index: 10; /* Ensure it appears above other content */
+        align-items: flex-start;
+        margin-left: 0;
+    }
+
+    .navbar-menu.show {
+        display: flex; /* Show menu when toggled */
+        gap:15px;
+        margin-top: 10px;
+    }
+
+    .navbar-toggle {
+        display: block; /* Show toggle button */
+        font-size: 24px; /* Increase font size for better visibility */
+        cursor: pointer; /* Indicate it's clickable */
+    }
+
+    .navbar-right {
+        display: none; /* Hide right-side buttons in mobile view */
+    }
+    .icon-group {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0px !important;
+      }
+      .login1{
+        margin-left: 0px !important;
+      }
+      .signup
+      {
+        width: 130px;
+        text-align: center;
+        align-items: center;
+        
+      }
+}
+
+@media (max-width: 800px) {
+    .navbar {
+        padding: 0 20px; /* Reduce padding for smaller screens */
+    }
+
+    .navbar-menu {
+        display: none; /* Hide the menu by default */
+        flex-direction: column; /* Stack items vertically */
+        position: absolute; /* Overlay menu */
+        top: 80px; /* Adjust based on navbar height */
+        left: 0; /* Align to left */
+        width: 100%; /* Full width */
+        background-color: white; /* Background color */
+        z-index: 10; /* Ensure it appears above other content */
+        align-items: flex-start;
+        margin-left: 0px !important;
+    }
+
+    .navbar-menu.show {
+        display: flex; /* Show menu when toggled */
+        gap:15px
+
+    }
+
+    .navbar-toggle {
+        display: block; /* Show toggle button */
+        font-size: 24px; /* Increase font size for better visibility */
+        cursor: pointer; /* Indicate it's clickable */
+    }
+
+    .navbar-right {
+        display: none; /* Hide right-side buttons in mobile view */
+    }
+    .icon-group {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0px !important;
+
+      }
+      .login1{
+        margin-left: 0px !important;
+      }
+      
+  }
 
 
+  
+  .icon-group {
+    display: flex; /* Use flexbox for icon layout */
+    align-items: center; /* Center icons vertically */
+    margin-left: auto; /* Push icons to the right */
+    gap: 15px; /* Space between icons */
+  }
+  
+
+  
