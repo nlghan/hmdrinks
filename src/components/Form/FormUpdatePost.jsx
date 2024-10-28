@@ -103,11 +103,17 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     const handleInputChange = (event) => {
         const { name, value, files } = event.target;
         if (name === 'file') {
-            // Nếu người dùng chọn tệp, cập nhật tên tệp
-            setFormData(prevState => ({
-                ...prevState,
-                fileName: files[0] ? files[0].name : '', // Lưu tên tệp
-            }));
+            // Nếu người dùng chọn tệp, cập nhật tên tệp và URL ảnh
+            const file = files[0];
+            if (file) {
+                const imageUrl = URL.createObjectURL(file); // Tạo URL cho ảnh đã chọn
+                setFormData(prevState => ({
+                    ...prevState,
+                    fileName: file.name, // Lưu tên tệp
+                    file: file, // Lưu tệp để tải lên sau
+                    imageUrl, // Cập nhật URL ảnh
+                }));
+            }
         } else {
             // Cập nhật các trường khác
             setFormData(prevState => ({
@@ -117,6 +123,8 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         }
     };
 
+
+
     // Helper function to format the datetime-local value
     const formatDateTime = (dateTime) => {
         const date = new Date(dateTime);
@@ -125,85 +133,94 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`; // Use T for datetime-local input
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status, voucherId } = formData; // Đảm bảo voucherId có trong formData
+        console.log("Post ID at submit:", postId);
+        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status, imageUrl, voucherId } = formData;
         const token = getCookie('access_token');
-        const userId = 1; // Thay đổi ID người dùng nếu cần
-    
+        const userId = 1;
+
         if (!token) {
-            setErrorMessage("Bạn cần đăng nhập để cập nhật bài đăng.");
+            setErrorMessage("Bạn cần đăng nhập để thực hiện thao tác này.");
             return;
         }
-    
+        console.log("Token:", token);
         if (!title || !description || !shortDescription) {
             setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
             return;
         }
-    
-        // Kiểm tra voucherId có tồn tại
-        if (!voucherId) {
-            setErrorMessage("Voucher ID không hợp lệ.");
-            return;
-        }
-    
+
         try {
-            // 1. Cập nhật bài đăng mà không có hình ảnh trước
             const postData = {
                 postId,
                 title,
                 description,
                 shortDescription,
                 userId,
-                bannerUrl: "" // Khởi tạo biến cho bannerUrl, sẽ cập nhật sau khi tải ảnh
+                url: imageUrl,
             };
-    
-            console.log("Updating post with data:", postData);
-            const postResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, postData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            // 2. Tải hình ảnh nếu có
-            let bannerUrl = ""; // Khởi tạo biến để lưu URL hình ảnh
-            if (file) {
-                const imageFormData = new FormData();
-                imageFormData.append('file', file);
-                imageFormData.append('postId', postId); // Thêm postId vào form data
-    
-                console.log("Uploading image with data:", imageFormData);
-                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/post/upload`, imageFormData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-    
-                bannerUrl = uploadResponse.data.bannerUrl; // Lưu URL hình ảnh
-                console.log("Image uploaded successfully with URL:", bannerUrl);
-            }
-    
-            // 3. Cập nhật bannerUrl cho bài đăng nếu có
-            if (bannerUrl) {
-                postData.bannerUrl = bannerUrl; // Cập nhật bannerUrl vào dữ liệu bài đăng
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, postData, {
+
+            const postResponse = await axios.put(
+                `${import.meta.env.VITE_API_BASE_URL}/post/update`,
+                postData,
+                {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
-                    },
-                });
+                    }
+                }
+            );
+
+            console.log("Post updated successfully:", postResponse.data);
+
+            let bannerUrl = "";
+            if (file) {
+                const imageFormData = new FormData();
+                imageFormData.append('file', file);
+                imageFormData.append('postId', postId);
+
+                try {
+                    const uploadResponse = await axios.post(
+                        `${import.meta.env.VITE_API_BASE_URL}/image/post/upload`,
+                        imageFormData,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'multipart/form-data',
+                            }
+                        }
+                    );
+                    bannerUrl = uploadResponse.data.url;
+                } catch (uploadError) {
+                    console.error('Error uploading image:', uploadError);
+                    setErrorMessage('Có lỗi xảy ra khi tải ảnh lên.');
+                    return;
+                }
             }
-    
-            // 4. Cập nhật voucher
+
+            if (bannerUrl) {
+                postData.bannerUrl = bannerUrl;
+                await axios.put(
+                    `${import.meta.env.VITE_API_BASE_URL}/post/update`,
+                    postData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+            }
+
             const formattedStartDate = formatDateTime(startDate);
             const formattedEndDate = formatDateTime(endDate);
-            
-            // Cập nhật dữ liệu voucher theo yêu cầu từ backend
+
             const voucherData = {
                 voucherId,
                 key: keyVoucher,
@@ -211,50 +228,48 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                 startDate: formattedStartDate,
                 endDate: formattedEndDate,
                 status,
-                postId, // postId từ formData hoặc giá trị đã xác định
+                postId,
             };
-    
             console.log("Updating voucher with data:", voucherData);
-            const voucherResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/voucher/update`, voucherData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            console.log("Voucher updated successfully:", voucherResponse.data); // Log phản hồi khi cập nhật voucher
-    
-            // Thiết lập thông báo thành công
+            let voucherResponse;
+            try {
+                voucherResponse = await axios.put(
+                    `${import.meta.env.VITE_API_BASE_URL}/voucher/update`,
+                    voucherData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+                console.log("Voucher updated successfully:", voucherResponse.data);
+            } catch (error) {
+                console.error("Error updating voucher:", error.response ? error.response.data : error.message);
+            }
+
             setSuccessMessage("Bài đăng và voucher đã được cập nhật thành công!");
             setErrorMessage("");
-    
-            // Gọi hàm onSave thay vì onSubmit
+
             if (typeof onSave === 'function') {
-                onSave({ ...postResponse.data, bannerUrl, voucherResponse: voucherResponse.data }); // Truyền dữ liệu bài đăng đã cập nhật về component cha
-            } else {
-                console.error('onSave is not a function');
+                onSave({ ...postResponse.data, bannerUrl, voucherResponse: voucherResponse?.data });
             }
-    
+
             setTimeout(() => {
                 setSuccessMessage('');
                 onClose();
             }, 2000);
-    
+
         } catch (error) {
             console.error('Error updating post or voucher:', error);
-    
-            // Thêm log chi tiết lỗi
-            if (error.response) {
-                console.log("Response data:", error.response.data);
-                setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi trong quá trình cập nhật.');
-            } else {
-                setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
-            }
+
+            setErrorMessage(
+                error.response?.data?.message || 'Đã xảy ra sự cố. Vui lòng thử lại sau.'
+            );
         }
     };
-    
-    
-    
+
+
 
 
 
@@ -322,6 +337,8 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                             {formData.fileName && !formData.imageUrl && (
                                 <p>Đã chọn tệp: {formData.fileName}</p> // Hiển thị tên tệp đã chọn
                             )}
+
+
                         </div>
 
 
@@ -359,7 +376,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                 type="datetime-local"
                                 id="startDate"
                                 name="startDate"
-                                value={formatDateTime(formData.startDate)}
+                                value={formatDateTime(formData.startDate).slice(0, 16)} // Chỉ lấy yyyy-MM-ddTHH:mm
                                 onChange={handleInputChange}
                             />
                         </div>
@@ -369,10 +386,11 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                 type="datetime-local"
                                 id="endDate"
                                 name="endDate"
-                                value={formatDateTime(formData.endDate)}
+                                value={formatDateTime(formData.endDate).slice(0, 16)} // Chỉ lấy yyyy-MM-ddTHH:mm
                                 onChange={handleInputChange}
                             />
                         </div>
+
                         <div className="form-update-post-group">
                             <label htmlFor="status">Trạng thái</label>
                             <select
