@@ -22,6 +22,7 @@ import logo from '../assets/img/logo.png'
 import login from '../assets/img/login.jpg'
 import gg from '../assets/img/icongg.jpg'
 import avtrang from '../assets/img/avatar_trang.jpg'
+import voucher from '../assets/img/voucher.png'
 
 export const assets =
 {
@@ -48,5 +49,6 @@ export const assets =
     logo,
     login,
     gg,
-    avtrang
+    avtrang,
+    voucher
 };

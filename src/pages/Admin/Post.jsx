@@ -70,7 +70,8 @@ const Post = () => {
             });
 
             const dataPosts = responsePosts.data;
-            const fetchedPosts = dataPosts.listPosts;
+            const fetchedPosts = dataPosts.listPosts || [];
+            console.log("Fetched Posts:", fetchedPosts); // Log dữ liệu bài post
 
             // Fetch all vouchers
             const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
@@ -78,20 +79,31 @@ const Post = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            console.log("Raw API response:", responseVouchers.data); // Kiểm tra phản hồi đầy đủ từ API
+            const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
+            console.log("Fetched Vouchers:", fetchedVouchers); // Log dữ liệu voucher
+            fetchedVouchers.forEach(voucher => console.log("Voucher data:", voucher)); // Log từng voucher
 
-            const fetchedVouchers = responseVouchers.data.voucherResponseList;
 
             // Kết hợp post và voucher dựa trên postId
             const postsWithVouchers = fetchedPosts.map(post => {
-                const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === post.postId);
+                const matchingVoucher = fetchedVouchers.find(voucher => {
+                    const isMatching = voucher.postId === post.postId;
+                    if (isMatching) {
+                        console.log(`Matching Voucher Found: Post ID ${post.postId}, Voucher ID ${voucher.voucherId}`);
+                    }
+                    return isMatching;
+                });
                 return {
                     ...post,
-                    voucher: matchingVoucher || null // Nếu không có voucher, set là null
+                    voucher: matchingVoucher || null
                 };
             });
 
-            setPosts(postsWithVouchers); // Cập nhật posts với voucher kèm theo
-            setTotalPage(dataPosts.totalPage);
+            console.log("Posts with Vouchers:", postsWithVouchers); // Log dữ liệu đã kết hợp
+
+            setPosts(postsWithVouchers);
+            setTotalPage(dataPosts.totalPages);
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -101,6 +113,8 @@ const Post = () => {
             console.error('Error fetching posts or vouchers:', error);
         }
     };
+
+
 
     useEffect(() => {
         fetchPostVoucher(currentPage, limit);
@@ -258,7 +272,7 @@ const Post = () => {
         setPosts((prevPosts) =>
             prevPosts.map((post) => (post.postId === updatedPost.postId ? updatedPost : post))
         );
-    };
+    };    
     const handleCloseUpdatePost = () => {
         setIsUpdatePostOpen(false); // Đóng form
         setPostToUpdate(null); // Xóa thông tin bài đăng
@@ -357,7 +371,7 @@ const Post = () => {
                                             <td>{post.title}</td>
                                             <td>{post.shortDescription}</td>
                                             <td>
-                                                {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '70px', height: '70px' }} /> : 'No Image'}
+                                                {post.bannerUrl ? <img src={post.bannerUrl} alt="Post Banner" style={{ width: '70px', height: '70px' }} /> : 'No Image'}
                                             </td>
 
                                             {/* Thêm thông tin voucher nếu có */}

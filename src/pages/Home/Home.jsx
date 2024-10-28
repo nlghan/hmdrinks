@@ -4,6 +4,7 @@ import axios from 'axios';
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
 import PostCard from "../../components/Card/PostCard.jsx";
+import { assets } from "../../assets/assets.js";
 import "./Home.css";
 
 const Home = () => {
@@ -76,15 +77,16 @@ const Home = () => {
             <div className="home-content">
                 <div className="post-grid">
                     {posts.slice(0, visiblePosts).map((post) => (
-                        <PostCard
-                            key={post.postId}
-                            image={post.url || "defaultImage.jpg"}
-                            title={post.title}
-                            description={post.shortDescription}
-                            buttonText="Chi tiết"
-                            onClick={() => handleDetailsClick(post.postId)} // Đảm bảo rằng bạn truyền hàm này
-                        />
 
+                       <PostCard
+                       key={post.postId}
+                       image={post.bannerUrl || assets.avtrang} 
+                       title={post.title}
+                       description={post.shortDescription}
+                       buttonText="Chi tiết"
+                       onClick={() => handleDetailsClick(post.postId)} // Đảm bảo rằng bạn truyền hàm này
+                   />                  
+                   
 
                     ))}
                 </div>
