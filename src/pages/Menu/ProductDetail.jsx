@@ -166,7 +166,7 @@ const ProductDetail = () => {
             quantity: quantity,
             image: product.productImageResponseList[currentImageIndex].linkImage
         });
-        alert(`${product.proName} has been added to your cart!`);
+       
     };
 
     const formattedPrice = new Intl.NumberFormat('vi-VN', {
