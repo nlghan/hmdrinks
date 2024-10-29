@@ -24,6 +24,8 @@ public class ReviewController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createReview(@RequestBody CreateNewReview req,HttpServletRequest httpRequest){
+        System.out.println("Creating review for userId: " + req.getUserId());
+
         supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
         return reviewService.createReview(req);
     }
@@ -36,11 +38,9 @@ public class ReviewController {
 
     @DeleteMapping(value = "/delete")
     public ResponseEntity<?> deleteReview(@RequestBody DeleteReviewReq req, HttpServletRequest httpRequest) {
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        System.out.println("Deleting review with ID: " + req.getReviewId() + " for user ID: " + req.getUserId());
+        supportFunction.checkUserAuthorization(httpRequest, Long.valueOf(req.getUserId()));
         return reviewService.deleteOneReview(req);
     }
-
-
-
 
 }

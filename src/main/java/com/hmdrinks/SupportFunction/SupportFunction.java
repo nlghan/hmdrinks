@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -33,12 +34,30 @@ public class SupportFunction {
 
         String jwt = authHeader.substring(7);
         String userIdFromToken = jwtService.extractUserId(jwt);
-
+        System.out.println("UserId from request: " + userIdFromRequest);
+        System.out.println("UserId from token: " + userIdFromToken);
         if (!String.valueOf(userIdFromRequest).equals(userIdFromToken)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to perform this action");
         }
         return ResponseEntity.ok("Authorization successful");
     }
+
+    public boolean checkUserAuthorizationRe(HttpServletRequest httpRequest, Long userIdFromRequest) {
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing or invalid");
+        }
+
+        String jwt = authHeader.substring(7);
+        String userIdFromToken = jwtService.extractUserId(jwt);
+
+        if (!String.valueOf(userIdFromRequest).equals(userIdFromToken)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to perform this action");
+        }
+
+        return true;
+    }
+
 
     public void checkPhoneNumber(String phoneNumber, Integer userId, UserRepository userRepository) {
         // Kiểm tra độ dài của số điện thoại

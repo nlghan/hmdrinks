@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class CRUDPostResponse {
     private int postId;
-    private String url;
+    private String bannerUrl;
     private String description;
     private String title;
     private String shortDescription;
