@@ -26,7 +26,8 @@ const Post = () => {
     const [searchTerm, setSearchTerm] = useState(''); // Trạng thái từ khóa tìm kiếm
     const [currentPage, setCurrentPage] = useState(1);  // Pagination: Current page
     const [limit, setLimit] = useState(5);              // Pagination: Items per page
-    const [totalPage, setTotalPage] = useState(1);       // Pagination: Total pages
+    const [totalPage, setTotalPage] = useState(1); 
+    const [postData, setPostData] = useState({});      // Pagination: Total pages
 
     // Xác thực admin qua token
     const getUserIdFromToken = (token) => {
@@ -272,6 +273,7 @@ const Post = () => {
         setPosts((prevPosts) =>
             prevPosts.map((post) => (post.postId === updatedPost.postId ? updatedPost : post))
         );
+        setPostData(updatedPost);
     };    
     const handleCloseUpdatePost = () => {
         setIsUpdatePostOpen(false); // Đóng form
