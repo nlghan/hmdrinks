@@ -18,8 +18,8 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         file: null,
         keyVoucher: '', // Mã giảm giá
         discount: 0,
-        startDate: '',
-        endDate: '',
+        startDate: '2024-11-12 07:01:29',
+        endDate: '2024-11-12 08:01:29',
         status: 'ACTIVE', // Trạng thái voucher
     });
 
@@ -273,11 +273,12 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         </div>
                     </div>
 
-                    <div className="form-add-post-actions">
+                   
+                </form>
+                <div className="form-add-post-actions">
                         <button type="submit">Thêm Bài Đăng và Voucher</button>
                         <button type="button" onClick={onClose}>Hủy</button>
                     </div>
-                </form>
             </div>
         </div>
     );

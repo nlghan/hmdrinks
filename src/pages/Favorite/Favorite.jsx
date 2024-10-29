@@ -5,24 +5,27 @@ import './Favorite.css';
 import { useNavigate } from 'react-router-dom';
 import FavCard from '../../components/Card/FavCard';
 import { useFavorite } from '../../context/FavoriteContext';
+import { useCart } from '../../context/CartContext'; // Import your Cart context
 import la from "../../assets/img/la.png";
 
 const Favorite = () => {
     const navigate = useNavigate();
-    const { favoriteItems, productDetails, categoryDetails, removeFavorite, errorMessage } = useFavorite();
+    const { favoriteItems, productDetails, categoryDetails, removeFavorite, errorMessage, deleteAll } = useFavorite();
+    const { addToCart } = useCart(); // Destructure addToCart from Cart context
     const [visibleIndex, setVisibleIndex] = useState(0);
-
     const itemsPerPage = 3; // Maximum items to show at a time
 
     const handleDeleteFavorite = async (favItemId) => {
         try {
-            // Pass an object with favItemId to remove from favorites
             await removeFavorite({ favItemId }, 'favorite'); // Specify source as 'favorite'
         } catch (error) {
             console.error("Delete error:", error);
         }
     };
-    
+
+    const handleDeleteAll = async () => {
+        deleteAll();
+    };
 
     const handleNext = () => {
         if (visibleIndex + itemsPerPage < favoriteItems.length) {
@@ -36,6 +39,16 @@ const Favorite = () => {
         }
     };
 
+    const handleAddToCart = async (proId, size, quantity, proName) => {
+        // Call addToCart with the required product structure, including product name
+        await addToCart({
+            productId: proId,
+            size: size,
+            quantity: quantity, // Pass the quantity here
+            name: proName // Pass the product name here
+        });
+    };
+
     return (
         <>
             <Navbar currentPage={'Yêu thích'} />
@@ -43,8 +56,9 @@ const Favorite = () => {
             
             <div className="fav-container">
                 <h1 className="fav-title">Danh sách yêu thích</h1>
-                
+                <div className='delete-all-button' style={{ marginBottom: '0px' }} onClick={handleDeleteAll}>Xóa tất cả</div>
                 <div className="carousel-container">
+                    
                     <button onClick={handlePrev} disabled={visibleIndex === 0} className="carousel-button">{"<"}</button>
                     
                     <div className="favorites-container">
@@ -54,11 +68,12 @@ const Favorite = () => {
                                 product={{
                                     proId: item.proId, 
                                     size: item.size,
+                                    price: productDetails[item.proId]?.price, 
                                     proName: productDetails[item.proId]?.proName || "Loading...", 
                                     images: productDetails[item.proId]?.images || [], 
                                     cateName: categoryDetails[productDetails[item.proId]?.cateId]?.cateName || "Loading..."
                                 }} 
-                                onClick={() => navigate(`/product/${item.proId}`)}
+                                onClick={() => handleAddToCart(item.proId, item.size, 1, productDetails[item.proId]?.proName || "Unknown Product")} // Pass the product name
                                 onDeleteFavorite={() => handleDeleteFavorite(item.favItemId)} // Pass favItemId here
                             />
                         ))}
