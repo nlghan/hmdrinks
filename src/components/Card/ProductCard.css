@@ -1,89 +1,136 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-.product-card-price{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    
-}
-.product-card-p{
-    margin: 0;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-   
-}
-.card-product-price{
-    font-size: 20px;
-    color: black;
-    margin-bottom: 15px;
-    font-family: 'Taviraj';
-    font-weight: 500;
-}
 .product-card {
-    background-color: #fff;
-    padding: 20px;
+    background-color: #ffffff;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.); /* Adjusted shadow for all sides */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 270px;
-    transition: transform 0.3s ease; /* Transition for scaling */
+    height: 400px; /* Fixed height to prevent layout shift */
     cursor: pointer;
-    position: relative; /* Ensure positioning context for child elements */
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease; /* Slight shadow change on hover */
+    
 }
 
-.product-card:hover {
-    transform: scale(1.05); /* Scale the card to 1.05 on hover */
-    z-index: 1; /* Bring the hovered card above others */
-}
 
+/* Product image styling */
 .product-card img {
     width: 100%;
     height: 250px;
     border-radius: 10px;
-    transition: transform 0.3s ease; /* Add a transition for the image as well */
+    transition: transform 0.8s ease, height 0.5s ease; /* Transition for height */
 }
+
 
 .product-card:hover img {
-    transform: scale(1.1); /* Optional: Scale image slightly on hover */
+   transform: scale(1.1);
+    height: 220px; /* Reduce height to make space for button */
+    overflow: hidden;
 }
 
+/* Container for product information */
+.info-product-card {
+    padding: 15px 10px;
+    color: black;
+    font-family: 'Taviraj', sans-serif;
+    position: relative;
+    transition: all 0.3s ease;
+    transform: translateY(20px);
+    
+}
 
-.product-card h3 {
-    font-family: 'Inter', sans-serif;
+/* Product title */
+.info-product-card h3 {
+    margin: 10px 0;
+    font-size: 20px;
     font-weight: bold;
-    margin: 15px 0;
-    font-size: 22px;
-    text-align: left
+    color: black;
 }
 
+/* Price styling */
+.product-card-price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: black;
+    font-weight: 500;
+}
+
+/* Add-to-cart button */
 .add-cart {
-    padding:  10px 15px;
+    padding: 10px 15px;
     background-color: #ff7f7f;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin: 0;
-}
-.product-card-image-container {
-    position: relative;
+    font-size: 16px;
+    display: none; /* Hide button initially */
+
 }
 
+/* Show the add-to-cart button on hover */
+.product-card:hover .add-cart {
+    display: block; /* Show button on hover */
+    margin: auto;
+    
+}
+
+.product-card:hover {
+
+        background: linear-gradient(to bottom, white 54.5%, #f9e0cfbd 30%); /* White occupies 70%, then transitions to the other color */
+    
+    
+}
+.product-card:hover h3{
+
+   color:red
+
+
+}
+
+/* Animation for fading in each letter with zoom */
+@keyframes fadeInZoom {
+    0% {
+        opacity: 0; /* Initially invisible */
+        transform: translateY(10px) scale(0.9); /* Start slightly lower and smaller */
+    }
+    100% {
+        opacity: 1; /* Fully visible */
+        transform: translateY(0) scale(1); /* Return to original position and size */
+    }
+}
+
+
+
+/* Apply animation to each letter on hover of the parent */
+.product-card:hover .info-product-card h3 {
+    animation: fadeInZoom 0.5s forwards; /* Animation to fade in and zoom */
+}
+
+/* Add a delay for each letter to create the staggered effect */
+
+
+/* Add-to-cart button hover effect */
+.add-cart:hover {
+    background-color: rgb(9, 148, 148);
+}
+
+/* Favorite icon styling */
 .favorite-icon {
     position: absolute;
-    right: -10px;
+    top: 10px;
+    right: 10px;
     background: transparent;
     border: none;
     cursor: pointer;
     font-size: 21px;
-    color: red;
 }
 
 .favorite-icon i {
+    color: red;
     transition: color 0.3s ease;
 }
 
-.add-cart:hover{
-    background-color: rgb(9, 148, 148);
-}
