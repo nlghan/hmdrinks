@@ -10,5 +10,5 @@ import java.util.List;
 
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
-
+       OrderItem findByUserUserIdAndCartCartId(Integer userId, Integer cartId);
 }
