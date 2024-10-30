@@ -8,5 +8,7 @@ import java.util.List;
 public interface UserVoucherRepository  extends JpaRepository<UserVoucher,Integer> {
     List<UserVoucher> findByUserUserId(int userId);
 
+    UserVoucher findByUserVoucherId(int voucherId);
+
     UserVoucher findByUserUserIdAndVoucherVoucherId(int userId,int voucherId);
 }

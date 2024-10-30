@@ -87,13 +87,10 @@ public class FavouriteService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
         }
 
-        // Retrieve the favorite item by ID for the specified user
         Favourite favourite = favouriteRepository.findByUserUserId(userId);
         if (favourite == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite not found");
         }
-
-        // Create a response object based on the favorite found
         CreateNewFavouriteResponse favouriteResponse = new CreateNewFavouriteResponse(
                 favourite.getFavId(), // Assuming you have a cart ID in your Favourite entity
                 favourite.getUser().getUserId(),

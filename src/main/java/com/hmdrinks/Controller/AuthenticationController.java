@@ -23,6 +23,12 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @GetMapping("/oauth2")
+    public String secured()
+    {
+        return "hello";
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(
             @RequestBody LoginBasicReq request

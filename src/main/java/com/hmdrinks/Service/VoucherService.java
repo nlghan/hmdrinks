@@ -128,8 +128,8 @@ public class VoucherService {
         else
         {
             Voucher vou = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
-            if(vou != null){
-                throw new BadRequestException("Voucher Post already exists");
+            if(vou == null){
+                throw new BadRequestException("Voucher Not found");
             }
             Post post = postRepository.findByPostId(req.getPostId());
             if(post == null){
@@ -153,6 +153,7 @@ public class VoucherService {
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
+            voucher.setKey(req.getKey());
             voucherRepository.save(voucher);
             return  ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                     voucher.getVoucherId(),

@@ -18,9 +18,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-
-@Configuration
 @EnableWebSecurity
+@Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -45,7 +44,10 @@ public class SecurityConfig {
                                 "/configuration/security",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
+
+
                         ).permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
                         .requestMatchers("/api/product/view/**", "/api/product/list-product","/api/product/variants/**").permitAll()
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
@@ -74,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/fav/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/review/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/fav-item/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
+                        .requestMatchers("/api/orders/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(myAccessDeniedHandler))
@@ -84,7 +87,6 @@ public class SecurityConfig {
                         .logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutService)
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()));
-
         return http.build();
     }
 
