@@ -387,3 +387,8 @@
   font-size: 14px; /* Điều chỉnh kích thước chữ */
 }
 
+.gr-btn-cate{
+  display: flex;
+    justify-content: center;
+    gap: 8px;
+}

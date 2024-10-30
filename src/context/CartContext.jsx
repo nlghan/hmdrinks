@@ -210,7 +210,7 @@ export const CartProvider = ({ children }) => {
         if (!cartId) {
             await ensureCartExists(userId);
         }
-
+    
         console.log(cartId)
     
         // Fetch product details including the price based on size
@@ -245,6 +245,9 @@ export const CartProvider = ({ children }) => {
     
             if (response.ok) {
                 console.log('Item added to cart successfully:', data);
+                // Show alert for successful addition to cart
+                alert(`${product.name} đã được thêm vào giỏ hàng!`);
+    
                 // Update cart items
                 setCartItems((prevItems) => {
                     const itemExists = prevItems.find(item => item.productId === product.productId && item.size === product.size);
@@ -270,7 +273,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             console.error('Error while adding item to cart:', error);
         }
-    };
+    };    
     
 
     const increase = async (cartItemId) => {

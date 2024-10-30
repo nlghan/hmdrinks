@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './FormUpdatePost.css';
+import { formatISO } from 'date-fns';
 
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-
     if (parts.length === 2) return parts.pop().split(';').shift();
 };
 
@@ -22,106 +22,296 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         status: 'ACTIVE',
         imageUrl: '',
         fileName: '',
-        voucherId: '',
+        voucherId: null,
     });
 
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
+    const authToken = getCookie('access_token'); // Replace with your actual token retrieval logic
 
+    // Fetch post data based on the provided postId
     useEffect(() => {
-        const fetchPostDetails = async () => {
-            const token = getCookie('access_token'); // Lấy token từ cookie
-            console.log('Fetching post details for postId:', postId); // Log postId
-
+        const fetchPostData = async () => {
             try {
-                // 1. Fetch post details using postId
                 const postResponse = await axios.get(`http://localhost:1010/api/post/view/${postId}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}` // Gửi token trong header
-                    }
+                        'Authorization': `Bearer ${authToken}`,
+                        'accept': '*/*',
+                    },
                 });
 
-                console.log('Post details response:', postResponse.data); // Log phản hồi của bài đăng
+                if (postResponse.status === 200) {
+                    const postData = postResponse.data.body;
+                    setFormData((prev) => ({
+                        ...prev,
+                        title: postData.title,
+                        description: postData.description,
+                        shortDescription: postData.shortDescription,
+                        imageUrl: postData.url,
+                    }));
 
-                const { title, description, shortDescription, bannerUrl } = postResponse.data.body; // Sửa để truy cập đúng dữ liệu
-                setFormData(prevState => ({
-                    ...prevState,
-                    title,
-                    description,
-                    shortDescription,
-                    imageUrl: bannerUrl,
-                }));
+                    // Fetch voucher data list and match with postId
+                    const voucherListResponse = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'accept': '*/*',
+                        },
+                    });
 
-                // 2. Fetch all vouchers
-                const voucherResponse = await axios.get('http://localhost:1010/api/voucher/view/all', {
-                    headers: {
-                        'Authorization': `Bearer ${token}` // Gửi token trong header
+                    if (voucherListResponse.status === 200) {
+                        const matchingVoucher = voucherListResponse.data.body.voucherResponseList.find(
+                            (voucher) => voucher.postId === postId
+                        );
+
+                        if (matchingVoucher) {
+                            // Fetch specific voucher details
+                            const voucherResponse = await axios.get(
+                                `http://localhost:1010/api/voucher/view/${matchingVoucher.voucherId}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${authToken}`,
+                                    'accept': '*/*',
+                                },
+                            }
+                            );
+
+                            if (voucherResponse.status === 200) {
+                                const { voucherId, key, discount, startDate, endDate, status } = voucherResponse.data.body;
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    keyVoucher: key,
+                                    discount: discount,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    status: status,
+                                    voucherId: voucherId,
+                                }));
+                            }
+                        }
+
                     }
-                });
-
-                console.log('Vouchers response:', voucherResponse.data); // Log phản hồi của vouchers
-
-                // Kiểm tra cấu trúc của response
-                const fetchedVouchers = voucherResponse.data.body.voucherResponseList || []; // Sửa để đảm bảo có giá trị mặc định
-                console.log('Fetched vouchers list:', fetchedVouchers); // Log danh sách vouchers đã lấy
-
-                if (Array.isArray(fetchedVouchers)) {
-                    // Tìm voucher tương ứng với post
-                    const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === postId);
-                    if (matchingVoucher) {
-                        console.log('Found matching voucher:', matchingVoucher); // Log voucher tìm thấy
-                        // Cập nhật voucher nếu tìm thấy
-                        setFormData(prevState => ({
-                            ...prevState,
-                            keyVoucher: matchingVoucher.key,
-                            discount: matchingVoucher.discount,
-                            startDate: matchingVoucher.startDate,
-                            endDate: matchingVoucher.endDate,
-                            status: matchingVoucher.status,
-                            voucherId: matchingVoucher.voucherId,
-                        }));
-                    } else {
-                        console.log(`No voucher found for postId: ${postId}`); // Log nếu không tìm thấy voucher
-                    }
-                } else {
-                    console.error("voucherResponseList is not an array or is undefined");
                 }
-            } catch (err) {
-                console.error('Error fetching post details:', err); // In ra lỗi nếu có
-                setErrorMessage('Không thể tải thông tin bài đăng hoặc voucher. Vui lòng thử lại sau.');
-            } finally {
-                console.log('Fetch post details operation completed.'); // Log khi hoàn tất quá trình
+            } catch (error) {
+                setErrorMessage('Lỗi khi tải dữ liệu bài đăng hoặc voucher');
+                console.error('Error fetching post/voucher data:', error);
             }
         };
 
-        fetchPostDetails();
-    }, [postId]);
+        fetchPostData();
+    }, [postId, authToken]);
 
-
-
+    // Update form fields as users type
     const handleInputChange = (event) => {
         const { name, value, files } = event.target;
-        if (name === 'file') {
-            // Nếu người dùng chọn tệp, cập nhật tên tệp và URL ảnh
-            const file = files[0];
-            if (file) {
-                const imageUrl = URL.createObjectURL(file); // Tạo URL cho ảnh đã chọn
-                setFormData(prevState => ({
-                    ...prevState,
-                    fileName: file.name, // Lưu tên tệp
-                    file: file, // Lưu tệp để tải lên sau
-                    imageUrl, // Cập nhật URL ảnh
-                }));
-            }
-        } else {
-            // Cập nhật các trường khác
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value,
-            }));
+        setFormData((prev) => ({
+            ...prev,
+            [name]: files ? files[0] : value,
+        }));
+    };
+
+    const getUserIdFromToken = (token) => {
+        try {
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
+            return decodedPayload.UserId;
+        } catch (error) {
+            console.error("Không thể giải mã token:", error);
+            return null;
         }
     };
+
+    const userId = getUserIdFromToken(authToken);
+
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const token = getCookie('access_token'); // Ensure the token is retrieved here if not already available
+
+        try {
+            let imageUrl = formData.imageUrl;
+
+            // Check if a new file is selected for upload
+            if (formData.file) {
+                const formDataImage = new FormData();
+                formDataImage.append('file', formData.file);
+
+                // Wait for the image upload to complete before proceeding
+                const imageUploadResponse = await axios.post(
+                    `http://localhost:1010/api/image/post/upload?postId=${postId}`,
+                    formDataImage,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'accept': '*/*',
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                if (imageUploadResponse.status === 200) {
+                    imageUrl = imageUploadResponse.data.url; // Update the image URL if upload is successful
+                } else {
+                    setErrorMessage('Lỗi khi tải ảnh lên');
+                    return;
+                }
+            }
+
+            // Prepare updated post data
+            const updatedPostData = {
+                postId,                // Post ID
+                userId,                // Replace with actual user ID
+                title: formData.title,
+                description: formData.description,
+                shortDescription: formData.shortDescription,
+                url: imageUrl,         // Use the updated image URL
+            };
+
+            // Update post information using the correct endpoint
+            const postUpdateResponse = await axios.put(
+                'http://localhost:1010/api/post/update',
+                updatedPostData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'accept': '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (postUpdateResponse.status === 200) {
+                setSuccessMessage('Bài đăng đã được cập nhật thành công!');
+                onSave(updatedPostData); // Call onSave with the updated post data
+
+                // Prepare voucher update data from formData
+                const voucherUpdateData = {
+                    voucherId: formData.voucherId, // Use voucherId from formData
+                    key: formData.keyVoucher,       // Use key from formData
+                    startDate: formatDate(formData.startDate), // Format startDate
+                    endDate: formatDate(formData.endDate),     // Format endDate
+                    discount: formData.discount,     // Use discount from formData
+                    status: formData.status,         // Use status from formData
+                    postId: postId,                  // Use the same postId
+                };
+
+                console.log('Data for voucher update:', voucherUpdateData);
+
+                // Attempt to update the voucher
+                try {
+                    const voucherUpdateResponse = await axios.put(
+                        'http://localhost:1010/api/voucher/update',
+                        voucherUpdateData,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'accept': '*/*',
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    );
+
+                    if (voucherUpdateResponse.status === 200) {
+                        setSuccessMessage('Voucher đã được cập nhật thành công!');
+                    }
+                } catch (updateError) {
+                    // Check if the error is a 404 (not found)
+                    if (updateError.response && updateError.response.status === 404) {
+                        try {
+                            // Create a new voucher since the update failed
+                            const voucherCreateData = {
+                                startDate: formatDateTime(formData.startDate), // Format startDate
+                                endDate: formatDateTime(formData.endDate),
+                                keyVoucher: formData.keyVoucher,
+                                discount: formData.discount,
+                                status: formData.status,
+                                postId: postId,
+                            };
+                
+                            console.log('Creating new voucher with data:', voucherCreateData);
+                
+                            const voucherCreateResponse = await axios.post(
+                                'http://localhost:1010/api/voucher/create',
+                                voucherCreateData,
+                                {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'accept': '*/*',
+                                        'Content-Type': 'application/json',
+                                    },
+                                }
+                            );
+                
+                            if (voucherCreateResponse.status === 200) {
+                                const newVoucherId = voucherCreateResponse.data.voucherId; // Capture the new voucher ID
+                                console.log('New voucher created successfully with ID:', newVoucherId);
+                
+                                // Update the voucher with the new voucherId
+                                const updateVoucherData = {
+                                    voucherId: newVoucherId,
+                                    startDate: formatDate(formData.startDate),
+                                    endDate: formatDate(formData.endDate),
+                                    keyVoucher: formData.keyVoucher,
+                                    discount: formData.discount,
+                                    status: formData.status,
+                                    postId: postId,
+                                };
+                
+                                const updateVoucherResponse = await axios.put(
+                                    `http://localhost:1010/api/voucher/update/${newVoucherId}`,
+                                    updateVoucherData,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json',
+                                        },
+                                    }
+                                );
+                
+                                if (updateVoucherResponse.status === 200) {
+                                    setSuccessMessage('Voucher đã được cập nhật thành công!');
+                                } else {
+                                    setErrorMessage('Có lỗi xảy ra khi cập nhật voucher mới.');
+                                }
+                            } else {
+                                setErrorMessage('Có lỗi xảy ra khi tạo voucher mới');
+                            }
+                        } catch (creationError) {
+                            console.error('Error creating new voucher:', creationError);
+                            setErrorMessage('Có lỗi xảy ra khi tạo voucher mới.');
+                        }
+                    } else {
+                        setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
+                    }
+                
+
+                }
+            } else {
+                setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng');
+            }
+        } catch (error) {
+            setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng hoặc voucher');
+            console.error('Error updating post/voucher:', error);
+        }
+    };
+
+
+    // Hàm định dạng ngày tháng theo yêu cầu
+    const formatDate = (date) => {
+        // Create a new Date object assuming the input is in local time
+        const localDate = new Date(date);
+
+        // Get the components of the date as local time
+        const year = localDate.getFullYear(); // Get local year
+        const month = String(localDate.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+        const day = String(localDate.getDate()).padStart(2, '0');
+        const hours = String(localDate.getHours()).padStart(2, '0');
+        const minutes = String(localDate.getMinutes()).padStart(2, '0');
+
+        // Return the formatted date as a string in the 'YYYY-MM-DDTHH:MM' format
+        return `${year}-${month}-${day}T${hours}:${minutes}`; // Format as 'YYYY-MM-DDTHH:MM'
+    };
+
+
 
 
 
@@ -133,145 +323,8 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        console.log("Post ID at submit:", postId);
-        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status, imageUrl, voucherId } = formData;
-        const token = getCookie('access_token');
-        const userId = 1;
-
-        if (!token) {
-            setErrorMessage("Bạn cần đăng nhập để thực hiện thao tác này.");
-            return;
-        }
-        console.log("Token:", token);
-        if (!title || !description || !shortDescription) {
-            setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
-            return;
-        }
-
-        try {
-            const postData = {
-                postId,
-                title,
-                description,
-                shortDescription,
-                userId,
-                url: imageUrl,
-            };
-
-            const postResponse = await axios.put(
-                `${import.meta.env.VITE_API_BASE_URL}/post/update`,
-                postData,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    }
-                }
-            );
-
-            console.log("Post updated successfully:", postResponse.data);
-
-            let bannerUrl = "";
-            if (file) {
-                const imageFormData = new FormData();
-                imageFormData.append('file', file);
-                imageFormData.append('postId', postId);
-
-                try {
-                    const uploadResponse = await axios.post(
-                        `${import.meta.env.VITE_API_BASE_URL}/image/post/upload`,
-                        imageFormData,
-                        {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'multipart/form-data',
-                            }
-                        }
-                    );
-                    bannerUrl = uploadResponse.data.url;
-                } catch (uploadError) {
-                    console.error('Error uploading image:', uploadError);
-                    setErrorMessage('Có lỗi xảy ra khi tải ảnh lên.');
-                    return;
-                }
-            }
-
-            if (bannerUrl) {
-                postData.bannerUrl = bannerUrl;
-                await axios.put(
-                    `${import.meta.env.VITE_API_BASE_URL}/post/update`,
-                    postData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                );
-            }
-
-            const formattedStartDate = formatDateTime(startDate);
-            const formattedEndDate = formatDateTime(endDate);
-
-            const voucherData = {
-                voucherId,
-                key: keyVoucher,
-                discount,
-                startDate: formattedStartDate,
-                endDate: formattedEndDate,
-                status,
-                postId,
-            };
-            console.log("Updating voucher with data:", voucherData);
-            let voucherResponse;
-            try {
-                voucherResponse = await axios.put(
-                    `${import.meta.env.VITE_API_BASE_URL}/voucher/update`,
-                    voucherData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                );
-                console.log("Voucher updated successfully:", voucherResponse.data);
-            } catch (error) {
-                console.error("Error updating voucher:", error.response ? error.response.data : error.message);
-            }
-
-            setSuccessMessage("Bài đăng và voucher đã được cập nhật thành công!");
-            setErrorMessage("");
-
-            if (typeof onSave === 'function') {
-                onSave({ ...postResponse.data, bannerUrl, voucherResponse: voucherResponse?.data });
-            }
-
-            setTimeout(() => {
-                setSuccessMessage('');
-                onClose();
-            }, 2000);
-
-        } catch (error) {
-            console.error('Error updating post or voucher:', error);
-
-            setErrorMessage(
-                error.response?.data?.message || 'Đã xảy ra sự cố. Vui lòng thử lại sau.'
-            );
-        }
-    };
-
-
-
-
 
     return (
         <div className="form-update-post-container">

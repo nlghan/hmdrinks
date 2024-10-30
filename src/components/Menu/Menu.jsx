@@ -59,7 +59,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
         navigate('/product')
     };
     const handlePost= () => {
-        navigate('/post')
+        navigate('/news')
     };
 
     return (

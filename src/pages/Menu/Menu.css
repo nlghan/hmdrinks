@@ -1,6 +1,6 @@
 .container-menu {
     width: 100%;
-    height: 100vh; /* Full viewport height */
+    min-height: 110vh; /* Full viewport height */
     flex:0.4;
     padding-top: 150px;
     

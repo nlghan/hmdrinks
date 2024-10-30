@@ -591,7 +591,6 @@ input:checked + .slider:before {
   padding: 10px;
   margin-left: 0px;
   border: 1px solid #f0c1c1;
-  margin-right: 250px;
   border-radius: 4px;
   font-size: 16px;
 }

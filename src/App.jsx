@@ -15,20 +15,22 @@ import Category from "./pages/Admin/Category";
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
 
-import Post from './pages/Admin/Post';
+import News from "./pages/Admin/News"
 import PostVoucher from './pages/Post/PostVoucher';
 import ProductDetail from "./pages/Menu/ProductDetail"; 
 import { useAuth } from './context/AuthProvider'; 
 import { CartProvider } from "./context/CartContext";
 import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
+import {FavoriteProvider} from './context/FavoriteContext'
 
 const App = () => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
 
   return (
-    <CartProvider> {/* Bọc toàn bộ ứng dụng bằng CartProvider */}
+    <FavoriteProvider> {/* Wrap the entire app in FavoriteProvider */}
+    <CartProvider> {/* Nest CartProvider within FavoriteProvider */}
       <div className='app'>
         <Routes location={location}>
           <Route path="/" element={<Home />} />
@@ -39,7 +41,7 @@ const App = () => {
           <Route path="/user" element={<User />} />
           <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
           <Route path="/about" element={isLoggedIn ? <About /> : <Navigate to="/login" />} />
-          <Route path="/menu" element={ <Menu />} />
+          <Route path="/menu" element={<Menu />} />
           <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
           <Route path="/send-mail" element={<SendMail />} />
           <Route path="/user" element={<User />} />
@@ -48,12 +50,15 @@ const App = () => {
           <Route path="/product/:productId" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/favorite" element={<Favorite />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/post" element={<PostVoucher />} />
           <Route path="/marketing/:postId" element={<PostVoucher/>} />
           <Route path="*" element={<Navigate to="/" />} />
-          <Route path="/post" element={<Post />} />
+          
         </Routes>
       </div>
     </CartProvider>
+  </FavoriteProvider>
   );
 };
 

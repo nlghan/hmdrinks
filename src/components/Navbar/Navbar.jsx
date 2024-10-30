@@ -151,8 +151,8 @@ const Navbar = ({ currentPage }) => {
             THỰC ĐƠN
           </li>
           <li
-            onClick={() => navigate('/news')}
-            className={location.pathname === '/news' ? 'active' : ''}
+            onClick={() => navigate('/post')}
+            className={location.pathname === '/post' ? 'active' : ''}
           >
             TIN TỨC
           </li>
