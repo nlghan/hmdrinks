@@ -3,7 +3,27 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import './ProductDetail.css';
+import axios from 'axios';
 import { useCart } from '../../context/CartContext';
+
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+
+    if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
+const getUserIdFromToken = (token) => {
+    try {
+        const payload = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(payload));
+        return decodedPayload.userId; // Đảm bảo trường tên đúng với payload
+    } catch (error) {
+        console.error("Không thể giải mã token:", error);
+        return null;
+    }
+};
+
 
 const ProductDetail = () => {
     const location = useLocation();
@@ -17,15 +37,14 @@ const ProductDetail = () => {
     const [price, setPrice] = useState(product?.price); // State to hold current price based on size
     const [availableSizes, setAvailableSizes] = useState([]); // State to hold available sizes
     const productDetailRef = useRef(null); // Ref to observe scroll
-    const [stock, setStock] = useState(0); // State to hold stock information
-
-
-    const getCookie = (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    };
+    const [stock, setStock] = useState(0);
+    const [reviews, setReviews] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
+    const [limit] = useState(5);
+    const [editingReviewId, setEditingReviewId] = useState(null);
+    const [newContent, setNewContent] = useState('');
+    const [newRating, setNewRating] = useState(0);
 
     const getUserIdFromToken = (token) => {
         try {
@@ -37,6 +56,36 @@ const ProductDetail = () => {
             return null;
         }
     };
+
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+
+    const userId = getUserIdFromToken(getCookie('access_token'));
+    // Nếu userId là null, không cho phép gửi đánh giá
+    if (!userId) {
+        return <div>Bạn cần đăng nhập để đánh giá sản phẩm.</div>;
+    }
+
+    const [newReview, setNewReview] = useState({
+        userId: userId, // Nếu userId là null, bạn có thể điều chỉnh giao diện để không cho phép gửi đánh giá
+        proId: product.proId,
+        content: '',
+        ratingStart: 0
+    });
+    useEffect(() => {
+        // Lấy userId từ cookie hoặc token
+        const token = getCookie('access_token');
+        const id = getUserIdFromToken(token);
+        setNewReview((prev) => ({ ...prev, userId: id })); // Cập nhật userId trong state
+    }, [product.proId]);
+
+
+
 
     useEffect(() => {
         if (product && product.productImageResponseList.length > 0) {
@@ -82,14 +131,14 @@ const ProductDetail = () => {
                         'Accept': '*/*'
                     }
                 });
-    
+
                 if (!variantResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-    
+
                 const variantData = await variantResponse.json();
                 setAvailableSizes(variantData.responseList.map(v => v.size)); // Get available sizes
-                
+
                 // Find the variant based on selected size
                 const variant = variantData.responseList.find(v => v.size === selectedSize);
                 if (variant) {
@@ -100,10 +149,10 @@ const ProductDetail = () => {
                 console.error('Failed to fetch product variants:', error);
             }
         };
-    
+
         fetchProductVariants();
     }, [selectedSize, product.proId]);
-    
+
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
@@ -173,6 +222,195 @@ const ProductDetail = () => {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(price);
+
+
+    const handleSubmitReview = async () => {
+        const token = getCookie('access_token'); // Lấy token từ cookie
+        if (!token) {
+            alert('Bạn cần đăng nhập để gửi đánh giá!');
+            return;
+        }
+    
+        const userId = getUserIdFromToken(token); // Lấy userId từ token
+        if (!userId) {
+            alert('Bạn cần đăng nhập để gửi đánh giá!');
+            return;
+        }
+    
+        console.log("Attempting to submit review with token:", token);
+    
+        // Tạo review data với userId
+        const reviewData = {
+            userId: userId,
+            proId: newReview.proId,
+            content: newReview.content,
+            ratingStart: newReview.ratingStart
+        };
+    
+        console.log("Review data to be submitted:", reviewData);
+    
+        try {
+            const response = await fetch('http://localhost:1010/api/review/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Gửi token trong header
+                },
+                body: JSON.stringify(reviewData), // Gửi reviewData
+            });
+    
+            console.log("Response status:", response.status);
+    
+            if (!response.ok) {
+                console.error("Response error details:", await response.json());
+                throw new Error(`Failed to submit review with status code: ${response.status}`);
+            }
+    
+            const result = await response.json();
+            console.log("Review submission result:", result);
+    
+            // Reset form
+            setNewReview({ content: '', ratingStart: 0, proId: product.proId }); // Reset với proId
+            fetchReviews(newReview.proId); // Gọi fetchReviews với proId từ newReview
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            alert('Có lỗi xảy ra, vui lòng thử lại sau!');
+        }
+    };
+    
+
+
+    const handleStarClick = (rating) => {
+        setNewReview({ ...newReview, ratingStart: rating, proId: product.proId }); // Gán proId vào newReview
+    };
+    
+
+    const fetchReviews = async (proId) => {
+        try {
+            const response = await axios.get(`http://localhost:1010/api/product/list-review?proId=${proId}&page=${currentPage}&limit=${limit}`);
+
+            // Kiểm tra dữ liệu trước khi cập nhật state
+            if (response.data && Array.isArray(response.data.listReviews)) {
+                setReviews(response.data.listReviews);
+                setTotalPage(response.data.totalPage);
+            } else {
+                console.warn('Unexpected data format:', response.data);
+                setReviews([]); // Thiết lập lại reviews nếu không có dữ liệu
+                setTotalPage(0); // Cập nhật totalPage
+            }
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        if (product) {
+            fetchReviews(product.proId); // Truyền proId vào fetchReviews
+        }
+    }, [currentPage, product]);
+
+    const handlePageChange = (newPage) => {
+        console.log(`Attempting to change to page: ${newPage}`);
+        if (newPage > 0 && newPage <= totalPage) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    const getPaginationNumbers = () => {
+        const paginationNumbers = [];
+        const maxButtons = 5;
+
+        if (totalPage <= maxButtons) {
+            for (let i = 1; i <= totalPage; i++) {
+                paginationNumbers.push(i);
+            }
+        } else {
+            paginationNumbers.push(1);
+
+            if (currentPage > 3) {
+                paginationNumbers.push('...');
+            }
+
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPage - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationNumbers.push(i);
+            }
+
+            if (currentPage < totalPage - 2) {
+                paginationNumbers.push('...');
+            }
+
+            paginationNumbers.push(totalPage);
+        }
+
+        return paginationNumbers;
+    };
+    const handleEdit = (reviewId, content, ratingStart) => {
+        setEditingReviewId(reviewId);
+        setNewContent(content);
+        setNewRating(ratingStart);
+    };
+
+    const handleUpdate = async (reviewId, userId, proId) => {
+        try {
+            const token = getCookie('access_token');
+            const req = {
+                reviewId: reviewId,
+                userId: userId, // Đảm bảo bạn trnuyền userId chính xác ở đây
+                proId: proId,   // Đảm bảo bạn truyền proId chính xác ở đây
+                content: newContent,
+                ratingStart: newRating
+            };
+
+            const response = await axios.put('http://localhost:1010/api/review/update', req, {
+                headers: {
+                    'Authorization': `Bearer ${token}` // Thay thế `yourToken` bằng token thực tế
+                }
+            });
+
+            console.log(response.data); // Xử lý phản hồi nếu cần            
+            await fetchReviews(proId);
+            setEditingReviewId(null);
+        } catch (error) {
+            console.error("Error updating review:", error);
+            console.log(error.response.data); // In ra chi tiết lỗi
+        }
+    };
+    const userIdFromToken = getUserIdFromToken(getCookie('access_token'));
+
+    const handleDelete = async (reviewId, proId) => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) throw new Error("Token không tồn tại. Người dùng cần đăng nhập.");
+    
+            const userIdFromToken = getUserIdFromToken(token);
+            const reqData = { reviewId: reviewId, userId: userIdFromToken };
+    
+            console.log("Deleting review with data:", reqData); // Log dữ liệu trước khi gửi
+    
+            const response = await axios.delete('http://localhost:1010/api/review/delete', {
+                data: reqData,
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+    
+            console.log(response.data); // Xác nhận xóa thành công
+            await fetchReviews(proId); // Truyền proId vào fetchReviews
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            if (error.response) {
+                console.error('Error response:', error.response.data); // Log thêm phản hồi lỗi từ server
+            }
+        }
+    };
+    
+    
+    
+    
+
     return (
         <>
             <Navbar />
@@ -239,16 +477,16 @@ const ProductDetail = () => {
                             </div>
 
                             <div className="product-quantity">
-                        <span>Quantity:</span>
-                        <input
-                            type="number"
-                            value={quantity}
-                            min="1"
-                            max={stock}
-                            onChange={handleQuantityChange}
-                            className="quantity-input"
-                        />
-                    </div>
+                                <span>Quantity:</span>
+                                <input
+                                    type="number"
+                                    value={quantity}
+                                    min="1"
+                                    max={stock}
+                                    onChange={handleQuantityChange}
+                                    className="quantity-input"
+                                />
+                            </div>
 
                             <button className="add-to-cart-button" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
                             <button className="add-to-cart-button" style={{ marginBottom: '10px', backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>
@@ -263,22 +501,149 @@ const ProductDetail = () => {
                         <h2>Mô tả</h2>
                         <p className='des-product'>{product.description}</p>
                     </div>
-
-                    <div className="product-rating-container fade-in">
+                    <div className="product-list-reviews fade-in">
                         <h2 className='h2-maybe'>Đánh giá sản phẩm:</h2>
-                        <span className="product-rating">
-                            {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
-                        </span>
-                        <div className="review-container">
-                            <input type="text" placeholder="Hãy cho chúng tôi biết cảm nhận của bạn về sản phẩm" id="input-text-review" />
-                            <div className="send-button">
-                                <i className="far fa-paper-plane"></i>
-                            </div>
+                        <div className="reviews-container">
+                            {reviews.length > 0 ? reviews.map((review) => (
+                                <div className="review-item" key={review.reviewId}>
+                                    <div className="review-header">
+                                        <span className="review-fullname">{review.fullName}</span>
+                                        <span className="review-date">
+                                            {editingReviewId === review.reviewId ? new Date().toLocaleDateString() : review.dateCreated}
+                                        </span>
+                                        {userIdFromToken === String(review.userId)
+                                            && (
+                                                <>
+                                                    <span className="edit-icon" onClick={() => handleEdit(review.reviewId, review.content, review.ratingStart)}>
+                                                        <i className="ti-pencil"></i>
+                                                    </span>
+
+                                                    {/* Biểu tượng xóa */}
+                                                    <span className="delete-icon" onClick={() => handleDelete(review.reviewId, review.proId)}>
+                                                        <i className="ti-trash"></i>
+                                                    </span>
+                                                </>
+                                            )}
+                                    </div>
+                                    <div className="review-stars">
+                                        {editingReviewId === review.reviewId ? (
+                                            <div className="rating-stars">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <span
+                                                        key={star}
+                                                        className={`star ${newRating >= star ? 'filled' : ''}`}
+                                                        onClick={() => setNewRating(star)}
+                                                        style={{ cursor: 'pointer' }}
+                                                    >
+                                                        ★
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            Array.from({ length: review.ratingStart }, (_, index) => (
+                                                <span key={index} className="star filled">★</span>
+                                            ))
+                                        )}
+                                    </div>
+                                    {editingReviewId === review.reviewId ? (
+                                        <div>
+                                            <input
+                                                type="text"
+                                                value={newContent}
+                                                onChange={(e) => setNewContent(e.target.value)}
+                                            />
+                                            <button className="review-update-btn" onClick={() => handleUpdate(review.reviewId, userId, review.proId)}>Cập nhật</button>
+                                        </div>
+                                    ) : (
+                                        <div className="review-content">{review.content}</div>
+                                    )}
+                                </div>
+                            )) : (
+                                <div style={{ textAlign: 'center' }}>Không có đánh giá nào.</div>
+                            )}
                         </div>
 
 
 
+                        <div className="pagination-product-list-reviews">
+                            <button
+                                className="pagination-button"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                &lt;
+                            </button>
+                            {getPaginationNumbers().map((number, index) => (
+                                <button
+                                    key={index}
+                                    className={`pagination-button ${number === currentPage ? 'active' : ''}`}
+                                    onClick={() => {
+                                        if (number !== '...') {
+                                            handlePageChange(number);
+                                        }
+                                    }}
+                                    disabled={number === '...'}
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                            <button
+                                className="pagination-button"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPage}
+                            >
+                                &gt;
+                            </button>
+                        </div>
+
+
                     </div>
+                    <div className="product-rating-container fade-in">
+                        <span className="product-rating">
+                            {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
+                        </span>
+                        {/* Hiển thị danh sách đánh giá
+                        <div className="reviews-container">
+                            {reviews.length > 0 ? (
+                                reviews.map((review, index) => (
+                                    <div key={index} className="review">
+                                        <p><strong>{review.username}</strong>: {review.content}</p>
+                                        <span className="review-rating">
+                                            {"★".repeat(review.ratingStart)}{"☆".repeat(5 - review.ratingStart)}
+                                        </span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>Chưa có đánh giá cho sản phẩm này.</p>
+                            )}
+                        </div> */}
+
+                        {/* Khu vực đánh giá mới */}
+                        <div className="review-container">
+                            <div className="rating-stars">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <span
+                                        key={star}
+                                        className={`star ${newReview.ratingStart >= star ? 'filled' : ''}`}
+                                        onClick={() => handleStarClick(star)}
+                                    >
+                                        ★
+                                    </span>
+                                ))}
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Hãy cho chúng tôi biết cảm nhận của bạn về sản phẩm"
+                                value={newReview.content}
+                                onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
+                                id="input-text-review"
+                            />
+                            <div className="send-button" onClick={() => handleSubmitReview(newReview.proId)}>
+                                <i className="far fa-paper-plane"></i>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <h2 className="fade-in h2-maybe">Có thể bạn sẽ thích</h2>
                     <div className="related-products fade-in">

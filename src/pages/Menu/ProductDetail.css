@@ -16,14 +16,134 @@
     opacity: 0;
     transform: translateY(20px);
 }
+.reviews-container {
+    margin: 20px 0;
+}
 
+.review-item {
+    border: 1px solid #efd9d9;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    
+}
+
+.review-header {
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    font-weight: bold;
+}
+
+.review-fullname {
+    font-size: 22px;
+    color: #333;
+    margin-right: 15px;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #888;
+    margin-right: 20px;
+    margin-top:4px;
+}
+
+.edit-icon {
+    cursor: pointer;
+    color: #007bff;
+    font-size: 16px;
+    margin-top:6px; /* Màu xanh cho icon */
+    margin-right:10px;
+}
+.delete-icon {
+    cursor: pointer;
+    color: #f62428;
+    font-size: 16px;
+    margin-top:6px; /* Màu xanh cho icon */
+}
+
+.review-stars {
+    margin-top: 5px;    
+}
+
+.review-stars .fa-star {
+    color: gold; /* Màu vàng cho ngôi sao */
+}
+
+.review-content {
+    font-size: 14px;
+    color: #444;
+    margin-top: 15px;
+}
+
+.pagination-product-list-reviews {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+
+.pagination-button {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    /* border: 1px solid #ccc; */
+    background-color: #f6e2e2;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: #d09a9a;
+    color: #000;
+}
+
+.pagination-button.active {
+    font-weight: bold;
+    background-color: #fa7272; /* Thay đổi màu nền cho nút hiện tại */
+    color: #fff; /* Thay đổi màu chữ cho nút hiện tại */
+}
+
+.pagination-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+.rating-stars {
+    cursor: pointer;
+    padding-left:12px;
+}
+
+.star {
+    font-size: 18px; /* Kích thước ngôi sao */
+    color: #ccc; /* Màu ngôi sao rỗng */
+}
+
+.star.filled {
+    color: gold; /* Màu ngôi sao đầy */
+}
 
 .proCon {
     position: relative;
     background: white
 }
 
-
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    color: #ccc; /* Màu ngôi sao chưa được chọn */
+}
+.review-update-btn {
+    background-color: #fa7272;
+    margin-top: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
 
 .proCon svg {
     position: absolute;
