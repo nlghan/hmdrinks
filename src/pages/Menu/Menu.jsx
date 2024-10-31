@@ -8,9 +8,9 @@ import "./Menu.css";
 import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
-
-
+import { useAuth } from '../../context/AuthProvider'; // Import useAuth
 const Menu = () => {
+    const { isLoggedIn } = useAuth(); // Get login status from useAuth
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,12 +43,13 @@ const Menu = () => {
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
-
-    const userId = getUserIdFromToken(getCookie('access_token')); // Get userId from token
+    const userId = isLoggedIn ? getUserIdFromToken(getCookie('access_token')) : null; // Get userId from token if logged in
 
     // Fetch favorited product IDs
     useEffect(() => {
         const fetchFavorites = async () => {
+            if (!userId) return; // Return if userId is null
+
             try {
                 const response = await fetch(`http://localhost:1010/api/favorites/${userId}`);
                 const data = await response.json();
@@ -59,10 +60,10 @@ const Menu = () => {
             }
         };
 
-        if (userId) {
+        if (isLoggedIn) {
             fetchFavorites();
         }
-    }, [userId]);
+    }, [userId, isLoggedIn]); // Include isLoggedIn as a dependency
 
     // Fetch products and their prices and sizes from API
     useEffect(() => {
@@ -104,6 +105,7 @@ const Menu = () => {
 
         fetchProducts();
     }, [currentPage, selectedCategoryId]);
+
     // Fetch categories from API
     useEffect(() => {
         const fetchCategories = async () => {
@@ -340,13 +342,14 @@ const Menu = () => {
 
                     </div>
 
-                    <div className="products">
+                    <div className="products zoomIn ">
                     {loading ? (
                         <p>Đang tải sản phẩm...</p>
                     ) : (
                         products.map((product) => (
                             <ProductCard
                                 key={product.proId}
+                                className={"zoom-in"}
                                 product={{
                                     proId: product.proId,
                                     name: product.proName,

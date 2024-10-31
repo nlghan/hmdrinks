@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 import { useFavorite } from '../../context/FavoriteContext';
+import { useAuth } from '../../context/AuthProvider'; // Import useAuth
 
 function ProductCard({ product, onClick, onAddToCart, className, style, onFavoriteChange }) {
     const [isFavorited, setIsFavorited] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const navigate = useNavigate();
     const { favoriteItems, addFavorite, removeFavorite, errorMessage: contextError } = useFavorite();
+    const { isLoggedIn } = useAuth(); // Access the authentication status
 
     // Check if product is in favorites
     useEffect(() => {
@@ -34,7 +36,6 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
         }
     };
     
-
     // Format price to have dots as thousands separators
     const formattedPrice = new Intl.NumberFormat('vi-VN', {
         minimumFractionDigits: 0,
@@ -46,6 +47,7 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
         event.stopPropagation();
         onAddToCart();
     };
+    
 
     return (
         <div 
@@ -53,15 +55,19 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
             onClick={onClick} 
             style={style}
         > 
-            <div className="product-card-image-container">
+            <div className="product-card-image-container zoomIn">
                 <img src={product.image} alt={product.name} />
-                <button className="favorite-icon" onClick={handleFavorite}>
-                    <i className="fa fa-heart" style={{ color: isFavorited ? 'red' : 'grey' }} aria-hidden="true"></i>
-                </button>
+                {isLoggedIn && ( // Render the favorite icon only if logged in
+                    <button className="favorite-icon" onClick={handleFavorite}>
+                        <i className="fa fa-heart" style={{ color: isFavorited ? 'red' : 'grey' }} aria-hidden="true"></i>
+                    </button>
+                )}
             </div>
-            <h3>{product.name} ({product.size})</h3>
-            <div className='product-card-price'>
-                <p className='product-card-p card-product-price'>Giá: {formattedPrice} VND</p>
+            <div className="info-product-card">
+                <h3>{product.name} ({product.size})</h3>
+                <div className="product-card-price">
+                    <p className="product-card-p">Giá: {formattedPrice} VND</p>
+                </div>
                 <button className="add-cart" onClick={handleAddToCartClick}>
                     <i className="ti-shopping-cart" /> Đặt mua
                 </button>

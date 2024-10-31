@@ -6,25 +6,6 @@ import './ProductDetail.css';
 import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 
-const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) return parts.pop().split(';').shift();
-};
-
-const getUserIdFromToken = (token) => {
-    try {
-        const payload = token.split('.')[1];
-        const decodedPayload = JSON.parse(atob(payload));
-        return decodedPayload.userId; // Đảm bảo trường tên đúng với payload
-    } catch (error) {
-        console.error("Không thể giải mã token:", error);
-        return null;
-    }
-};
-
-
 const ProductDetail = () => {
     const location = useLocation();
     const product = location.state?.product;
@@ -64,12 +45,7 @@ const ProductDetail = () => {
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
-
     const userId = getUserIdFromToken(getCookie('access_token'));
-    // Nếu userId là null, không cho phép gửi đánh giá
-    if (!userId) {
-        return <div>Bạn cần đăng nhập để đánh giá sản phẩm.</div>;
-    }
 
     const [newReview, setNewReview] = useState({
         userId: userId, // Nếu userId là null, bạn có thể điều chỉnh giao diện để không cho phép gửi đánh giá
@@ -83,7 +59,6 @@ const ProductDetail = () => {
         const id = getUserIdFromToken(token);
         setNewReview((prev) => ({ ...prev, userId: id })); // Cập nhật userId trong state
     }, [product.proId]);
-
 
 
 
