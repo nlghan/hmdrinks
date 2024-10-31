@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrdersReq {
+public class AllocationShipmentReq {
     private int userId;
-    private int cartId;
-    private String voucherId;
-    private String note;
+    private int shipmentId;
 }

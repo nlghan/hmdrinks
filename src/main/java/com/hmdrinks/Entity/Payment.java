@@ -50,4 +50,7 @@ public class Payment {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId", nullable = false)
     private Orders order;
+
+    @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL)
+    private Shippment shipment;
 }

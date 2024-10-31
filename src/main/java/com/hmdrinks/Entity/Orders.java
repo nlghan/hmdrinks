@@ -54,7 +54,7 @@ public class Orders { // Changed from Orders to Order
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "voucherId", nullable = false)
+    @JoinColumn(name = "voucherId")
     private Voucher voucher;
     
     @Column(name = "is_deleted")

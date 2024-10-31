@@ -25,5 +25,5 @@ public class CreateOrdersResponse {
     private Status_Order status;
     private  Double TotalPrice;
     private  int userId;
-    private int voucherId;
+    private Integer voucherId;
 }

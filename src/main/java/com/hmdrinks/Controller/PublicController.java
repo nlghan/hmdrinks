@@ -26,6 +26,4 @@ public class PublicController {
     public ResponseEntity<?> getSendPassword(@RequestBody ForgetPasswordSendReq Req) {
         return ResponseEntity.ok(userService.AcceptOTP(Req.getEmail(), Req.getOtp()));
     }
-
 }
-

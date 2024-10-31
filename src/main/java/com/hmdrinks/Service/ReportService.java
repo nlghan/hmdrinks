@@ -46,5 +46,4 @@ public class ReportService {
     public int totalProductVariants() {
         return productVariantsRepository.TotalNumberOfProductVariants();
     }
-
 }

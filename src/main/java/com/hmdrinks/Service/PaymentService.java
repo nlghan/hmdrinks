@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Response.*;
+import com.hmdrinks.Response.CRUDPaymentResponse;
+import com.hmdrinks.Response.CreatePaymentResponse;
+import com.hmdrinks.Response.ListAllPaymentResponse;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.HttpURLConnection;
@@ -25,66 +27,64 @@ import java.util.*;
 
 @Service
 public class PaymentService {
-    @Value("${app.baseUrl}")
-    private String baseUrl;
+
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = baseUrl + "/api/payment/callback";
-    private final String ipnUrl =baseUrl + "/api/payment/callback";
-    private String orderInfo = "Payment Order";
+    private final String redirectUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
+    private final String ipnUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
-    private final  int orderExpireTime = 30;
+    private final int orderExpireTime = 30;
     private final String lang = "vi";
+    private String orderInfo = "Payment Order";
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private  PaymentRepository paymentRepository;
+    private PaymentRepository paymentRepository;
     @Autowired
     private CartItemRepository cartItemRepository;
     @Autowired
     private CartRepository cartRepository;
     @Autowired
-    private  UserVoucherRepository userVoucherRepository;
+    private UserVoucherRepository userVoucherRepository;
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    private  OrderItemRepository orderItemRepository;
+    private OrderItemRepository orderItemRepository;
     @Autowired
-    private  ProductVariantsRepository productVariantsRepository;
+    private ProductVariantsRepository productVariantsRepository;
+    @Autowired
+    private ShipmentRepository shipmentRepository;
 
     public ResponseEntity<?> createPayment(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderId(orderId1);
-            if(payment1 != null)
-            {
-                if(payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING)
-                {
-                    return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            if (payment1 != null) {
+                if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
                 }
-                if(payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
+                if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
                 }
             }
             Orders orders = orderRepository.findByOrderIdAndStatus(orderId1, Status_Order.CONFIRMED);
-            if(orders == null) {
+            if (orders == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
             }
             Orders orders1 = orderRepository.findByOrderId(orderId1);
-            if(orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED)
-            {
+            if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
             }
-            String orderId = partnerCode + "-" + UUID.randomUUID().toString();
-            String requestId = partnerCode + "-" + UUID.randomUUID().toString();
+            String orderId = partnerCode + "-" + UUID.randomUUID();
+            String requestId = partnerCode + "-" + UUID.randomUUID();
             Orders order = orderRepository.findByOrderId(orderId1);
             User user = userRepository.findByUserId(order.getUser().getUserId());
             Double totalAmount = order.getTotalPrice() - order.getDiscountPrice();
-            Long totalAmountLong =  totalAmount.longValue();
+            Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
-            if(order.getDiscountPrice() > 0){
-                orderInfo = "Giam gia: " + String.valueOf(order.getDiscountPrice()) +" VND";
+            if (order.getDiscountPrice() > 0) {
+                orderInfo = "Giam gia: " + order.getDiscountPrice() + " VND";
             }
             String rawSignature = String.format(
                     "accessKey=%s&amount=%s&extraData=&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
@@ -102,7 +102,6 @@ public class PaymentService {
             requestBody.put("partnerName", "TEST");
             requestBody.put("storeId", "MomoTestStore");
             requestBody.put("requestId", requestId);
-            System.out.println(totalAmountLong.toString());
             requestBody.put("amount", amount);
             requestBody.put("orderId", orderId);
             requestBody.put("orderInfo", orderInfo);
@@ -112,13 +111,12 @@ public class PaymentService {
             requestBody.put("requestType", requestType);
             requestBody.put("autoCapture", autoCapture);
             requestBody.put("extraData", "");
-            requestBody.put("userInfo",userInfo);
+            requestBody.put("userInfo", userInfo);
             requestBody.put("signature", signature);
             requestBody.put("orderExpireTime", orderExpireTime);
             List<CartItem> cartItems = cartItemRepository.findByCart_CartId(order.getOrderItem().getCart().getCartId());
             List<Map<String, Object>> items = new ArrayList<>();
-            for(CartItem cartItem: cartItems)
-            {
+            for (CartItem cartItem : cartItems) {
                 Map<String, Object> item = new HashMap<>();
                 String listProImg = cartItem.getProductVariants().getProduct().getListProImg();
                 String imageUrl = "";
@@ -130,16 +128,16 @@ public class PaymentService {
                 int colonIndex = firstImage.indexOf(":");
                 String imageUrl1 = (colonIndex != -1) ? firstImage.substring(colonIndex + 1).trim() : "";
                 Long totalPrice = Math.round(cartItem.getTotalPrice());
-                item.put("imageUrl",imageUrl1);
+                item.put("imageUrl", imageUrl1);
                 item.put("name", cartItem.getProductVariants().getProduct().getProName());
-                item.put("unit",cartItem.getProductVariants().getSize());
+                item.put("unit", cartItem.getProductVariants().getSize());
                 item.put("quantity", cartItem.getQuantity());
                 item.put("price", totalPrice);
-                item.put("category","beverage");
-                item.put("manufacturer","HMDrinks");
+                item.put("category", "beverage");
+                item.put("manufacturer", "HMDrinks");
                 items.add(item);
             }
-            requestBody.put("items",items);
+            requestBody.put("items", items);
 
             URL url = new URL("https://test-payment.momo.vn/v2/gateway/api/create");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -181,7 +179,7 @@ public class PaymentService {
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
                     shortLink
-            ),HttpStatus.OK);
+            ), HttpStatus.OK);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,32 +189,37 @@ public class PaymentService {
     }
 
     public ResponseEntity<?> callBack(String resultCode, String orderId) {
-          Payment payment = paymentRepository.findByOrderIdPayment(orderId);
-          if(payment == null)
-          {
-              return new ResponseEntity<>("Not found payment",HttpStatus.NOT_FOUND);
-          }
+        Payment payment = paymentRepository.findByOrderIdPayment(orderId);
+        if (payment == null) {
+            return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
+        }
         if ("0".equals(resultCode)) {
             payment.setStatus(Status_Payment.COMPLETED);
             paymentRepository.save(payment);
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
             List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-            for(CartItem cartItem: cartItems)
-            {
+            for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
-                if(productVariants.getStock() > cartItem.getQuantity())
-                {
-                    productVariants.setStock( productVariants.getStock() - cartItem.getQuantity());
+                if (productVariants.getStock() > cartItem.getQuantity()) {
+                    productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
-                }
-                else{
+                } else {
                     String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
                     HttpHeaders headers = new HttpHeaders();
                     headers.add("Location", redirectUrl + "?status=" + 404 + "&paymentId=" + payment.getPaymentId() + "&text=" + "insufficient quantity");
                     return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
                 }
             }
+
+            Shippment shippment = new Shippment();
+            shippment.setPayment(payment);
+            shippment.setIsDeleted(false);
+            shippment.setDateCreated(LocalDateTime.now());
+            shippment.setDateDelivered(LocalDateTime.now());
+            shippment.setStatus(Status_Shipment.WAITING);
+            shipmentRepository.save(shippment);
+
             String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
             HttpHeaders headers = new HttpHeaders();
             headers.add("Location", redirectUrl + "?status=" + 200 + "&paymentId=" + payment.getPaymentId());
@@ -233,8 +236,7 @@ public class PaymentService {
             userVoucher.setStatus(Status_UserVoucher.INACTIVE);
             userVoucherRepository.save(userVoucher);
             OrderItem orderItem1 = orders.getOrderItem();
-            if(orderItem1 != null)
-            {
+            if (orderItem1 != null) {
                 orderItemRepository.delete(orders.getOrderItem());
                 Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
                 cart.setStatus(Status_Cart.NEW);
@@ -247,13 +249,12 @@ public class PaymentService {
         }
     }
 
-    public ResponseEntity<?> checkStatusPayment(int paymentId){
+    public ResponseEntity<?> checkStatusPayment(int paymentId) {
         Payment payment = paymentRepository.findByPaymentId(paymentId);
-        if(payment == null)
-        {
-            return new ResponseEntity<>("Not found payment",HttpStatus.NOT_FOUND);
+        if (payment == null) {
+            return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
         }
-       return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment.getPaymentId(),
                 payment.getAmount(),
                 payment.getDateCreated(),
@@ -265,26 +266,22 @@ public class PaymentService {
         ));
     }
 
-    public ResponseEntity<?> createPaymentCash(int orderId){
+    public ResponseEntity<?> createPaymentCash(int orderId) {
         Payment payment = paymentRepository.findByOrderOrderId(orderId);
-        if(payment != null)
-        {
-            if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.PENDING)
-            {
-                return  ResponseEntity.status(HttpStatus.OK).body("Bad request");
+        if (payment != null) {
+            if (payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.PENDING) {
+                return ResponseEntity.status(HttpStatus.OK).body("Bad request");
             }
-            if(payment.getStatus() == Status_Payment.COMPLETED)
-            {
+            if (payment.getStatus() == Status_Payment.COMPLETED) {
                 return ResponseEntity.status(HttpStatus.OK).body("Payment already completed");
             }
         }
         Orders orders = orderRepository.findByOrderIdAndStatus(orderId, Status_Order.CONFIRMED);
-        if(orders == null) {
+        if (orders == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId);
-        if(orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED)
-        {
+        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
         Orders order = orderRepository.findByOrderId(orderId);
@@ -298,6 +295,15 @@ public class PaymentService {
         payment1.setIsDeleted(false);
         payment1.setOrder(order);
         paymentRepository.save(payment1);
+
+        Shippment shippment = new Shippment();
+        shippment.setPayment(payment1);
+        shippment.setIsDeleted(false);
+        shippment.setDateCreated(LocalDateTime.now());
+        shippment.setDateDelivered(LocalDateTime.now());
+        shippment.setStatus(Status_Shipment.WAITING);
+        shipmentRepository.save(shippment);
+
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
@@ -309,15 +315,15 @@ public class PaymentService {
                 payment1.getOrder().getOrderId()
         ));
     }
-    public ResponseEntity<?> getAllPayment(String pageFromParam, String limitFromParam)
-    {
+
+    public ResponseEntity<?> getAllPayment(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAll(pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        for(Payment payment: payments){
+        for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
                             payment.getPaymentId(),
@@ -331,7 +337,7 @@ public class PaymentService {
                     )
             );
         }
-        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
@@ -339,15 +345,14 @@ public class PaymentService {
         ));
     }
 
-    public ResponseEntity<?> getAllPaymentStatus(String pageFromParam, String limitFromParam,Status_Payment statusPayment)
-    {
+    public ResponseEntity<?> getAllPaymentStatus(String pageFromParam, String limitFromParam, Status_Payment statusPayment) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByStatus(statusPayment, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        for(Payment payment: payments){
+        for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
                             payment.getPaymentId(),
@@ -361,7 +366,7 @@ public class PaymentService {
                     )
             );
         }
-        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
@@ -369,15 +374,14 @@ public class PaymentService {
         ));
     }
 
-    public ResponseEntity<?> getAllPaymentMethod(String pageFromParam, String limitFromParam,Payment_Method paymentMethod)
-    {
+    public ResponseEntity<?> getAllPaymentMethod(String pageFromParam, String limitFromParam, Payment_Method paymentMethod) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByPaymentMethod(paymentMethod, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        for(Payment payment: payments){
+        for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
                             payment.getPaymentId(),
@@ -391,7 +395,7 @@ public class PaymentService {
                     )
             );
         }
-        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
