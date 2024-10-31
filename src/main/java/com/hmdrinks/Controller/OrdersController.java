@@ -34,4 +34,9 @@ public class OrdersController {
         return ResponseEntity.ok(ordersService.confirmCancelOrder(orderId));
     }
 
+    @GetMapping("/info-payment")
+    public ResponseEntity<?> infoPayment(@RequestParam int orderId){
+        return  ordersService.getInformationPayment(orderId);
+    }
+
 }

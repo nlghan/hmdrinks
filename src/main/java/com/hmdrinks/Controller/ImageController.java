@@ -59,7 +59,11 @@ public class ImageController {
 
     @PostMapping(value = "/user/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> handleUploadUserImage(@RequestParam("file") MultipartFile file, @RequestParam("userId") Integer id, HttpServletRequest httpRequest) throws IOException {
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, id);
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return imgService.uploadImgUser(file,id);
     }
 

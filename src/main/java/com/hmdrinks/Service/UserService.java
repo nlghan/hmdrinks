@@ -108,7 +108,10 @@ public class UserService {
         if(user.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         }
-        supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
+        ResponseEntity<?> authResponse =  supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
         userList.setEmail(req.getEmail());

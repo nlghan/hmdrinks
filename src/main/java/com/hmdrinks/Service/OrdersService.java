@@ -10,9 +10,7 @@ import com.hmdrinks.Request.ConfirmOderReq;
 import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
-import com.hmdrinks.Response.CRUDVoucherResponse;
-import com.hmdrinks.Response.CreateOrdersResponse;
-import com.hmdrinks.Response.ListAllVoucherResponse;
+import com.hmdrinks.Response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +35,8 @@ public class OrdersService {
     private UserVoucherRepository userVoucherRepository;
     @Autowired
     private  CartRepository cartRepository;
-    @Autowired CartItemRepository cartItemRepository;
-
+    @Autowired
+    private  PaymentRepository paymentRepository;
 
     public  ResponseEntity<?> addOrder(CreateOrdersReq req)
     {
@@ -177,12 +175,53 @@ public class OrdersService {
                 cartRepository.save(cart);
             }
             userVoucherRepository.save(userVoucher);
-
-
             return ResponseEntity.status(HttpStatus.OK).body("Order has been canceled due to timeout.");
         }
-
+        else
+        {
+            order.setStatus(Status_Order.CONFIRMED);
+            orderRepository.save(order);
+        }
         return ResponseEntity.status(HttpStatus.OK).body("Confirm success");
     }
 
+    public ResponseEntity<?> getInformationPayment(int orderId) {
+        Orders order = orderRepository.findByOrderId(orderId);
+        if(order == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
+        }
+        Payment payment = paymentRepository.findByOrderOrderId(orderId);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new getInformationPaymentFromOrderIdResponse(
+                order.getOrderId(),
+                order.getAddress(),
+                order.getDateCreated(),
+                order.getDateDeleted(),
+                order.getDateUpdated(),
+                order.getDeliveryDate(),
+                order.getDiscountPrice(),
+                order.getIsDeleted(),
+                order.getNote(),
+                order.getOrderDate(),
+                order.getPhoneNumber(),
+                order.getStatus(),
+                order.getTotalPrice(),
+                order.getUser().getUserId(),
+                order.getVoucher().getVoucherId(),
+                new CRUDPaymentResponse(
+                        payment.getPaymentId(),
+                        payment.getAmount(),
+                        payment.getDateCreated(),
+                        payment.getDateDeleted(),
+                        payment.getIsDeleted(),
+                        payment.getPaymentMethod(),
+                        payment.getStatus(),
+                        payment.getOrder().getOrderId()
+                )
+        ));
+    }
 }

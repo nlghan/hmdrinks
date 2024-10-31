@@ -8,6 +8,7 @@ import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,11 @@ public class PostController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createPost(@RequestBody CreateNewPostReq req, HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return postService.createPost(req);
     }
 
@@ -52,7 +57,11 @@ public class PostController {
             @RequestBody CRUDPostReq req, HttpServletRequest httpRequest
     )
     {
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return  postService.updatePost(req);
     }
 }

@@ -8,6 +8,7 @@ import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,11 @@ public class UserVoucherController {
 
     @PostMapping(value = "/get-voucher")
     public ResponseEntity<?> createVoucher(@RequestBody GetVoucherReq req,HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return userVoucherService.getVoucher(req);
     }
 
@@ -31,7 +36,11 @@ public class UserVoucherController {
     public ResponseEntity<?> getAllVoucher(
             @PathVariable Integer id, HttpServletRequest httpRequest
     ){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, id);
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return userVoucherService.listAllVoucherUserId(id);
     }
 }

@@ -45,9 +45,10 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
 
-
                         ).permitAll()
-                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/api/payment/callback").permitAll()
+                        .requestMatchers("/api/payment/listAll","/api/payment/listAll-method","/api/payment/listAll-status").hasAuthority("ADMIN")
+                        .requestMatchers("/api/payment/create/cash","/api/payment/create/credit").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
                         .requestMatchers("/api/product/view/**", "/api/product/list-product","/api/product/variants/**").permitAll()
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
