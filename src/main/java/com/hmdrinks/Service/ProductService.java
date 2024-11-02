@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,14 +41,14 @@ public class ProductService {
         if (product != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("product already exists");
         }
-        LocalDate currentDate = LocalDate.now();
+
         Product product1 = new Product();
         product1.setCategory(category);
         product1.setDescription(req.getDescription());
         product1.setProName(req.getProName());
         product1.setListProImg("");
         product1.setIsDeleted(false);
-        product1.setDateCreated(currentDate);
+        product1.setDateCreated(LocalDateTime.now());
         productRepository.save(product1);
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         String currentProImg = product1.getListProImg();
@@ -120,7 +121,7 @@ public class ProductService {
         product1.setCategory(category);
         product1.setDescription(req.getDescription());
         product1.setProName(req.getProName());
-        product1.setDateUpdated(LocalDate.now());
+        product1.setDateUpdated(LocalDateTime.now());
         productRepository.save(product1);
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         String currentProImg = product1.getListProImg();
@@ -270,7 +271,7 @@ public class ProductService {
         }
         String updatedProImg = String.join(", ", updatedImageEntries);
         product.setListProImg(updatedProImg);
-        product.setDateUpdated(LocalDate.now());
+        product.setDateUpdated(LocalDateTime.now());
         productRepository.save(product);
         String currentProImg1 = product.getListProImg();
         if (currentProImg == null || currentProImg.trim().isEmpty()) {
@@ -293,7 +294,7 @@ public class ProductService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
         }
         product.setListProImg("");
-        product.setDateUpdated(LocalDate.now());
+        product.setDateUpdated(LocalDateTime.now());
 
         productRepository.save(product);
         return ResponseEntity.status(HttpStatus.OK).body(new ImgResponse(product.getListProImg()));

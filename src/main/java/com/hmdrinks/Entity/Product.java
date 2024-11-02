@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Date;
 
@@ -32,14 +33,14 @@ public class Product {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
-    private Date dateDeleted;
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
+    private LocalDateTime dateDeleted;
 
-    @Column(name = "date_updated")
-    private LocalDate dateUpdated;
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
+    private LocalDateTime dateUpdated;
 
-    @Column(name = "date_created")
-    private LocalDate dateCreated;
+    @Column(name = "date_created",columnDefinition = "DATETIME")
+    private LocalDateTime dateCreated;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

@@ -17,6 +17,7 @@ import java.util.Date;
 public class CrudVoucherReq {
     private int voucherId;
     private String key;
+    private  int number;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Double discount;

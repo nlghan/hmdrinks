@@ -28,7 +28,7 @@ public class OTP {
     @Column(name = "otp", nullable = false)
     private String Otp;
 
-    @Column(name = "time_otp", nullable = false)
+    @Column(name = "time_otp", nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime timeOtp;
 
     @Column(name = "status", nullable = false)

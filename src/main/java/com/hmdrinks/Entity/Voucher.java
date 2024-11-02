@@ -25,13 +25,16 @@ public class Voucher {
     @Column(name = "keyVoucher")
     private String key;
 
-    @Column(name = "startDate",nullable = false)
+    @Column(name = "number", nullable = false)
+    private Integer number;
+
+    @Column(name = "startDate",nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime startDate;
 
     @Column(name = "discount",nullable = false)
     private Double discount;
 
-    @Column(name = "endDate",nullable = false)
+    @Column(name = "endDate",nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
@@ -41,7 +44,7 @@ public class Voucher {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
     private LocalDateTime dateDeleted;
 
     @OneToOne

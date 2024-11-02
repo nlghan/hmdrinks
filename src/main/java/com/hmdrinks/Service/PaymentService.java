@@ -138,7 +138,7 @@ public class PaymentService {
                 items.add(item);
             }
             Map<String, Object> itemFee = new HashMap<>();
-            itemFee.put("name","Delivery Fee");
+            itemFee.put("name","Phí giao hàng");
             itemFee.put("price",Math.round(order.getDeliveryFee()));
             itemFee.put("quantity", 1);
             itemFee.put("imageUrl","");

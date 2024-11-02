@@ -62,7 +62,7 @@ public class OrdersService {
             return 15000.0;
         } else if (distance >= 10 && distance < 15) {
             return 20000.0;
-        } else if (distance >= 15 && distance < 20) {
+        } else if (distance >= 15 && distance <= 20) {
             return 25000.0;
         } else {
             return 0.0;
@@ -115,7 +115,7 @@ public class OrdersService {
         double[] origins = {10.850575879000075,106.77190192800003}; // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
         double distance =supportFunction.getShortestDistance(origins, destinations);
         if(distance > 20){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded, please update address");
         }
         double fee = calculateFee(distance);
         order.setDeliveryFee(fee);

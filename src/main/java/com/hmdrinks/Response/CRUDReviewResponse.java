@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,9 +20,9 @@ public class CRUDReviewResponse {
     private String content;
     private int ratingStart;
     private Boolean isDelete;
-    private Date dateDeleted;
-    private LocalDate dateUpdated;
-    private LocalDate dateCreated;
+    private LocalDateTime dateDeleted;
+    private LocalDateTime dateUpdated;
+    private LocalDateTime dateCreated;
 
     public CRUDReviewResponse(String reviewNotFound) {
 

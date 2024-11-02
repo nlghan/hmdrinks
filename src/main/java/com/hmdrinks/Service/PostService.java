@@ -3,8 +3,10 @@ package com.hmdrinks.Service;
 import com.hmdrinks.Entity.Post;
 import com.hmdrinks.Entity.User;
 import com.hmdrinks.Enum.Role;
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Repository.PostRepository;
 import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Repository.VoucherRepository;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
 import com.hmdrinks.Response.CRUDPostResponse;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -44,6 +45,7 @@ public class PostService {
        post.setTitle(req.getTitle());
        post.setDescription(req.getDescription());
        post.setUser(user);
+       post.setType(req.getTypePost());
        post.setBannerUrl(req.getUrl());
        post.setShortDes(req.getShortDescription());
        post.setIsDeleted(false);
@@ -51,6 +53,7 @@ public class PostService {
        postRepository.save(post);
        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                post.getPostId(),
+               post.getType(),
                post.getBannerUrl(),
                post.getDescription(),
                post.getTitle(),
@@ -68,6 +71,7 @@ public class PostService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                 post.getPostId(),
+                post.getType(),
                 post.getBannerUrl(),
                 post.getDescription(),
                 post.getTitle(),
@@ -96,9 +100,11 @@ public class PostService {
         post.setDescription(req.getDescription());
         post.setShortDes(req.getShortDescription());
         post.setBannerUrl(req.getUrl());
+        post.setType(req.getTypePost());
         postRepository.save(post);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPostResponse(
                 post.getPostId(),
+                post.getType(),
                 post.getBannerUrl(),
                 post.getDescription(),
                 post.getTitle(),
@@ -108,6 +114,36 @@ public class PostService {
                 post.getDateDeleted(),
                 post.getDateCreate()
         ));
+    }
+
+
+    public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam,Type_Post typePost) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAllByType(typePost,pageable);
+        List<CRUDPostResponse> responses = new ArrayList<>();
+        for(Post post : posts) {
+            responses.add(new CRUDPostResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate()
+            ));
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                responses
+        );
     }
 
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
@@ -120,6 +156,7 @@ public class PostService {
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
+                    post.getType(),
                     post.getBannerUrl(),
                     post.getDescription(),
                     post.getTitle(),
@@ -148,6 +185,7 @@ public class PostService {
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
+                    post.getType(),
                     post.getBannerUrl(),
                     post.getDescription(),
                     post.getTitle(),

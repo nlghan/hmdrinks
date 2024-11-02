@@ -24,7 +24,7 @@ public class Contact {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "createDate",nullable = false)
+    @Column(name = "createDate",nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime createDate;
 
     @Enumerated(EnumType.STRING)
@@ -34,10 +34,10 @@ public class Contact {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
     private LocalDateTime dateDeleted;
 
-    @Column(name = "date_updated")
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
     private LocalDateTime updateDate;
 
     @ManyToOne

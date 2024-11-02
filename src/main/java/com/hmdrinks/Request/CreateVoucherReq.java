@@ -25,6 +25,7 @@ public class CreateVoucherReq {
     private LocalDateTime endDate;
     private String keyVoucher;
     private Double discount;
+    private int number;
     private Status_Voucher status;
     private int postId;
 }

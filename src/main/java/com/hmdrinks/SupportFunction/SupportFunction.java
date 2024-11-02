@@ -5,18 +5,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hmdrinks.Entity.User;
-import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONArray;
-import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -59,7 +55,6 @@ public class SupportFunction {
         {
             return ResponseEntity.status(HttpStatus.OK).body("You have successfully logged in");
         }
-
     }
 
     public ResponseEntity<?> checkPhoneNumber(String phoneNumber, Integer userId, UserRepository userRepository) {
@@ -101,7 +96,6 @@ public class SupportFunction {
                     JsonObject prediction = predictions.get(i).getAsJsonObject();
                     if (prediction.has("place_id")) {
                         String placeId = prediction.get("place_id").getAsString();
-                        System.out.println("Place ID: " + placeId);
                         return placeId;
                     }
                 }

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -183,7 +184,7 @@ public class AdminService {
             throw new BadRequestException("Review not found");
         }
         review.setIsDeleted(true);
-        review.setDateDeleted(Date.valueOf(LocalDate.now()));
+        review.setDateDeleted(LocalDateTime.now());
         reviewRepository.save(review);
         return "Review deleted";
     }
@@ -194,7 +195,7 @@ public class AdminService {
         {
             for(Review review : reviewList){
                 review.setIsDeleted(true);
-                review.setDateDeleted(Date.valueOf(LocalDate.now()));
+                review.setDateDeleted(LocalDateTime.now());
                 reviewRepository.save(review);
             }
         }

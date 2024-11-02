@@ -3,6 +3,7 @@ package com.hmdrinks.Response;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class CRUDProductResponse {
     List<ProductImageResponse> productImageResponseList;
     private String description;
     private boolean isDeleted;
-    private Date dateDeleted;
-    private LocalDate dateCreated;
-    private LocalDate dateUpdated;
+    private LocalDateTime dateDeleted;
+    private LocalDateTime dateCreated;
+    private LocalDateTime dateUpdated;
 }

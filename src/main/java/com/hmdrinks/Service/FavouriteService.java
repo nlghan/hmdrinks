@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,6 @@ public class FavouriteService {
 
         }
         Favourite favourite = favouriteRepository.findByUserUserId(user.getUserId());
-
         if(favourite != null)
         {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Favourite already exists");
@@ -43,7 +43,7 @@ public class FavouriteService {
         Favourite favourite1 = new Favourite();
         favourite1.setUser(user);
         favourite1.setIsDeleted(false);
-        favourite1.setDateCreated(LocalDate.now());
+        favourite1.setDateCreated(LocalDateTime.now());
         favouriteRepository.save(favourite1);
 
         return ResponseEntity.status(HttpStatus.OK).body(new CreateNewFavouriteResponse(
@@ -102,5 +102,4 @@ public class FavouriteService {
 
         return ResponseEntity.status(HttpStatus.OK).body(favouriteResponse);
     }
-
 }

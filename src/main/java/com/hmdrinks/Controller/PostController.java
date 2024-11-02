@@ -1,5 +1,6 @@
 package com.hmdrinks.Controller;
 
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
 import com.hmdrinks.Response.*;
@@ -43,6 +44,13 @@ public class PostController {
     public ResponseEntity<ListAllPostResponse> getAllPosts(@RequestParam(name = "page") String page,
                                                            @RequestParam(name = "limit") String limit){
         return  ResponseEntity.ok(postService.getAllPost(page,limit));
+    }
+
+    @GetMapping(value = "/view/type/all")
+    public ResponseEntity<ListAllPostResponse> getAllPostsByTye(@RequestParam(name = "page") String page,
+                                                                @RequestParam(name = "limit") String limit,
+                                                                @RequestParam(name = "type")Type_Post typePost){
+        return  ResponseEntity.ok(postService.getAllPostByType(page,limit,typePost));
     }
 
     @GetMapping(value = "/view/author/{userId}")

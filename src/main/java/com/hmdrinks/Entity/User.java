@@ -64,13 +64,13 @@ public class User {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
     private Date dateDeleted;
 
-    @Column(name = "date_updated")
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
     private Date dateUpdated;
 
-    @Column(name = "date_created")
+    @Column(name = "date_created",columnDefinition = "DATETIME")
     private Date dateCreated;
 
     @Column(name = "password", nullable = false)

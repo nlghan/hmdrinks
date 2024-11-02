@@ -1,10 +1,12 @@
 package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.Category;
+import com.hmdrinks.Entity.PriceHistory;
 import com.hmdrinks.Entity.Product;
 import com.hmdrinks.Entity.ProductVariants;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.CategoryRepository;
+import com.hmdrinks.Repository.PriceHistoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.ProductVariantsRepository;
 import com.hmdrinks.Request.CRUDProductReq;
@@ -21,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,8 @@ public class ProductVarService {
     private ProductRepository productRepository;
     @Autowired
     private ProductVariantsRepository proVarRepository;
+    @Autowired
+    private PriceHistoryRepository priceHistoryRepository;
 
     public ResponseEntity<?> crateProductVariants(CreateProductVarReq req)
     {
@@ -49,7 +54,7 @@ public class ProductVarService {
         productVariants1.setStock(req.getStock());
         productVariants1.setPrice(req.getPrice());
         productVariants1.setIsDeleted(false);
-        productVariants1.setDateCreated(LocalDate.now());
+        productVariants1.setDateCreated(LocalDateTime.now());
         proVarRepository.save(productVariants1);
 
         return  ResponseEntity.status(HttpStatus.OK).body(new CRUDProductVarResponse(
@@ -102,11 +107,21 @@ public class ProductVarService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Variant Not Found");
         }
+        if(req.getPrice() != productVariants1.getPrice())
+        {
+            PriceHistory priceHistory = new PriceHistory();
+            priceHistory.setProductVariant(productVariants1);
+            priceHistory.setNewPrice(req.getPrice());
+            priceHistory.setOldPrice(productVariants1.getPrice());
+            priceHistory.setDateChanged(LocalDateTime.now());
+            priceHistory.setChangeReason("Update Price");
+            priceHistoryRepository.save(priceHistory);
+        }
         productVariants1.setProduct(product);
         productVariants1.setSize(req.getSize());
         productVariants1.setStock(req.getStock());
         productVariants1.setPrice(req.getPrice());
-        productVariants1.setDateUpdated(LocalDate.now());
+        productVariants1.setDateUpdated(LocalDateTime.now());
         proVarRepository.save(productVariants1);
         return ResponseEntity.status(HttpStatus.OK).body(new  CRUDProductVarResponse(
                 productVariants1.getVarId(),

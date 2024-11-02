@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ReviewService {
         review.setContent(req.getContent());
         review.setRatingStar(req.getRatingStart());
         review.setUser(user);
-        review.setDateCreated(LocalDate.now());
+        review.setDateCreated(LocalDateTime.now());
         review.setProduct(product);
         review.setIsDeleted(false);
         reviewRepository.save(review);
@@ -72,7 +73,7 @@ public class ReviewService {
 
         review.setContent(req.getContent());
         review.setRatingStar(req.getRatingStart());
-        review.setDateUpdated(LocalDate.now());
+        review.setDateUpdated(LocalDateTime.now());
         reviewRepository.save(review);
         CRUDReviewResponse response = new CRUDReviewResponse(
                 review.getReviewId(),
@@ -99,7 +100,7 @@ public class ReviewService {
         }
 
         review.setIsDeleted(true);
-        review.setDateDeleted(Date.valueOf(LocalDate.now()));
+        review.setDateDeleted(LocalDateTime.now());
         reviewRepository.save(review);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Review deleted successfully");

@@ -24,10 +24,10 @@ public class Orders { // Changed from Orders to Order
     @Column(name = "orderId")
     private int orderId;
 
-    @Column(name = "orderDate", nullable = false)
+    @Column(name = "orderDate", nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime orderDate;
 
-    @Column(name = "deliveryDate")
+    @Column(name = "deliveryDate",columnDefinition = "DATETIME")
     private LocalDateTime deliveryDate;
 
     @Column(name = "note")
@@ -63,13 +63,13 @@ public class Orders { // Changed from Orders to Order
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
     private LocalDateTime dateDeleted; // Changed to LocalDateTime
 
-    @Column(name = "date_created")
+    @Column(name = "date_created",columnDefinition = "DATETIME")
     private LocalDateTime dateCreated;
 
-    @Column(name = "date_updated")
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
     private LocalDateTime dateUpdated;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -61,7 +62,7 @@ public class FavouriteItemService {
             favouriteItem.setFavourite(favourite);
             favouriteItem.setProductVariants(productVariants);
             favouriteItemRepository.save(favouriteItem);
-            favourite.setDateUpdated(LocalDate.now());
+            favourite.setDateUpdated(LocalDateTime.now());
             favouriteRepository.save(favourite);
             return ResponseEntity.status(HttpStatus.OK_200).body(new CRUDFavouriteItemResponse (
                     favouriteItem.getFavItemId(),
@@ -84,7 +85,7 @@ public class FavouriteItemService {
         }
         favouriteItemRepository.delete(favouriteItem);
         Favourite favourite = favouriteRepository.findByFavId(favouriteItem.getFavourite().getFavId());
-        favourite.setDateUpdated(LocalDate.now());
+        favourite.setDateUpdated(LocalDateTime.now());
         favouriteRepository.save(favourite);
         return ResponseEntity.status(HttpStatus.OK_200).body(new DeleteFavouriteItemResponse(
                 "Delete item success"
@@ -103,7 +104,7 @@ public class FavouriteItemService {
         {
             favouriteItemRepository.delete(favouriteItem);
         }
-        favourite.setDateUpdated(LocalDate.now());
+        favourite.setDateUpdated(LocalDateTime.now());
         favouriteRepository.save(favourite);
         return ResponseEntity.status(HttpStatus.OK_200).body(new DeleteFavouriteItemResponse(
                 "Delete all item success"

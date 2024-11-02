@@ -5,6 +5,7 @@ package com.hmdrinks.Response;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -17,8 +18,8 @@ public class CRUDCategoryResponse {
     private String cateName;
     private String cateImg;
     private Boolean isDeleted;
-    private LocalDate dateCreated;
-    private LocalDate dateUpdated;
-    private LocalDate dateDeleted;
+    private LocalDateTime dateCreated;
+    private LocalDateTime dateUpdated;
+    private LocalDateTime dateDeleted;
 }
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -31,14 +32,14 @@ public class Favourite {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
-    private LocalDate dateDeleted;
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
+    private LocalDateTime dateDeleted;
 
-    @Column(name = "date_updated")
-    private LocalDate dateUpdated;
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
+    private LocalDateTime dateUpdated;
 
-    @Column(name = "date_created")
-    private LocalDate dateCreated;
+    @Column(name = "date_created",columnDefinition = "DATETIME")
+    private LocalDateTime dateCreated;
 
     @OneToMany(mappedBy = "favourite")
     private List<FavouriteItem> favouriteItems;
