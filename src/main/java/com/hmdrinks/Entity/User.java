@@ -55,6 +55,9 @@ public class User {
     @Column(name = "district")
     private String district;
 
+    @Column(name = "ward")
+    private String ward;
+
     @Column(name = "street")
     private String street;
 
@@ -104,8 +107,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contact> contacts;
-
-
-
 
 }

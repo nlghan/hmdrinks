@@ -53,7 +53,7 @@ public class UserService {
         Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
         for (User user : userList) {
-            String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
+            String fullLocation = user.getStreet() + "," + "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
                         user.getUserId(),
                         user.getUserName(),
@@ -80,7 +80,7 @@ public class UserService {
         if (userList == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
-        String fullLocation = userList.getStreet() + ","+ userList.getDistrict() + ","+ userList.getCity();
+        String fullLocation = userList.getStreet() + "," + "," + userList.getWard() + userList.getDistrict() + ","+ userList.getCity();
         return ResponseEntity.status(HttpStatus.OK).body(new GetDetailUserInfoResponse(
                 userList.getUserId(),
                 userList.getUserName(),
@@ -121,11 +121,13 @@ public class UserService {
         userList.setSex(Sex.valueOf(req.getSex()));
         userList.setBirthDate(req.getBirthDay());
         userList.setDateUpdated(Date.valueOf(currentDate));
-        if(locationParts.length >= 3){
+        if(locationParts.length >= 4){
             String street = locationParts[0].trim();
-            String district = locationParts[1].trim();
-            String city = locationParts[2].trim();
+            String ward = locationParts[1].trim();
+            String district = locationParts[2].trim();
+            String city = locationParts[3].trim();
             userList.setCity(city);
+            userList.setWard(ward);
             userList.setStreet(street);
             userList.setDistrict(district);
         } else {

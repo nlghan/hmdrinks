@@ -28,6 +28,7 @@ import java.util.Optional;
 @Component
 public class SupportFunction {
     private final JwtService jwtService;
+    private final String apiKey = "VudYm4ZnWzUU2Rv5HmxxV2IwrK834KcKmuUQMkGG";
     @Autowired
     public SupportFunction(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -65,10 +66,9 @@ public class SupportFunction {
         if (phoneNumber == null || phoneNumber.length() != 10) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Số điện thoại không hợp lệ. Phải chứa 10 chữ số.");
         }
-
         Optional<User> existingUserOptional = userRepository.findByPhoneNumberAndIsDeletedFalse(phoneNumber);
         if (existingUserOptional.isPresent()) {
-            User existingUser = existingUserOptional.get(); // Lấy user từ Optional
+            User existingUser = existingUserOptional.get();
             if (!(existingUser.getUserId() ==userId)) {
                 throw new ConflictException("Số điện thoại đã tồn tại.");
             }
@@ -79,16 +79,14 @@ public class SupportFunction {
     public String getLocation(String address) {
         try {
             String encodedAddress = URLEncoder.encode(address, "UTF-8");
-            String apiKey = "VudYm4ZnWzUU2Rv5HmxxV2IwrK834KcKmuUQMkGG";
+
             String location = "21.013715429594125,105.79829597455202";
             String urlString = "https://rsapi.goong.io/Place/AutoComplete?api_key=" + apiKey
                     + "&location=" + location + "&input=" + encodedAddress;
-
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-
             BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream()), "UTF-8"));
             StringBuilder response = new StringBuilder();
             String output;
@@ -98,7 +96,6 @@ public class SupportFunction {
             conn.disconnect();
             JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
             JsonArray predictions = jsonResponse.getAsJsonArray("predictions");
-
             if (predictions != null && predictions.size() > 0) {
                 for (int i = 0; i < predictions.size(); i++) {
                     JsonObject prediction = predictions.get(i).getAsJsonObject();
@@ -158,7 +155,6 @@ public class SupportFunction {
 
     public static double getShortestDistance(double[] origins, double[] destinations) {
         double shortestDistanceValue = Double.MAX_VALUE;
-
         try {
             String apiKey = "VudYm4ZnWzUU2Rv5HmxxV2IwrK834KcKmuUQMkGG";
             String originsParam = origins[0] + "," + origins[1];
@@ -211,8 +207,6 @@ public class SupportFunction {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return shortestDistanceValue != Double.MAX_VALUE ? shortestDistanceValue : -1;
     }
-
 }

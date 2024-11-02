@@ -47,6 +47,7 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
+                        .requestMatchers("/api/province/**").permitAll()
                         .requestMatchers("/api/shipment/allocate").hasAuthority("ADMIN")
                         .requestMatchers("/api/shipment/activate/**").hasAuthority("SHIPPER")
                         .requestMatchers("/api/shipment/shipper/**").hasAuthority("SHIPPER")

@@ -75,6 +75,7 @@ public class AdminService {
         user1.setUserName(req.getUserName());
         user1.setAvatar("");
         user1.setDistrict("");
+        user1.setWard("");
         user1.setCity("");
         user1.setStreet("");
         user1.setSex(Sex.OTHER);
@@ -112,7 +113,7 @@ public class AdminService {
         }
         User existingUser = existingUserOptional.get();
         if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
-            existingUser.setIsDeleted(false); // Khôi phục người dùng
+            existingUser.setIsDeleted(false);
         }
         // Update user details only if provided in the request
         if (req.getFullName() != null && !req.getFullName().isEmpty()) {
@@ -154,7 +155,7 @@ public class AdminService {
         }
 
         userRepository.save(existingUser);
-
+        String fullLocation = existingUser.getStreet() + "," + existingUser.getWard() + existingUser.getDistrict() + ","+ existingUser.getCity();
         // Return updated user information as response
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDAccountUserResponse(
                 existingUser.getUserId(),
@@ -162,7 +163,7 @@ public class AdminService {
                 existingUser.getFullName(),
                 existingUser.getAvatar(),
                 existingUser.getBirthDate(),
-                "",
+                fullLocation,
                 existingUser.getEmail(),
                 existingUser.getPhoneNumber(),
                 existingUser.getSex().toString(),
@@ -513,7 +514,5 @@ public class AdminService {
                 limit,
                 crudProductResponseList
         );
-
     }
-
 }
