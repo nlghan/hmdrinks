@@ -53,7 +53,7 @@ public class UserService {
         Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
         for (User user : userList) {
-            String fullLocation = user.getStreet() + "," + "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
+            String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
                         user.getUserId(),
                         user.getUserName(),
@@ -80,7 +80,7 @@ public class UserService {
         if (userList == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
-        String fullLocation = userList.getStreet() + "," + "," + userList.getWard() + userList.getDistrict() + ","+ userList.getCity();
+        String fullLocation = userList.getStreet() +  "," + userList.getWard() + "," + userList.getDistrict() + ","+ userList.getCity();
         return ResponseEntity.status(HttpStatus.OK).body(new GetDetailUserInfoResponse(
                 userList.getUserId(),
                 userList.getUserName(),

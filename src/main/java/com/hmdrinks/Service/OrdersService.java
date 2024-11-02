@@ -107,12 +107,12 @@ public class OrdersService {
 
         Orders order = new Orders();
         order.setOrderDate(LocalDateTime.now());
-        String address = user.getStreet() + ", " + user.getDistrict() + ", " + user.getCity();
+        String address = user.getStreet() +  ", " + user.getWard() + ", " + user.getDistrict() + ", " + user.getCity();
         order.setAddress(address);
 
         String place_id = supportFunction.getLocation(address);
         double[] destinations= supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075,106.77190192800003};
+        double[] origins = {10.850575879000075,106.77190192800003}; // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
         double distance =supportFunction.getShortestDistance(origins, destinations);
         if(distance > 20){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded");
