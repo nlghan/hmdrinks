@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class getInformationPaymentFromOrderIdResponse {
     private int orderId;
     private String address;
+    private Double deliveryFee;
     private LocalDateTime dateCreated;
     private LocalDateTime dateDeleted;
     private LocalDateTime dateUpdated;

@@ -80,7 +80,7 @@ public class PaymentService {
             String requestId = partnerCode + "-" + UUID.randomUUID();
             Orders order = orderRepository.findByOrderId(orderId1);
             User user = userRepository.findByUserId(order.getUser().getUserId());
-            Double totalAmount = order.getTotalPrice() - order.getDiscountPrice();
+            Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
             Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
             if (order.getDiscountPrice() > 0) {
@@ -137,6 +137,13 @@ public class PaymentService {
                 item.put("manufacturer", "HMDrinks");
                 items.add(item);
             }
+            Map<String, Object> itemFee = new HashMap<>();
+            itemFee.put("name","Delivery Fee");
+            itemFee.put("price",Math.round(order.getDeliveryFee()));
+            itemFee.put("quantity", 1);
+            itemFee.put("imageUrl","");
+            items.add(itemFee);
+
             requestBody.put("items", items);
 
             URL url = new URL("https://test-payment.momo.vn/v2/gateway/api/create");
@@ -286,7 +293,7 @@ public class PaymentService {
         }
         Orders order = orderRepository.findByOrderId(orderId);
         User user = userRepository.findByUserId(order.getUser().getUserId());
-        Double totalAmount = order.getTotalPrice() - order.getDiscountPrice();
+        Double totalAmount = order.getTotalPrice() - order.getDiscountPrice()+ order.getDeliveryFee();
         Payment payment1 = new Payment();
         payment1.setAmount(totalAmount);
         payment1.setPaymentMethod(Payment_Method.CASH);

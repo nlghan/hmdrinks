@@ -11,6 +11,7 @@ import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,8 @@ public class OrdersService {
     private  CartRepository cartRepository;
     @Autowired
     private  PaymentRepository paymentRepository;
+    @Autowired
+    private SupportFunction supportFunction;
 
     public boolean isNumeric(String voucherId) {
         if (voucherId == null) {
@@ -50,6 +53,19 @@ public class OrdersService {
         }
     }
 
+    public static double calculateFee(double distance) {
+        if (distance < 1) {
+            return 0.0;
+        } else if (distance >= 1 && distance < 5) {
+            return 10000.0;
+        } else if (distance >= 5 && distance < 10) {
+            return 15000.0;
+        } else if (distance >= 10 && distance < 20) {
+            return 20000.0;
+        } else {
+            return 0.0;
+        }
+    }
 
     public ResponseEntity<?> addOrder(CreateOrdersReq req) {
         User user = userRepository.findByUserId(req.getUserId());
@@ -91,16 +107,27 @@ public class OrdersService {
         order.setOrderDate(LocalDateTime.now());
         String address = user.getStreet() + ", " + user.getDistrict() + ", " + user.getCity();
         order.setAddress(address);
+
+        String place_id = supportFunction.getLocation(address);
+        double[] destinations= supportFunction.getCoordinates(place_id);
+        double[] origins = {10.850575879000075,106.77190192800003};
+        double distance =supportFunction.getShortestDistance(origins, destinations);
+        if(distance > 20){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded");
+        }
+        double fee = calculateFee(distance);
+        order.setDeliveryFee(fee);
         order.setPhoneNumber(user.getPhoneNumber());
         order.setStatus(Status_Order.WAITING);
         order.setUser(user);
+        order.setDeliveryFee(fee);
         order.setIsDeleted(false);
 
         if (voucher != null) {
             order.setVoucher(voucher);
             order.setDiscountPrice(voucher.getDiscount());
         } else {
-            order.setDiscountPrice(0.0); // Đặt giá trị mặc định nếu không có voucher
+            order.setDiscountPrice(0.0);
         }
 
         orderRepository.save(order);
@@ -120,6 +147,8 @@ public class OrdersService {
         order.setDeliveryDate(LocalDateTime.now());
         order.setNote(req.getNote());
         order.setTotalPrice(orderItem.getTotalPrice());
+
+
         orderRepository.save(order);
 
         cart.setStatus(Status_Cart.COMPLETED);
@@ -133,6 +162,7 @@ public class OrdersService {
         return ResponseEntity.status(HttpStatus.OK).body(new CreateOrdersResponse(
                 order.getOrderId(),
                 order.getAddress(),
+                order.getDeliveryFee(),
                 order.getDateCreated(),
                 order.getDateDeleted(),
                 order.getDateUpdated(),
@@ -226,6 +256,7 @@ public class OrdersService {
         return ResponseEntity.status(HttpStatus.OK).body(new getInformationPaymentFromOrderIdResponse(
                 order.getOrderId(),
                 order.getAddress(),
+                order.getDeliveryFee(),
                 order.getDateCreated(),
                 order.getDateDeleted(),
                 order.getDateUpdated(),

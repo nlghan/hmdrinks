@@ -39,6 +39,9 @@ public class Orders { // Changed from Orders to Order
     @Column(name = "discountPrice", nullable = false)
     private double discountPrice;
 
+    @Column(name = "deliveryFee")
+    private double deliveryFee;
+
     @Column(name = "totalPrice", nullable = false)
     private double totalPrice;
 
