@@ -60,8 +60,10 @@ public class OrdersService {
             return 10000.0;
         } else if (distance >= 5 && distance < 10) {
             return 15000.0;
-        } else if (distance >= 10 && distance < 20) {
+        } else if (distance >= 10 && distance < 15) {
             return 20000.0;
+        } else if (distance >= 15 && distance < 20) {
+            return 25000.0;
         } else {
             return 0.0;
         }

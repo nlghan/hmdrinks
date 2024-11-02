@@ -22,7 +22,7 @@ public class ProvinceController {
         return provinceService.fetchProvinces();
     }
 
-        @GetMapping("/list-district")
+    @GetMapping("/list-district")
     public  ResponseEntity<?> getAllDistrict(@RequestParam Integer provinceId){
         return provinceService.fetchDistricts(provinceId.toString());
     }
