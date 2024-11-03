@@ -1,8 +1,6 @@
 package com.hmdrinks;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Controller.UserController;
-import com.hmdrinks.Entity.MyUserDetails;
 import com.hmdrinks.Repository.TokenRepository;
 import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
@@ -25,24 +23,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @AutoConfigureMockMvc
 @WebAppConfiguration
 @WebMvcTest(UserController.class)
@@ -148,6 +136,34 @@ class UserControllerTest {
                         .content(requestBody))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("User not found"))
+                .andDo(print());
+    }
+
+    @Test
+    void updateUser_InvalidAddressFormat() throws Exception {
+        String dateString = "15/11/2002";
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date date = formatter.parse(dateString);
+        UserInfoUpdateReq req = new UserInfoUpdateReq(
+                1,
+                "ohhhchank3@gmail.com",
+                "Vo Nhu Y",
+                "0777464215",
+                "",
+                "MALE",
+                date,
+                "99 đường số 7, Linh Trung, Thủ Đức"
+        );
+
+        when(userService.updateUserInfoResponse(any(UserInfoUpdateReq.class)))
+                .thenReturn( (ResponseEntity)ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid address format"));
+
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(put(endPointPath + "/info-update")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(content().string("Invalid address format"))
                 .andDo(print());
     }
 
