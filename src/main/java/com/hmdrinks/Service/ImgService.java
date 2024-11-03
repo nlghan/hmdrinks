@@ -18,6 +18,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.io.File;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import java.io.IOException;
@@ -167,7 +168,7 @@ public class ImgService {
                     : currentProImg + ", " + (currentProImg.split(",").length + 1) + ": " + imageUrl;
 
             product.setListProImg(newProImgEntry);
-            product.setDateUpdated(LocalDate.now());
+            product.setDateUpdated(LocalDateTime.now());
 
             productRepository.save(product);
 

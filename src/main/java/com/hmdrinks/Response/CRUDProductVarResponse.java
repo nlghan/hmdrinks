@@ -4,6 +4,7 @@ import com.hmdrinks.Enum.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -18,7 +19,7 @@ public class CRUDProductVarResponse {
     private Double price;
     private int stock;
     private boolean isDeleted;
-    private Date dateDeleted;
-    private LocalDate dateCreated;
-    private LocalDate dateUpdated;
+    private LocalDateTime dateDeleted;
+    private LocalDateTime dateCreated;
+    private LocalDateTime dateUpdated;
 }

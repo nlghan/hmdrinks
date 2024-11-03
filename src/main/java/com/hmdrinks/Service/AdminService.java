@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +76,7 @@ public class AdminService {
         user1.setUserName(req.getUserName());
         user1.setAvatar("");
         user1.setDistrict("");
+        user1.setWard("");
         user1.setCity("");
         user1.setStreet("");
         user1.setSex(Sex.OTHER);
@@ -112,7 +114,7 @@ public class AdminService {
         }
         User existingUser = existingUserOptional.get();
         if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
-            existingUser.setIsDeleted(false); // Khôi phục người dùng
+            existingUser.setIsDeleted(false);
         }
         // Update user details only if provided in the request
         if (req.getFullName() != null && !req.getFullName().isEmpty()) {
@@ -154,7 +156,7 @@ public class AdminService {
         }
 
         userRepository.save(existingUser);
-
+        String fullLocation = existingUser.getStreet() + "," + existingUser.getWard() + existingUser.getDistrict() + ","+ existingUser.getCity();
         // Return updated user information as response
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDAccountUserResponse(
                 existingUser.getUserId(),
@@ -162,7 +164,7 @@ public class AdminService {
                 existingUser.getFullName(),
                 existingUser.getAvatar(),
                 existingUser.getBirthDate(),
-                "",
+                fullLocation,
                 existingUser.getEmail(),
                 existingUser.getPhoneNumber(),
                 existingUser.getSex().toString(),
@@ -182,7 +184,7 @@ public class AdminService {
             throw new BadRequestException("Review not found");
         }
         review.setIsDeleted(true);
-        review.setDateDeleted(Date.valueOf(LocalDate.now()));
+        review.setDateDeleted(LocalDateTime.now());
         reviewRepository.save(review);
         return "Review deleted";
     }
@@ -193,7 +195,7 @@ public class AdminService {
         {
             for(Review review : reviewList){
                 review.setIsDeleted(true);
-                review.setDateDeleted(Date.valueOf(LocalDate.now()));
+                review.setDateDeleted(LocalDateTime.now());
                 reviewRepository.save(review);
             }
         }
@@ -513,7 +515,5 @@ public class AdminService {
                 limit,
                 crudProductResponseList
         );
-
     }
-
 }

@@ -1,5 +1,6 @@
 package com.hmdrinks.Controller;
 
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
 import com.hmdrinks.Response.*;
@@ -8,6 +9,7 @@ import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +25,11 @@ public class PostController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createPost(@RequestBody CreateNewPostReq req, HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return postService.createPost(req);
     }
 
@@ -40,6 +46,13 @@ public class PostController {
         return  ResponseEntity.ok(postService.getAllPost(page,limit));
     }
 
+    @GetMapping(value = "/view/type/all")
+    public ResponseEntity<ListAllPostResponse> getAllPostsByTye(@RequestParam(name = "page") String page,
+                                                                @RequestParam(name = "limit") String limit,
+                                                                @RequestParam(name = "type")Type_Post typePost){
+        return  ResponseEntity.ok(postService.getAllPostByType(page,limit,typePost));
+    }
+
     @GetMapping(value = "/view/author/{userId}")
     public ResponseEntity<?> getOnePostByUserId(
             @PathVariable Integer userId
@@ -52,7 +65,11 @@ public class PostController {
             @RequestBody CRUDPostReq req, HttpServletRequest httpRequest
     )
     {
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return  postService.updatePost(req);
     }
 }

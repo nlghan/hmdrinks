@@ -25,7 +25,7 @@ public class UserController {
     public ResponseEntity<?> getDetailUserInfoResponseResponseEntity(
             @PathVariable Integer id,HttpServletRequest httpRequest
             ){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(id));
+        supportFunction.checkUserAuthorization(httpRequest,id);
         return userService.getDetailUserInfoResponse(id);
     }
 
@@ -33,13 +33,13 @@ public class UserController {
     public ResponseEntity<?> updateUserInfoResponseResponseEntity(
             @RequestBody UserInfoUpdateReq req, HttpServletRequest httpRequest
             ){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        supportFunction.checkUserAuthorization(httpRequest,req.getUserId());
         return userService.updateUserInfoResponse(req);
     }
 
     @PutMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordReq req,HttpServletRequest httpRequest) {
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        supportFunction.checkUserAuthorization(httpRequest,req.getUserId());
         return userService.changePasswordResponse(req);
     }
 }

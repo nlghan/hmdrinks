@@ -45,9 +45,17 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
 
-
                         ).permitAll()
-                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/api/payment/callback").permitAll()
+                        //.requestMatchers("/api/price-history/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/price-history/**").permitAll()
+                        .requestMatchers("/api/province/**").permitAll()
+                        .requestMatchers("/api/shipment/allocate").hasAuthority("ADMIN")
+                        .requestMatchers("/api/shipment/activate/**").hasAuthority("SHIPPER")
+                        .requestMatchers("/api/shipment/shipper/**").hasAuthority("SHIPPER")
+                        .requestMatchers("/api/shipment/view/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/payment/listAll","/api/payment/listAll-method","/api/payment/listAll-status").hasAuthority("ADMIN")
+                        .requestMatchers("/api/payment/create/cash","/api/payment/create/credit").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()
                         .requestMatchers("/api/product/view/**", "/api/product/list-product","/api/product/variants/**").permitAll()
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()

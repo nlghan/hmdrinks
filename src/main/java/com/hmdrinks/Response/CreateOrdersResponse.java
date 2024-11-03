@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class CreateOrdersResponse {
     private int orderId;
     private String address;
+    private Double deliveryFee;
     private LocalDateTime dateCreated;
     private LocalDateTime dateDeleted;
     private LocalDateTime dateUpdated;
@@ -25,5 +26,5 @@ public class CreateOrdersResponse {
     private Status_Order status;
     private  Double TotalPrice;
     private  int userId;
-    private int voucherId;
+    private Integer voucherId;
 }

@@ -55,19 +55,22 @@ public class User {
     @Column(name = "district")
     private String district;
 
+    @Column(name = "ward")
+    private String ward;
+
     @Column(name = "street")
     private String street;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "date_deleted")
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
     private Date dateDeleted;
 
-    @Column(name = "date_updated")
+    @Column(name = "date_updated",columnDefinition = "DATETIME")
     private Date dateUpdated;
 
-    @Column(name = "date_created")
+    @Column(name = "date_created",columnDefinition = "DATETIME")
     private Date dateCreated;
 
     @Column(name = "password", nullable = false)
@@ -94,6 +97,9 @@ public class User {
     private List<Orders>  orders;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Shippment>  shippments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem>  orderItems;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -101,8 +107,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contact> contacts;
-
-
-
 
 }

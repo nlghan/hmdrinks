@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,18 @@ public class UserVoucherService {
     @Autowired
     private PostRepository postRepository;
 
+
+
+    public boolean isCurrentDateWithinVoucherPeriod(Voucher voucher) {
+        LocalDateTime currentDate = LocalDateTime.now();
+        return (voucher.getStartDate() != null && voucher.getEndDate() != null &&
+                !currentDate.isBefore(voucher.getStartDate()) &&
+                !currentDate.isAfter(voucher.getEndDate()));
+    }
+
     public ResponseEntity<?> getVoucher(GetVoucherReq req)
     {
+
         User user = userRepository.findByUserId(req.getUserId());
         if(user == null)
         {
@@ -44,11 +55,31 @@ public class UserVoucherService {
         {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found voucher for Post");
         }
+        if (!isCurrentDateWithinVoucherPeriod(voucher)) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The current date is not within the valid period.");
+        }
         UserVoucher userVoucher1 = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(user.getUserId(), req.getVoucherId());
         if(userVoucher1 != null)
         {
             return  ResponseEntity.status(HttpStatus.CONFLICT).body("Voucher already exists");
         }
+
+        int totalVoucherUserBefore = 0;
+        List<UserVoucher> userVoucherList = userVoucherRepository.findByVoucherVoucherId(req.getVoucherId());
+        for(UserVoucher userVoucher : userVoucherList){
+            if(userVoucher.getUser().getUserId() != req.getUserId())
+            {
+                totalVoucherUserBefore = totalVoucherUserBefore + 1 ;
+            }
+
+        }
+        int currentVoucher = voucher.getNumber() - totalVoucherUserBefore;
+        if(currentVoucher < 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Out of discount codes to use");
+        }
+        voucher.setNumber(voucher.getNumber() - 1);
+        voucherRepository.save(voucher);
         UserVoucher userVoucher = new UserVoucher();
         userVoucher.setUser(user);
         userVoucher.setVoucher(voucher);

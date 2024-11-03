@@ -42,7 +42,7 @@ public class CategoryService {
         cate.setCateName(req.getCateName());
         cate.setCateImg(req.getCateImg());
         cate.setIsDeleted(false);
-        cate.setDateCreated(LocalDate.from(now));
+        cate.setDateCreated(LocalDateTime.now());
 
         categoryRepository.save(cate);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
@@ -89,7 +89,7 @@ public class CategoryService {
         LocalDateTime currentDateTime = LocalDateTime.now();
         category.setCateName(category.getCateName());
         category.setCateImg(category.getCateImg());
-        category.setDateUpdated(LocalDate.from(currentDateTime));
+        category.setDateUpdated(LocalDateTime.now());
         categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
                 req.getCateId(),

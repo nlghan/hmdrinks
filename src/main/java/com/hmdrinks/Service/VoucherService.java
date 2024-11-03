@@ -1,9 +1,11 @@
 package com.hmdrinks.Service;
 import com.hmdrinks.Entity.Post;
+import com.hmdrinks.Entity.UserVoucher;
 import com.hmdrinks.Entity.Voucher;
 import com.hmdrinks.Enum.Status_Voucher;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.PostRepository;
+import com.hmdrinks.Repository.UserVoucherRepository;
 import com.hmdrinks.Repository.VoucherRepository;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
@@ -26,6 +28,8 @@ public class VoucherService {
     private VoucherRepository voucherRepository;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private UserVoucherRepository userVoucherRepository;
 
     public ResponseEntity<?> createVoucher(CreateVoucherReq req) {
         Post post = postRepository.findByPostId(req.getPostId());
@@ -56,6 +60,10 @@ public class VoucherService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Start date must be greater than or equal to post creation date");
         }
+        if(req.getNumber() <= 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Number must be greater than 0");
+        }
 
         Voucher voucher = new Voucher();
         voucher.setPost(post);
@@ -63,12 +71,14 @@ public class VoucherService {
         voucher.setEndDate(req.getEndDate());
         voucher.setKey(req.getKeyVoucher());
         voucher.setIsDeleted(false);
+        voucher.setNumber(req.getNumber());
         voucher.setDiscount(req.getDiscount());
         voucher.setStatus(Status_Voucher.ACTIVE);
         voucherRepository.save(voucher);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
                 voucher.getKey(),
+                voucher.getNumber(),
                 voucher.getStartDate(),
                 voucher.getEndDate(),
                 voucher.getDiscount(),
@@ -109,15 +119,31 @@ public class VoucherService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("End date must be greater than or equal to post creation date");
             }
+            if (req.getNumber() <= 0)
+            {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Number must be greater than 0");
+            }
+            int totalVoucherUserBefore = 0;
+            List<UserVoucher> userVoucherList = userVoucherRepository.findByVoucherVoucherId(req.getVoucherId());
+            for(UserVoucher userVoucher : userVoucherList){
+                totalVoucherUserBefore = totalVoucherUserBefore + 1 ;
+            }
+            int currentVoucher = req.getNumber() - totalVoucherUserBefore;
+            if(currentVoucher < 0)
+            {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Number must be greater");
+            }
             voucher.setPost(post);
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
+            voucher.setNumber(currentVoucher);
             voucher.setDiscount(req.getDiscount());
             voucher.setKey(req.getKey());
             voucherRepository.save(voucher);
             return  ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
                     voucher.getKey(),
+                    voucher.getNumber(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
@@ -149,15 +175,27 @@ public class VoucherService {
             if(req.getEndDate().isBefore(createPost)){
                 return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than post creation date");
             }
+            int totalVoucherUserBefore = 0;
+            List<UserVoucher> userVoucherList = userVoucherRepository.findByVoucherVoucherId(req.getVoucherId());
+            for(UserVoucher userVoucher : userVoucherList){
+                totalVoucherUserBefore = totalVoucherUserBefore + 1 ;
+            }
+            int currentVoucher = req.getNumber() - totalVoucherUserBefore;
+            if(currentVoucher < 0)
+            {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Number must be greater");
+            }
             voucher.setPost(post);
             voucher.setStartDate(req.getStartDate());
             voucher.setEndDate(req.getEndDate());
             voucher.setDiscount(req.getDiscount());
+            voucher.setNumber(currentVoucher);
             voucher.setKey(req.getKey());
             voucherRepository.save(voucher);
             return  ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
                     voucher.getKey(),
+                    voucher.getNumber(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),
@@ -175,6 +213,7 @@ public class VoucherService {
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
                 voucher.getKey(),
+                voucher.getNumber(),
                 voucher.getStartDate(),
                 voucher.getEndDate(),
                 voucher.getDiscount(),
@@ -190,6 +229,7 @@ public class VoucherService {
             crudVoucherResponses.add(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
                     voucher.getKey(),
+                    voucher.getNumber(),
                     voucher.getStartDate(),
                     voucher.getEndDate(),
                     voucher.getDiscount(),

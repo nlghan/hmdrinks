@@ -1,5 +1,7 @@
 package com.hmdrinks.Entity;
 
+import com.hmdrinks.Enum.Payment_Method;
+import com.hmdrinks.Enum.Type_Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +28,10 @@ public class Post {
 
     @Column(name = "title")
     private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private Type_Post type;
 
     @Column(name = "description")
     private  String description;

@@ -15,6 +15,7 @@ import java.util.Date;
 public class CRUDVoucherResponse {
     private int voucherId;
     private String key;
+    private  int number;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,7 +84,11 @@ public class ProductController {
 
     @DeleteMapping(value = "/image/deleteAll")
     public ResponseEntity<?> deleteOneItem(@RequestBody DeleteAllProductImgReq req, HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return productService.deleteAllImageFromProduct(req.getProId());
     }
 }

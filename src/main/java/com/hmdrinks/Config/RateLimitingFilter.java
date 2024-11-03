@@ -17,8 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RateLimitingFilter implements Filter {
 
     private final Map<String, AtomicInteger> requestCountsPerIpAddress = new ConcurrentHashMap<>();
-    // sau khi deploy server thi sua lai so request
-    private static final int MAX_REQUESTS_PER_MINUTE = 500;
+    private static final int MAX_REQUESTS_PER_MINUTE = 100;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override

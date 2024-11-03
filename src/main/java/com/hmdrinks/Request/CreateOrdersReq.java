@@ -12,6 +12,6 @@ import lombok.Setter;
 public class CreateOrdersReq {
     private int userId;
     private int cartId;
-    private int voucherId;
+    private String voucherId;
     private String note;
 }
