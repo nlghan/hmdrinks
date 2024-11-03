@@ -9,6 +9,22 @@ import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
 const Menu = () => {
     const { isLoggedIn } = useAuth(); // Get login status from useAuth
     const [products, setProducts] = useState([]);
@@ -31,7 +47,7 @@ const Menu = () => {
             const decodedPayload = JSON.parse(atob(payload));
             return decodedPayload.UserId;
         } catch (error) {
-            console.error("Không thể giải mã token:", error);
+            console.error("Cannot decode token:", error);
             return null;
         }
     };
@@ -70,13 +86,15 @@ const Menu = () => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const url = selectedCategoryId
-                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=8`
-                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=8`;
+                const url = searchTerm
+                    ? `http://localhost:1010/api/product/search?keyword=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
+                    : selectedCategoryId
+                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
+                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
 
                 const response = await fetch(url);
                 const data = await response.json();
-                const productList = selectedCategoryId ? data.responseList : data.productResponses;
+                const productList = searchTerm ? data.productResponseList : (selectedCategoryId ? data.responseList : data.productResponses);
 
                 const productsWithDetails = await Promise.all(productList.map(async (product) => {
                     try {
@@ -104,7 +122,7 @@ const Menu = () => {
         };
 
         fetchProducts();
-    }, [currentPage, selectedCategoryId]);
+    }, [currentPage, selectedCategoryId, searchTerm]);
 
     // Fetch categories from API
     useEffect(() => {
@@ -142,11 +160,17 @@ const Menu = () => {
         setSearchTerm(value);
     };
 
+
     // Calculate the categories to display for the current category page
     const displayedCategories = categories.slice((currentCategoryPage - 1) * categoryLimit, currentCategoryPage * categoryLimit);
 
+    // Debounce the search term for better performance
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
     // Filtered products based on the search term
-    const filteredProducts = searchTerm ? products.filter(product => product.proName.toLowerCase().includes(searchTerm.toLowerCase())) : products;
+    const filteredProducts = debouncedSearchTerm
+        ? products.filter(product => product.proName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+        : products;
 
     // Check if there are any products available for the selected category
     const hasProducts = filteredProducts.length > 0;
@@ -342,36 +366,33 @@ const Menu = () => {
 
                     </div>
 
-                    <div className="products zoomIn ">
                     {loading ? (
-                        <p>Đang tải sản phẩm...</p>
+                        <LoadingAnimation />
                     ) : (
-                        products.map((product) => (
-                            <ProductCard
-                                key={product.proId}
-                                className={"zoom-in"}
-                                product={{
-                                    proId: product.proId,
-                                    name: product.proName,
-                                    size: product.size,
-                                    price: `${product.price}`,
-                                    image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
-                                }}
-                                isFavorited={favoritedProIds.includes(product.proId)} // Check if product is favorited
-                                onClick={() => handleProductCardClick(product)}
-                                onAddToCart={() => addToCart({
-                                    productId: product.proId,
-                                    name: product.proName,
-                                    price: product.price,
-                                    size: product.size,
-                                    quantity: 1,
-                                    image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
-                                })}
-                            />
-                        ))
+                        <div className="products zoomIn ">
+                            {hasProducts ? (
+                                filteredProducts.map((product) => (
+                                    <ProductCard
+                                        key={product.proId}
+                                        className={"zoom-in"}
+                                        product={{
+                                            proId: product.proId,
+                                            name: product.proName,
+                                            size: product.size,
+                                            price: `${product.price}`,
+                                            image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
+                                        }}
+                                        isFavorited={favoritedProIds.includes(product.proId)} // Check if product is favorited
+                                        onClick={() => handleProductCardClick(product)}
+                                        onAddToCart={() => handleAddToCart(product)} // Use handleAddToCart for correct cart addition
+                                    />
+                                ))
+                            ) : (
+                                <p>No products found matching your search.</p>
+                            )}
+                        </div>
                     )}
-                </div>
-
+                
 
                 </div>
             </div>

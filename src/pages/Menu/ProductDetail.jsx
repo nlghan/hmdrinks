@@ -5,6 +5,7 @@ import Footer from '../../components/Footer/Footer';
 import './ProductDetail.css';
 import axios from 'axios';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthProvider';
 
 const ProductDetail = () => {
     const location = useLocation();
@@ -26,6 +27,8 @@ const ProductDetail = () => {
     const [editingReviewId, setEditingReviewId] = useState(null);
     const [newContent, setNewContent] = useState('');
     const [newRating, setNewRating] = useState(0);
+    const { isLoggedIn, logout } = useAuth();
+
 
     const getUserIdFromToken = (token) => {
         try {
@@ -190,7 +193,7 @@ const ProductDetail = () => {
             quantity: quantity,
             image: product.productImageResponseList[currentImageIndex].linkImage
         });
-       
+
     };
 
     const formattedPrice = new Intl.NumberFormat('vi-VN', {
@@ -205,15 +208,15 @@ const ProductDetail = () => {
             alert('Bạn cần đăng nhập để gửi đánh giá!');
             return;
         }
-    
+
         const userId = getUserIdFromToken(token); // Lấy userId từ token
         if (!userId) {
             alert('Bạn cần đăng nhập để gửi đánh giá!');
             return;
         }
-    
+
         console.log("Attempting to submit review with token:", token);
-    
+
         // Tạo review data với userId
         const reviewData = {
             userId: userId,
@@ -221,9 +224,9 @@ const ProductDetail = () => {
             content: newReview.content,
             ratingStart: newReview.ratingStart
         };
-    
+
         console.log("Review data to be submitted:", reviewData);
-    
+
         try {
             const response = await fetch('http://localhost:1010/api/review/create', {
                 method: 'POST',
@@ -233,17 +236,17 @@ const ProductDetail = () => {
                 },
                 body: JSON.stringify(reviewData), // Gửi reviewData
             });
-    
+
             console.log("Response status:", response.status);
-    
+
             if (!response.ok) {
                 console.error("Response error details:", await response.json());
                 throw new Error(`Failed to submit review with status code: ${response.status}`);
             }
-    
+
             const result = await response.json();
             console.log("Review submission result:", result);
-    
+
             // Reset form
             setNewReview({ content: '', ratingStart: 0, proId: product.proId }); // Reset với proId
             fetchReviews(newReview.proId); // Gọi fetchReviews với proId từ newReview
@@ -252,13 +255,13 @@ const ProductDetail = () => {
             alert('Có lỗi xảy ra, vui lòng thử lại sau!');
         }
     };
-    
+
 
 
     const handleStarClick = (rating) => {
         setNewReview({ ...newReview, ratingStart: rating, proId: product.proId }); // Gán proId vào newReview
     };
-    
+
 
     const fetchReviews = async (proId) => {
         try {
@@ -361,17 +364,17 @@ const ProductDetail = () => {
         try {
             const token = getCookie('access_token');
             if (!token) throw new Error("Token không tồn tại. Người dùng cần đăng nhập.");
-    
+
             const userIdFromToken = getUserIdFromToken(token);
             const reqData = { reviewId: reviewId, userId: userIdFromToken };
-    
+
             console.log("Deleting review with data:", reqData); // Log dữ liệu trước khi gửi
-    
+
             const response = await axios.delete('http://localhost:1010/api/review/delete', {
                 data: reqData,
                 headers: { 'Authorization': `Bearer ${token}` },
             });
-    
+
             console.log(response.data); // Xác nhận xóa thành công
             await fetchReviews(proId); // Truyền proId vào fetchReviews
         } catch (error) {
@@ -381,10 +384,8 @@ const ProductDetail = () => {
             }
         }
     };
-    
-    
-    
-    
+
+
 
     return (
         <>
@@ -577,46 +578,37 @@ const ProductDetail = () => {
                         <span className="product-rating">
                             {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
                         </span>
-                        {/* Hiển thị danh sách đánh giá
-                        <div className="reviews-container">
-                            {reviews.length > 0 ? (
-                                reviews.map((review, index) => (
-                                    <div key={index} className="review">
-                                        <p><strong>{review.username}</strong>: {review.content}</p>
-                                        <span className="review-rating">
-                                            {"★".repeat(review.ratingStart)}{"☆".repeat(5 - review.ratingStart)}
-                                        </span>
-                                    </div>
-                                ))
-                            ) : (
-                                <p>Chưa có đánh giá cho sản phẩm này.</p>
-                            )}
-                        </div> */}
 
-                        {/* Khu vực đánh giá mới */}
-                        <div className="review-container">
-                            <div className="rating-stars">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <span
-                                        key={star}
-                                        className={`star ${newReview.ratingStart >= star ? 'filled' : ''}`}
-                                        onClick={() => handleStarClick(star)}
-                                    >
-                                        ★
-                                    </span>
-                                ))}
+                        {/* Review Section */}
+                        {isLoggedIn ? (
+                            <div className="review-container">
+                                <div className="rating-stars">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <span
+                                            key={star}
+                                            className={`star ${newReview.ratingStart >= star ? 'filled' : ''}`}
+                                            onClick={() => handleStarClick(star)}
+                                        >
+                                            ★
+                                        </span>
+                                    ))}
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Hãy cho chúng tôi biết cảm nhận của bạn về sản phẩm"
+                                    value={newReview.content}
+                                    onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
+                                    id="input-text-review"
+                                />
+                                <div className="send-button" onClick={() => handleSubmitReview(newReview.proId)}>
+                                    <i className="far fa-paper-plane"></i>
+                                </div>
                             </div>
-                            <input
-                                type="text"
-                                placeholder="Hãy cho chúng tôi biết cảm nhận của bạn về sản phẩm"
-                                value={newReview.content}
-                                onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
-                                id="input-text-review"
-                            />
-                            <div className="send-button" onClick={() => handleSubmitReview(newReview.proId)}>
-                                <i className="far fa-paper-plane"></i>
+                        ) : (
+                            <div className="login-prompt">
+                                <p>Vui lòng <a href="/login">đăng nhập</a> để viết đánh giá.</p>
                             </div>
-                        </div>
+                        )}
                     </div>
 
 

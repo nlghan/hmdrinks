@@ -2,31 +2,36 @@
     background-color: #ffffff;
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Initial shadow */
     text-align: center;
     width: 270px;
-    height: 400px; /* Fixed height to prevent layout shift */
+    height: 400px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: box-shadow 0.3s ease; /* Slight shadow change on hover */
-    
+    transition: box-shadow 0.3s ease, transform 0.5s ease; /* Smooth transitions for shadow and transform */
 }
+
+.product-card:hover {
+    background: linear-gradient(to bottom, white 54.5%, #d2f9cfbd 30%);
+    transform: translateY(-5px); /* Applies the 0.5s transition */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
 
 
 /* Product image styling */
 .product-card img {
     width: 100%;
-    height: 250px;
+    height: 220px;
     border-radius: 10px;
-    transition: transform 0.8s ease, height 0.5s ease; /* Transition for height */
+    transform: scale(1.1);
+    transition: transform 0.7s ease; /* Adjusted to match hover duration */
 }
 
-
-.product-card:hover img {
-   transform: scale(1.1);
-    height: 220px; /* Reduce height to make space for button */
-    overflow: hidden;
+.product-card:hover {
+    background: linear-gradient(to bottom, white 54.5%, #d2f9cfbd 30%);
+    transform: translateY(-4px) !important;
 }
 
 /* Container for product information */
@@ -35,9 +40,12 @@
     color: black;
     font-family: 'Taviraj', sans-serif;
     position: relative;
-    transition: all 0.3s ease;
-    transform: translateY(20px);
-    
+    transition: all 0.7s ease; /* Adjusted for smoother entry */
+    transform: translateY(40px);
+}
+
+.product-card:hover .info-product-card {
+    transform: translateY(10px);
 }
 
 /* Product title */
@@ -47,6 +55,28 @@
     font-weight: bold;
     color: black;
 }
+
+.product-card:hover h3 {
+    color: red;
+}
+
+.product-card:hover .info-product-card {
+    transform: translateY(10px);
+}
+
+/* Animation for fading in each letter with zoom */
+@keyframes fadeInZoom {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
 
 /* Price styling */
 .product-card-price {
@@ -67,53 +97,14 @@
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    display: none; /* Hide button initially */
-
+    display: none;
 }
 
-/* Show the add-to-cart button on hover */
 .product-card:hover .add-cart {
-    display: block; /* Show button on hover */
+    display: block;
     margin: auto;
-    
 }
 
-.product-card:hover {
-
-        background: linear-gradient(to bottom, white 54.5%, #f9e0cfbd 30%); /* White occupies 70%, then transitions to the other color */
-    
-    
-}
-.product-card:hover h3{
-
-   color:red
-
-
-}
-
-/* Animation for fading in each letter with zoom */
-@keyframes fadeInZoom {
-    0% {
-        opacity: 0; /* Initially invisible */
-        transform: translateY(10px) scale(0.9); /* Start slightly lower and smaller */
-    }
-    100% {
-        opacity: 1; /* Fully visible */
-        transform: translateY(0) scale(1); /* Return to original position and size */
-    }
-}
-
-
-
-/* Apply animation to each letter on hover of the parent */
-.product-card:hover .info-product-card h3 {
-    animation: fadeInZoom 0.5s forwards; /* Animation to fade in and zoom */
-}
-
-/* Add a delay for each letter to create the staggered effect */
-
-
-/* Add-to-cart button hover effect */
 .add-cart:hover {
     background-color: rgb(9, 148, 148);
 }
@@ -133,4 +124,3 @@
     color: red;
     transition: color 0.3s ease;
 }
-
