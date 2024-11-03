@@ -1,4 +1,5 @@
 package com.hmdrinks;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Controller.UserController;
 import com.hmdrinks.Repository.TokenRepository;
@@ -22,19 +23,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
 import java.text.SimpleDateFormat;
-import java.util.*;
-import static org.mockito.Mockito.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @WebAppConfiguration
 @WebMvcTest(UserController.class)
-class UserControllerTest {
+class CartControllerTest {
     private static final String endPointPath="/api/user";
     @Autowired
     private MockMvc mockMvc;
@@ -98,7 +104,7 @@ class UserControllerTest {
         );
         when(userService.updateUserInfoResponse(any(UserInfoUpdateReq.class)))
                 .thenReturn((ResponseEntity) ResponseEntity.ok(response));
-
+        
         String requestBody = objectMapper.writeValueAsString(req);
 
         mockMvc.perform(put(endPointPath + "/info-update")

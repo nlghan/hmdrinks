@@ -1,4 +1,5 @@
 package com.hmdrinks;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Controller.UserController;
 import com.hmdrinks.Repository.TokenRepository;
@@ -6,9 +7,7 @@ import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
 import com.hmdrinks.Response.ChangePasswordResponse;
 import com.hmdrinks.Response.UpdateUserInfoResponse;
-import com.hmdrinks.Service.JwtService;
-import com.hmdrinks.Service.UserInfoService;
-import com.hmdrinks.Service.UserService;
+import com.hmdrinks.Service.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,19 +21,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
 import java.text.SimpleDateFormat;
-import java.util.*;
-import static org.mockito.Mockito.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @WebAppConfiguration
 @WebMvcTest(UserController.class)
-class UserControllerTest {
+class ProductControllerTest {
     private static final String endPointPath="/api/user";
     @Autowired
     private MockMvc mockMvc;
@@ -43,6 +47,12 @@ class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @MockBean
+    private CategoryService categoryService;
+    @MockBean
+    private ProductService productService;
+    @MockBean
+    private ProductVarService productVarService;
 
     @MockBean
     private UserService userService;
@@ -61,8 +71,6 @@ class UserControllerTest {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-
-
 
     @Test
     void updateUser_Successfully() throws Exception {
@@ -98,7 +106,7 @@ class UserControllerTest {
         );
         when(userService.updateUserInfoResponse(any(UserInfoUpdateReq.class)))
                 .thenReturn((ResponseEntity) ResponseEntity.ok(response));
-
+        
         String requestBody = objectMapper.writeValueAsString(req);
 
         mockMvc.perform(put(endPointPath + "/info-update")
