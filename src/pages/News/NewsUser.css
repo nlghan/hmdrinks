@@ -1,0 +1,249 @@
+/* NewsUser.css */
+
+/* Basic container for the NewsUser component */
+
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+.news-user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.news-user-banner {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 780px;
+  overflow: hidden;
+  /* Ensures that the pseudo-element fits within the banner area */
+}
+
+/* Overlay for semi-transparent background */
+.news-user-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  /* Semi-transparent black overlay */
+  z-index: 1;
+  /* Place it below the content */
+}
+
+/* Ensure banner content appears above the overlay */
+.banner-content,
+.banner-image {
+  position: relative;
+  z-index: 2;
+  /* Content layers above the background overlay */
+}
+
+
+.banner-image {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+
+}
+
+.pacifico-regular {
+  font-family: "Pacifico", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+/* Define the reusable Pacifico font class */
+.pacifico-regular {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: Pacifico;
+  font-size: 54px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  /* 118.519% */
+  letter-spacing: 3.24px;
+}
+
+
+
+/* Centered, justified block for banner content */
+.banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: justify;
+  /* Justifies text for even alignment */
+  margin: 0 auto;
+  /* Centers the block */
+  line-height: 1.6;
+  /* Improves readability */
+  padding: 0 100px;
+}
+
+.banner-description {
+  color: #000;
+  font-family: 'Inter';
+  margin-top: 25px;
+  font-size: 18px;
+}
+
+/* News Section */
+.news-user-section {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+}
+
+.news-user-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.news-user-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.news-user-card {
+  width: 250px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.news-user-card:hover {
+  transform: translateY(-5px);
+}
+
+.news-user-image {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.news-user-card-title {
+  font-size: 18px;
+  color: #333;
+  margin: 10px 0;
+}
+
+.news-user-card-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.news-user-card-button {
+  background-color: #ff5e5e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.news-user-card-button:hover {
+  background-color: #e54b4b;
+}
+
+.news-user-see-more {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ff5e5e;
+  background-color: transparent;
+  border: 2px solid #ff5e5e;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.news-user-see-more:hover {
+  background-color: #ff5e5e;
+  color: #fff;
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+    /* Start 100% to the right */
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    /* End at the original position */
+  }
+}
+
+.banner-drink-image {
+  width: 600px;
+  height: 600px;
+  margin-right: 50px;
+  border-radius: 30px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  /* Shadow effect */
+  animation: slideInFromRight 1s ease-out;
+  /* Apply the slide-in animation */
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    /* Start at half the size */
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    /* End at the original size */
+  }
+}
+
+.banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: 'Pacifico', cursive;
+  /* Changed to Pacifico */
+  font-size: 54px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  letter-spacing: 3.24px;
+  animation: zoomIn 1s ease-out;
+  /* Apply the zoom-in animation */
+}
+
+.banner-description {
+  color: #000;
+  font-family: 'Inter';
+  animation: zoomIn 1s ease-out
+    /* Apply with a slight delay */
+}
