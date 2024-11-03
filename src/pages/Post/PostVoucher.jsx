@@ -83,79 +83,66 @@ const PostVoucher = () => {
     return (
         <>
             <Navbar />
-            <div
-                className="marketing-post-voucher-container"
+            <div 
+                className="post-voucher-container"
                 style={{
-                    backgroundImage: post?.bannerUrl ? `url(${post.bannerUrl})` : 'none',
+                    '--post-background': `url(${post?.url || assets.avtrang})`
                 }}
             >
-                <button type="button" className="marketing-btn-back" id="btn-back" onClick={() => navigate('/home')}>
+                <button type="button" className="btn-back fade-in" onClick={() => navigate('/home')}>
                     Trở lại
                 </button>
 
                 {post && (
-                    <div className="marketing-post-details">
-                        <h3>{post.title}</h3>
-                        <p className="marketing-post-short-date">
-                            <strong></strong> {post.date_create}
-                        </p>
-                        <p className="marketing-post-short-description">
-                            <strong></strong> {post.shortDescription}
-                        </p>
-                        <p className="marketing-post-description">{post.description}</p>
-                        {post.isDeleted && <p className="marketing-post-status"><strong>Trạng Thái:</strong> Đã xóa</p>}
-                    </div>
-                )}
-                {voucher ? (
-                
-                        <div className="marketing-form-details-post-voucher">                            
-                            <div className="marketing-voucher-details">
-                                <span className={`marketing-voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                                    {voucher.key}
-                                </span>
-                                <p> </p>
-                                <span className="marketing-voucher-discount">
-                                    Giảm giá: {voucher.discount} VND
-                                </span>
-                                <p></p>
-                                {/* <span className="marketing-voucher-status">
-                                    Trạng thái: {voucher.status}
-                                </span> */}
-                                <div className="marketing-voucher-dates">
-                                    <small>Bắt đầu từ: {formatDate(voucher.startDate)}</small>
-                                  
-                                </div>
-                                <div className="marketing-voucher-dates">
-                                                                     
-                                    <small>Kết thúc lúc: {formatDate(voucher.endDate)}</small>
+                    <div className="post-content-wrapper">
+                        <div className="post-banner zoom-in1">
+                            <div className="post-details fade-in">
+                                <h3 className="post-title">{post.title}</h3>
+                                <p className="post-date">{post.date_create}</p>
+                                <p className="post-short-desc">{post.shortDescription}</p>
+                            </div>
+                            
+                            <div className="post-image-wrapper">
+                                <img 
+                                    src={post.url || assets.avtrang} 
+                                    alt={post.title}
+                                    className="post-banner-image"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="post-description-section slide-in-left">
+                            <p>{post.description}</p>
+                        </div>
+
+                        {voucher && (
+                            <div className="voucher-section slide-in-right">
+                                <div className="voucher-card">
+                                    <div className="voucher-content">
+                                        <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                                            {voucher.key}
+                                        </span>
+                                        <div className="voucher-details">
+                                            <span className="voucher-discount">
+                                                {voucher.discount.toLocaleString()} VND
+                                            </span>
+                                            <div className="voucher-dates">
+                                                <span>Từ: {formatDate(voucher.startDate)}</span>
+                                                
+                                                <span>Đến: {formatDate(voucher.endDate)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <img className="marketing-form-details-post-voucher-img" src={assets.voucher}/>
-                        </div>
-                    
-                ) : (
-                    <div className="marketing-no-voucher">
-                        <p>Không có voucher nào cho bài đăng này.</p>
-                    </div>
-                )}
-
-                {/* Chuyển hình ảnh xuống cuối */}
-                {post && (
-                    <div className="marketing-post-image">
-                        {post && post.bannerUrl ? (
-                            <img src={post.bannerUrl} alt={post.title} />
-                        ) : (
-                            <img src={assets.avtrang} alt="Default" />
                         )}
                     </div>
-
                 )}
             </div>
             <Footer />
         </>
     );
-
-
 };
 
 export default PostVoucher;
+ 

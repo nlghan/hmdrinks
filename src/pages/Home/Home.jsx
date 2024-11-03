@@ -81,7 +81,7 @@ const Home = () => {
 
                        <PostCard
                        key={post.postId}
-                       image={post.bannerUrl || assets.avtrang} 
+                       image={post.url || assets.avtrang} 
                        title={post.title}
                        description={post.shortDescription}
                        buttonText="Chi tiết"
