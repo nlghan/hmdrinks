@@ -124,12 +124,13 @@ public class PaymentService {
                     String[] images = listProImg.split(", ");
                     imageUrl = images.length > 0 ? images[0] : "";
                 }
+
                 String firstImage = imageUrl.split(",")[0];
                 int colonIndex = firstImage.indexOf(":");
                 String imageUrl1 = (colonIndex != -1) ? firstImage.substring(colonIndex + 1).trim() : "";
                 Long totalPrice = Math.round(cartItem.getTotalPrice());
                 item.put("imageUrl", imageUrl1);
-                item.put("name", cartItem.getProductVariants().getProduct().getProName());
+                item.put("name", cartItem.getProductVariants().getProduct().getProName() + "- Size " + cartItem.getProductVariants().getSize());
                 item.put("unit", cartItem.getProductVariants().getSize());
                 item.put("quantity", cartItem.getQuantity());
                 item.put("price", totalPrice);
@@ -140,8 +141,8 @@ public class PaymentService {
             Map<String, Object> itemFee = new HashMap<>();
             itemFee.put("name","Phí giao hàng");
             itemFee.put("price",Math.round(order.getDeliveryFee()));
-            itemFee.put("quantity", 1);
-            itemFee.put("imageUrl","");
+            itemFee.put("quantity", -1);
+            itemFee.put("imageUrl","https://cdn.vectorstock.com/i/1000x1000/52/44/delivery-vector-30925244.webp");
             items.add(itemFee);
 
             requestBody.put("items", items);
@@ -310,7 +311,6 @@ public class PaymentService {
         shippment.setDateDelivered(LocalDateTime.now());
         shippment.setStatus(Status_Shipment.WAITING);
         shipmentRepository.save(shippment);
-
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
