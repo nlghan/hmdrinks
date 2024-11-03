@@ -105,19 +105,18 @@ public class ReviewService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Review deleted successfully");
     }
-
-
-    public ResponseEntity<ListAllReviewProductResponse> getAllReview(String pageFromParam, String limitFromParam,int proId)
-    {
+    public ResponseEntity<ListAllReviewProductResponse> getAllReview(String pageFromParam, String limitFromParam, int proId) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Review> reviews = reviewRepository.findByProduct_ProId(proId,pageable);
+
+        // Sử dụng phương thức mới để chỉ lấy review không bị xóa
+        Page<Review> reviews = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(proId, pageable);
+
         List<CRUDReviewResponse> crudReviewResponseList = new ArrayList<>();
-        for(Review review : reviews)
-        {
-            crudReviewResponseList.add(new CRUDReviewResponse (
+        for (Review review : reviews) {
+            crudReviewResponseList.add(new CRUDReviewResponse(
                     review.getReviewId(),
                     review.getUser().getUserId(),
                     review.getProduct().getProId(),
@@ -130,9 +129,42 @@ public class ReviewService {
                     review.getDateCreated()
             ));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllReviewProductResponse (page,
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllReviewProductResponse(
+                page,
                 reviews.getTotalPages(),
                 limit,
-                crudReviewResponseList));
+                crudReviewResponseList
+        ));
     }
+
+
+//    public ResponseEntity<ListAllReviewProductResponse> getAllReview(String pageFromParam, String limitFromParam,int proId)
+//    {
+//        int page = Integer.parseInt(pageFromParam);
+//        int limit = Integer.parseInt(limitFromParam);
+//        if (limit >= 100) limit = 100;
+//        Pageable pageable = PageRequest.of(page - 1, limit);
+//        Page<Review> reviews = reviewRepository.findByProduct_ProId(proId,pageable);
+//        List<CRUDReviewResponse> crudReviewResponseList = new ArrayList<>();
+//        for(Review review : reviews)
+//        {
+//            crudReviewResponseList.add(new CRUDReviewResponse (
+//                    review.getReviewId(),
+//                    review.getUser().getUserId(),
+//                    review.getProduct().getProId(),
+//                    review.getUser().getFullName(),
+//                    review.getContent(),
+//                    review.getRatingStar(),
+//                    review.getIsDeleted(),
+//                    review.getDateDeleted(),
+//                    review.getDateUpdated(),
+//                    review.getDateCreated()
+//            ));
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(new ListAllReviewProductResponse (page,
+//                reviews.getTotalPages(),
+//                limit,
+//                crudReviewResponseList));
+//    }
 }
