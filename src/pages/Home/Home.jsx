@@ -4,6 +4,7 @@ import axios from 'axios';
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
 import PostCard from "../../components/Card/PostCard.jsx";
+import Map from "../../components/Card/MapComponent.jsx";
 import { assets } from "../../assets/assets.js";
 import "./Home.css";
 
@@ -105,6 +106,7 @@ const Home = () => {
                     </div>
                 </div>
             )}
+            <Map />
             <Footer />
         </div></>
     );
