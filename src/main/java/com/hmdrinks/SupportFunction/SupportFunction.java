@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 
@@ -40,6 +41,7 @@ public class SupportFunction {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authorization header is missing or invalid");
         }
         String jwt = authHeader.substring(7);
+
         String userIdFromTokenStr = jwtService.extractUserId(jwt);
         int userIdFromToken;
         try {
@@ -49,6 +51,11 @@ public class SupportFunction {
         }
 
         if (userIdFromRequest != userIdFromToken) {
+//         String userIdFromToken = jwtService.extractUserId(jwt);
+//         System.out.println("UserId from request: " + userIdFromRequest);
+//         System.out.println("UserId from token: " + userIdFromToken);
+//         if (!String.valueOf(userIdFromRequest).equals(userIdFromToken)) {
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have permission to perform this action");
         }
         else
@@ -58,6 +65,26 @@ public class SupportFunction {
     }
 
     public ResponseEntity<?> checkPhoneNumber(String phoneNumber, Integer userId, UserRepository userRepository) {
+
+//     public boolean checkUserAuthorizationRe(HttpServletRequest httpRequest, Long userIdFromRequest) {
+//         String authHeader = httpRequest.getHeader("Authorization");
+//         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing or invalid");
+//         }
+
+//         String jwt = authHeader.substring(7);
+//         String userIdFromToken = jwtService.extractUserId(jwt);
+
+//         if (!String.valueOf(userIdFromRequest).equals(userIdFromToken)) {
+//             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to perform this action");
+//         }
+
+//         return true;
+//     }
+
+
+//     public void checkPhoneNumber(String phoneNumber, Integer userId, UserRepository userRepository) {
+//         // Kiểm tra độ dài của số điện thoại
         if (phoneNumber == null || phoneNumber.length() != 10) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Số điện thoại không hợp lệ. Phải chứa 10 chữ số.");
         }

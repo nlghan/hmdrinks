@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ListAllPostResponse {
     private int currentPage;
-    private long totalPage;
+    private long totalPages;
     private int limit;
     List<CRUDPostResponse> listPosts;
 }
