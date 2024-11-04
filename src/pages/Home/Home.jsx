@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from "../../components/Footer/Footer.jsx";
@@ -12,6 +12,8 @@ const Home = () => {
     const [posts, setPosts] = useState([]);
     const [visiblePosts, setVisiblePosts] = useState(3);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const postRefs = useRef([]);
     const navigate = useNavigate();
 
     // Fetch posts from API
@@ -27,6 +29,36 @@ const Home = () => {
     useEffect(() => {
         fetchPosts();
     }, []);
+
+    useEffect(() => {
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '50px',
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove('hidden');
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible');
+                    entry.target.classList.add('hidden');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all post cards
+        postRefs.current.forEach(ref => {
+            if (ref) observer.observe(ref);
+        });
+
+        return () => {
+            postRefs.current.forEach(ref => {
+                if (ref) observer.unobserve(ref);
+            });
+        };
+    }, [posts, visiblePosts]);
 
     const getUserIdFromToken = (token) => {
         try {
@@ -77,18 +109,20 @@ const Home = () => {
 
             <div className="home-content">
                 <div className="post-grid">
-                    {posts.slice(0, visiblePosts).map((post) => (
-
-                       <PostCard
-                       key={post.postId}
-                       image={post.url || assets.avtrang} 
-                       title={post.title}
-                       description={post.shortDescription}
-                       buttonText="Chi tiết"
-                       onClick={() => handleDetailsClick(post.postId)} // Đảm bảo rằng bạn truyền hàm này
-                   />                  
-                   
-
+                    {posts.slice(0, visiblePosts).map((post, index) => (
+                        <div 
+                            key={post.postId}
+                            ref={el => postRefs.current[index] = el}
+                            className="post-card-wrapper hidden"
+                        >
+                            <PostCard
+                                image={post.url || assets.avtrang} 
+                                title={post.title}
+                                description={post.shortDescription}
+                                buttonText="Chi tiết"
+                                onClick={() => handleDetailsClick(post.postId)}
+                            />
+                        </div>
                     ))}
                 </div>
                 {visiblePosts < posts.length && (

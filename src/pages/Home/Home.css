@@ -27,10 +27,13 @@
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .view-more-btn:hover {
     background-color: #ff4f41;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .login-modal {
@@ -75,4 +78,45 @@
 .login-modal-content button:hover,
 .login-modal-content a:hover {
     background-color: #ff4f41;
+}
+
+.post-card-wrapper {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.5s ease;
+}
+
+.post-card-wrapper.hidden {
+    opacity: 0;
+    transform: translateY(50px);
+}
+
+.post-card-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation delay for cards in same row */
+.post-card-wrapper:nth-child(3n + 1) {
+    animation-delay: 0.2s;
+}
+
+.post-card-wrapper:nth-child(3n + 2) {
+    animation-delay: 0.3s;
+}
+
+.post-card-wrapper:nth-child(3n + 3) {
+    animation-delay: 0.4s;
 }

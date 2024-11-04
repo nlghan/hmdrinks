@@ -15,8 +15,8 @@ import Category from "./pages/Admin/Category";
 import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
 import NewsUser from "./pages/News/NewsUser";
-
-import News from "./pages/Admin/News"
+import Contact from "./pages/Contact/Contact";
+import News from "./pages/Admin/News";
 import PostVoucher from './pages/Post/PostVoucher';
 import ProductDetail from "./pages/Menu/ProductDetail"; 
 import { useAuth } from './context/AuthProvider'; 
@@ -54,6 +54,7 @@ const App = () => {
             <Route path="/post" element={<NewsUser />} />
             <Route path="/post" element={<PostVoucher />} />
             <Route path="/marketing/:postId" element={<PostVoucher />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
