@@ -87,7 +87,7 @@ public class CartService {
         Cart cart = cartRepository.findByCartId(id);
         if(cart == null)
         {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Not content");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found cart");
         }
         List<CartItem> cartItems = cartItemRepository.findByCart_CartId(id);
         List<CRUDCartItemResponse> crudCartItemResponses = new ArrayList<>();
