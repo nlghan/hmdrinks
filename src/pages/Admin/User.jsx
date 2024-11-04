@@ -297,9 +297,7 @@ const User = () => {
                                                 <button id="user-update-btn1"   onClick={() => handleUpdateClick(user)}>
                                                     <i className="ti-pencil"></i> {/* Themify icon for update */}
                                                 </button>
-                                                <button id="user-update-btn2" >
-                                                    <i className="ti-trash"></i> {/* Themify icon for delete */}
-                                                </button>
+
                                             </div>
                                         </td>
 
