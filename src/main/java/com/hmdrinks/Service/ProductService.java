@@ -208,7 +208,6 @@ public class ProductService {
                 id,
                 crudProductVarResponseList
         ));
-
     }
 
     public ResponseEntity<?> totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
@@ -259,9 +258,9 @@ public class ProductService {
         List<String> updatedImageEntries = new ArrayList<>();
         int currentStt = 1;
         for (String imageEntry : imageEntries) {
-            String[] parts = imageEntry.split(": ");  // Phân tách stt và url
-            int stt = Integer.parseInt(parts[0]);      // Lấy số thứ tự hiện tại
-            String url = parts[1];                     // Lấy URL
+            String[] parts = imageEntry.split(": ");
+            int stt = Integer.parseInt(parts[0]);
+            String url = parts[1];
 
             if (stt == deleteStt) {
                 continue;
