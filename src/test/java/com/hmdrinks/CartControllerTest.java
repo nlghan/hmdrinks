@@ -9,10 +9,7 @@ import com.hmdrinks.Repository.CategoryRepository;
 import com.hmdrinks.Repository.PriceHistoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.TokenRepository;
-import com.hmdrinks.Request.CRUDProductReq;
-import com.hmdrinks.Request.CRUDProductVarReq;
-import com.hmdrinks.Request.CreateNewCart;
-import com.hmdrinks.Request.CreateProductVarReq;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -41,8 +38,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -235,7 +231,37 @@ class CartControllerTest {
                 .andDo(print());
     }
 
-  //// delete cart
+    @Test
+    void deleteAllItem_Success() throws Exception {
+        DeleteAllCartItemReq req = new DeleteAllCartItemReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        DeleteCartItemResponse response = new DeleteCartItemResponse(
+                "Delete all item success"
+        );
+        when(cartItemService.deleteAllCartItem(any(DeleteAllCartItemReq.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(delete(endPointPath + "/delete-allItem/1")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Delete all item success"))
+                .andDo(print());
+    }
 
+    @Test
+    void deleteAllItem_NotFound() throws Exception {
+        DeleteAllCartItemReq req = new DeleteAllCartItemReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(cartItemService.deleteAllCartItem(any(DeleteAllCartItemReq.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(delete(endPointPath + "/delete-allItem/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Cart Not Found"))
+                .andDo(print());
+    }
 
 }
