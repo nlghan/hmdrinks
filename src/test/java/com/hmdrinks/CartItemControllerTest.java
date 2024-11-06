@@ -435,11 +435,4 @@ class CartItemControllerTest {
                 .andDo(print());
     }
 
-
-
-
-
-
-
-
 }

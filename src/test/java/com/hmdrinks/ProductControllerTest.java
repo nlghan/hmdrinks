@@ -403,7 +403,8 @@ class ProductControllerTest {
 
     @Test
     void filterProduct_Success() throws Exception {
-        CRUDProductVarResponse response1 = new CRUDProductVarResponse(
+        CRUDProductVarFilterResponse response1 = new CRUDProductVarFilterResponse(
+                4.5,
                 1,
                 1,
                 Size.S,
@@ -415,7 +416,8 @@ class ProductControllerTest {
                 LocalDateTime.now()
         );
 
-        CRUDProductVarResponse response2 = new CRUDProductVarResponse(
+        CRUDProductVarFilterResponse response2 = new CRUDProductVarFilterResponse(
+                4.2,
                 2,
                 1,
                 Size.L,

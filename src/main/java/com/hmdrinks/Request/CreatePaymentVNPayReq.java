@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePaymentReq {
+public class CreatePaymentVNPayReq {
    private Integer orderId;
    private Integer userId;
+
+   private  String ipAddress;
 
 }
