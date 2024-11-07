@@ -16,7 +16,7 @@ import java.util.List;
 public class FilterProductBoxResponse {
      private boolean isShowFilterMonopoly;
      private int total;
-     List<CRUDProductVarResponse> productResponseList;
+     List<CRUDProductVarFilterResponse> productResponseList;
      private String textResponseAPI;
      private boolean isFilterRange;
 }

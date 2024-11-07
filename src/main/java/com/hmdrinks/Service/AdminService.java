@@ -13,6 +13,7 @@ import com.hmdrinks.Request.FilterProductBox;
 import com.hmdrinks.Request.UpdateAccountUserReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class AdminService {
     @Autowired
@@ -286,8 +288,7 @@ public class AdminService {
     }
 
     public FilterProductBoxResponse filterProduct(FilterProductBox req) {
-        //5: loc da xoa
-        List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
+        List<CRUDProductVarFilterResponse> crudProductVarFilterResponseList = new ArrayList<>();
         Category category = categoryRepository.findByCateId(req.getC());
         if (category == null) {
             throw new BadRequestException("cateId not exists");
@@ -302,13 +303,16 @@ public class AdminService {
         if (req.getO() <= 0) {
             throw new BadRequestException("o must be greater than 0");
         }
+
         Sort sort;
         int total = 0;
         if (req.getO() == 1) {
             sort = Sort.by(Sort.Direction.DESC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                crudProductVarResponseList.add(new CRUDProductVarResponse(
+                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                        Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
                         productVariant.getProduct().getProId(),
                         productVariant.getSize(),
@@ -325,7 +329,9 @@ public class AdminService {
             sort = Sort.by(Sort.Direction.ASC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                crudProductVarResponseList.add(new CRUDProductVarResponse(
+                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                        Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
                         productVariant.getProduct().getProId(),
                         productVariant.getSize(),
@@ -345,8 +351,11 @@ public class AdminService {
                             req.getP(),
                             Sort.by(Sort.Direction.DESC, "dateCreated")
                     );
+
             for (ProductVariants productVariant : productVariants) {
-                crudProductVarResponseList.add(new CRUDProductVarResponse(
+                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                        Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
                         productVariant.getProduct().getProId(),
                         productVariant.getSize(),
@@ -359,43 +368,52 @@ public class AdminService {
                 ));
                 total += 1;
             }
-//        } else if (req.getO() == 4) {
-//            List<ProductVariants> productVariants = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
-//            for (ProductVariants productVariant : productVariants) {
-//                crudProductVarResponseList.add(new CRUDProductVarResponse(
-//                        productVariant.getVarId(),
-//                        productVariant.getProduct().getProId(),
-//                        productVariant.getSize(),
-//                        productVariant.getPrice(),
-//                        productVariant.getStock(),
-//                        productVariant.getIsDeleted(),
-//                        productVariant.getDateDeleted(),
-//                        productVariant.getDateCreated(),
-//                        productVariant.getDateUpdated()
-//                ));
-//                total += 1;
-//            }
-//        } else if (req.getO() == 5) {
-//            List<ProductVariants> productVariants = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
-//            for (ProductVariants productVariant : productVariants) {
-//                crudProductVarResponseList.add(new CRUDProductVarResponse(
-//                        productVariant.getVarId(),
-//                        productVariant.getProduct().getProId(),
-//                        productVariant.getSize(),
-//                        productVariant.getPrice(),
-//                        productVariant.getStock(),
-//                        productVariant.getIsDeleted(),
-//                        productVariant.getDateDeleted(),
-//                        productVariant.getDateCreated(),
-//                        productVariant.getDateUpdated()
-//                ));
-//                total += 1;
-//            }
+        } else if (req.getO() == 4) {
+            List<Product> product = productRepository.findTopRatedProductsDescByAdmin(req.getC(), req.getP());
+            for (Product product1 : product) {
+                List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
+                Double  avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                for (ProductVariants productVariant : productVariants) {
+                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(Math.round(avgRating * 10) / 10.0,
+                            productVariant.getVarId(),
+                            productVariant.getProduct().getProId(),
+                            productVariant.getSize(),
+                            productVariant.getPrice(),
+                            productVariant.getStock(),
+                            productVariant.getIsDeleted(),
+                            productVariant.getDateDeleted(),
+                            productVariant.getDateCreated(),
+                            productVariant.getDateUpdated()
+                    ));
+                }
+
+            }
+        } else if (req.getO() == 5) {
+            List<Product> product = productRepository.findTopRatedProductsAscByAdmin(req.getC(), req.getP());
+            for (Product product1 : product) {
+                List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
+                for (ProductVariants productVariant : productVariants) {
+                    Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                            Math.round(avgRating * 10) / 10.0,
+                            productVariant.getVarId(),
+                            productVariant.getProduct().getProId(),
+                            productVariant.getSize(),
+                            productVariant.getPrice(),
+                            productVariant.getStock(),
+                            productVariant.getIsDeleted(),
+                            productVariant.getDateDeleted(),
+                            productVariant.getDateCreated(),
+                            productVariant.getDateUpdated()
+                    ));
+                    total += 1;
+                }
+            }
         }
         return new FilterProductBoxResponse(
                 true,
                 total,
-                crudProductVarResponseList,
+                crudProductVarFilterResponseList,
                 "OK",
                 false
         );

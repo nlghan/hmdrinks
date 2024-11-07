@@ -36,7 +36,6 @@ public class CartController {
     @PostMapping(value = "/create")
     public ResponseEntity<?> createCart(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
-
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
             return authResponse;
         };
@@ -63,6 +62,6 @@ public class CartController {
 
     @GetMapping("/list-cart/{userId}")
     public  ResponseEntity<?> getAllCartUser(@PathVariable Integer userId){
-        return ResponseEntity.ok(cartService.getAllCartFromUser(userId));
+        return cartService.getAllCartFromUser(userId);
     }
 }

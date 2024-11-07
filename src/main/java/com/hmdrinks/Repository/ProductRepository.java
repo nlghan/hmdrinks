@@ -36,27 +36,68 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     @Query(value = "SELECT COUNT(pro_id) FROM product", nativeQuery = true)
     int TotalNumberOfProduct();
 
-//    @Query("SELECT pv FROM Product pv " +
-//            "LEFT JOIN pv.reviews r " +
-//            "WHERE pv.category.cateId = :categoryId " +
-//            "AND pv.proId IN :productIds " +
-//            "GROUP BY pv.varId " +
-//            "HAVING COUNT(r) > 0 " + // Có ít nhất 1 đánh giá
-//            "ORDER BY AVG(r.ratingStar) DESC")
-//    List<Product> findTopRatedProductsDesc(
-//            @Param("categoryId") int categoryId,
-//            @Param("productIds") List<Integer> productIds
-//    );
-//
-//    @Query("SELECT pv FROM Product pv " +
-//            "LEFT JOIN pv.reviews r " +
-//            "WHERE pv.category.cateId = :categoryId " +
-//            "AND pv.proId IN :productIds " +
-//            "GROUP BY pv.proId " +
-//            "HAVING COUNT(r) > 0 " +
-//            "ORDER BY AVG(r.ratingStar) ASC")
-//    List<ProductVariants> findTopRatedProductsAsc(
-//            @Param("categoryId") int categoryId,
-//            @Param("productIds") List<Integer> productIds
-//    );
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId IN :productIds " +
+            "AND pv.isDeleted = false " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0 " + // Có ít nhất 1 đánh giá
+            "ORDER BY AVG(r.ratingStar) DESC")
+    List<Product> findTopRatedProductsDesc(
+            @Param("categoryId") int categoryId,
+            @Param("productIds") List<Integer> productIds
+    );
+
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId IN :productIds " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0 " + // Có ít nhất 1 đánh giá
+            "ORDER BY AVG(r.ratingStar) DESC")
+    List<Product> findTopRatedProductsDescByAdmin(
+            @Param("categoryId") int categoryId,
+            @Param("productIds") List<Integer> productIds
+    );
+
+    @Query("SELECT AVG(r.ratingStar) " +
+            "FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId = :productId " +
+            "AND pv.isDeleted = false " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0") // Có ít nhất 1 đánh giá
+    Double findAverageRatingByProductId(
+            @Param("categoryId") int categoryId,
+            @Param("productId") int productId
+    );
+
+
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId IN :productIds " +
+            "AND pv.isDeleted = false " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0 " +
+            "ORDER BY AVG(r.ratingStar) ASC")
+    List<Product> findTopRatedProductsAsc(
+            @Param("categoryId") int categoryId,
+            @Param("productIds") List<Integer> productIds
+    );
+
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId IN :productIds " +
+            "AND pv.isDeleted = false " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0 " +
+            "ORDER BY AVG(r.ratingStar) ASC")
+    List<Product> findTopRatedProductsAscByAdmin(
+            @Param("categoryId") int categoryId,
+            @Param("productIds") List<Integer> productIds
+    );
 }

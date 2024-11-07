@@ -1,34 +1,46 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.ChangePasswordReq;
-import com.hmdrinks.Request.UserInfoUpdateReq;
-import com.hmdrinks.Response.GetDetailUserInfoResponse;
-import com.hmdrinks.Response.UpdateUserInfoResponse;
 import com.hmdrinks.Service.ReportService;
-import com.hmdrinks.Service.UserService;
-import com.hmdrinks.SupportFunction.SupportFunction;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Map;
+
 @RestController
-@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/report")
-@RequiredArgsConstructor
 public class ReportController {
+
     @Autowired
     private ReportService reportService;
 
-    @GetMapping("/total-product")
-    public ResponseEntity<?> totalCVApply() {
-        return ResponseEntity.ok(reportService.totalProduct());
+    @GetMapping("/day")
+    public ResponseEntity<?> reportRevenueByDay(@RequestParam("date") String dateString) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+            LocalDate date = LocalDate.parse(dateString, formatter);
+            return reportService.reportRevenueByDay(date);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("Invalid date format. Please use d/M/yyyy.");
+        }
     }
 
-    @GetMapping("/total-productVariants")
-    public ResponseEntity<?> totalInterview() {
-        return ResponseEntity.ok(reportService.totalProductVariants());
+    @GetMapping("/month")
+    public ResponseEntity<?> reportRevenueByMonth(@RequestParam("year") int year, @RequestParam("month") int month) {
+        return reportService.reportRevenueByMonth(year, Month.of(month));
+    }
+
+    @GetMapping("/quarter")
+    public ResponseEntity<?> reportRevenueByQuarter(@RequestParam("year") int year, @RequestParam("quarter") int quarter) {
+        return reportService.reportRevenueByQuarter(year, quarter);
+    }
+
+    @GetMapping("/year")
+    public ResponseEntity<?> reportRevenueByYear(@RequestParam("year") int year) {
+        return reportService.reportRevenueByYear(year);
     }
 }

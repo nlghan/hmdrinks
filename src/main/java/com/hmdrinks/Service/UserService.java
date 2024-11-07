@@ -29,10 +29,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -102,11 +99,15 @@ public class UserService {
     public ResponseEntity<?> updateUserInfoResponse(UserInfoUpdateReq req){
         User userList = userRepository.findByUserId(req.getUserId());
         if (userList == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         Optional<User> user = userRepository.findByEmailAndUserIdNot(req.getEmail(), req.getUserId());
         if(user.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Email already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         ResponseEntity<?> authResponse =  supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
@@ -266,16 +267,24 @@ public class UserService {
     public ResponseEntity<?> changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
         if (users == null) {
-            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Not found user");
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         if (!passwordEncoder.matches(req.getCurrentPassword(), users.getPassword())) {
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The current password is incorrect");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "The current password is incorrect");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (req.getNewPassword().equals(req.getCurrentPassword())) {
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You're using an old password");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "You're using an old password");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (!req.getNewPassword().matches(req.getConfirmNewPassword())) {
-            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No overlap");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No overlap");
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         users.setPassword(passwordEncoder.encode(req.getNewPassword()));
         userRepository.save(users);

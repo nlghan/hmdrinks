@@ -47,6 +47,7 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
+                        .requestMatchers("/api/payment/vnpay_ipn").permitAll()
                         //.requestMatchers("/api/price-history/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/price-history/**").permitAll()
                         .requestMatchers("/api/province/**").permitAll()
