@@ -8,6 +8,7 @@ import com.hmdrinks.Response.*;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -73,7 +74,10 @@ public class VNPayService {
         public static final String EQUAL = "=";
         public static final String AND = "&";
     }
-
+//    public ResponseEntity<?> getTransaction(InitPaymentRequest request)
+//    {
+//
+//    }
     public InitPaymentResponse init(InitPaymentRequest request) {
         var amount = request.getAmount() * DEFAULT_MULTIPLIER;
         var txnRef = request.getTxnRef();

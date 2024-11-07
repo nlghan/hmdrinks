@@ -63,7 +63,6 @@ class UserControllerTest {
     }
 
 
-
     @Test
     void updateUser_Successfully() throws Exception {
         String dateString = "15/11/2002";
@@ -108,7 +107,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.userName").value("ohhhchank3"))
                 .andDo(print());
     }
-
 
     @Test
     void updateUser_NotFound() throws Exception {

@@ -60,7 +60,7 @@ public class PaymentController {
         return vnPayIpnHandler.process(params);
     }
 
-    @PostMapping("/create/credit")
+    @PostMapping("/create/credit/momo")
     public ResponseEntity<?> createPaymentVNPay(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) {
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
 
