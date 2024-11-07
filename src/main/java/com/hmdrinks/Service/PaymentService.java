@@ -33,8 +33,8 @@ public class PaymentService {
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
-    private final String ipnUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
+    private final String redirectUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
+    private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
     private final int orderExpireTime = 30;
