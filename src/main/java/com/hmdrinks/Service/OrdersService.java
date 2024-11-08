@@ -1,9 +1,6 @@
 package com.hmdrinks.Service;
 import com.hmdrinks.Entity.*;
-import com.hmdrinks.Enum.Status_Cart;
-import com.hmdrinks.Enum.Status_Order;
-import com.hmdrinks.Enum.Status_UserVoucher;
-import com.hmdrinks.Enum.Status_Voucher;
+import com.hmdrinks.Enum.*;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.ConfirmOderReq;
@@ -12,6 +9,8 @@ import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrdersService {
     @Autowired
@@ -43,6 +43,8 @@ public class OrdersService {
     private  PaymentRepository paymentRepository;
     @Autowired
     private SupportFunction supportFunction;
+    @Autowired
+    private  ShipmentRepository shipmentRepository;
 
     public boolean isNumeric(String voucherId) {
         if (voucherId == null) {
@@ -274,6 +276,7 @@ public class OrdersService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
         }
+        Voucher voucher = null;
         return ResponseEntity.status(HttpStatus.OK).body(new getInformationPaymentFromOrderIdResponse(
                 order.getOrderId(),
                 order.getAddress(),
@@ -290,7 +293,7 @@ public class OrdersService {
                 order.getStatus(),
                 order.getTotalPrice(),
                 order.getUser().getUserId(),
-                order.getVoucher().getVoucherId(),
+                voucher != null ? voucher.getVoucherId() :0,
                 new CRUDPaymentResponse(
                         payment.getPaymentId(),
                         payment.getAmount(),
@@ -385,4 +388,66 @@ public class OrdersService {
                 userId,
                 list));
     }
+
+    @Transactional
+    public ResponseEntity<?> cancelOrder(int orderId, int userId) {
+        Orders order = orderRepository.findByOrderIdAndUserUserIdAndIsDeletedFalse(orderId, userId);
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+
+        if (order.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Order already cancelled");
+        }
+
+        Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
+        if (payment != null) {
+
+            if (payment.getStatus() == Status_Payment.PENDING) {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+
+            Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
+            if (shipment != null) {
+
+                System.out.println("Shipment initial status: " + shipment.getStatus());
+                if (shipment.getStatus() == Status_Shipment.SUCCESS || shipment.getStatus() == Status_Shipment.SHIPPING) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed");
+                }
+
+                if (shipment.getStatus() == Status_Shipment.WAITING) {
+
+                    if (payment.getStatus() == Status_Payment.COMPLETED) {
+                        payment.setStatus(Status_Payment.REFUND);
+                        paymentRepository.save(payment); // Lưu payment sau khi cập nhật trạng thái REFUND
+                    }
+                    shipment.setStatus(Status_Shipment.CANCELLED);
+                    shipmentRepository.save(shipment); // Lưu shipment sau khi cập nhật trạng thái CANCELLED
+                }
+            } else {
+                System.out.println("Shipment not found or already deleted");
+            }
+        } else {
+            System.out.println("Payment not found");
+        }
+
+        order.setStatus(Status_Order.CANCELLED);
+        orderRepository.save(order);
+
+        // Xử lý voucher nếu có
+        Voucher voucher = order.getVoucher();
+        if (voucher != null) {
+            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(userId, voucher.getVoucherId());
+            if (userVoucher != null) {
+                userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                userVoucherRepository.save(userVoucher); // Lưu trạng thái mới của userVoucher
+                System.out.println("User voucher updated to INACTIVE");
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body("Order cancelled successfully");
+    }
+
+
 }

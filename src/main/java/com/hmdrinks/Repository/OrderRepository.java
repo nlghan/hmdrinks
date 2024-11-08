@@ -13,6 +13,8 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Orders, Integer> {
   Orders findByOrderId(int id);
 
+  Orders findByOrderIdAndUserUserIdAndIsDeletedFalse(int orderId, int id);
+
   Orders findByOrderIdAndIsDeletedFalse(int id);
 
   Orders findByOrderIdAndStatus(int orderId, Status_Order status);

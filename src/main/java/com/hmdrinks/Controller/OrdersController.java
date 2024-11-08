@@ -3,6 +3,7 @@ package com.hmdrinks.Controller;
 import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Request.ConfirmCancelOrderReq;
 import com.hmdrinks.Request.CreateOrdersReq;
+import com.hmdrinks.Request.CreatePaymentReq;
 import com.hmdrinks.Service.GenerateInvoiceService;
 import com.hmdrinks.Service.OrdersService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -80,6 +81,17 @@ public class OrdersController {
                                                             @RequestParam(name = "status")Status_Order statusOrder,
                                                             @PathVariable int userId) throws IOException {
         return  ordersService.getAllOrderByUserIdAndStatus(page,limit,userId,statusOrder);
+    }
+
+    @PutMapping("/cancel-order")
+    public ResponseEntity<?> cancelOrder(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+
+        return ordersService.cancelOrder(req.getOrderId(), req.getUserId());
     }
 
 

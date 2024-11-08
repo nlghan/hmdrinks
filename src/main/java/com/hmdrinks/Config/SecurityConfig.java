@@ -52,6 +52,7 @@ public class SecurityConfig {
                         //.requestMatchers("/api/price-history/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/price-history/**").permitAll()
                         .requestMatchers("/api/province/**").permitAll()
+                        .requestMatchers("/api/shipment/update-time").hasAnyAuthority("ADMIN","SHIPPER")
                         .requestMatchers("/api/shipment/allocate").hasAuthority("ADMIN")
                         .requestMatchers("/api/shipment/activate/**").hasAuthority("SHIPPER")
                         .requestMatchers("/api/shipment/shipper/**").hasAuthority("SHIPPER")
