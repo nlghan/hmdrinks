@@ -44,6 +44,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "WHERE pv.category.cateId = :categoryId " +
             "AND pv.proId IN :productIds " +
             "AND pv.isDeleted = false " +
+            "AND r.isDeleted = false " +
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " + // Có ít nhất 1 đánh giá
             "ORDER BY AVG(r.ratingStar) DESC")
@@ -70,6 +71,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "WHERE pv.category.cateId = :categoryId " +
             "AND pv.proId = :productId " +
             "AND pv.isDeleted = false " +
+            "AND r.isDeleted = false " +
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0") // Có ít nhất 1 đánh giá
     Double findAverageRatingByProductId(
@@ -77,12 +79,12 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             @Param("productId") int productId
     );
 
-
     @Query("SELECT pv FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
             "WHERE pv.category.cateId = :categoryId " +
             "AND pv.proId IN :productIds " +
             "AND pv.isDeleted = false " +
+            "AND r.isDeleted = false " +
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " +
             "ORDER BY AVG(r.ratingStar) ASC")

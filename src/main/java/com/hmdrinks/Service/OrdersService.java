@@ -109,11 +109,11 @@ public class OrdersService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already in use");
             }
             voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(userVoucher.getVoucher().getVoucherId());
-            if (voucher == null || voucher.getStatus() == Status_Voucher.EXPIRED) {
+            if (voucher == null || voucher.getStatus() == Status_Voucher.EXPIRED || voucher.getIsDeleted()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not allowed");
             }
             boolean checkVoucher = isVoucherValid(voucher);
-            if (checkVoucher == false) {
+            if (!checkVoucher) {
                 voucher.setStatus(Status_Voucher.EXPIRED);
                 voucherRepository.save(voucher);
                 return ResponseEntity.status(HttpStatus.OK).body("Voucher expired");
@@ -434,7 +434,7 @@ public class OrdersService {
             UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(userId, voucher.getVoucherId());
             if (userVoucher != null) {
                 userVoucher.setStatus(Status_UserVoucher.INACTIVE);
-                userVoucherRepository.save(userVoucher); // Lưu trạng thái mới của userVoucher
+                userVoucherRepository.save(userVoucher);
                 System.out.println("User voucher updated to INACTIVE");
             }
         }

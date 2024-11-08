@@ -311,6 +311,10 @@ public class AdminService {
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
                 Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
+                System.out.println(avgRating);
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -330,6 +334,9 @@ public class AdminService {
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
                 Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -354,6 +361,9 @@ public class AdminService {
 
             for (ProductVariants productVariant : productVariants) {
                 Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -374,6 +384,9 @@ public class AdminService {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
                 Double  avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
+                    if(avgRating == null) {
+                        avgRating = 0.0;
+                    }
                     crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(Math.round(avgRating * 10) / 10.0,
                             productVariant.getVarId(),
                             productVariant.getProduct().getProId(),
@@ -394,6 +407,9 @@ public class AdminService {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
                     Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                    if(avgRating == null) {
+                        avgRating = 0.0;
+                    }
                     crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                             Math.round(avgRating * 10) / 10.0,
                             productVariant.getVarId(),
