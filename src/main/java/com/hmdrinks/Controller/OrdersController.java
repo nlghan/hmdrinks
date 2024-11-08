@@ -1,5 +1,6 @@
 package com.hmdrinks.Controller;
 
+import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Request.ConfirmCancelOrderReq;
 import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Service.GenerateInvoiceService;
@@ -65,4 +66,21 @@ public class OrdersController {
     public ResponseEntity<?> infoPayment1(@RequestParam int orderId) throws IOException {
         return  generateInvoiceService.createInvoice(orderId);
     }
+
+    @GetMapping("/view/{userId}")
+    public ResponseEntity<?> getAllPaymentByUserId(@RequestParam(name = "page") String page,
+                                                   @RequestParam(name = "limit") String limit,
+                                                   @PathVariable int userId) throws IOException {
+        return  ordersService.getAllOrderByUserId(page,limit,userId);
+    }
+
+    @GetMapping("/view/{userId}/status")
+    public ResponseEntity<?> getAllPaymentByUserIdAndStatus(@RequestParam(name = "page") String page,
+                                                            @RequestParam(name = "limit") String limit,
+                                                            @RequestParam(name = "status")Status_Order statusOrder,
+                                                            @PathVariable int userId) throws IOException {
+        return  ordersService.getAllOrderByUserIdAndStatus(page,limit,userId,statusOrder);
+    }
+
+
 }

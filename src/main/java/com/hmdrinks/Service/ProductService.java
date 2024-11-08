@@ -453,4 +453,19 @@ public class ProductService {
                     false
             ));
         }
+
+    public ResponseEntity<?> resetAllQuantityProduct()
+    {
+        List<Product> productList = productRepository.findAll();
+        for(Product product : productList)
+        {
+            List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product.getProId());
+            for(ProductVariants productVariant : productVariants)
+            {
+                productVariant.setStock(50);
+                productVariantsRepository.save(productVariant);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Reset success");
+    }
 }

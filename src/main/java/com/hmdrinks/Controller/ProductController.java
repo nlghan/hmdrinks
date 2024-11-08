@@ -91,4 +91,9 @@ public class ProductController {
         }
         return productService.deleteAllImageFromProduct(req.getProId());
     }
+
+    @GetMapping(value = "/reset")
+    public ResponseEntity<?> resetQuantityProduct() {
+        return productService.resetAllQuantityProduct();
+    }
 }

@@ -13,6 +13,9 @@ import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -69,6 +72,14 @@ public class OrdersService {
         }
     }
 
+    public boolean isVoucherValid(Voucher voucher) {
+        LocalDateTime startDate = voucher.getStartDate();
+        LocalDateTime endDate = voucher.getEndDate();
+        LocalDateTime now = LocalDateTime.now();
+
+        return (now.isEqual(startDate) || now.isAfter(startDate)) && (now.isEqual(endDate) || now.isBefore(endDate));
+    }
+
     public ResponseEntity<?> addOrder(CreateOrdersReq req) {
         User user = userRepository.findByUserId(req.getUserId());
         if (user == null) {
@@ -87,6 +98,7 @@ public class OrdersService {
         UserVoucher userVoucher = null;
         Voucher voucher = null;
         if (isNumeric(req.getVoucherId())) {
+
             userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(req.getUserId(), Integer.parseInt(req.getVoucherId()));
             if (userVoucher == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found userVoucher");
@@ -98,6 +110,13 @@ public class OrdersService {
             if (voucher == null || voucher.getStatus() == Status_Voucher.EXPIRED) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not allowed");
             }
+            boolean checkVoucher = isVoucherValid(voucher);
+            if (checkVoucher == false) {
+                voucher.setStatus(Status_Voucher.EXPIRED);
+                voucherRepository.save(voucher);
+                return ResponseEntity.status(HttpStatus.OK).body("Voucher expired");
+            }
+
         }
 
         OrderItem existingOrderItem = orderItemRepository.findByUserUserIdAndCartCartId(req.getUserId(), req.getCartId());
@@ -283,5 +302,87 @@ public class OrdersService {
                         payment.getOrder().getOrderId()
                 )
         ));
+    }
+
+    public ResponseEntity<?> getAllOrderByUserId(String pageFromParam, String limitFromParam, int userId) {
+        User user = userRepository.findByUserId(userId);
+        if(user == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+        }
+        Voucher voucher = null;
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Orders> orders = orderRepository.findAllByUserUserIdAndIsDeletedFalse(userId, pageable);
+        List<CreateOrdersResponse> list = new ArrayList<>();
+        for (Orders order : orders) {
+            list.add(new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            ));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrdersResponse(page,
+                orders.getTotalPages(),
+                limit,
+                userId,
+                list));
+    }
+
+    public ResponseEntity<?> getAllOrderByUserIdAndStatus(String pageFromParam, String limitFromParam, int userId,Status_Order status) {
+        User user = userRepository.findByUserId(userId);
+        if(user == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+        }
+        Voucher voucher = null;
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Orders> orders = orderRepository.findAllByUserUserIdAndStatusAndIsDeletedFalse(userId,status,pageable);
+        List<CreateOrdersResponse> list = new ArrayList<>();
+        for (Orders order : orders) {
+            list.add(new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            ));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrdersResponse(page,
+                orders.getTotalPages(),
+                limit,
+                userId,
+                list));
     }
 }

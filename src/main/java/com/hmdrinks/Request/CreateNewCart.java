@@ -11,6 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateNewCart {
-
    private int userId;
 }

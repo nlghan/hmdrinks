@@ -62,13 +62,13 @@ public class AdminController {
         return ResponseEntity.ok(adminService.deleteALlReviewProduct(req.getId()));
     }
 
-//    @PostMapping("/filter-product")
-//    public ResponseEntity<FilterProductBoxResponse> filterProduct(
-//            @RequestBody FilterProductBox req
-//    ) {
-//
-//        return ResponseEntity.ok(adminService.filterProduct(req));
-//    }
+    @PostMapping("/filter-product")
+    public ResponseEntity<FilterProductBoxResponse> filterProduct(
+            @RequestBody FilterProductBox req
+    ) {
+
+        return ResponseEntity.ok(adminService.filterProduct(req));
+    }
 
     @GetMapping(value = "/list-product")
     public ResponseEntity<ListProductResponse> listAllProduct(

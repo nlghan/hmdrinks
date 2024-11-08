@@ -39,18 +39,14 @@ public class VNPayIpnHandler {
         public static final IpnResponse UNKNOWN_ERROR = new IpnResponse("99", "Unknown error");
     }
     public IpnResponse process(Map<String, String> params) {
-        log.info("Đã vào process");
         if (!vnPayService.verifyIpn(params)) {
             return VnpIpnResponseConst.SIGNATURE_FAILED;
         }
         IpnResponse response;
         var txnRef = params.get(VNPayParams.TXN_REF);
         var code = params.get(VNPayParams.RESPONSE_CODE);
-        log.info(code);
         try {
-            int orderId = Integer.parseInt(txnRef);
             Payment payment = paymentRepository.findByOrderIdPayment(txnRef);
-
             if(payment != null && code.equals("00")) {
                       payment.setStatus(Status_Payment.COMPLETED);
                      paymentRepository.save(payment);
