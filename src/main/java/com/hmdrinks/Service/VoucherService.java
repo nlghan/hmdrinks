@@ -239,4 +239,57 @@ public class VoucherService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(crudVoucherResponses));
     }
+
+    public ResponseEntity<?> disableVoucher(int voucherId)
+    {
+        Voucher voucher = voucherRepository.findByVoucherId(voucherId);
+        if(voucher == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+        }
+        if(voucher.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already disabled");
+        }
+        voucher.setIsDeleted(true);
+        voucher.setDateDeleted(LocalDateTime.now());
+        voucherRepository.save(voucher);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
+                voucher.getVoucherId(),
+                voucher.getKey(),
+                voucher.getNumber(),
+                voucher.getStartDate(),
+                voucher.getEndDate(),
+                voucher.getDiscount(),
+                voucher.getStatus(),
+                voucher.getPost().getPostId()
+        ));
+    }
+
+    public ResponseEntity<?> enableVoucher(int voucherId)
+    {
+        Voucher voucher = voucherRepository.findByVoucherId(voucherId);
+        if(voucher == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+        }
+        if(!voucher.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already enable");
+        }
+        voucher.setIsDeleted(false);
+        voucher.setDateDeleted(null);
+        voucherRepository.save(voucher);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
+                voucher.getVoucherId(),
+                voucher.getKey(),
+                voucher.getNumber(),
+                voucher.getStartDate(),
+                voucher.getEndDate(),
+                voucher.getDiscount(),
+                voucher.getStatus(),
+                voucher.getPost().getPostId()
+        ));
+    }
+
 }

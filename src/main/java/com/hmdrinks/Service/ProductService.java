@@ -3,13 +3,16 @@ package com.hmdrinks.Service;
 import com.hmdrinks.Entity.Category;
 import com.hmdrinks.Entity.Product;
 import com.hmdrinks.Entity.ProductVariants;
+import com.hmdrinks.Entity.Review;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.NotFoundException;
 import com.hmdrinks.Repository.CategoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.ProductVariantsRepository;
+import com.hmdrinks.Repository.ReviewRepository;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +34,8 @@ public class ProductService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     public ResponseEntity<?> crateProduct(CreateProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
@@ -467,5 +472,109 @@ public class ProductService {
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body("Reset success");
+    }
+
+    @Transactional
+    public ResponseEntity<?> disableProduct(int proId){
+        Product product = productRepository.findByProId(proId);
+        if(product == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        }
+        if(product.getIsDeleted()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product is deleted");
+        }
+        List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product.getProId());
+        for(ProductVariants productVariant: productVariants)
+        {
+            productVariant.setIsDeleted(true);
+            productVariant.setDateDeleted(LocalDateTime.now());
+            productVariantsRepository.save(productVariant);
+        }
+        List<Review> reviewList = reviewRepository.findAllByProduct_ProId(product.getProId());
+        for(Review review : reviewList)
+        {
+            review.setIsDeleted(true);
+            review.setDateDeleted(LocalDateTime.now());
+            reviewRepository.save(review);
+        }
+        product.setIsDeleted(true);
+        product.setDateDeleted(LocalDateTime.now());
+        productRepository.save(product);
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        String currentProImg = product.getListProImg();
+        if(currentProImg != null && !currentProImg.trim().isEmpty())
+        {
+            String[] imageEntries1 = currentProImg.split(", ");
+            for (String imageEntry : imageEntries1) {
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
+                productImageResponses.add(new ProductImageResponse(stt, url));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body( new CRUDProductResponse(
+                product.getProId(),
+                product.getCategory().getCateId(),
+                product.getProName(),
+                productImageResponses,
+                product.getDescription(),
+                product.getIsDeleted(),
+                product.getDateDeleted(),
+                product.getDateCreated(),
+                product.getDateUpdated()
+        ));
+    }
+
+    @Transactional
+    public ResponseEntity<?> enableProduct(int proId){
+        Product product = productRepository.findByProId(proId);
+        if(product == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+        }
+        if(!product.getIsDeleted()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product is enable");
+        }
+        List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product.getProId());
+        for(ProductVariants productVariant: productVariants)
+        {
+            productVariant.setIsDeleted(false);
+            productVariant.setDateDeleted(null);
+            productVariantsRepository.save(productVariant);
+        }
+        List<Review> reviewList = reviewRepository.findAllByProduct_ProId(product.getProId());
+        for(Review review : reviewList)
+        {
+            review.setIsDeleted(false);
+            review.setDateDeleted(null);
+            reviewRepository.save(review);
+        }
+        product.setIsDeleted(false);
+        product.setDateDeleted(null);
+        productRepository.save(product);
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        String currentProImg = product.getListProImg();
+        if(currentProImg != null && !currentProImg.trim().isEmpty())
+        {
+            String[] imageEntries1 = currentProImg.split(", ");
+            for (String imageEntry : imageEntries1) {
+                String[] parts = imageEntry.split(": ");
+                int stt = Integer.parseInt(parts[0]);
+                String url = parts[1];
+                productImageResponses.add(new ProductImageResponse(stt, url));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body( new CRUDProductResponse(
+                product.getProId(),
+                product.getCategory().getCateId(),
+                product.getProName(),
+                productImageResponses,
+                product.getDescription(),
+                product.getIsDeleted(),
+                product.getDateDeleted(),
+                product.getDateCreated(),
+                product.getDateUpdated()
+        ));
     }
 }

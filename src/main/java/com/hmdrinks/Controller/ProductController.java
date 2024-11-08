@@ -92,6 +92,16 @@ public class ProductController {
         return productService.deleteAllImageFromProduct(req.getProId());
     }
 
+    @PutMapping(value = "/enable")
+    public ResponseEntity<?> enableProduct(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  productService.enableProduct(req.getId());
+    }
+
+    @PutMapping(value = "/disable")
+    public ResponseEntity<?> disableProduct(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  productService.disableProduct(req.getId());
+    }
+
     @GetMapping(value = "/reset")
     public ResponseEntity<?> resetQuantityProduct() {
         return productService.resetAllQuantityProduct();

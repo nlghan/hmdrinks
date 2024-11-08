@@ -159,4 +159,6 @@ public class ProductVarService {
         }
         return new ListProductVarResponse(page,productList.getTotalPages(),limit,crudProductVarResponseList);
     }
+
+
 }

@@ -3,6 +3,7 @@ package com.hmdrinks.Controller;
 import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
+import com.hmdrinks.Request.IdReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.PostService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -71,5 +72,15 @@ public class PostController {
             return authResponse;
         }
         return  postService.updatePost(req);
+    }
+
+    @PutMapping(value = "/enable")
+    public ResponseEntity<?> enablePost(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  postService.enablePost(req.getId());
+    }
+
+    @PutMapping(value = "/disable")
+    public ResponseEntity<?> disablePost(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  postService.disablePost(req.getId());
     }
 }

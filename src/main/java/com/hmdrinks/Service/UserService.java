@@ -1,16 +1,16 @@
 package com.hmdrinks.Service;
 
-import com.hmdrinks.Entity.OTP;
-import com.hmdrinks.Entity.User;
+import com.hmdrinks.Entity.*;
+import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Sex;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
-import com.hmdrinks.Repository.OtpRepository;
-import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +41,20 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private ShipmentRepository shipmentRepository;
+    @Autowired
+    private  PaymentRepository paymentRepository;
+    @Autowired
+    private UserVoucherRepository userVoucherRepository;
+    @Autowired
+    private  ReviewRepository reviewRepository;
 
     public ResponseEntity<?> getListAllUser(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
@@ -266,6 +280,7 @@ public class UserService {
 
     public ResponseEntity<?> changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
+
         if (users == null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Not found user");
@@ -292,6 +307,130 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(new ChangePasswordResponse(
                 message,
                 req.getNewPassword()
+        ));
+    }
+
+    @Transactional
+    public  ResponseEntity<?> disableAccount(int userId)
+    {
+        User users = userRepository.findByUserId(userId);
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if(users.getRole() == Role.ADMIN)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not delete Admin");
+        }
+        if(users.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already disable");
+        }
+        List<Review> reviews = reviewRepository.findByUser_UserId(userId);
+        for(Review review : reviews)
+        {
+            review.setIsDeleted(true);
+            review.setDateDeleted(LocalDateTime.now());
+            reviewRepository.save(review);
+        }
+        List<Orders> orders = orderRepository.findAllByUserUserId(userId);
+        for(Orders order : orders)
+        {
+            order.setIsDeleted(true);
+            order.setDateDeleted(LocalDateTime.now());
+            orderRepository.save(order);
+            Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
+            if(payment != null){
+                payment.setIsDeleted(true);
+                payment.setDateDeleted(LocalDateTime.now());
+                paymentRepository.save(payment);
+                Shippment shippment = shipmentRepository.findByPaymentPaymentId(payment.getPaymentId());
+                if(shippment != null){
+                    shippment.setIsDeleted(true);
+                    shippment.setDateDeleted(LocalDateTime.now());
+                    shipmentRepository.save(shippment);
+                }
+            }
+
+        }
+        users.setIsDeleted(true);
+        users.setDateDeleted(Date.valueOf(LocalDate.now()));
+        userRepository.save(users);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDAccountUserResponse(
+                users.getUserId(),
+                users.getUserName(),
+                users.getFullName(),
+                users.getAvatar(),
+                users.getBirthDate(),
+                users.getStreet() + ", " + users.getWard() + ", " + users.getDistrict() + ", " + users.getCity(),
+                users.getEmail(),
+                users.getPhoneNumber(),
+                users.getSex().toString(),
+                users.getType().toString(),
+                users.getIsDeleted(),
+                users.getDateDeleted(),
+                users.getDateUpdated(),
+                users.getDateCreated(),
+                users.getRole().toString()
+        ));
+    }
+
+    @Transactional
+    public  ResponseEntity<?> enableAccount(int userId)
+    {
+        User users = userRepository.findByUserId(userId);
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        if(!users.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already enable");
+        }
+        List<Review> reviews = reviewRepository.findByUser_UserId(userId);
+        for(Review review : reviews)
+        {
+            review.setIsDeleted(false);
+            review.setDateDeleted(null);
+            reviewRepository.save(review);
+        }
+        List<Orders> orders = orderRepository.findAllByUserUserId(userId);
+        for(Orders order : orders)
+        {
+            order.setIsDeleted(false);
+            order.setDateDeleted(null);
+            orderRepository.save(order);
+            Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
+            if(payment != null){
+                payment.setIsDeleted(false);
+                payment.setDateDeleted(null);
+                paymentRepository.save(payment);
+                Shippment shippment = shipmentRepository.findByPaymentPaymentId(payment.getPaymentId());
+                if(shippment != null){
+                    shippment.setIsDeleted(false);
+                    shippment.setDateDeleted(null);
+                    shipmentRepository.save(shippment);
+                }
+            }
+        }
+        users.setIsDeleted(false);
+        users.setDateDeleted(null);
+        userRepository.save(users);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDAccountUserResponse(
+                users.getUserId(),
+                users.getUserName(),
+                users.getFullName(),
+                users.getAvatar(),
+                users.getBirthDate(),
+                users.getStreet() + ", " + users.getWard() + ", " + users.getDistrict() + ", " + users.getCity(),
+                users.getEmail(),
+                users.getPhoneNumber(),
+                users.getSex().toString(),
+                users.getType().toString(),
+                users.getIsDeleted(),
+                users.getDateDeleted(),
+                users.getDateUpdated(),
+                users.getDateCreated(),
+                users.getRole().toString()
         ));
     }
 }

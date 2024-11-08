@@ -395,11 +395,9 @@ public class OrdersService {
         if (order == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         }
-
         if (order.getStatus() == Status_Order.CANCELLED) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order already cancelled");
         }
-
         Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
         if (payment != null) {
 
@@ -407,7 +405,6 @@ public class OrdersService {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);
             }
-
             Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
             if (shipment != null) {
 
@@ -415,7 +412,6 @@ public class OrdersService {
                 if (shipment.getStatus() == Status_Shipment.SUCCESS || shipment.getStatus() == Status_Shipment.SHIPPING) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed");
                 }
-
                 if (shipment.getStatus() == Status_Shipment.WAITING) {
 
                     if (payment.getStatus() == Status_Payment.COMPLETED) {
@@ -431,11 +427,8 @@ public class OrdersService {
         } else {
             System.out.println("Payment not found");
         }
-
         order.setStatus(Status_Order.CANCELLED);
         orderRepository.save(order);
-
-        // Xử lý voucher nếu có
         Voucher voucher = order.getVoucher();
         if (voucher != null) {
             UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(userId, voucher.getVoucherId());
@@ -445,9 +438,6 @@ public class OrdersService {
                 System.out.println("User voucher updated to INACTIVE");
             }
         }
-
         return ResponseEntity.status(HttpStatus.OK).body("Order cancelled successfully");
     }
-
-
 }

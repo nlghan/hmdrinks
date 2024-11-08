@@ -14,6 +14,7 @@ public interface ShipmentRepository extends JpaRepository<Shippment, Integer> {
 
    Shippment findByPaymentPaymentIdAndIsDeletedFalse(int paymentId);
 
+   Shippment findByPaymentPaymentId(int paymentId);
    Shippment findByUserUserIdAndShipmentId(int userId, int shipmentId);
    Page<Shippment> findAll(Pageable pageable);
    Page<Shippment> findAllByStatus(Status_Shipment statusShipment, Pageable pageable);

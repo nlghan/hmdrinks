@@ -42,4 +42,14 @@ public class UserController {
         supportFunction.checkUserAuthorization(httpRequest,req.getUserId());
         return userService.changePasswordResponse(req);
     }
+
+    @PutMapping(value = "/enable")
+    public ResponseEntity<?> enableUser(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  userService.enableAccount(req.getId());
+    }
+
+    @PutMapping(value = "/disable")
+    public ResponseEntity<?> disableUser(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  userService.disableAccount(req.getId());
+    }
 }

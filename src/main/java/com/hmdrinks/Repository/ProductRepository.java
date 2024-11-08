@@ -15,6 +15,8 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Product findByProId(Integer proId);
 
+
+
     Product findByProIdAndIsDeletedFalse(Integer proId);
 
     Product findByProName(String proName);
@@ -30,6 +32,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Page<Product> findByProNameContainingAndIsDeletedFalse(String proName, Pageable pageable);
     Page<Product> findByCategory_CateId(int cateId, Pageable pageable);
+    List<Product> findByCategory_CateId(int cateId);
 
     Page<Product> findByCategory_CateIdAndIsDeletedFalse(int cateId,Pageable pageable);
 
