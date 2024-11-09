@@ -33,7 +33,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.86);
   /* Semi-transparent black overlay */
   z-index: 1;
   /* Place it below the content */
@@ -73,7 +73,7 @@
   color: #000;
   text-align: justify;
   font-family: Pacifico;
-  font-size: 54px;
+  font-size: 60px;
   font-style: normal;
   font-weight: 400;
   line-height: 64px;
@@ -100,7 +100,7 @@
   color: #000;
   font-family: 'Inter';
   margin-top: 25px;
-  font-size: 18px;
+  font-size: 26px;
 }
 
 /* News Section */
@@ -246,4 +246,177 @@
   font-family: 'Inter';
   animation: zoomIn 1s ease-out
     /* Apply with a slight delay */
+}
+.banner-user-cotainer{
+  display: flex;
+}
+
+
+/* Responsive for smaller screens */
+@media (max-width: 1400px) {
+
+ 
+  .banner-title {
+    font-size: 48px;
+    text-align: center;
+  }
+
+  .banner-description {
+    font-size: 22px;
+    padding: 0 50px;
+  }
+
+  .banner-drink-image {
+    width: 500px;
+    height: 500px;
+    margin-right: 30px;
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+   
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: 700px;  }
+  .news-user-banner{
+    height: 1200px;
+
+   
+  }
+}
+
+@media (max-width: 992px) {
+  .banner-title {
+    font-size: 42px;
+    text-align: center;
+  }
+
+  .banner-description {
+    font-size: 20px;
+    padding: 0 30px;
+  }
+
+  .banner-drink-image {
+    width: 400px;
+    height: 400px;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .news-user-cards {
+    gap: 15px;
+  }
+
+  .news-user-card {
+    width: 220px;
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+   
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: 500px;
+  }
+  .news-user-banner{
+    height: 1200px;
+
+   
+  }
+
+ 
+}
+
+@media (max-width: 768px) {
+  .news-user-banner {
+    padding: 20px 0px;
+    
+  }
+
+  .banner-title {
+    font-size: 46px;
+  }
+
+  .banner-description {
+    font-size: 20px;
+    padding: 0 20px;
+  }
+
+  .banner-drink-image {
+    width: 300px;
+    height: 300px;
+    margin-bottom: 20px;
+  }
+
+  .news-user-cards {
+    gap: 10px;
+  }
+
+  .news-user-card {
+    width: 180px;
+  }
+
+  .news-user-see-more {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .news-user-banner{
+    width: 100%;
+    
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: auto;
+  }
+}
+
+@media (max-width: 576px) {
+ 
+  .banner-title {
+    font-size: 40px;
+  }
+
+  .banner-description {
+    font-size: 18px;
+    padding: 0 10px;
+  }
+
+  .news-user-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .news-user-card {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .banner-drink-image {
+    width: 90%;
+    height: 400px;
+  }
 }

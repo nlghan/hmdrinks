@@ -3,14 +3,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
-import './Info.css'; // Nhập CSS
+import './Info.css'; // Import CSS
 import '../../assets/assets.js';
 import { assets } from "../../assets/assets.js";
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import ErrorMessage from "../../components/Animation/ErrorMessage.jsx";
 
 const Info = () => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         fullName: '',
@@ -18,28 +17,38 @@ const Info = () => {
         avatar: '',
         sex: '',
         birthDay: '',
-        address: ''
+        address: '',
+        street: '',
+        ward: '', // Sử dụng wardName thay vì ward
+        district: '',
+        city: '',
     });
 
+    const navigate = useNavigate();
+    const [wardId, setWardId] = useState(''); // Thêm wardId vào state riêng
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewImage, setPreviewImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isUploading, setIsUploading] = useState(false);
+    const [provinceId, setProvinceId] = useState('');
+    const [districtId, setDistrictId] = useState('');
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [provinces, setProvinces] = useState([]);
     const [formErrors, setFormErrors] = useState({
         email: '',
         phoneNumber: '',
         birthDay: ''
     });
-    const [isEditing, setIsEditing] = useState(false); // New state for editing mode
-
+    const [isEditing, setIsEditing] = useState(false);
     const getUserIdFromToken = (token) => {
         try {
             const payload = token.split('.')[1];
             const decodedPayload = JSON.parse(atob(payload));
             return decodedPayload.UserId;
         } catch (error) {
-            console.error("Không thể giải mã token:", error);
+            console.error("Cannot decode token:", error);
             return null;
         }
     };
@@ -47,43 +56,46 @@ const Info = () => {
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
     useEffect(() => {
         const fetchUserInfo = async () => {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                setLoading(false);
+                return;
+            }
+
+            const userId = getUserIdFromToken(token);
+            if (!userId) {
+                setError("Không thể lấy userId từ token.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const token = getCookie('access_token');
-                if (!token) {
-                    setError("Bạn cần đăng nhập để xem thông tin này.");
-                    setLoading(false);
-                    return;
-                }
-
-                const userId = getUserIdFromToken(token);
-                if (!userId) {
-                    setError("Không thể lấy userId từ token.");
-                    setLoading(false);
-                    return;
-                }
-
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
+                const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
                     headers: {
-                        'Accept': '*/*',
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                const userInfo = response.data;
+                const userInfo = userResponse.data;
 
-                const formatBirthDayForInput = (isoDate) => {
-                    const date = new Date(isoDate);
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                };
+                // Tách địa chỉ thành các phần riêng biệt (street, ward, district, city)
+                let addressParts = (userInfo.address || '').split(',').map(part => part.trim());
+
+                // Kiểm tra và xử lý giá trị "None" hoặc "null" trong địa chỉ
+                const [street, ward, district, city] = [
+                    addressParts[0] && addressParts[0] !== 'None' && addressParts[0] !== 'null' ? addressParts[0] : '',
+                    addressParts[1] && addressParts[1] !== 'None' && addressParts[1] !== 'null' ? addressParts[1] : '',
+                    addressParts[2] && addressParts[2] !== 'None' && addressParts[2] !== 'null' ? addressParts[2] : '',
+                    addressParts[3] && addressParts[3] !== 'None' && addressParts[3] !== 'null' ? addressParts[3] : ''
+                ];
+
+                console.log("Address Parts:", addressParts);
 
                 setFormData({
                     email: userInfo.email || '',
@@ -92,14 +104,18 @@ const Info = () => {
                     avatar: userInfo.avatar || '',
                     sex: userInfo.sex || '',
                     birthDay: userInfo.birth_date ? formatBirthDayForInput(userInfo.birth_date) : '',
-                    address: userInfo.address || ''
+                    street,
+                    ward,
+                    district,
+                    city
                 });
 
                 setPreviewImage(userInfo.avatar || '');
-                setLoading(false);
+
             } catch (err) {
                 console.error("Lỗi khi lấy thông tin người dùng:", err);
                 setError("Không thể lấy thông tin người dùng.");
+            } finally {
                 setLoading(false);
             }
         };
@@ -107,64 +123,229 @@ const Info = () => {
         fetchUserInfo();
     }, []);
 
-    const validateForm = () => {
-        const errors = {
-            email: '',
-            phoneNumber: '',
-            birthDay: ''
+    useEffect(() => {
+        if (!formData.city) return;  // Kiểm tra trước khi gọi fetchProvinces
+
+        const fetchProvinces = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`);
+                const provinces = response.data.responseList;
+
+                let selectedProvince = null;
+
+                // Kiểm tra xem thành phố trong formData có hợp lệ không
+                if (formData.city && formData.city.trim() !== 'None') {
+                    selectedProvince = provinces.find(province => province.provinceName === formData.city);
+                }
+
+                if (!selectedProvince) {
+                    setError("Không tìm thấy tỉnh.");
+                    setLoading(false);
+                    return;
+                }
+
+                // Set provinceId từ selectedProvince
+                setProvinceId(selectedProvince.provinceId);
+
+                // Kiểm tra district
+                if (!formData.district || formData.district.trim() === 'None') {
+                    setDistrictId(null);
+                    return;
+                }
+
+                const districtResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${selectedProvince.provinceId}`);
+                const districts = districtResponse.data.districtResponseList;
+                setDistricts(districts);
+
+                const selectedDistrict = districts.find(d => d.districtName === formData.district);
+                if (selectedDistrict) {
+                    setDistrictId(selectedDistrict.districtId);
+                } else {
+                    setError(`Không tìm thấy huyện "${formData.district}".`);
+                    setLoading(false);
+                    return;
+                }
+
+                // Kiểm tra ward
+                if (!formData.ward || formData.ward.trim() === 'None') {
+                    setWardId(null);
+                    return;
+                }
+
+                console.log("District ID:", selectedDistrict.districtId);
+
+                const wardResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${selectedDistrict.districtId}`);
+                console.log("Ward Response Data:", wardResponse.data);
+
+                const wards = wardResponse.data.responseList;
+                setWards(wards);
+
+                console.log("Form Data Ward:", formData.ward);
+                const selectedWard = wards.find(w => w.wardName.trim() === formData.ward.trim());  // So sánh chính xác tên
+
+                console.log("Selected Ward:", selectedWard);
+
+                if (selectedWard) {
+                    setWardId(selectedWard.wardId);
+                } else {
+                    setError("Không tìm thấy xã/phường.");
+                    setLoading(false);
+                    return;
+                }
+
+
+            } catch (err) {
+                console.error("Lỗi khi lấy danh sách tỉnh:", err);
+                setError("Không thể lấy danh sách tỉnh.");
+            }
         };
 
-        const phoneRegex = /^[0-9]{10}$/; // Phone number must be exactly 10 digits
+        fetchProvinces();
+    }, [formData.city, formData.district, formData.ward]);  // Trigger khi formData thay đổi
 
-        if (!formData.email.includes('@')) {
-            errors.email = 'Email không hợp lệ!';
+
+
+    const handleWardChange = (e) => {
+        const selectedWardId = e.target.value;
+        setWardId(selectedWardId);
+
+        // Tìm ward từ selectedWardId
+        const selectedWard = wards.find(ward => ward.wardId === parseInt(selectedWardId));
+
+        if (selectedWard) {
+            // Cập nhật formData với ID và tên xã/phường đã chọn
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                ward: selectedWard.wardName,  // Lưu wardName vào formData
+                wardId: selectedWardId       // Lưu wardId vào formData
+            }));
+
+            console.log("Selected Ward Name:", selectedWard.wardName);
+        } else {
+            console.log("Không tìm thấy xã/phường với ID:", selectedWardId);
         }
+    };
 
-        if (!phoneRegex.test(formData.phoneNumber)) {
-            errors.phoneNumber = 'Số điện thoại phải có đúng 10 số và không chứa kí tự đặc biệt!';
+
+    const fetchWards = async (districtId) => {
+        try {
+            console.log("Fetching wards for districtId: " + districtId);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${districtId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + getCookie('access_token')
+                }
+            });
+
+            if (response.data.responseList) {
+                const wardsList = response.data.responseList;
+                setWards(wardsList); // Cập nhật lại danh sách xã/phường
+                console.log("Danh sách xã/phường khi fetch:", wardsList);
+            } else {
+                setWards([]); // Nếu không có xã/phường, reset danh sách
+                console.log("Không có xã/phường cho huyện này.");
+            }
+        } catch (error) {
+            console.error("Error fetching wards:", error);
+            setWards([]); // Reset wards trong trường hợp lỗi
         }
+    };
 
-        const today = new Date();
-        const birthDate = new Date(formData.birthDay);
-        if (birthDate > today) {
-            errors.birthDay = 'Ngày sinh không hợp lệ!';
+
+
+    const formatBirthDayForInput = (date) => {
+        const birthDate = new Date(date);
+        const year = birthDate.getFullYear();
+        const month = String(birthDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(birthDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+
+    // Fetch provinces data
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`, {
+            headers: {
+                'Authorization': 'access_token'
+            }
+        })
+            .then(response => {
+                setProvinces(response.data.responseList);
+            })
+            .catch(error => {
+                console.error("Error fetching provinces:", error);
+            });
+    }, []);
+
+    const fetchDistricts = async (provinceId) => {
+        try {
+            console.log("Fetching districts for provinceId: " + provinceId);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${provinceId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + getCookie('access_token')
+                }
+            });
+
+            const districtsList = response.data.districtResponseList || [];
+            setDistricts(districtsList);
+        } catch (error) {
+            console.error("Error fetching districts:", error);
+            setDistricts([]); // Reset districts in case of error
         }
-
-        setFormErrors(errors);
-
-        // Return true if there are no errors
-        return Object.values(errors).every(error => error === '');
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setSelectedFile(file);
-        setPreviewImage(URL.createObjectURL(file));
+
+    const handleCityChange = async (e) => {
+        const selectedCity = e.target.value;
+        const selectedProvince = provinces.find(province => province.provinceName === selectedCity);
+
+        setProvinceId(selectedProvince ? selectedProvince.provinceId : '');
+        setFormData({
+            ...formData,
+            city: selectedCity,
+            district: '',  // Reset district khi một tỉnh mới được chọn
+            ward: ''  // Reset ward khi một tỉnh mới được chọn
+        });
+
+        if (selectedProvince && selectedProvince.provinceId) {
+            fetchDistricts(selectedProvince.provinceId);  // Fetch districts cho tỉnh mới
+        }
     };
 
-    const handleBack = () => {
-        navigate('/home');
+
+    const handleDistrictChange = (e) => {
+        const selectedDistrictId = e.target.value;
+        setDistrictId(selectedDistrictId);
+
+        const selectedDistrict = districts.find(district => district.districtId === parseInt(selectedDistrictId));
+
+        if (selectedDistrict) {
+            setFormData({
+                ...formData,
+                district: selectedDistrict.districtName,
+                ward: '' // Reset ward when district changes
+            });
+
+            fetchWards(selectedDistrictId);  // Fetch wards when district changes
+        }
     };
 
-    const handleChangePass = () => {
-        navigate('/change');
-    };
+
+    const handleBack = () => navigate('/home');
+    const handleChangePass = () => navigate('/change');
 
     const handleSubmitImg = async (e) => {
         e.preventDefault();
-
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
         if (!token || !userId) {
-            setError("Bạn cần phải đăng nhập.");
+            setError("You need to log in.");
             return;
         }
 
         if (selectedFile) {
             const formData = new FormData();
             formData.append("file", selectedFile);
-
             setIsUploading(true);
 
             try {
@@ -174,79 +355,86 @@ const Info = () => {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-
-                const imageUrl = response.data.url;
-                setPreviewImage(imageUrl);
-
-                alert("Đã cập nhật ảnh đại diện!");
+                setPreviewImage(response.data.url);
+                alert("Avatar updated successfully!");
             } catch (error) {
-                console.error("Lỗi cập nhật:", error);
-                setError("Không thể cập nhật ảnh đại diện.");
+                console.error("Update error:", error);
+                setError("Unable to update avatar.");
             } finally {
                 setIsUploading(false);
             }
         }
     };
 
+    const validateForm = () => {
+        const errors = { email: '', phoneNumber: '', birthDay: '' };
+        const phoneRegex = /^[0-9]{10}$/;
+
+        if (!formData.email.includes('@')) errors.email = 'Invalid email!';
+        if (!phoneRegex.test(formData.phoneNumber)) errors.phoneNumber = 'Phone number must be 10 digits!';
+
+        const birthDate = new Date(formData.birthDay);
+        if (birthDate > new Date()) errors.birthDay = 'Invalid birth date!';
+
+        setFormErrors(errors);
+        return Object.values(errors).every(error => error === '');
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setSelectedFile(file);
+        setPreviewImage(URL.createObjectURL(file));
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
         if (!token || !userId) {
-            setError("Bạn cần phải đăng nhập.");
+            setError("You need to log in.");
             return;
         }
 
-        // Validate form data before submitting
-        if (!validateForm()) {
-            return; // Stop submission if validation fails
-        }
+        if (!validateForm()) return;
 
         const updatedData = {
-            userId: userId,
+            userId,
             email: formData.email,
             fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
             avatar: formData.avatar,
             sex: formData.sex,
             birthDay: formData.birthDay,
-            address: formData.address
+            address: `${formData.street}, ${formData.ward}, ${formData.district}, ${formData.city}`,
         };
 
+
+        // Log the data to preview before sending
+        console.log("Data being sent:", updatedData);
+
         try {
-            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/info-update`, updatedData, {
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/info-update`, updatedData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            alert("Cập nhật thông tin thành công!");
-            setIsEditing(!isEditing);
+            alert("Profile updated successfully!");
         } catch (error) {
-            console.error("Lỗi khi cập nhật thông tin người dùng:", error);
-            setError("Không thể cập nhật thông tin.");
+            console.error("Update error:", error);
+            setError("Unable to update profile.");
         }
     };
 
     if (loading) {
-        return (
-            <LoadingAnimation
-                animationPath="https://lottie.host/0c6e3916-8606-485d-a8e4-dcc5f06e896c/q9CCaIYNpb.json"
-                isVisible={loading}
-            />
-        );
+        return <LoadingAnimation animationPath="https://lottie.host/your_animation_url.json" isVisible={loading} />;
     }
 
     if (error) {
-        return (
-            <ErrorMessage
-                path={"https://lottie.host/66736d57-35f4-486f-9925-3195e8e1c67e/Zi6FIi6tGt.json"}
-                message={error}
-            />
-        );
+        return <ErrorMessage path="https://lottie.host/your_error_animation_url.json" message={error} />;
     }
 
     return (
@@ -256,10 +444,10 @@ const Info = () => {
             <div className="body-info">
                 <div className="container">
                     <h2>
-                        Thông tin cá nhân 
+                        Thông tin cá nhân
                         <i
                             className="ti-pencil"
-                            style={{ fontSize: '20px', color: 'green', cursor: 'pointer' , marginLeft:'5px'}}
+                            style={{ fontSize: '20px', color: 'green', cursor: 'pointer', marginLeft: '5px' }}
                             onClick={() => setIsEditing(!isEditing)}
                         />
                     </h2>
@@ -269,7 +457,7 @@ const Info = () => {
                             <div className="avatar-image-wrapper">
                                 {previewImage ? (
                                     <>
-                                        <img src={previewImage} alt="Avatar" className="avatar-image" />
+                                        <img src={previewImage} alt={''} className="avatar-image" />
                                         <div className="image-overlay"></div> {/* Overlay for the blur effect */}
                                         <div className="btn-gr-img slideUp">
                                             <button
@@ -277,14 +465,14 @@ const Info = () => {
                                                 id="btn-upload"
                                                 onClick={() => document.getElementById('file-upload').click()}
                                             >
-                                                < i className="ti-cloud-up"/>
+                                                < i className="ti-cloud-up" />
                                             </button>
                                             <button
                                                 type="button"
                                                 id="btn-save"
                                                 onClick={handleSubmitImg}
                                             >
-                                                < i className="ti-save"/>
+                                                < i className="ti-save" />
                                             </button>
                                         </div>
                                     </>
@@ -328,19 +516,6 @@ const Info = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Số điện thoại:</label>
-                                    <input
-                                        className="form-control"
-                                        type="text"
-                                        value={formData.phoneNumber}
-                                        disabled={!isEditing} // Disable based on editing mode
-                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                    />
-                                    {formErrors.phoneNumber && <span className="error">{formErrors.phoneNumber}</span>}
-                                </div>
-                            </div>
-                            <div className="form-column">
-                                <div className="form-group">
                                     <label>Giới tính:</label>
                                     <select
                                         className="form-control"
@@ -365,16 +540,94 @@ const Info = () => {
                                     />
                                     {formErrors.birthDay && <span className="error">{formErrors.birthDay}</span>}
                                 </div>
+
+                            </div>
+                            <div className="form-column">
                                 <div className="form-group">
-                                    <label>Địa chỉ:</label>
+                                    <label>Số điện thoại:</label>
                                     <input
                                         className="form-control"
                                         type="text"
-                                        value={formData.address}
+                                        value={formData.phoneNumber}
                                         disabled={!isEditing} // Disable based on editing mode
-                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                    />
+                                    {formErrors.phoneNumber && <span className="error">{formErrors.phoneNumber}</span>}
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Thành phố:</label>
+                                    <select
+                                        className="form-control"
+                                        value={formData.city}
+                                        disabled={!isEditing}
+                                        onChange={handleCityChange}
+                                        style={{ fontSize: '14px' }}
+                                    >
+
+                                        <option value="">Chọn tỉnh/thành phố</option>
+                                        {provinces.map((province) => (
+                                            <option key={province.provinceId} value={province.provinceName}>
+                                                {province.provinceName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '15px' }}>
+                                    <div className="form-group">
+                                        <label>District</label>
+                                        <select
+                                            className="form-control"
+                                            value={districtId}
+                                            disabled={!isEditing}
+                                            onChange={handleDistrictChange}
+                                            style={{ fontSize: '14px' }}
+                                        >
+                                            <option value="">Select District</option>
+                                            {districts.map(district => (
+                                                <option key={district.districtId} value={district.districtId}>
+                                                    {district.districtName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
+
+                                    <div className="form-group">
+                                        <label>Xã/Phường</label>
+                                        <select
+                                            className="form-control"
+                                            value={wardId || ""}  // Đảm bảo giá trị là wardId
+                                            disabled={!isEditing}  // Disable nếu không đang chỉnh sửa
+                                            onChange={handleWardChange}  // Sử dụng hàm xử lý thay đổi
+                                            style={{ fontSize: '14px' }}
+                                        >
+                                            <option value="">Select Ward</option>  {/* Mặc định khi không chọn */}
+                                            {wards.map((ward) => (
+                                                <option key={ward.wardId} value={ward.wardId}>
+                                                    {ward.wardName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Đường:</label>
+                                    <input
+                                        className="form-control"
+                                        type="text"
+                                        value={formData.street}
+                                        disabled={!isEditing} // Disable based on editing mode
+                                        onChange={(e) => setFormData({ ...formData, street: e.target.value })}
                                     />
                                 </div>
+
+
                             </div>
                         </div>
 

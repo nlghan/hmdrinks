@@ -112,7 +112,13 @@ const Navbar = ({ currentPage }) => {
   // Update breadcrumb and box shadow visibility when route changes
   useEffect(() => {
     const isProductDetailPage = location.pathname.startsWith('/product/');
-    setShowBreadcrumb(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '' && !isProductDetailPage);
+    setShowBreadcrumb(
+      location.pathname !== '/home' && 
+      location.pathname !== '/' && 
+      location.pathname !== '' && 
+      location.pathname !== '/change' && // Add this condition
+      !isProductDetailPage
+    );
     setShowBoxShadow(location.pathname === '/home' || isProductDetailPage);
   }, [location.pathname]);
 

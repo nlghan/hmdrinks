@@ -276,11 +276,17 @@
       .login1{
         margin-left: 0px !important;
       }
+
+      .progress-navigation{
+        padding-left: 20% ;
+      
+      }
+
+    
       
   }
 
 
-  
   .icon-group {
     display: flex; /* Use flexbox for icon layout */
     align-items: center; /* Center icons vertically */

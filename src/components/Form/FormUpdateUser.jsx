@@ -4,11 +4,19 @@ import './FormUpdateUser.css';
 import { assets } from "../../assets/assets.js";
 
 const FormUpdateUser = ({ user, onClose, onSave }) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const [formData, setFormData] = React.useState({
         userId: user.userId,
         userName: user.userName,
         fullName: user.fullName,
-        birthDate: user.birthDate,
+        birthDate: user.birth_date ? formatDate(user.birth_date) : '', // Định dạng ngày
         address: user.address,
         email: user.email,
         phoneNumber: user.phoneNumber,
@@ -16,12 +24,11 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
         role: user.role,
         password: '',
         avatar: user.avatar,
-        dateUpdated: user.dateUpdated 
+        dateUpdated: user.dateUpdated
     });
-
     const [error, setError] = React.useState(null);
-    const [initialData] = React.useState(formData); 
-    const [successMessage, setSuccessMessage] = React.useState(''); 
+    const [initialData] = React.useState(formData);
+    const [successMessage, setSuccessMessage] = React.useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -46,7 +53,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
 
         if (name === "address" && value !== initialData.address) {
             if (!validateAddress(value)) {
-                setError("Địa chỉ phải theo định dạng '_,_,_' (ví dụ: 'đường ABC, quận 1, TP.HCM').");
+                setError("Địa chỉ phải theo định dạng '_,_,_' ('11 đường ABC, Phường X, Quận 1, Thành phố HCM').");
             } else {
                 setError(null);
             }
@@ -55,7 +62,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`); 
+        const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
@@ -78,7 +85,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                 phoneNumber: formData.phoneNumber,
                 role: formData.role,
                 password: formData.password || undefined,
-                dateUpdated: new Date().toISOString() 
+                dateUpdated: new Date().toISOString()
             };
 
             console.log('Submitting form data:', requestData);
@@ -91,9 +98,9 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
 
             if (response.status === 200) {
                 onSave({ ...response.data, dateUpdated: requestData.dateUpdated });
-                setSuccessMessage('Cập nhật người dùng thành công!'); 
+                setSuccessMessage('Cập nhật người dùng thành công!');
                 setTimeout(() => {
-                    setSuccessMessage(''); 
+                    setSuccessMessage('');
                 }, 5000);
                 onClose();
             }
@@ -130,7 +137,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                     </div>
                     <div className="form-update-detail-row">
                         <label>Tên đăng nhập:</label>
-                        <input type="text" name="userName" value={formData.userName} onChange={handleChange} />
+                        <input type="text" name="userName" value={formData.userName} onChange={handleChange} disabled />
                     </div>
                     <div className="form-update-detail-row">
                         <label>Họ và tên:</label>
@@ -155,20 +162,24 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                     <div className="form-update-detail-row">
                         <label>Giới tính:</label>
                         <select name="sex" value={formData.sex} onChange={handleChange}>
-                            <option value="Male">Nam</option>
-                            <option value="Female">Nữ</option>
-                            <option value="Other">Khác</option>
+                            <option value="MALE">Nam</option>
+                            <option value="FEMALE">Nữ</option>
+                            <option value="OTHER">Khác</option>
                         </select>
                     </div>
                     <div className="form-update-detail-row">
                         <label>Vai trò:</label>
-                        <input type="text" name="role" value={formData.role} onChange={handleChange} />
+                        <select name="role" value={formData.role} onChange={handleChange}>
+                            <option value="CUSTOMER">CUSTOMER</option>
+                            <option value="SHIPPER">SHIPPER</option>
+                        </select>
                     </div>
+
                 </form>
             </div>
             <button type="button" className="form-update-save-btn" onClick={handleSubmit}>Lưu</button>
             {error && <div className="error-message">{error}</div>}
-            {successMessage && <div className="success-message1">{successMessage}</div>} 
+            {successMessage && <div className="success-message1">{successMessage}</div>}
         </div>
     );
 };
@@ -184,7 +195,7 @@ const validatePhoneNumber = (phone) => {
 };
 
 const validateAddress = (address) => {
-    const regex = /^[^,]+,[^,]+,[^,]+$/; 
+    const regex = /^[^,]+,[^,]+,[^,]+$/;
     return regex.test(address);
 };
 

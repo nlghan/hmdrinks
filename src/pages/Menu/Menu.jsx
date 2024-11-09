@@ -195,7 +195,7 @@ const Menu = () => {
             image: product.productImageResponseList.length > 0 ? product.productImageResponseList[0].linkImage : backgroundImage,
         });
 
-        alert(`${proName} đã được thêm vào giỏ hàng!`);
+        
     };
 
     const handleProductCardClick = (product) => {

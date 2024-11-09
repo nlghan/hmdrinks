@@ -31,6 +31,8 @@ const Category = () => {
     const [limit, setLimit] = useState(5);
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(1); // Tổng số trang
+    const [isCreating, setIsCreating] = useState(false); // Trạng thái khi tạo mới danh mục
+
 
     // Cơ chế debounce cho searchTerm
     useEffect(() => {
@@ -185,6 +187,7 @@ const Category = () => {
                 cateName: categoryName,
                 cateImg: ''
             };
+            setIsCreating(true);
 
             try {
                 const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cate/create-category`, categoryData, {
@@ -221,6 +224,9 @@ const Category = () => {
             } catch (error) {
                 console.error("Lỗi khi thêm danh mục:", error);
                 alert("Không thể thêm danh mục. Vui lòng thử lại.");
+            }
+            finally{
+                setIsCreating(false); 
             }
         } else {
             alert("Vui lòng nhập tên danh mục và chọn hình ảnh.");
@@ -357,6 +363,11 @@ const Category = () => {
 
     return (
         <div className="category">
+            {isCreating && (
+            <div className="loading-overlay active">
+                <div className="loading-spinner"></div>
+            </div>
+        )}
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Danh mục" />
             <div className={`category-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="side-section-cate">

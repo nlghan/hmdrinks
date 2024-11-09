@@ -202,10 +202,11 @@ const News = () => {
     }, []);
 
     const handlePageChange = (newPage) => {
-        if (newPage > 0 && newPage <= totalPage) {
+        if (newPage > 0 && newPage <= totalPages) {  // Corrected to use totalPages
             setCurrentPage(newPage);
         }
     };
+    
 
     const getPaginationNumbers = () => {
         const paginationNumbers = [];

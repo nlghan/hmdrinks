@@ -5,7 +5,7 @@
     padding: 20px;
     width: 100%;
     margin: 0;
-    height: 110vh;
+    height: auto;
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
 }
 
@@ -259,7 +259,16 @@
 .btn-pro-add1 {
     background-color: #e8680d;
     height: 50%;
+    border-radius: 20px;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.btn-pro-add1:hover {
+    background-color: hsl(33, 92%, 46%);
+    transform: scale(1.01); /* Tăng kích thước nhẹ */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Thêm bóng đổ để tạo chiều sâu */
+}
+
 
 .btn-pro-view {
     background-color: #78afdc;
@@ -339,4 +348,10 @@
     border-radius: 4px;
     border: 1px solid #ddd;
 }
+.product-pagination-controls{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: space-between;
 
+}

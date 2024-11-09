@@ -90,7 +90,7 @@ const About = () => {
                     } else if (introduceRightRefs.current.includes(entry.target)) {
                         entry.target.classList.remove('slide-in-right', 'fade-in');
                     } else if (entry.target === featuresSectionRef.current) {
-                        entry.target.classList.remove('slide-up');
+                        // entry.target.classList.remove('slide-up');
                     } else if (featureItemsRef.current.includes(entry.target)) {
                         entry.target.classList.remove('visible');
                     }
@@ -140,7 +140,7 @@ const About = () => {
                         backgroundImage: `url(${trachanh})`,
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className='about-banner-container'>
                         <div className="about-banner-content">
                             <h2 className="about-banner-title">Câu chuyện kinh doanh</h2>
                             <p className="about-banner-description">
@@ -227,11 +227,11 @@ const About = () => {
                         <h2 className="introduce-title" style={{ marginTop: '30px' }}>
                             Dịch vụ của <span style={{ color: '#009387' }}>HMDrinks 🔥</span>
                         </h2>
-                        <div style={{ display: 'flex', justifyContent: 'space-around', flexDirection: 'row', gap: '100px' }}>
+                        <div className='feature-item-container'>
                             <div className="feature-item" ref={el => featureItemsRef.current[0] = el}>
                                 <img src={nv} alt="Hỗ Trợ 12/7" className="feature-icon" />
                                 <h3>Hỗ Trợ 12/7</h3>
-                                <p>Đội ngũ HMDRINKS luôn có mặt để hỗ trợ bất cứ khi nào bạn cần.</p>
+                                <p>Đội ngũ HMDrinks luôn có mặt để hỗ trợ bất cứ khi nào bạn cần.</p>
                             </div>
                             <div className="feature-item" ref={el => featureItemsRef.current[1] = el}>
                                 <img src={tt} alt="Thanh Toán Tiện Dụng" className="feature-icon" />

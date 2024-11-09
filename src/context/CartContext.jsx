@@ -17,9 +17,10 @@ export const CartProvider = ({ children }) => {
     const [cartId, setCartId] = useState(null); // Default cart to null
 
     // Ensure cart exists
+    // Ensure cart exists
     const ensureCartExists = async (userId) => {
         const token = getCookie('access_token');
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -28,36 +29,37 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             const data = await response.json();
-    
+            console.log("Cart List Response:", data); // Debugging response
+
             if (response.ok) {
-                // Access the cart list from the body of the response
-                const cartList = data.body.listCart;
-    
-                // Log the cart list for debugging
-                console.log('Cart List:', cartList);
-    
-                // If the user has carts, find the one with 'NEW' status
+                const cartList = data.listCart || [];
+                console.log("Cart List:", cartList); // Kiểm tra cart list
+
+                // Kiểm tra xem có cart nào với trạng thái "NEW" hay không
                 const newCart = cartList.find(cart => cart.statusCart === 'NEW');
+
                 if (newCart) {
-                    setCartId(newCart.cartId);
-                    console.log("New cart ID:", newCart.cartId); // Log the cart ID
-                    await fetchCartItemsByCartId(newCart.cartId); // Fetch items for the new cart
+                    // Nếu đã có cart "NEW", chỉ cần lấy cartId của nó và không tạo thêm cart mới
+                    if (cartId !== newCart.cartId) { // Kiểm tra xem cartId đã được set chưa
+                        setCartId(newCart.cartId);
+                        console.log("Existing NEW cart ID:", newCart.cartId); // Log cart ID
+                        await fetchCartItemsByCartId(newCart.cartId); // Lấy item của cart "NEW"
+                    }
                 } else {
-                    // If no NEW cart, create a new one
-                    const newCartId = await createCart(userId);
-                    setCartId(newCartId);
+                    // Nếu không có cart "NEW" nào, tạo cart mới và lưu cartId
+                    console.log('No "NEW" cart found, creating a new cart...');
+                    const newCartId = await createCart(userId); // Tạo cart mới với trạng thái "NEW"
+                    setCartId(newCartId); // Lưu cartId
                 }
             } else {
-                // Log the error response if fetching the cart list failed
                 console.error('Failed to fetch carts:', data);
-                // Create a new cart if none exists
-                const newCartId = await createCart(userId);
-                setCartId(newCartId);
+
             }
         } catch (error) {
             console.error('Error fetching cart:', error);
+
         }
     };
 
@@ -68,8 +70,9 @@ export const CartProvider = ({ children }) => {
         };
         initializeCart();
     }, []);
-    
-    
+
+
+
     // Create a new cart
     const createCart = async (userId) => {
         const token = getCookie('access_token');
@@ -102,7 +105,7 @@ export const CartProvider = ({ children }) => {
     // Fetch cart items for a specific user by userId
     const fetchCartItemsByCartId = async (cartId) => {
         const token = getCookie('access_token');
-    
+
         try {
             // Fetch the cart items using the provided cartId
             const itemsResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
@@ -112,9 +115,9 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             const itemsData = await itemsResponse.json();
-    
+
             if (itemsResponse.ok) {
                 // Enrich each item with product details
                 const itemsWithDetails = await Promise.all(
@@ -131,7 +134,7 @@ export const CartProvider = ({ children }) => {
                         };
                     })
                 );
-    
+
                 setCartItems(itemsWithDetails); // Set enriched cart items state
             } else {
                 console.error('Failed to fetch cart items:', itemsData);
@@ -140,7 +143,7 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart items:', error);
         }
     };
-    
+
 
     // Fetch product details by product ID and size
     const fetchProductDetails = async (productId, size) => {
@@ -207,20 +210,23 @@ export const CartProvider = ({ children }) => {
     const addToCart = async (product) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
+
+        console.log("CartID nè: ", cartId); // Log cartId để kiểm tra
+
+        // Nếu cartId vẫn không có sau khi gọi ensureCartExists, không tiếp tục
         if (!cartId) {
-            await ensureCartExists(userId);
+            console.error('No cartId found!');
+            return;
         }
-    
-        console.log(cartId)
-    
+
         // Fetch product details including the price based on size
         const productDetails = await fetchProductDetails(product.productId, product.size);
-    
+
         if (!productDetails) {
             console.error('Could not fetch product details');
             return; // Exit if product details couldn't be fetched
         }
-    
+
         // Prepare the request body
         const requestBody = {
             userId: userId,
@@ -229,7 +235,7 @@ export const CartProvider = ({ children }) => {
             size: product.size,
             quantity: product.quantity,
         };
-    
+
         try {
             const response = await fetch('http://localhost:1010/api/cart-item/insert', {
                 method: 'POST',
@@ -240,14 +246,14 @@ export const CartProvider = ({ children }) => {
                 },
                 body: JSON.stringify(requestBody),
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 console.log('Item added to cart successfully:', data);
                 // Show alert for successful addition to cart
                 alert(`${product.name} đã được thêm vào giỏ hàng!`);
-    
+
                 // Update cart items
                 setCartItems((prevItems) => {
                     const itemExists = prevItems.find(item => item.productId === product.productId && item.size === product.size);
@@ -258,7 +264,7 @@ export const CartProvider = ({ children }) => {
                                 : item
                         );
                     }
-    
+
                     return [...prevItems, {
                         ...product,
                         cartItemId: data.cartItemId,
@@ -273,18 +279,17 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             console.error('Error while adding item to cart:', error);
         }
-    };    
-    
+    };
 
     const increase = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (!cartItemId || !cartId) {  // Check if both cartItemId and cartId are provided
             console.error('No cart item ID or cart ID provided.');
             return;
         }
-    
+
         try {
             // Step 1: Fetch the cart item to get the productId, size, and current quantity
             const cartItemResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
@@ -294,14 +299,14 @@ export const CartProvider = ({ children }) => {
                     'Accept': 'application/json',
                 },
             });
-    
+
             // Check if the response is OK
             if (!cartItemResponse.ok) {
                 const errorText = await cartItemResponse.text(); // Read response as text
                 console.error('Failed to fetch cart item data:', errorText);
                 return; // Exit if the response is not OK
             }
-    
+
             // Attempt to parse the response as JSON
             let cartItemData;
             try {
@@ -310,17 +315,17 @@ export const CartProvider = ({ children }) => {
                 console.error('Error parsing JSON response:', jsonError);
                 return; // Exit if JSON parsing fails
             }
-    
+
             // Find the specific cart item using the cartItemId
             const cartItem = cartItemData.listCartItemResponses.find(item => item.cartItemId === cartItemId);
-    
+
             if (!cartItem) {
                 console.error(`Cart item with ID ${cartItemId} not found.`);
                 return;
             }
-    
+
             const { proId, size, quantity } = cartItem; // Ensure your API returns productId, size, and quantity fields
-    
+
             // Step 2: Fetch stock information using the productId
             const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${proId}`, {
                 method: 'GET',
@@ -328,14 +333,14 @@ export const CartProvider = ({ children }) => {
                     'accept': '*/*',
                 },
             });
-    
+
             // Check if the response for variants is OK
             if (!variantResponse.ok) {
                 const variantErrorText = await variantResponse.text(); // Read response as text
                 console.error('Failed to fetch variant data:', variantErrorText);
                 return; // Exit if the response is not OK
             }
-    
+
             // Attempt to parse the variant response as JSON
             let variantData;
             try {
@@ -344,25 +349,25 @@ export const CartProvider = ({ children }) => {
                 console.error('Error parsing JSON variant response:', jsonError);
                 return; // Exit if JSON parsing fails
             }
-    
+
             // Step 3: Find the specific variant that matches the size
             const variant = variantData.responseList.find(v => v.size === size);
-    
+
             if (!variant) {
                 console.error(`No variant found for size: ${size}`);
                 return;
             }
-    
+
             // Step 4: Check stock information
             const { stock } = variant; // Ensure your API returns a stock field
-    
+
             // Step 5: Check if adding one more exceeds stock
             if (quantity >= stock) {
                 console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
                 alert(`Đã đạt giới hạn số lượng cho sản phẩm này!`); // Alert the user that stock limit is reached
                 return; // Exit if limit is reached
             }
-    
+
             // Step 6: Proceed to increase the item quantity
             const updateResponse = await fetch('http://localhost:1010/api/cart-item/increase', {
                 method: 'PUT',
@@ -377,14 +382,14 @@ export const CartProvider = ({ children }) => {
                     quantity: 1, // Increase quantity by 1
                 }),
             });
-    
+
             // Check if the update response is OK
             if (!updateResponse.ok) {
                 const updateErrorText = await updateResponse.text(); // Read response as text
                 console.error('Failed to increase item quantity:', updateErrorText);
                 return; // Exit if the response is not OK
             }
-    
+
             // Update the cart items in the state if the request is successful
             setCartItems(prevItems =>
                 prevItems.map(item =>
@@ -393,12 +398,12 @@ export const CartProvider = ({ children }) => {
                         : item
                 )
             );
-    
+
         } catch (error) {
             console.error('Error increasing item quantity:', error);
         }
     };
-    
+
 
     // Decrease quantity of item in cart
     const decrease = async (cartItemId) => {
@@ -498,7 +503,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-   
+
 
     // Handle user login and logout
     const handleAuthChange = async () => {

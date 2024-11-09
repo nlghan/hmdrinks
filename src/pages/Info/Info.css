@@ -59,7 +59,7 @@
 .user-info-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 25px;
 }
 
 .form-grid {
@@ -89,7 +89,7 @@
     flex-direction: column; /* Đảm bảo label nằm trên input */
     gap: 5px; /* Khoảng cách giữa label và input */
     width: 500px;
-    margin-top: 20px;
+
 }
 
 .user-info-form label {
@@ -283,4 +283,44 @@
     .form-grid{
         gap:0px
     }
+}
+
+.btn-update-address {
+    background-color: #4CAF50; /* Màu xanh lá */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    margin-top: 5px;
+    width: 80%;
+}
+
+.btn-update-address:hover {
+    background-color: #45a049;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-bottom: 10px;
 }

@@ -16,7 +16,7 @@ const NewsUser = () => {
           }}
 
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className='banner-user-cotainer'>
             <div className="banner-content">
               <h2 className="banner-title pacifico-regular">HMDrinks chào hè</h2>
               <p className="banner-description">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './FormAddProduct.css'; // Ensure you have this CSS file
+import { useNavigate } from 'react-router-dom';
 
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -8,7 +9,7 @@ const getCookie = (name) => {
     if (parts.length === 2) return parts.pop().split(';').shift(); 
 };
 
-const FormAddProduct = ({ onClose, onSubmit }) => {
+const FormAddProduct = ({ onClose}) => {
     const [formData, setFormData] = useState({
         cateId: '',
         proName: '',
@@ -21,6 +22,9 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(false); // Loading state
+    const [isCreating, setIsCreating] = useState(false); // Trạng thái khi tạo mới danh mục
+    const navigate = useNavigate()
+
 
     const availableSizes = ['S', 'M', 'L'];
 
@@ -100,7 +104,8 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
         }
 
         try {
-            setLoading(true); // Set loading to true when starting to submit
+            setLoading(true);
+            setIsCreating(true);  // Set loading to true when starting to submit
             const productResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/product/create`, {
                 cateId,
                 proName,
@@ -142,13 +147,14 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                     }
                 }
 
-                setSuccessMessage("Thêm sản phẩm thành công!");
+                
                 setErrorMessage("");
-                onSubmit(productResponse.data);
+                
                 setTimeout(() => {
-                    setSuccessMessage('');
-                    onClose();
-                }, 2000);
+                    console.log("setTimeout triggered"); // Log 3
+                    setSuccessMessage("Thêm sản phẩm thành công!");
+                    onClose();                   
+                }, 1000);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -156,24 +162,34 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                 setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi khi thêm sản phẩm.');
             } 
         } finally {
-            setLoading(false); // Set loading to false after the response is received
+            setLoading(false);
+            setIsCreating(false);  // Set loading to false after the response is received
         }
     };
 
     return (
-        <div className="overlay">
+
+        <div className="add-product-overlay">
+            {isCreating && (
+            <div className="loading-overlay active">
+                <div className="loading-spinner"></div>
+            </div>
+        )}
+            
             <div className="form-add-product-container" onClick={(e) => e.stopPropagation()}>
+                
                 <div className="form-add-product">
+                    
                     <h2>Thêm sản phẩm</h2>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
-                    {loading && <p className="loading-message">Đang thêm sản phẩm...</p>} {/* Loading message */}
+                  
 
                     <div className="form-sections-add">
                         <div className="form-container-add">
                             <div className="product-info-section">
                                 <h3>Thông tin sản phẩm</h3>
-                                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                                <form >
                                     <div className="form-group">
                                         <label htmlFor="cateId">Danh mục</label>
                                         <select
@@ -228,15 +244,15 @@ const FormAddProduct = ({ onClose, onSubmit }) => {
                             </div>
 
                             <div className="variants-section">
-                                <h3 style={{ display: 'inline-block', marginRight: '10px' }}>Thông tin biến thể sản phẩm</h3>
-                                <button
+                                <h3 style={{ display: 'inline-block', marginRight: '10px' }}>Thông tin biến thể sản phẩm <span><button
                                     type="button"
                                     onClick={addVariant}
                                     className="add-variant-button"
                                     style={{ display: 'inline', fontSize: '24px', lineHeight: '24px' }}
                                 >
                                     +
-                                </button>
+                                </button></span></h3>
+                                
                                 <div>
                                     {variants.map((variant, index) => (
                                         <div key={index} className={`variant-group ${index === 0 ? 'first-variant' : ''}`}>
