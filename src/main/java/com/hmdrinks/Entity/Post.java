@@ -33,7 +33,7 @@ public class Post {
     @Column(name = "type", nullable = false)
     private Type_Post type;
 
-    @Column(name = "description")
+    @Column(name = "description",columnDefinition = "TEXT")
     private  String description;
 
     @Column(name = "date_create",nullable = false)

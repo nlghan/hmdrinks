@@ -242,10 +242,15 @@ public class OrdersService {
         if (Duration.between(order.getOrderDate(), LocalDateTime.now()).toMinutes() > 5) {
             order.setStatus(Status_Order.CANCELLED);
             orderRepository.save(order);
-            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
-                    order.getUser().getUserId(), order.getVoucher().getVoucherId()
-            );
-            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+            if(order.getVoucher() != null)
+            {
+                UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
+                        order.getUser().getUserId(), order.getVoucher().getVoucherId()
+                );
+                userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                userVoucherRepository.save(userVoucher);
+            }
+
             OrderItem orderItem1 = order.getOrderItem();
             if(orderItem1 != null)
             {
@@ -254,7 +259,7 @@ public class OrdersService {
                 cart.setStatus(Status_Cart.NEW);
                 cartRepository.save(cart);
             }
-            userVoucherRepository.save(userVoucher);
+
             return ResponseEntity.status(HttpStatus.OK).body("Order has been canceled due to timeout.");
         }
         else
