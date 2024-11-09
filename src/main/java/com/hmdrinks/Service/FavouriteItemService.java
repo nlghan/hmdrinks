@@ -40,6 +40,10 @@ public class FavouriteItemService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Product not found");
         }
+        if(product.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST_400).body("Product is deleted");
+        }
         ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
         if(productVariants == null)
         {

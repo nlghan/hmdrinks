@@ -79,6 +79,18 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             @Param("productId") int productId
     );
 
+    @Query("SELECT AVG(r.ratingStar) " +
+            "FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.category.cateId = :categoryId " +
+            "AND pv.proId = :productId " +
+            "GROUP BY pv.proId " +
+            "HAVING COUNT(r) > 0") // Có ít nhất 1 đánh giá
+    Double findAverageRatingByProductIdAdmin(
+            @Param("categoryId") int categoryId,
+            @Param("productId") int productId
+    );
+
     @Query("SELECT pv FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
             "WHERE pv.category.cateId = :categoryId " +

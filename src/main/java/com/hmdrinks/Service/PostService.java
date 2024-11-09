@@ -72,7 +72,7 @@ public class PostService {
        ));
     }
     public ResponseEntity<?> getPostById(int postId) {
-        Post post= postRepository.findByPostId(postId);
+        Post post= postRepository.findByPostIdAndIsDeletedFalse(postId);
         if(post == null) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found post");
         }
@@ -91,7 +91,7 @@ public class PostService {
     }
 
     public ResponseEntity<?> updatePost(CRUDPostReq req) {
-        Post post = postRepository.findByPostId(req.getPostId());
+        Post post = postRepository.findByPostIdAndIsDeletedFalse(req.getPostId());
         if(post == null) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found post");
         }

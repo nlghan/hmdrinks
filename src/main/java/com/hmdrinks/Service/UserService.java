@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -110,6 +112,18 @@ public class UserService {
                 userList.getRole().toString()
         ));
     }
+
+    public static boolean isAge18OrAbove(java.util.Date birthDate) {
+        LocalDate birthLocalDate = birthDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate currentDate = LocalDate.now();
+
+        int age = Period.between(birthLocalDate, currentDate).getYears();
+        return age >= 15;
+    }
+
     public ResponseEntity<?> updateUserInfoResponse(UserInfoUpdateReq req){
         User userList = userRepository.findByUserId(req.getUserId());
         if (userList == null) {
@@ -126,6 +140,11 @@ public class UserService {
         ResponseEntity<?> authResponse =  supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
             return authResponse;
+        }
+        System.out.println(req.getBirthDay());
+        boolean check = isAge18OrAbove(req.getBirthDay());
+        if(!check){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The person is not old enough (must be at least 18 years old)");
         }
         LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
@@ -148,6 +167,7 @@ public class UserService {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid address format");
         }
+
         userRepository.save(userList);
         return ResponseEntity.status(HttpStatus.OK).body(new UpdateUserInfoResponse(
                 userList.getUserId(),

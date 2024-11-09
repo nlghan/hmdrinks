@@ -422,6 +422,7 @@ public class ProductService {
                             productVariant.getDateCreated(),
                             productVariant.getDateUpdated()
                     ));
+                    total += 1;
             }
 
             }

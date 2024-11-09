@@ -28,7 +28,11 @@ public class CartItemController {
     @Autowired
     private JwtService jwtService;
     @PostMapping(value = "/insert")
-    public ResponseEntity<?> createCartItem(@RequestBody InsertItemToCart req){
+    public ResponseEntity<?> createCartItem(@RequestBody InsertItemToCart req,HttpServletRequest httpRequest){
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
         return cartItemService.insertCartItem(req);
     }
 

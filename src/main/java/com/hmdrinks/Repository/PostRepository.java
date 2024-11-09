@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Post findByPostId(int postId);
+    Post findByPostIdAndIsDeletedFalse(int postId);
     List<Post> findAll();
     Page<Post> findAll(Pageable pageable);
     List<Post> findByUserUserId(Integer userId);

@@ -46,6 +46,9 @@ public class ImgService {
         if (users == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
+        if(users.getIsDeleted()){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("User is deleted");
+        }
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
         try {
@@ -82,6 +85,9 @@ public class ImgService {
         if (category== null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
         }
+        if(category.getIsDeleted()){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Category is deleted");
+        }
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
         try {
@@ -112,6 +118,12 @@ public class ImgService {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Incorrect formatting");
         }
         Post post = postRepository.findByPostId(postId);
+        if (post == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+        }
+        if(post.getIsDeleted()){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Post is deleted");
+        }
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
         cloudinary.config.secure = true;
         try {
@@ -144,6 +156,10 @@ public class ImgService {
         Product product = productRepository.findByProId(proId);
         if (product == null) {
             throw new IOException("Product not found");
+        }
+
+        if(product.getIsDeleted()){
+            throw new IOException("Product is deleted");
         }
 
         Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
@@ -181,8 +197,6 @@ public class ImgService {
             throw new IOException("Could not upload image: " + e.getMessage());
         }
     }
-
-
 
     public boolean processFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();

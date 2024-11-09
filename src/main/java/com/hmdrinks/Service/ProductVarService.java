@@ -48,6 +48,14 @@ public class ProductVarService {
         {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Variant Size Already Exists");
         }
+        if(req.getStock() <=0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock greater than 0");
+        }
+        if(req.getPrice() < 1000.0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price greater than 1000");
+        }
         ProductVariants productVariants1 = new ProductVariants();
         productVariants1.setProduct(product);
         productVariants1.setSize(req.getSize());
@@ -106,6 +114,14 @@ public class ProductVarService {
         if(productVariants1 == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Variant Not Found");
+        }
+        if(req.getStock() <=0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock greater than 0");
+        }
+        if(req.getPrice() < 1000.0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price greater than 1000");
         }
         if(req.getPrice() != productVariants1.getPrice())
         {

@@ -101,7 +101,7 @@ public class AdminController {
     }
 
     @GetMapping("/cate/view/{id}/product")
-    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
+    public ResponseEntity<?> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
         return ResponseEntity.ok(adminService.getAllProductFromCategory(id,page,limit));
     }
 

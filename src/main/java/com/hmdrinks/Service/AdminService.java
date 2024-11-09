@@ -205,11 +205,11 @@ public class AdminService {
         return "All review product deleted";
     }
 
-    public ListProductImageResponse getAllProductImages(int proId) {
+    public ResponseEntity<?> getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
-            throw new NotFoundException("Not found product with ID: " + proId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found product with ID: " + proId);
         }
         String currentProImg = product.getListProImg();
         if(currentProImg != null && !currentProImg.trim().isEmpty())
@@ -222,7 +222,7 @@ public class AdminService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return new ListProductImageResponse(proId,productImageResponses);
+        return  ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
     }
 
     public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
@@ -310,11 +310,10 @@ public class AdminService {
             sort = Sort.by(Sort.Direction.DESC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
                 if(avgRating == null) {
                     avgRating = 0.0;
                 }
-                System.out.println(avgRating);
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -333,7 +332,7 @@ public class AdminService {
             sort = Sort.by(Sort.Direction.ASC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
                 if(avgRating == null) {
                     avgRating = 0.0;
                 }
@@ -360,7 +359,7 @@ public class AdminService {
                     );
 
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
                 if(avgRating == null) {
                     avgRating = 0.0;
                 }
@@ -382,7 +381,7 @@ public class AdminService {
             List<Product> product = productRepository.findTopRatedProductsDescByAdmin(req.getC(), req.getP());
             for (Product product1 : product) {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
-                Double  avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                Double  avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
                     if(avgRating == null) {
                         avgRating = 0.0;
@@ -398,6 +397,7 @@ public class AdminService {
                             productVariant.getDateCreated(),
                             productVariant.getDateUpdated()
                     ));
+                    total += 1;
                 }
 
             }
@@ -406,7 +406,7 @@ public class AdminService {
             for (Product product1 : product) {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
-                    Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                    Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),product1.getProId());
                     if(avgRating == null) {
                         avgRating = 0.0;
                     }
@@ -501,7 +501,7 @@ public class AdminService {
         );
     }
 
-    public GetViewProductCategoryResponse getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
+    public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -510,7 +510,7 @@ public class AdminService {
         Category category = categoryRepository.findByCateId(id);
         if(category == null)
         {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cateId not exists");
         }
         Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
@@ -543,11 +543,11 @@ public class AdminService {
             ));
         }
 
-        return new GetViewProductCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
                 crudProductResponseList
-        );
+        ));
     }
 }
