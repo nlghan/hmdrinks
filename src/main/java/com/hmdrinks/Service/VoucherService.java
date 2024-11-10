@@ -252,6 +252,7 @@ public class VoucherService {
         }
         voucher.setIsDeleted(true);
         voucher.setDateDeleted(LocalDateTime.now());
+        voucher.setStatus(Status_Voucher.EXPIRED);
         voucherRepository.save(voucher);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
@@ -278,6 +279,7 @@ public class VoucherService {
         }
         voucher.setIsDeleted(false);
         voucher.setDateDeleted(null);
+        voucher.setStatus(Status_Voucher.ACTIVE);
         voucherRepository.save(voucher);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
                 voucher.getVoucherId(),
