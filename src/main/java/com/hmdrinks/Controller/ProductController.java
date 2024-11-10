@@ -1,17 +1,24 @@
 package com.hmdrinks.Controller;
 
+import com.hmdrinks.Repository.ProductRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.*;
-import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.ProductService;
+import com.hmdrinks.Service.Recommender;
 import com.hmdrinks.Service.ReviewService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.hadoop.yarn.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @SecurityRequirement(name = "bearerAuth")
@@ -25,6 +32,12 @@ public class ProductController {
     private ReviewService reviewService;
     @Autowired
     private SupportFunction supportFunction;
+    @Autowired
+    private Recommender recommender;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createProduct(@RequestBody CreateProductReq req){
@@ -106,4 +119,15 @@ public class ProductController {
     public ResponseEntity<?> resetQuantityProduct() {
         return productService.resetAllQuantityProduct();
     }
+
+    @GetMapping(value = "/recommended", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRecommendedBooksByUserId(@RequestParam("userId") Long userId)
+            throws ResourceNotFoundException {
+
+
+        String recommendedBooks = recommender.recommendedBooks(userId,userRepository,productRepository);
+
+        return ResponseEntity.ok().body(recommendedBooks);
+    }
+
 }
