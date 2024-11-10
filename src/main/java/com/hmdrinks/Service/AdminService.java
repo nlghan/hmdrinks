@@ -3,6 +3,7 @@ package com.hmdrinks.Service;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.Sex;
 import com.hmdrinks.Enum.TypeLogin;
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
@@ -44,6 +45,8 @@ public class AdminService {
     private SupportFunction supportFunction;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    private PostRepository postRepository;
 
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
@@ -118,7 +121,7 @@ public class AdminService {
         if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
             existingUser.setIsDeleted(false);
         }
-        // Update user details only if provided in the request
+
         if (req.getFullName() != null && !req.getFullName().isEmpty()) {
             existingUser.setFullName(req.getFullName());
         }
@@ -207,7 +210,7 @@ public class AdminService {
 
     public ResponseEntity<?> getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
-        Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
+        Product product = productRepository.findByProId(proId);
         if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found product with ID: " + proId);
         }
@@ -386,7 +389,8 @@ public class AdminService {
                     if(avgRating == null) {
                         avgRating = 0.0;
                     }
-                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(Math.round(avgRating * 10) / 10.0,
+                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                            Math.round(avgRating * 10) / 10.0,
                             productVariant.getVarId(),
                             productVariant.getProduct().getProId(),
                             productVariant.getSize(),
@@ -549,5 +553,63 @@ public class AdminService {
                 limit,
                 crudProductResponseList
         ));
+    }
+
+    public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAllByType(typePost,pageable);
+        List<CRUDPostResponse> responses = new ArrayList<>();
+        for(Post post : posts) {
+            responses.add(new CRUDPostResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate()
+            ));
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                responses
+        );
+    }
+
+    public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<CRUDPostResponse> responses = new ArrayList<>();
+        for(Post post : posts) {
+            responses.add(new CRUDPostResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate()
+            ));
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                responses
+        );
     }
 }

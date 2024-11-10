@@ -33,17 +33,17 @@ public class CartItemService {
 
     public ResponseEntity<?> insertCartItem(InsertItemToCart req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
         }
-        Product product= productRepository.findByProId(req.getProId());
+        Product product= productRepository.findByProIdAndIsDeletedFalse(req.getProId());
         if(product == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
         }
-        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
+        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProIdAndIsDeletedFalse(req.getSize(),req.getProId());
         if(productVariants == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("production size not exists");

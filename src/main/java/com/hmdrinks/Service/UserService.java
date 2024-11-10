@@ -527,43 +527,42 @@ public class UserService {
             headers.set("Authorization", "Bearer " + accessToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(GOOGLE_USER_INFO_URL, HttpMethod.GET, entity, String.class);
-
             if (response.getStatusCode().is2xxSuccessful()) {
                 String responseBody = response.getBody();
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode userInfo = objectMapper.readTree(responseBody);
                 String email = userInfo.get("email").asText();
-
-                // Check if the user already exists in the repository
                 User user = userRepository.findByEmail(email);
                 if (user == null) {
-                    user = new User();
-                    user.setEmail(email);
-                    String givenName = userInfo.get("given_name").asText();
-                    String familyName = userInfo.get("family_name").asText();
-                    String fullName = givenName + " " + familyName;
-                    user.setFullName(fullName);
-                    user.setAvatar(userInfo.get("picture").asText());
-                    user.setType(TypeLogin.EMAIL);
-                    user.setUserName(email);
-                    user.setPassword("");
-                    user.setPhoneNumber(null);
-                    user.setCity("");
-                    user.setDistrict("");
-                    user.setStreet("");
-                    user.setWard("");
-                    user.setSex(Sex.OTHER);
-                    user.setRole(Role.CUSTOMER);
-                    user.setIsDeleted(false);
-                    user.setDateCreated(Date.valueOf(LocalDate.now()));
-                    userRepository.save(user);
+                    if(!user.getIsDeleted())
+                    {
+                        user = new User();
+                        user.setEmail(email);
+                        String givenName = userInfo.get("given_name").asText();
+                        String familyName = userInfo.get("family_name").asText();
+                        String fullName = givenName + " " + familyName;
+                        user.setFullName(fullName);
+                        user.setAvatar(userInfo.get("picture").asText());
+                        user.setType(TypeLogin.EMAIL);
+                        user.setUserName(email);
+                        user.setPassword("");
+                        user.setPhoneNumber(null);
+                        user.setCity("");
+                        user.setDistrict("");
+                        user.setStreet("");
+                        user.setWard("");
+                        user.setSex(Sex.OTHER);
+                        user.setRole(Role.CUSTOMER);
+                        user.setIsDeleted(false);
+                        user.setDateCreated(Date.valueOf(LocalDate.now()));
+                        userRepository.save(user);
+                    }
                 } else {
-                    if (user.getType() == TypeLogin.BASIC) {
+                    if (user.getType() == TypeLogin.BASIC && !user.getIsDeleted()) {
                         user.setType(TypeLogin.BOTH);
                         userRepository.save(user);
                     }
                 }
-
                 return email;
             } else {
                 throw new RuntimeException("Failed to get user info, status code: " + response.getStatusCode());

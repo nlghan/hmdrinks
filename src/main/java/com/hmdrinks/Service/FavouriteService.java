@@ -29,7 +29,7 @@ public class FavouriteService {
 
     public ResponseEntity<?> createFavourite(CreateNewFavourite req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not exists");
@@ -82,7 +82,7 @@ public class FavouriteService {
 
     public ResponseEntity<?> getFavoriteById(int userId) {
         // Check if user exists
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
         }

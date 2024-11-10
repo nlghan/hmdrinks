@@ -33,7 +33,9 @@ import com.hmdrinks.Entity.Token;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -52,7 +54,8 @@ public class AuthenticationService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
-
+    private static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+    private static final String SCOPE = "openid email profile";
 
     private static final String RESPONSE_TYPE = "code";
 
@@ -98,7 +101,6 @@ public class AuthenticationService {
 
     public ResponseEntity<?> authenticate(LoginBasicReq request) {
         try {
-            // Tìm người dùng theo tên đăng nhập
             var user = userRepository.findByUserNameAndIsDeletedFalse(request.getUserName())
                     .orElseThrow(() -> new UsernameNotFoundException("Not found user name"));
 
@@ -147,8 +149,10 @@ public class AuthenticationService {
 
     public ResponseEntity<?> authenticateGoogle(String email) {
         try {
-            var user = userRepository.findByEmailAndIsDeletedFalse(email)
+            List<TypeLogin> types = Arrays.asList(TypeLogin.EMAIL, TypeLogin.BOTH);
+            var user = userRepository.findByEmailAndIsDeletedFalseAndTypeIn(email, types)
                     .orElseThrow(() -> new UsernameNotFoundException("Not found email"));
+
             Token token = tokenRepository.findByUserUserId(user.getUserId());
             if (token == null) {
                 token = new Token();
@@ -173,7 +177,7 @@ public class AuthenticationService {
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body(e.getMessage());
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED_401).body("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED_401).body("Invalid email");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR_500).body("An error occurred: " + e.getMessage());
         }
@@ -213,11 +217,6 @@ public class AuthenticationService {
             }
             throw new MalformedJwtException("token invalid");
         }
-
-    private static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-    private static final String SCOPE = "openid email profile";
-
-
 
     public String generateGoogleOAuthURL() throws UnsupportedEncodingException {
         StringBuilder url = new StringBuilder(GOOGLE_OAUTH_URL);

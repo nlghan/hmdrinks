@@ -39,7 +39,7 @@ public class PostService {
     private VoucherRepository voucherRepository;
 
     public ResponseEntity<?> createPost(CreateNewPostReq req) {
-       User user = userRepository.findByUserId(req.getUserId());
+       User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
        if(user == null) {
            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
        }
@@ -95,7 +95,7 @@ public class PostService {
         if(post == null) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found post");
         }
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
@@ -129,7 +129,7 @@ public class PostService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Post> posts = postRepository.findAllByType(typePost,pageable);
+        Page<Post> posts = postRepository.findAllByTypeAndIsDeletedFalse(typePost,pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
@@ -158,7 +158,7 @@ public class PostService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Post> posts = postRepository.findAll(pageable);
+        Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
@@ -183,11 +183,11 @@ public class PostService {
     }
 
     public ResponseEntity<?> listAllPostByUserId(int userId) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
-        List<Post> posts = postRepository.findByUserUserId(userId);
+        List<Post> posts = postRepository.findByUserUserIdAndIsDeletedFalse(userId);
         List<CRUDPostResponse> responses = new ArrayList<>();
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(

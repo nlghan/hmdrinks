@@ -12,6 +12,7 @@ import java.util.List;
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
     Contact findByContactId(int voucherId);
     Contact findByContactIdAndUserUserId(int contactId, int userId);
+    Contact findByContactIdAndUserUserIdAndIsDeletedFalse(int contactId, int userId);
     List<Contact> findByIsDeletedFalse();
     Page<Contact> findAllByStatus(Status_Contact status,Pageable pageable);
     Page<Contact> findAll(Pageable pageable);

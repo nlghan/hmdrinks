@@ -78,12 +78,11 @@ public class OrdersService {
         LocalDateTime startDate = voucher.getStartDate();
         LocalDateTime endDate = voucher.getEndDate();
         LocalDateTime now = LocalDateTime.now();
-
         return (now.isEqual(startDate) || now.isAfter(startDate)) && (now.isEqual(endDate) || now.isBefore(endDate));
     }
 
     public ResponseEntity<?> addOrder(CreateOrdersReq req) {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
@@ -170,8 +169,6 @@ public class OrdersService {
         order.setDeliveryDate(LocalDateTime.now());
         order.setNote(req.getNote());
         order.setTotalPrice(orderItem.getTotalPrice());
-
-
         orderRepository.save(order);
 
         cart.setStatus(Status_Cart.COMPLETED);
@@ -198,17 +195,17 @@ public class OrdersService {
                 order.getStatus(),
                 order.getTotalPrice(),
                 order.getUser().getUserId(),
-                voucher != null ? voucher.getVoucherId() : null // Chỉ lấy voucherId nếu voucher không phải null
+                voucher != null ? voucher.getVoucherId() : null
         ));
     }
 
 
     public ResponseEntity<?> confirmCancelOrder(int orderId) {
-        Orders order = orderRepository.findByOrderId(orderId);
+        Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
         if (order == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
         }
-        Orders orders = orderRepository.findByOrderIdAndStatus(orderId, Status_Order.WAITING);
+        Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId, Status_Order.WAITING);
         if (orders == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
         }
@@ -231,7 +228,7 @@ public class OrdersService {
     }
 
     public ResponseEntity<?> confirmOrder(int orderId) {
-        Orders order = orderRepository.findByOrderId(orderId);
+        Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
         if (order == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
         }
@@ -271,12 +268,12 @@ public class OrdersService {
     }
 
     public ResponseEntity<?> getInformationPayment(int orderId) {
-        Orders order = orderRepository.findByOrderId(orderId);
+        Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
         if(order == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
         }
-        Payment payment = paymentRepository.findByOrderOrderId(orderId);
+        Payment payment = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId);
         if(payment == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
@@ -313,7 +310,7 @@ public class OrdersService {
     }
 
     public ResponseEntity<?> getAllOrderByUserId(String pageFromParam, String limitFromParam, int userId) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
@@ -354,7 +351,7 @@ public class OrdersService {
     }
 
     public ResponseEntity<?> getAllOrderByUserIdAndStatus(String pageFromParam, String limitFromParam, int userId,Status_Order status) {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");

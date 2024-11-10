@@ -2,6 +2,7 @@ package com.hmdrinks.Repository;
 
 import com.hmdrinks.Entity.OTP;
 import com.hmdrinks.Entity.User;
+import com.hmdrinks.Enum.TypeLogin;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,7 @@ import java.util.Optional;
     User findByUserIdAndIsDeletedFalse(int userId);
 
     User findByEmail(String email);
+    User findByEmailAndIsDeletedFalse(String email);
 
     Page<User> findAll(Pageable pageable);
 
@@ -32,7 +34,7 @@ import java.util.Optional;
            Pageable pageable);
 
     Optional<User> findByEmailAndUserIdNot(String email, Integer userId);
-    Optional<User> findByEmailAndIsDeletedFalse(String username);
+    Optional<User> findByEmailAndIsDeletedFalseAndTypeIn(String username, List<TypeLogin> types);
     Optional<User> findByUserNameAndIsDeletedFalse(String username);
     Optional<User> findByPhoneNumberAndIsDeletedFalse(String phoneNumber);
 

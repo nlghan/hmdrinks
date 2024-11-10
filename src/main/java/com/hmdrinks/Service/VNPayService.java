@@ -74,10 +74,7 @@ public class VNPayService {
         public static final String EQUAL = "=";
         public static final String AND = "&";
     }
-//    public ResponseEntity<?> getTransaction(InitPaymentRequest request)
-//    {
-//
-//    }
+
     public InitPaymentResponse init(InitPaymentRequest request) {
         var amount = request.getAmount() * DEFAULT_MULTIPLIER;
         var txnRef = request.getTxnRef();

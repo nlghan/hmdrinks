@@ -38,7 +38,7 @@ public class ContactService {
     private JavaMailSender javaMailSender1;
 
     public ResponseEntity<?> createContact(CreateContactReq req) {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
@@ -80,7 +80,7 @@ public class ContactService {
     }
 
     public ResponseEntity<?> updateContact(CrudContactReq req){
-        Contact contact = contactRepository.findByContactIdAndUserUserId(req.getContactId(), req.getUserId());
+        Contact contact = contactRepository.findByContactIdAndUserUserIdAndIsDeletedFalse(req.getContactId(), req.getUserId());
         if (contact == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }

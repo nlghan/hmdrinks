@@ -103,13 +103,13 @@ public class GenerateInvoiceService {
         pdfDocument.setDefaultPageSize(PageSize.A4);
         Document document = new Document(pdfDocument);
 
-        Orders orders = orderRepository.findByOrderId(orderId);
+        Orders orders = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
         if(orders == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found orders");
         }
         if (orders.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cancel");
         }
         User user = userRepository.findByUserId(orders.getUser().getUserId());
         float[] twoColumnWidth = {230f + 150f, 230f};
@@ -127,7 +127,7 @@ public class GenerateInvoiceService {
                         .setBold())
                 .setBorder(Border.NO_BORDER) // Không hiển thị border
         );
-        companyInfoTable.addCell(new Cell().add(new Paragraph("Số 1 Võ Văn Ngân, Thủ Đức, Hồ Chí Minh")
+        companyInfoTable.addCell(new Cell().add(new Paragraph("Số 1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Hồ Chí Minh")
                         .setFontSize(10f)
                         .setFont(vietnameseFont))
                 .setBorder(Border.NO_BORDER) // Không hiển thị border

@@ -32,18 +32,17 @@ public class VoucherService {
     private UserVoucherRepository userVoucherRepository;
 
     public ResponseEntity<?> createVoucher(CreateVoucherReq req) {
-        Post post = postRepository.findByPostId(req.getPostId());
+        Post post = postRepository.findByPostIdAndIsDeletedFalse(req.getPostId());
         if (post == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Post not found");
         }
 
-        Voucher existingVoucher = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
+        Voucher existingVoucher = voucherRepository.findByPostPostId(req.getPostId());
         if (existingVoucher != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Voucher Post already exists");
         }
-
         LocalDateTime createPostDate = post.getDateCreate();
         LocalDateTime currentDate = LocalDateTime.now();
 

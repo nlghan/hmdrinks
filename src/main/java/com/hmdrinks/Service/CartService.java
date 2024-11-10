@@ -34,7 +34,7 @@ public class CartService {
 
     public ResponseEntity<?> createCart(CreateNewCart req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
@@ -62,7 +62,7 @@ public class CartService {
 
     public ResponseEntity<?> getAllCartFromUser(int userId)
     {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");

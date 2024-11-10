@@ -1,16 +1,20 @@
 package com.hmdrinks.Service;
 
-import com.hmdrinks.Entity.Product;
-import com.hmdrinks.Entity.Review;
-import com.hmdrinks.Repository.ProductRepository;
-import com.hmdrinks.Repository.ReviewRepository;
-import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Entity.*;
+import com.hmdrinks.Repository.*;
+import com.hmdrinks.Response.CRUDProductRecommentResponse;
+import com.hmdrinks.Response.CRUDProductResponse;
+import com.hmdrinks.Response.ListRecommendResponse;
+import com.hmdrinks.Response.ProductImageResponse;
 import com.hmdrinks.Service.utils.Utils;
 import com.hmdrinks.Service.utils.ValueComparator;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONArray;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
 
 import java.util.*;
 
@@ -19,7 +23,7 @@ public class Recommender {
 
     private static final int NUM_NEIGHBOURHOODS = 10;
     private static final int NUM_RECOMMENDATIONS = 20;
-    private static final int MIN_VALUE_RECOMMENDATION = 1;
+    private static final float MIN_VALUE_RECOMMENDATION = 2;
 
     @Autowired
     private UserRepository userRepository;
@@ -29,6 +33,17 @@ public class Recommender {
 
     @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private CartRepository cartRepository;
+
 
 
 
@@ -87,9 +102,9 @@ public class Recommender {
 
         for (long user : ratings.keySet()) {
             ArrayList<Long> matches = new ArrayList<>();
-            for (long bookASIN : userRatings.keySet()) {
-                if (ratings.get(user).containsKey(bookASIN)) {
-                    matches.add(bookASIN);
+            for (long productId : userRatings.keySet()) {
+                if (ratings.get(user).containsKey(productId)) {
+                    matches.add(productId);
                 }
             }
             double matchRate;
@@ -155,7 +170,6 @@ public class Recommender {
 
                 // sum(sim(u,v) * (r(v,i) - r(v)))
                 double numerator = 0;
-
                 // sum(abs(sim(u,v)))
                 double denominator = 0;
 
@@ -193,25 +207,28 @@ public class Recommender {
             userAverage += (int) ((Map.Entry) longIntegerEntry).getValue();
         }
         return userAverage / userRatings.size();
+
     }
 
-    public String recommendedBooks(Long userId, UserRepository userRepository, ProductRepository bookRepository) {
+    public ResponseEntity<?> recommendedBooks(Long userId, UserRepository userRepository, ProductRepository productRepository) {
 
         Map<Long, Double> averageRating = new HashMap<>();
         Map<Long, Map<Long, Integer>> myRatesMap = new TreeMap<>();
         Map<Long, Map<Long, Integer>> userWithRatesMap = new TreeMap<>();
 
+        User user = userRepository.findByUserIdAndIsDeletedFalse(Integer.valueOf(String.valueOf(userId)));
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+        }
+
         userRepository.findAll().forEach(userItem -> {
             Long userID = Long.parseLong(String.valueOf(userItem.getUserId()));
             Map<Long, Integer> userRatings = new HashMap<>();
-
 
             List<Review> reviews = reviewRepository.findByUser_UserId(userItem.getUserId());
             for(Review review : reviews) {
                 userRatings.put(Long.parseLong(String.valueOf(review.getProduct().getProId())),review.getRatingStar());
             }
-
-
 
             if (userId.compareTo(userID) == 0) {
                 myRatesMap.put(userID, userRatings);
@@ -244,13 +261,11 @@ public class Recommender {
 
         setAverageRating(averageRating);
 
-        Map<Long, String> books = new HashMap<>();
+        Map<Long, String> products = new HashMap<>();
 
-        bookRepository.findAll().forEach(book -> books.put(Long.parseLong(String.valueOf(book.getProId())), book.getProName()));
-
-
+        productRepository.findAll().forEach(book -> products.put(Long.parseLong(String.valueOf(book.getProId())), book.getProName()));
         Map<Long, Double> neighbourhoods = getNeighbourhoods(myRatesMap.get(userId));
-        Map<Long, Double> recommendations = getRecommendations(myRatesMap.get(userId), neighbourhoods, books);
+        Map<Long, Double> recommendations = getRecommendations(myRatesMap.get(userId), neighbourhoods, products);
 
         ValueComparator valueComparator = new ValueComparator(recommendations);
         Map<Long, Double> sortedRecommendations = new TreeMap<>(valueComparator);
@@ -258,21 +273,92 @@ public class Recommender {
 
         Iterator<Map.Entry<Long, Double>> sortedREntries = sortedRecommendations.entrySet().iterator();
         JSONArray recommendedBooksArray = new JSONArray();
-
+        List<CRUDProductRecommentResponse> crudProductResponses = new ArrayList<>();
         int i = 0;
+        int total = 0;
         while (sortedREntries.hasNext() && i < NUM_RECOMMENDATIONS) {
             Map.Entry<Long, Double> entry = sortedREntries.next();
-
-            // Nếu điểm rating đủ cao
             if (entry.getValue() >= MIN_VALUE_RECOMMENDATION) {
-                JSONObject recommendedBooks = new JSONObject();
-                recommendedBooks.put("Product Name", books.get(entry.getKey()));
-                recommendedBooks.put("Rate", Utils.round(entry.getValue(), 1));
-                recommendedBooks.put("Product ID", entry.getKey());
-                recommendedBooksArray.add(recommendedBooks);
+                Product product = productRepository.findByProId(Integer.parseInt(entry.getKey().toString()));
+                if(product != null) {
+                    List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                    String currentProImg = product.getListProImg();
+                    if(currentProImg != null && !currentProImg.trim().isEmpty())
+                    {
+                        String[] imageEntries1 = currentProImg.split(", ");
+                        for (String imageEntry : imageEntries1) {
+                            String[] parts = imageEntry.split(": ");
+                            int stt = Integer.parseInt(parts[0]);
+                            String url = parts[1];
+                            productImageResponses.add(new ProductImageResponse(stt, url));
+                        }
+                    }
+                    crudProductResponses.add(new CRUDProductRecommentResponse(
+                            product.getProId(),
+                            Utils.round(entry.getValue(), 1),
+                            product.getCategory().getCateId(),
+                            product.getProName(),
+                            productImageResponses,
+                            product.getDescription(),
+                            product.getIsDeleted(),
+                            product.getDateDeleted(),
+                            product.getDateCreated(),
+                            product.getDateUpdated()
+                    ));
+                    total++;
+                }
                 i++;
             }
         }
-        return recommendedBooksArray.toString();
+
+        if(crudProductResponses.isEmpty()) {
+            // Tạo một Set để theo dõi các CateId đã xử lý
+            Set<Long> processedCategoryIds = new HashSet<>();
+
+            List<Orders> orders = orderRepository.findAllByUserUserId(Math.toIntExact(userId));
+            for(Orders order : orders) {
+                OrderItem orderItem = order.getOrderItem();
+                Cart cart = orderItem.getCart();
+                List<CartItem> cartItem = cartItemRepository.findByCart_CartId(cart.getCartId());
+                for(CartItem cartItem1 : cartItem) {
+                    ProductVariants productVariants = cartItem1.getProductVariants();
+                    Product product = productRepository.findByProId(productVariants.getProduct().getProId());
+                    Category category = product.getCategory();
+                    List<Product> productList = productRepository.findByCategory_CateId(category.getCateId());
+
+                    // Kiểm tra nếu danh mục đã được xử lý trước đó
+                    if (!processedCategoryIds.contains(category.getCateId())) {
+                        for (Product product1 : productList) {
+                            List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                            String currentProImg = product.getListProImg();
+                            if (currentProImg != null && !currentProImg.trim().isEmpty()) {
+                                String[] imageEntries1 = currentProImg.split(", ");
+                                for (String imageEntry : imageEntries1) {
+                                    String[] parts = imageEntry.split(": ");
+                                    int stt = Integer.parseInt(parts[0]);
+                                    String url = parts[1];
+                                    productImageResponses.add(new ProductImageResponse(stt, url));
+                                }
+                            }
+                            crudProductResponses.add(new CRUDProductRecommentResponse(
+                                    product.getProId(),
+                                    0,
+                                    product1.getCategory().getCateId(),
+                                    product1.getProName(),
+                                    productImageResponses,
+                                    product1.getDescription(),
+                                    product1.getIsDeleted(),
+                                    product1.getDateDeleted(),
+                                    product1.getDateCreated(),
+                                    product1.getDateUpdated()));
+                            total++;
+                        }
+                        processedCategoryIds.add((long) category.getCateId());
+                    }
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListRecommendResponse(Math.toIntExact(userId),total,crudProductResponses));
     }
 }

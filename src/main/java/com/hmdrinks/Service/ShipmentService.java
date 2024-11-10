@@ -54,7 +54,7 @@ public class ShipmentService {
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
             }
-       User user = userRepository.findByUserId(req.getUserId());
+       User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
        if(user == null)
        {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
@@ -69,8 +69,20 @@ public class ShipmentService {
        shipmentRepository.save(shippment);
 
        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+       if(payment.getIsDeleted())
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment is deleted");
+       }
        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
-       User customer = userRepository.findByUserId(orders.getUser().getUserId());
+       if(orders.getIsDeleted()){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order is deleted");
+       }
+
+       User customer = userRepository.findByUserIdAndIsDeletedFalse(orders.getUser().getUserId());
+       if(customer == null)
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Not Found");
+       }
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
                shippment.getDateCreated(),
@@ -95,6 +107,10 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
         }
+        if(shippment.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment is deleted");
+        }
         if(shippment.getStatus() != Status_Shipment.WAITING)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is not waiting");
@@ -115,7 +131,7 @@ public class ShipmentService {
                 return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock Not Enough");
             }
         }
-        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+        User customer = userRepository.findByUserIdAndIsDeletedFalse(orders.getUser().getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
                 shippment.getDateCreated(),

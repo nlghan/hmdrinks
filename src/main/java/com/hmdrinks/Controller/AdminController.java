@@ -1,4 +1,5 @@
 package com.hmdrinks.Controller;
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
@@ -103,6 +104,19 @@ public class AdminController {
     @GetMapping("/cate/view/{id}/product")
     public ResponseEntity<?> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
         return ResponseEntity.ok(adminService.getAllProductFromCategory(id,page,limit));
+    }
+
+    @GetMapping(value = "/post/view/all")
+    public ResponseEntity<ListAllPostResponse> getAllPosts(@RequestParam(name = "page") String page,
+                                                           @RequestParam(name = "limit") String limit){
+        return  ResponseEntity.ok(adminService.getAllPost(page,limit));
+    }
+
+    @GetMapping(value = "/post/view/type/all")
+    public ResponseEntity<ListAllPostResponse> getAllPostsByTye(@RequestParam(name = "page") String page,
+                                                                @RequestParam(name = "limit") String limit,
+                                                                @RequestParam(name = "type") Type_Post typePost){
+        return  ResponseEntity.ok(adminService.getAllPostByType(page,limit,typePost));
     }
 
 }

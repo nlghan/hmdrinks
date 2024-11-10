@@ -65,7 +65,6 @@ public class VNPayIpnHandler {
             switch (e.getResponseCode()) {
                 case BOOKING_NOT_FOUND -> response = VnpIpnResponseConst.ORDER_NOT_FOUND;
                 default -> response = VnpIpnResponseConst.UNKNOWN_ERROR;
-
             }
             try {
                 int orderId = Integer.parseInt(txnRef);
