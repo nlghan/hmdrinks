@@ -1,4 +1,5 @@
 package com.hmdrinks.Controller;
+import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
@@ -37,6 +38,15 @@ public class AdminController {
             @RequestParam(name = "limit") String limit
     ) {
         return userService.getListAllUser(page, limit);
+    }
+
+    @GetMapping(value = "/listUser-role")
+    public ResponseEntity<?> listAllUserByRole(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit,
+            @RequestParam(name = "role") Role role
+    ) {
+        return userService.getListAllUserByRole(page, limit, role);
     }
 
     @PostMapping(value = "/create-account")

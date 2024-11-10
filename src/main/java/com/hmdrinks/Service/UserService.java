@@ -106,6 +106,36 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
     }
 
+    public ResponseEntity<?> getListAllUserByRole(String pageFromParam, String limitFromParam,Role role) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findAllByRole(role,pageable);
+        List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
+        for (User user : userList) {
+            String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
+            detailUserResponseList.add(new DetailUserResponse(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getFullName(),
+                    user.getAvatar(),
+                    user.getBirthDate(),
+                    fullLocation,
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getSex().toString(),
+                    user.getType().toString(),
+                    user.getIsDeleted(),
+                    user.getDateDeleted(),
+                    user.getDateUpdated(),
+                    user.getDateCreated(),
+                    user.getRole().toString()
+            ));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
+    }
+
     public ResponseEntity<?> getDetailUserInfoResponse(Integer id){
         User userList = userRepository.findByUserId(id);
         if (userList == null) {
