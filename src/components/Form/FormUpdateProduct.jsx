@@ -524,7 +524,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 display: "flex", // Use flexbox for layout
                 gap: "20px", // Space between sections
                 flexDirection: "column",
-                height: "100vh", // Allow the form to grow to 80% of viewport height
+                marginTop: '5px',
+                marginBottom: '20px',
                 overflowY: "auto", // Allow scrolling when content exceeds maxHeight
                 paddingTop:'10px'
                 

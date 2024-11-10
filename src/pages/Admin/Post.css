@@ -32,7 +32,7 @@
   flex-direction: column;
   align-items: center;
   margin-right: 40px;
-  height: 500px;
+  height: 650px;
   position: relative;
 }
 
@@ -102,14 +102,15 @@
 
 .header-post-table h2 {
   margin: 0;
-  margin-left: -10%;
+  width: 40%;
+  text-align: left;
 }
 
 .search-post-admin-input {
-  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  width: 25% !important;
 }
 
 .post-table-add-btn {
@@ -140,8 +141,8 @@ tr:hover {
 
 .admin-post-button-container {
   display: flex;
+  flex-direction: column;
   justify-content: space-around;
-  margin-left: -80px;
   width: 100%;
 }
 
@@ -163,6 +164,7 @@ tr:hover {
   justify-content: center;
   margin-top: 20px;
   width: 100%;
+
 }
 
 .post-pagination .btn,
@@ -227,7 +229,7 @@ tr:hover {
 
   .post-table {
     width: 100%;
-    height: auto; /* Allows height to adjust dynamically on smaller screens */
+    height: 650px; /* Allows height to adjust dynamically on smaller screens */
     margin-right: 0;
     padding: 10px;
   }
@@ -298,4 +300,76 @@ tr:hover {
     font-size: 14px; /* Smaller font for better fit */
     padding: 5px; /* Reduced padding */
   }
+}
+
+.post-list-table {
+  width: 100%;  /* Đảm bảo bảng chiếm toàn bộ chiều rộng của phần chứa */
+  table-layout: fixed; /* Đặt chiều rộng của các cột cố định */
+  border-collapse: collapse; /* Loại bỏ khoảng cách giữa các cell */
+  margin-top: 20px;
+}
+
+.post-list-table th,
+.post-list-table td {
+  padding: 8px; /* Khoảng cách giữa nội dung và biên cột */
+  text-align: center; /* Căn giữa nội dung trong các cột */
+  border: 1px solid #ddd; /* Thêm viền cho các cột */
+}
+
+.post-list-table th {
+  background-color: #f4f4f4; /* Màu nền cho header */
+}
+
+.post-list-table th:nth-child(1),
+.post-list-table td:nth-child(1) {
+  width: 5%; /* Cột STT */
+}
+
+.post-list-table th:nth-child(2),
+.post-list-table td:nth-child(2) {
+  width: 15%; /* Cột Tiêu đề */
+}
+
+.post-list-table th:nth-child(3),
+.post-list-table td:nth-child(3) {
+  width: 10%; /* Cột Danh mục */
+}
+
+.post-list-table th:nth-child(4),
+.post-list-table td:nth-child(4) {
+  width: 10%; /* Cột Ảnh bài đăng */
+}
+
+.post-list-table th:nth-child(5),
+.post-list-table td:nth-child(5) {
+  width: 8%; /* Cột Mã voucher */
+}
+
+.post-list-table th:nth-child(6),
+.post-list-table td:nth-child(6) {
+  width: 8%; /* Cột Giảm giá */
+}
+
+.post-list-table th:nth-child(7),
+.post-list-table td:nth-child(7) {
+  width: 10%; /* Cột Trạng thái */
+}
+
+.post-list-table th:nth-child(8),
+.post-list-table td:nth-child(8) {
+  width: 8%; /* Cột Ngày bắt đầu */
+}
+
+.post-list-table th:nth-child(9),
+.post-list-table td:nth-child(9) {
+  width: 8%; /* Cột Ngày kết thúc */
+}
+
+.post-list-table th:nth-child(10),
+.post-list-table td:nth-child(10) {
+  width: 8%; /* Cột Action (nếu có) */
+}
+.post-list-table th:nth-child(11),
+.post-list-table td:nth-child(11) {
+  width: 4%; /* Cột Action (nếu có) */
 }

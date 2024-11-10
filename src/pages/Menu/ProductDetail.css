@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 .fade-in {
     opacity: 0;
@@ -339,6 +340,8 @@
     color: #000;
     text-align: justify;
     font-weight: 300;
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
 }
 
 .product-rating-container {
@@ -488,4 +491,212 @@
 
 .product-info-container {
     animation: slideRight 0.6s ease-out;
+}
+.tab-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: color 0.4s ease; /* Chuyển màu chữ mượt mà */
+    font-family: 'Inter';
+}
+
+.tab-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color:#f9d3d3; /* Màu nền khi active */
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease; /* Hiệu ứng màu chạy từ trái sang phải */
+    z-index: -1; /* Đảm bảo lớp nền ở dưới chữ */
+}
+
+.tab-button.active::before
+ {
+    transform: scaleX(1); /* Làm đầy màu khi active hoặc hover */
+}
+
+.tab-button.active,
+.tab-button:hover {
+    color: black; /* Đổi màu chữ khi hover hoặc active */
+    border-bottom: 2px solid #ff6a00;
+    border-left: 1px solid #ff6a00;
+}
+
+
+
+/* Danh sách đánh giá */
+.product-list-reviews {
+    margin-top: 20px;
+}
+
+.h2-maybe {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: "Pacifico", cursive;
+}
+
+.reviews-container {
+    border-top: 1px solid #ddd;
+}
+
+.review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.review-fullname {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.review-stars .star {
+    color: #ffcc00;
+    font-size: 18px;
+}
+
+.star.filled {
+    color: #ffcc00;
+}
+
+.review-content {
+    font-size: 14px;
+    color: #333;
+    margin-top: 10px;
+}
+
+/* Nút chỉnh sửa và xóa */
+.edit-icon, .delete-icon {
+    font-size: 14px;
+    color: #ff6a00;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.edit-icon:hover, .delete-icon:hover {
+    color: #ff3300;
+}
+
+/* Phần đánh giá sản phẩm */
+.product-rating-container {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.product-rating {
+    font-size: 24px;
+    color: #ffcc00;
+}
+
+.reviews-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 10px; /* Space between each review */
+}
+
+.review-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-top: 20px;
+
+    /* Thêm hiệu ứng fade-in */
+    opacity: 0;  /* Bắt đầu ở trạng thái mờ */
+    animation: fadeIn 1s forwards;  /* Áp dụng animation fadeIn */
+}
+
+/* Định nghĩa keyframes cho hiệu ứng fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;  /* Mờ dần từ 0 */
+    }
+    to {
+        opacity: 1;  /* Mờ dần đến 100% */
+    }
+}
+
+
+
+.rating-stars {
+    display: flex;
+    gap: 5px;
+}
+
+.rating-stars .star {
+    font-size: 20px;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.rating-stars .star.filled {
+    color: #ffcc00;
+}
+
+#input-text-review {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.send-button {
+    font-size: 18px;
+    color: #ff6a00;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    color: #ff3300;
+}
+
+/* Prompt đăng nhập */
+.login-prompt {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.login-prompt a {
+    color: #ff6a00;
+    text-decoration: none;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+.tab-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }

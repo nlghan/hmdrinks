@@ -35,6 +35,7 @@ const User = () => {
     const [limit, setLimit] = useState(7);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
+    const [selectedType, setSelectedType] = useState('all');
 
     const getUserIdFromToken = (token) => {
         try {
@@ -52,64 +53,84 @@ const User = () => {
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
+    const handleTypeChange = (event) => {
+        const selectedRole = event.target.value;
+        setSelectedType(selectedRole);  // Update selected role state
+        fetchUsers(1, 10, selectedRole);  // Call fetchUsers with the selected role
+    };
+    
 
-    const fetchUsers = async (page, limit) => {
+    const fetchUsers = async (page, limit, role = 'all') => {
         try {
             const token = getCookie('access_token');
             if (!token) {
                 setError("Bạn cần đăng nhập để xem thông tin này.");
                 return;
             }
-
+    
             const userId = getUserIdFromToken(token);
             if (!userId) {
                 setError("Không thể lấy userId từ token.");
                 return;
             }
-
-            const response = await axios.get(`http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`, {
+    
+            let url = ''; 
+    
+            // Check if the role is 'all', then use the first API for all users
+            if (role === 'all') {
+                url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
+            } else {
+                // Otherwise, fetch users based on the specific role (ADMIN, USER, SHIPPER, etc.)
+                url = `http://localhost:1010/api/admin/listUser-role?page=${page}&limit=${limit}&role=${role}`;
+            }
+    
+            const response = await axios.get(url, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
-
+    
             console.log('Response data:', response.data);
-
+    
             const data = response.data;
             const userData = data.detailUserResponseList;
-
+    
+            // Check if the userData is empty
             if (!userData || userData.length === 0) {
-                throw new Error("Không có dữ liệu người dùng.");
+                // setError("Không tìm thấy người dùng với tiêu chí tìm kiếm.");
+                setUsers([]); // Clear users list if empty
+                return; // Exit early if no users found
             }
-
+    
             setUsers(userData);
             setCurrentPage(data.currentPage);
             setTotalPage(data.totalPage);
             setLimit(data.limit);
-
+    
             const initialSwitchStates = {};
             userData.forEach(user => {
                 initialSwitchStates[user.userId] = user.isDelete === false;
             });
             setSwitches(initialSwitchStates);
-
-            const adminCount = userData.filter(user => user.role === 'Admin').length;
-            const customerCount = userData.filter(user => user.role === 'Customer').length;
-            const shipperCount = userData.filter(user => user.role === 'Shipper').length;
+    
+            // Count the users based on their roles
+            const adminCount = userData.filter(user => user.role === 'ADMIN').length;
+            const customerCount = userData.filter(user => user.role === 'USER').length;
+            const shipperCount = userData.filter(user => user.role === 'SHIPPER').length;
             const totalUsers = userData.length;
-
+    
             setAdminCount(adminCount);
             setCustomerCount(customerCount);
             setShipperCount(shipperCount);
             setTotalUsers(totalUsers);
-
+    
         } catch (error) {
             console.error('Error fetching users:', error);
             setError("Không thể lấy thông tin người dùng.");
         }
     };
-
-
+    
+    
 
     useEffect(() => {
         fetchUsers(currentPage, limit);
@@ -249,6 +270,7 @@ const User = () => {
                 <div className="user-main-section">
                     <div className="user-box">
                         <div className="header-user-box">
+                        <h2>Danh Sách Người Dùng</h2>
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm người dùng..."
@@ -256,8 +278,13 @@ const User = () => {
                                 onChange={handleSearchChange}
                                 id="search-user"
                                
-                            />
-                            <h2>Danh Sách Người Dùng</h2>
+                            />                        
+                            <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '40%', borderRadius: '20px' }}>
+                                    <option value="all">Tất cả</option>
+                                    <option value="ADMIN">Quản trị viên</option>
+                                    <option value="CUSTOMER">Khách hàng</option>
+                                    <option value="SHIPPER">Nhân viên</option>
+                                </select>
                             <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
                         </div>
                         {error && <div className="error-message">{error}</div>}
