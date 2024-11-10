@@ -30,6 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.hmdrinks.Entity.Token;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
@@ -44,6 +46,15 @@ public class AuthenticationService {
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
+
+
+    private static final String RESPONSE_TYPE = "code";
 
         @Value("${application.security.jwt.expiration}")
         private long jwtExpiration;
@@ -134,6 +145,42 @@ public class AuthenticationService {
         }
     }
 
+    public ResponseEntity<?> authenticateGoogle(String email) {
+        try {
+            var user = userRepository.findByEmailAndIsDeletedFalse(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Not found email"));
+            Token token = tokenRepository.findByUserUserId(user.getUserId());
+            if (token == null) {
+                token = new Token();
+                token.setUser(user);
+            }
+
+            MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
+            Date currentDate = new Date();
+
+            var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
+            var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
+            token.setAccessToken(jwtToken);
+            token.setRefreshToken(refreshToken);
+            token.setExpire(currentDate);
+            tokenRepository.save(token);
+
+            return ResponseEntity.status(HttpStatus.OK_200).body(AuthenticationResponse.builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .build());
+
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body(e.getMessage());
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED_401).body("Invalid username or password");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR_500).body("An error occurred: " + e.getMessage());
+        }
+    }
+
+
+
 
     public ResponseEntity<?> refreshToken(
                 HttpServletRequest request,
@@ -166,4 +213,20 @@ public class AuthenticationService {
             }
             throw new MalformedJwtException("token invalid");
         }
+
+    private static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+    private static final String SCOPE = "openid email profile";
+
+
+
+    public String generateGoogleOAuthURL() throws UnsupportedEncodingException {
+        StringBuilder url = new StringBuilder(GOOGLE_OAUTH_URL);
+        url.append("?client_id=").append(URLEncoder.encode(clientId, "UTF-8"));
+        url.append("&redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8"));
+        url.append("&response_type=").append(RESPONSE_TYPE);
+        url.append("&scope=").append(URLEncoder.encode(SCOPE   , "UTF-8"));
+        String state = "someRandomState";
+        url.append("&state=").append(URLEncoder.encode(state, "UTF-8"));
+        return url.toString();
+    }
     }

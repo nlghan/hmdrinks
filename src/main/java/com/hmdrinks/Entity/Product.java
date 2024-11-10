@@ -24,9 +24,11 @@ public class Product {
     @Column(name = "proName", nullable = false)
     private String proName;
 
+    @Lob
     @Column(name = "listProImg", columnDefinition = "TEXT",nullable = false)
     private String listProImg;
 
+    @Lob
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 

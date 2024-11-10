@@ -109,9 +109,13 @@ public class ReviewService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-
+        int total = 0;
         Page<Review> reviews = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(proId, pageable);
-
+        List<Review> reviews1 = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(proId);
+        for(Review review : reviews1)
+        {
+            total += 1;
+        }
         List<CRUDReviewResponse> crudReviewResponseList = new ArrayList<>();
         for (Review review : reviews) {
             crudReviewResponseList.add(new CRUDReviewResponse(
@@ -132,6 +136,7 @@ public class ReviewService {
                 page,
                 reviews.getTotalPages(),
                 limit,
+                total,
                 crudReviewResponseList
         ));
     }

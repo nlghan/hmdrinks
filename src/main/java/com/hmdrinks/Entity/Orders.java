@@ -30,7 +30,8 @@ public class Orders { // Changed from Orders to Order
     @Column(name = "deliveryDate",columnDefinition = "DATETIME")
     private LocalDateTime deliveryDate;
 
-    @Column(name = "note")
+    @Lob
+    @Column(name = "note",columnDefinition = "TEXT")
     private String note;
 
     @Column(name = "phoneNumber", nullable = false)
@@ -64,7 +65,7 @@ public class Orders { // Changed from Orders to Order
     private Boolean isDeleted;
 
     @Column(name = "date_deleted",columnDefinition = "DATETIME")
-    private LocalDateTime dateDeleted; // Changed to LocalDateTime
+    private LocalDateTime dateDeleted;
 
     @Column(name = "date_created",columnDefinition = "DATETIME")
     private LocalDateTime dateCreated;

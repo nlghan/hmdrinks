@@ -31,6 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .oauth2Login(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -47,6 +48,7 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
+                        .requestMatchers("/api/v1/auth/social-login/google").permitAll()
                         .requestMatchers("/api/orders/pdf/**").permitAll()
                         .requestMatchers("/api/payment/vnpay_ipn").permitAll()
                         .requestMatchers("/api/product/enable","/api/product/disable").hasAuthority("ADMIN")
@@ -54,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/post/enable","/api/post/disable").hasAuthority("ADMIN")
                         .requestMatchers("/api/cate/enable","/api/cate/disable").hasAuthority("ADMIN")
                         .requestMatchers("/api/voucher/enable","/api/voucher/disable").hasAuthority("ADMIN")
-                        //.requestMatchers("/api/price-history/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v1/auth/oauth2/callback").permitAll()
                         .requestMatchers("/api/price-history/**").permitAll()
                         .requestMatchers("/api/province/**").permitAll()
                         .requestMatchers("/api/shipment/update-time").hasAnyAuthority("ADMIN","SHIPPER")
@@ -79,8 +81,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/contact/view/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/contact/response").hasAuthority("ADMIN")
                         .requestMatchers("/api/contact/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
-                        .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
-                        .requestMatchers("/api/image/user/**").hasAnyAuthority("ADMIN", "CUSTOMER")
+                        .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
+                        .requestMatchers("/api/image/user/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/image/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/cate/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/product/**").hasAnyAuthority("ADMIN")

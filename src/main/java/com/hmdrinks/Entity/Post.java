@@ -33,6 +33,7 @@ public class Post {
     @Column(name = "type", nullable = false)
     private Type_Post type;
 
+    @Lob
     @Column(name = "description",columnDefinition = "TEXT")
     private  String description;
 

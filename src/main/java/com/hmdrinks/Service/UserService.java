@@ -1,8 +1,12 @@
 package com.hmdrinks.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Sex;
+import com.hmdrinks.Enum.TypeLogin;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
@@ -12,12 +16,11 @@ import com.hmdrinks.Request.UserInfoUpdateReq;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import  org.springframework.mail.*;
 
 import com.hmdrinks.Response.*;
@@ -25,6 +28,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -57,6 +64,17 @@ public class UserService {
     private UserVoucherRepository userVoucherRepository;
     @Autowired
     private  ReviewRepository reviewRepository;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
+
+    private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+    private static final String GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
     public ResponseEntity<?> getListAllUser(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
@@ -452,5 +470,113 @@ public class UserService {
                 users.getDateCreated(),
                 users.getRole().toString()
         ));
+    }
+
+    public String googleLogin(String code) {
+        String accessToken = exchangeCodeForAccessToken(code);
+        if (accessToken != null) {
+            return getGoogleUserInfo(accessToken);}
+        return null;
+    }
+
+    private String exchangeCodeForAccessToken(String code) {
+        try {
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(GOOGLE_TOKEN_URL)
+                    .queryParam("code", code)
+                    .queryParam("client_id", clientId)
+                    .queryParam("client_secret", clientSecret)
+                    .queryParam("redirect_uri", redirectUri)
+                    .queryParam("grant_type", "authorization_code");
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String accessToken = parseAccessToken(response.getBody());
+                return accessToken;
+            } else {
+                throw new RuntimeException("Failed to get access token, status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String parseAccessToken(String responseBody) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            String accessToken = jsonNode.get("access_token").asText();
+            return accessToken;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public String getGoogleUserInfo(String accessToken) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(GOOGLE_USER_INFO_URL, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode userInfo = objectMapper.readTree(responseBody);
+                String email = userInfo.get("email").asText();
+
+                // Check if the user already exists in the repository
+                User user = userRepository.findByEmail(email);
+                if (user == null) {
+                    user = new User();
+                    user.setEmail(email);
+                    String givenName = userInfo.get("given_name").asText();
+                    String familyName = userInfo.get("family_name").asText();
+                    String fullName = givenName + " " + familyName;
+                    user.setFullName(fullName);
+                    user.setAvatar(userInfo.get("picture").asText());
+                    user.setType(TypeLogin.EMAIL);
+                    user.setUserName(email);
+                    user.setPassword("");
+                    user.setPhoneNumber(null);
+                    user.setCity("");
+                    user.setDistrict("");
+                    user.setStreet("");
+                    user.setWard("");
+                    user.setSex(Sex.OTHER);
+                    user.setRole(Role.CUSTOMER);
+                    user.setIsDeleted(false);
+                    user.setDateCreated(Date.valueOf(LocalDate.now()));
+                    userRepository.save(user);
+                } else {
+                    if (user.getType() == TypeLogin.BASIC) {
+                        user.setType(TypeLogin.BOTH);
+                        userRepository.save(user);
+                    }
+                }
+
+                return email;
+            } else {
+                throw new RuntimeException("Failed to get user info, status code: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            e.printStackTrace();
+            return null;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
