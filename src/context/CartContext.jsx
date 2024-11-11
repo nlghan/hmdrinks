@@ -19,8 +19,14 @@ export const CartProvider = ({ children }) => {
     // Ensure cart exists
     // Ensure cart exists
     const ensureCartExists = async (userId) => {
+        // Check if the user is not logged in (userId is null or undefined)
+        if (!userId) {
+            console.log("User is not logged in, skipping cart fetch.");
+            return; // Exit the function early
+        }
+    
         const token = getCookie('access_token');
-
+    
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -29,39 +35,38 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const data = await response.json();
             console.log("Cart List Response:", data); // Debugging response
-
+    
             if (response.ok) {
                 const cartList = data.listCart || [];
-                console.log("Cart List:", cartList); // Kiểm tra cart list
-
-                // Kiểm tra xem có cart nào với trạng thái "NEW" hay không
+                console.log("Cart List:", cartList); // Checking cart list
+    
+                // Check if there is a cart with the status "NEW"
                 const newCart = cartList.find(cart => cart.statusCart === 'NEW');
-
+    
                 if (newCart) {
-                    // Nếu đã có cart "NEW", chỉ cần lấy cartId của nó và không tạo thêm cart mới
-                    if (cartId !== newCart.cartId) { // Kiểm tra xem cartId đã được set chưa
+                    // If there is already a "NEW" cart, just retrieve its cartId
+                    if (cartId !== newCart.cartId) { // Check if cartId has been set
                         setCartId(newCart.cartId);
                         console.log("Existing NEW cart ID:", newCart.cartId); // Log cart ID
-                        await fetchCartItemsByCartId(newCart.cartId); // Lấy item của cart "NEW"
+                        await fetchCartItemsByCartId(newCart.cartId); // Fetch items of the "NEW" cart
                     }
                 } else {
-                    // Nếu không có cart "NEW" nào, tạo cart mới và lưu cartId
+                    // If there is no "NEW" cart, create a new cart and save cartId
                     console.log('No "NEW" cart found, creating a new cart...');
-                    const newCartId = await createCart(userId); // Tạo cart mới với trạng thái "NEW"
-                    setCartId(newCartId); // Lưu cartId
+                    const newCartId = await createCart(userId); // Create a new cart with status "NEW"
+                    setCartId(newCartId); // Save cartId
                 }
             } else {
                 console.error('Failed to fetch carts:', data);
-
             }
         } catch (error) {
             console.error('Error fetching cart:', error);
-
         }
     };
+    
 
     useEffect(() => {
         const initializeCart = async () => {

@@ -284,7 +284,9 @@
         gap:0px
     }
 }
-
+#btn-view-voucher{
+    background: #1daa79;
+}
 .btn-update-address {
     background-color: #4CAF50; /* Màu xanh lá */
     color: white;
@@ -324,3 +326,17 @@
 .modal-content h3 {
     margin-bottom: 10px;
 }
+.voucher-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+

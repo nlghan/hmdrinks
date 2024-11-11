@@ -126,7 +126,7 @@ export const FavoriteProvider = ({ children }) => {
     
         } catch (error) {
             console.error("Error fetching favorite items:", error);
-            setErrorMessage("An error occurred while fetching favorite items.");
+            // setErrorMessage("An error occurred while fetching favorite items.");
         }
     };
     
@@ -365,10 +365,17 @@ const addFavorite = async (product) => {
     };
 
     const favoriteCount = favoriteItems.length;
+    const clearFavorites = () => {
+        setFavoriteItems([]); // Xóa danh sách yêu thích trong state
+        setProductDetails({});
+        setCategoryDetails({});
+        setErrorMessage(null);
+    };
+    
 
 
     return (
-        <FavoriteContext.Provider value={{ favoriteItems, productDetails, categoryDetails, addFavorite, removeFavorite, errorMessage, deleteAll, favoriteCount }}>
+        <FavoriteContext.Provider value={{ favoriteItems, productDetails, categoryDetails, addFavorite, removeFavorite, errorMessage, deleteAll, favoriteCount, clearFavorites }}>
             {children}
         </FavoriteContext.Provider>
     );

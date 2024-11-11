@@ -52,7 +52,6 @@ const App = () => {
             <Route path="/favorite" element={<Favorite />} />
             <Route path="/news" element={<News />} />
             <Route path="/post" element={<NewsUser />} />
-            <Route path="/post" element={<PostVoucher />} />
             <Route path="/marketing/:postId" element={<PostVoucher />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<Navigate to="/" />} />

@@ -8,6 +8,7 @@ import '../../assets/assets.js';
 import { assets } from "../../assets/assets.js";
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import ErrorMessage from "../../components/Animation/ErrorMessage.jsx";
+import FormListVoucher from "../../components/Form/FormListVoucher.jsx";
 
 const Info = () => {
     const [formData, setFormData] = useState({
@@ -42,6 +43,8 @@ const Info = () => {
         birthDay: ''
     });
     const [isEditing, setIsEditing] = useState(false);
+    const [voucherList, setVoucherList] = useState([]); // Danh sách voucher
+    const [showFormListVoucher, setShowFormListVoucher] = useState(false);
     const getUserIdFromToken = (token) => {
         try {
             const payload = token.split('.')[1];
@@ -429,6 +432,64 @@ const Info = () => {
         }
     };
 
+    const handleViewVoucher = async (e) => {
+        e.preventDefault(); // Ngăn chặn form submit mặc định
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+    
+        try {
+            const response = await fetch(`http://localhost:1010/api/user-voucher/view-all/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                const voucherList = data.getVoucherResponseList; // Lấy danh sách voucher từ phản hồi
+    
+                // Fetch key cho từng voucher trong danh sách
+                const updatedVoucherList = await Promise.all(
+                    voucherList.map(async (voucher) => {
+                        try {
+                            const voucherResponse = await fetch(`http://localhost:1010/api/voucher/view/${voucher.voucherId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'accept': '*/*',
+                                    'Authorization': `Bearer ${token}`,
+                                }
+                            });
+    
+                            if (voucherResponse.ok) {
+                                const voucherData = await voucherResponse.json();
+                                return { ...voucher, key: voucherData.body.key }; // Cập nhật key vào voucher
+                            } else {
+                                console.error(`Lỗi khi lấy thông tin voucher ${voucher.voucherId}:`, voucherResponse.status);
+                                return voucher; // Nếu có lỗi, trả lại voucher không thay đổi
+                            }
+                        } catch (error) {
+                            console.error('Lỗi khi gọi API chi tiết voucher:', error);
+                            return voucher; // Trả lại voucher gốc nếu có lỗi
+                        }
+                    })
+                );
+    
+                // Cập nhật voucherList với key mới và hiển thị form
+                setVoucherList(updatedVoucherList);
+                setShowFormListVoucher(true); // Mở overlay khi nhận được dữ liệu
+            } else {
+                console.error('Lỗi khi lấy danh sách voucher:', response.status);
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    };
+    
+
+
+
     if (loading) {
         return <LoadingAnimation animationPath="https://lottie.host/your_animation_url.json" isVisible={loading} />;
     }
@@ -632,8 +693,16 @@ const Info = () => {
                         </div>
 
                         <div className="button-group">
-                            <button type="submit" className="btn" onClick={handleSubmit}>Cập nhật</button>
+                            <button type="submit" className="btn" onClick={handleSubmit}  disabled={!isEditing}>Cập nhật</button>
                             <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
+                            <button type="submit" className="btn" id="btn-view-voucher" onClick={handleViewVoucher}>Xem voucher</button>
+
+                            {/* Hiển thị overlay nếu showFormListVoucher là true */}
+                            {showFormListVoucher && (
+                                <div className="voucher-info-overlay">
+                                     <FormListVoucher vouchers={voucherList} onClose={() => setShowFormListVoucher(false)} />
+                                </div>
+                            )}
                             <button type="button" className="btn" id="btn-back-info" onClick={handleBack}>Trở lại</button>
                         </div>
                     </form>

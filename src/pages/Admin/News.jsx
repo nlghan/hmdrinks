@@ -23,7 +23,7 @@ const News = () => {
     const [vouchersPerPage] = useState(2);
     const [currentPageVouchers, setCurrentPageVouchers] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [limit, setLimit] = useState(5);
+    const [limit, setLimit] = useState(4);
     const [currentPage, setCurrentPage] = useState(1); // Current page for posts
     const [totalPages, setTotalPages] = useState(1); // Total pages for posts
     const [postData, setPostData] = useState({});
@@ -378,12 +378,6 @@ const News = () => {
         }
     };
 
-
-
-
-
-
-
     return (
 
         <div className="post-container">
@@ -538,7 +532,6 @@ const News = () => {
                                 </tbody>
                             </table>
 
-
                             {/* Phân trang */}
                             <div className="pagination" style={{ position: 'absolute', left: '-100px' }}>
                                 <button
@@ -572,6 +565,36 @@ const News = () => {
                             </div>
                         </div>
                     </>
+
+                    <div className="user-voucher-table">
+                    <table>
+                        <thead id='user-voucher-table-header'>
+                            <tr>
+                                <th>User Voucher ID</th>
+                                <th>User ID</th>
+                                <th>Voucher ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userVouchers && userVouchers.length > 0 ? (
+                                userVouchers.map((userVoucher) => (
+                                    <tr key={userVoucher.id}>
+                                        <td>{userVoucher.id}</td>
+                                        <td>{userVoucher.userId}</td>
+                                        <td>{userVoucher.voucherId}</td>
+                                        <td>{userVoucher.status}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4">Không có voucher nào của người dùng.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+
+                </div>
 
                 </div>
 

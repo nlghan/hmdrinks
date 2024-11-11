@@ -88,3 +88,12 @@ button.btn-send:hover {
     margin-top: 5px; /* Tăng khoảng cách trên ghi chú */
     font-size: 14px; /* Tăng kích thước chữ */
 }
+.input-group-pass{
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+#arrow-back-1:hover{
+    transform: scale(1.03);
+}

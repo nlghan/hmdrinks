@@ -19,6 +19,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  flex-direction: column;
 }
 
 .post-table {
@@ -372,4 +373,7 @@ tr:hover {
 .post-list-table th:nth-child(11),
 .post-list-table td:nth-child(11) {
   width: 4%; /* Cột Action (nếu có) */
+}
+#user-voucher-table-header{
+  display: contents;
 }

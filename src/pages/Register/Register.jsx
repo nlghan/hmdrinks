@@ -35,14 +35,15 @@ const Register = () => {
             });
 
             console.log('Đăng ký thành công:', response.data);
+            setMessage('Đăng ký thành công')
 
-            // Lưu token vào cookie nếu có trong phản hồi
-            if (response.data.access_token) {
-                Cookies.set('access_token', response.data.access_token, { expires: 7 }); // Hết hạn sau 7 ngày
-            }
-            if (response.data.refresh_token) {
-                Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
-            }
+            // // Lưu token vào cookie nếu có trong phản hồi
+            // if (response.data.access_token) {
+            //     Cookies.set('access_token', response.data.access_token, { expires: 7 }); // Hết hạn sau 7 ngày
+            // }
+            // if (response.data.refresh_token) {
+            //     Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
+            // }
 
             // Điều hướng đến trang home sau một khoảng thời gian
             setTimeout(() => {
@@ -86,6 +87,7 @@ const Register = () => {
                     {!message && !error && <p className="small-text">Nhập thông tin cá nhân bên dưới</p>}
 
                     {/* Display error if it exists */}
+                    {message && <p className="message">{message}</p>}
                     {error && <p className="message">{error}</p>}
 
                     <div className="register-input-group">

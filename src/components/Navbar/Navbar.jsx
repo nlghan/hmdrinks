@@ -15,7 +15,7 @@ const Navbar = ({ currentPage }) => {
 
 
   const { cartItems } = useCart();
-  const {favoriteCount} = useFavorite();
+  const {favoriteCount, clearFavorites} = useFavorite();
   const totalProducts = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const favCount = favoriteCount
   // Hide breadcrumb if on homepage, product detail page, or root URL
@@ -53,6 +53,7 @@ const Navbar = ({ currentPage }) => {
       console.log("Logged out:", response.data);
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
+      clearFavorites();
       logout();
       navigate('/home');
     } catch (error) {

@@ -70,6 +70,12 @@
     border-radius: 5px;
     cursor: pointer;
     width: 80%;
+    transition: transform 0.3s ease
+}
+.btn-register:hover {
+    transform: scale(1.05); /* Phóng to nhẹ khi hover */
+    background-color: #e6ddde; /* Đổi màu nền khi hover */
+    color:black;   
 }
 
 .btn-google {

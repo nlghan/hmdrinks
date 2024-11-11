@@ -40,6 +40,7 @@ const Menu = () => {
     const [favoritedProIds, setFavoritedProIds] = useState([]); // State for favorited product IDs
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
     const getUserIdFromToken = (token) => {
         try {
@@ -68,15 +69,15 @@ const Menu = () => {
                 console.warn('No userId found. Skipping fetch.');
                 return; // Return if userId is null
             }
-    
+
             try {
                 console.log(`Fetching favorites for userId: ${userId}`);
                 const response = await fetch(`http://localhost:1010/api/favorites/${userId}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Failed to fetch favorites: ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
                 const favoriteIds = data.favorites.map(favorite => favorite.proId);
                 setFavoritedProIds(favoriteIds);
@@ -85,12 +86,12 @@ const Menu = () => {
                 console.error('Error fetching favorites:', error);
             }
         };
-    
+
         if (isLoggedIn) {
             fetchFavorites();
         }
     }, [userId, isLoggedIn]);
-    
+
     // Fetch products and their prices and sizes from API
     useEffect(() => {
         const fetchProducts = async () => {
@@ -99,8 +100,8 @@ const Menu = () => {
                 const url = searchTerm
                     ? `http://localhost:1010/api/product/search?keyword=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
                     : selectedCategoryId
-                    ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
-                    : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
+                        ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
+                        : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
 
                 const response = await fetch(url);
                 const data = await response.json();
@@ -187,26 +188,39 @@ const Menu = () => {
 
     // Handle adding the product to the cart with size and stock
     const handleAddToCart = (product) => {
-        const quantity = 1; // For simplicity, we're setting quantity to 1 for now
+        const token = getCookie('access_token')
+        const userId = getUserIdFromToken(token); // Hàm lấy userId từ token
+        const quantity = 1; // Đặt số lượng mặc định là 1
         const { proId, proName, price, size, stock } = product;
 
-        // If stock is less than quantity, prevent adding to cart
-        if (quantity > stock) {
-            alert(`Số lượng vượt quá hàng tồn kho. Chỉ có sẵn ${stock}.`);
+        // Kiểm tra xem userId có tồn tại hay không
+        if (!userId) {
+            setShowLoginPrompt(true); // Hiện thông báo yêu cầu đăng nhập
             return;
+        } else {
+            // Nếu số lượng vượt quá hàng tồn kho, ngăn việc thêm vào giỏ hàng
+            if (quantity > stock) {
+                alert(`Số lượng vượt quá hàng tồn kho. Chỉ có sẵn ${stock}.`);
+                return;
+            }
+
+            // Thêm sản phẩm vào giỏ hàng
+            addToCart({
+                productId: proId,
+                name: proName,
+                price: price,
+                size: size,
+                quantity: quantity,
+                image: product.productImageResponseList.length > 0
+                    ? product.productImageResponseList[0].linkImage
+                    : backgroundImage,
+            });
+
         }
 
-        addToCart({
-            productId: proId,
-            name: proName,
-            price: price,
-            size: size,
-            quantity: quantity,
-            image: product.productImageResponseList.length > 0 ? product.productImageResponseList[0].linkImage : backgroundImage,
-        });
 
-        
     };
+
 
     const handleProductCardClick = (product) => {
         navigate(`/product/${product.proId}`, { state: { product } });
@@ -220,7 +234,7 @@ const Menu = () => {
 
     return (
         <>
-            <Navbar currentPage={"Thực đơn"}/>
+            <Navbar currentPage={"Thực đơn"} />
             <div
                 style={{
                     position: 'relative', // Position relative for the container
@@ -314,7 +328,7 @@ const Menu = () => {
                                     </span>
                                 ))}
                             </div>
-                            <ul className="menu-product-category" style={{listStyle:'none',paddingLeft:'0px'}}>
+                            <ul className="menu-product-category" style={{ listStyle: 'none', paddingLeft: '0px' }}>
                                 {currentCategoryPage === 1 && (
                                     <li
                                         onClick={() => handleCategorySelect(null)}
@@ -402,7 +416,18 @@ const Menu = () => {
                             )}
                         </div>
                     )}
-                
+
+                    {showLoginPrompt && (
+                        <div className="login-modal">
+                            <div className="login-modal-content">
+                                <p>Bạn cần đăng nhập để có thể mua hàng.</p>
+                                <a href="/login">Đăng nhập</a>
+                                <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+                            </div>
+                        </div>
+                    )}
+
+
 
                 </div>
             </div>
