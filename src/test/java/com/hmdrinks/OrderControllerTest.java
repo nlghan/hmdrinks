@@ -8,10 +8,7 @@ import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.CRUDPostReq;
-import com.hmdrinks.Request.ConfirmCancelOrderReq;
-import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Request.CreateOrdersReq;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -509,5 +506,249 @@ class OrderControllerTest {
                 .andExpect(content().string("Not found payment"))
                 .andDo(print());
     }
+
+    @Test
+    void getAllOrderByUserId_Success() throws Exception {
+        CreateOrdersResponse response1 = new CreateOrdersResponse(
+                1,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                10000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                1
+        );
+
+        CreateOrdersResponse response2 = new CreateOrdersResponse(
+                2,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                18000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                3
+        );
+        ListAllOrdersResponse listAllOrdersResponse = new ListAllOrdersResponse(
+                1,
+                2,
+                1,
+                1,
+                Arrays.asList(response1,response2)
+        );
+        when(ordersService.getAllOrderByUserId(anyString(), anyString(),anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(listAllOrdersResponse));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/view/{userId}",1)
+                        .param("page", "1")
+                        .param("limit", "10"))
+
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.listOrders.length()").value(2))
+                .andExpect(jsonPath("$.listOrders[1].orderId").value(2))
+                .andExpect(jsonPath("$.userId").value(1))
+                .andDo(print());
+    }
+
+    @Test
+    void getAllOrderByUserId_NotFound() throws Exception {
+
+        when(ordersService.getAllOrderByUserId(anyString(), anyString(),anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/view/{userId}",1)
+                        .param("page", "1")
+                        .param("limit", "10"))
+
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found user"))
+                .andDo(print());
+    }
+
+    @Test
+    void getAllOrderByUserIdAndStatus_Success() throws Exception {
+        CreateOrdersResponse response1 = new CreateOrdersResponse(
+                1,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                10000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                1
+        );
+
+        CreateOrdersResponse response2 = new CreateOrdersResponse(
+                2,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                18000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                3
+        );
+        ListAllOrdersResponse listAllOrdersResponse = new ListAllOrdersResponse(
+                1,
+                2,
+                1,
+                1,
+                Arrays.asList(response1,response2)
+        );
+        when(ordersService.getAllOrderByUserIdAndStatus(anyString(), anyString(),anyInt(),any(Status_Order.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(listAllOrdersResponse));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/view/{userId}/status",1)
+                        .param("page", "1")
+                        .param("limit", "10")
+                        .param("status", "WAITING"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.listOrders.length()").value(2))
+                .andExpect(jsonPath("$.listOrders[1].orderId").value(2))
+                .andExpect(jsonPath("$.userId").value(1))
+                .andDo(print());
+    }
+
+    @Test
+    void getAllOrderByUserIdAndStatus_NotFound() throws Exception {
+
+        when(ordersService.getAllOrderByUserIdAndStatus(anyString(), anyString(),anyInt(),any(Status_Order.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/view/{userId}/status",1)
+                        .param("page", "1")
+                        .param("limit", "10")
+                        .param("status", "WAITING"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found user"))
+                .andDo(print());
+    }
+
+    @Test
+    void cancelOrder_UnauthorizedUser() throws Exception {
+        CreatePaymentReq req = new CreatePaymentReq();
+        req.setUserId(1);
+        req.setOrderId(100);
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(endPointPath + "/cancel-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"orderId\": 100}"))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Unauthorized"));
+    }
+
+    @Test
+    void cancelOrder_OrderNotFound() throws Exception {
+        CreatePaymentReq req = new CreatePaymentReq();
+        req.setUserId(1);
+        req.setOrderId(100);
+
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
+                .thenReturn(ResponseEntity.ok().build());
+
+        when(ordersService.cancelOrder(anyInt(), anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(endPointPath + "/cancel-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"orderId\": 100}"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Order not found"));
+    }
+
+    @Test
+    void cancelOrder_SuccessfulCancellation() throws Exception {
+        CreatePaymentReq req = new CreatePaymentReq();
+        req.setUserId(1);
+        req.setOrderId(100);
+
+        // Mock authorized user response
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
+                .thenReturn(ResponseEntity.ok().build());
+
+        // Mock successful cancellation response
+        when(ordersService.cancelOrder(anyInt(), anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body("Order cancelled successfully"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(endPointPath+ "/cancel-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"orderId\": 100}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Order cancelled successfully"));
+    }
+
+    @Test
+    void cancelOrder_OrderAlreadyCancelled() throws Exception {
+        CreatePaymentReq req = new CreatePaymentReq();
+        req.setUserId(1);
+        req.setOrderId(100);
+
+        // Mock authorized user response
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
+                .thenReturn(ResponseEntity.ok().build());
+
+        // Mock order already cancelled response
+        when(ordersService.cancelOrder(anyInt(), anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Order already cancelled"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(endPointPath + "/cancel-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"orderId\": 100}"))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Order already cancelled"));
+    }
+
+    @Test
+    void cancelOrder_ShipmentInProgressOrCompleted() throws Exception {
+        CreatePaymentReq req = new CreatePaymentReq();
+        req.setUserId(1);
+        req.setOrderId(100);
+
+        // Mock authorized user response
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
+                .thenReturn(ResponseEntity.ok().build());
+
+        // Mock shipment in progress or completed response
+        when(ordersService.cancelOrder(anyInt(), anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(endPointPath + "/cancel-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\": 1, \"orderId\": 100}"))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Order cannot be cancelled as shipment is in progress or completed"));
+    }
+
 
 }
