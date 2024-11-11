@@ -168,6 +168,7 @@ class CartControllerTest {
         );
         ListAllCartUserResponse listAllCartUserResponse = new ListAllCartUserResponse(
                 1,
+                 2,
                  Arrays.asList(response1,response2)
         );
         when(cartService.getAllCartFromUser(anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(listAllCartUserResponse));
@@ -210,6 +211,7 @@ class CartControllerTest {
         );
         ListItemCartResponse listItemCartResponse = new ListItemCartResponse(
                 1,
+                2,
                 Arrays.asList(response1,response2)
         );
         when(cartService.getAllItemCart(anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(listItemCartResponse));

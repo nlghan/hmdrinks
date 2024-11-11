@@ -101,6 +101,7 @@ public class UserVoucherService {
         }
          List<UserVoucher> userVoucherList = userVoucherRepository.findByUserUserId(userId);
          List<GetVoucherResponse> listVoucherResponse = new ArrayList<>();
+         int total =0;
          for(UserVoucher userVoucher : userVoucherList)
          {
              listVoucherResponse.add( new GetVoucherResponse(
@@ -109,7 +110,8 @@ public class UserVoucherService {
                      userVoucher.getVoucher().getVoucherId(),
                      userVoucher.getStatus().toString()
              ));
+             total++;
          }
-         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(listVoucherResponse));
+         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(total,listVoucherResponse));
     }
 }

@@ -65,6 +65,7 @@ public class FavouriteService {
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(id);;
         List<CRUDFavouriteItemResponse> crudFavouriteItemResponses = new ArrayList<>();
+        int total = 0;
         for(FavouriteItem favouriteItem : favouriteItems)
         {
             crudFavouriteItemResponses.add(new CRUDFavouriteItemResponse(
@@ -73,9 +74,11 @@ public class FavouriteService {
                     favouriteItem.getProductVariants().getProduct().getProId(),
                     favouriteItem.getProductVariants().getSize()
             ));
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body( new ListItemFavouriteResponse(
                 id,
+                total,
                 crudFavouriteItemResponses
         ));
     }

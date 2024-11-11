@@ -310,6 +310,7 @@ class PostControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
 
@@ -357,6 +358,7 @@ class PostControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
 
@@ -402,7 +404,7 @@ class PostControllerTest {
 
         ListAllPostByUserIdResponse listAllPostResponse = new ListAllPostByUserIdResponse(
                 3,
-
+                2,
                 Arrays.asList(response1, response2)
         );
 

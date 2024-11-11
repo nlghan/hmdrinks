@@ -17,6 +17,7 @@ public class ListAllOrdersResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
+    private int total;
     private  int userId;
     List<CreateOrdersResponse> listOrders;
 }

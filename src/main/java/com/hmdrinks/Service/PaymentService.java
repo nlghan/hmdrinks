@@ -485,6 +485,7 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -498,11 +499,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }
@@ -514,6 +517,7 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -527,11 +531,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total  ,
                 responses
         ));
     }
@@ -543,6 +549,7 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -556,11 +563,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }

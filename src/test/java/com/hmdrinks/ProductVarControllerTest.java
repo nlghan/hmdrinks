@@ -305,6 +305,7 @@ class ProductVarControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
         when(productVarService.listProduct(anyString(), anyString())).thenReturn(listProductResponse);

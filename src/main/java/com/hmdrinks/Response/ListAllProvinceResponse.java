@@ -14,5 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 
 public class ListAllProvinceResponse {
+    private int total;
     List<ProvinceResponse> responseList;
 }

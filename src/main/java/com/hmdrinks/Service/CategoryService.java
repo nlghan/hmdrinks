@@ -119,6 +119,7 @@ public class CategoryService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
+        int total = 0;
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
                     category.getCateId(),
@@ -129,8 +130,9 @@ public class CategoryService {
                     category.getDateUpdated(),
                     category.getDateDeleted()
             ));
+            total++;
         }
-        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
     }
 
     public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
@@ -146,7 +148,7 @@ public class CategoryService {
         }
         Page<Product> productList = productRepository.findByCategory_CateIdAndIsDeletedFalse(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
-
+        int total =0;
         for(Product product1: productList)
         {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -173,12 +175,14 @@ public class CategoryService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body( new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
+                total,
                 crudProductResponseList
         ));
 

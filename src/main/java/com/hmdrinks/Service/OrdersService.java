@@ -322,6 +322,7 @@ public class OrdersService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Orders> orders = orderRepository.findAllByUserUserIdAndIsDeletedFalse(userId, pageable);
         List<CreateOrdersResponse> list = new ArrayList<>();
+        int total =0 ;
         for (Orders order : orders) {
             list.add(new CreateOrdersResponse(
                     order.getOrderId(),
@@ -341,11 +342,13 @@ public class OrdersService {
                     order.getUser().getUserId(),
                     voucher != null ? voucher.getVoucherId() : null
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrdersResponse(page,
                 orders.getTotalPages(),
                 limit,
+                total,
                 userId,
                 list));
     }
@@ -363,6 +366,7 @@ public class OrdersService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Orders> orders = orderRepository.findAllByUserUserIdAndStatusAndIsDeletedFalse(userId,status,pageable);
         List<CreateOrdersResponse> list = new ArrayList<>();
+        int total = 0;
         for (Orders order : orders) {
             list.add(new CreateOrdersResponse(
                     order.getOrderId(),
@@ -382,11 +386,13 @@ public class OrdersService {
                     order.getUser().getUserId(),
                     voucher != null ? voucher.getVoucherId() : null
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrdersResponse(page,
                 orders.getTotalPages(),
                 limit,
+                total,
                 userId,
                 list));
     }

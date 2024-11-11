@@ -215,6 +215,7 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found product with ID: " + proId);
         }
         String currentProImg = product.getListProImg();
+        int total = 0;
         if(currentProImg != null && !currentProImg.trim().isEmpty())
         {
             String[] imageEntries = currentProImg.split(", ");
@@ -223,9 +224,10 @@ public class AdminService {
                 int stt = Integer.parseInt(parts[0]);
                 String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
+                total++;
             }
         }
-        return  ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
+        return  ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,total,productImageResponses));
     }
 
     public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
@@ -446,6 +448,7 @@ public class AdminService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        int total = 0;
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
@@ -471,8 +474,9 @@ public class AdminService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
-        return new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
+        return new ListProductResponse(page, productList.getTotalPages(), limit,total, crudProductResponseList);
     }
 
     public CRUDProductResponse getOneProduct(Integer id) {
@@ -518,7 +522,7 @@ public class AdminService {
         }
         Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
-
+        int total =0 ;
         for(Product product1: productList)
         {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -545,12 +549,14 @@ public class AdminService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
+                total,
                 crudProductResponseList
         ));
     }
@@ -562,6 +568,7 @@ public class AdminService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByType(typePost,pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -575,11 +582,13 @@ public class AdminService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
+            total++;
         }
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -591,6 +600,7 @@ public class AdminService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAll(pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -604,11 +614,13 @@ public class AdminService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
+            total++;
         }
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }

@@ -191,6 +191,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserIdAndStatus(userId,status,pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -212,11 +213,13 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }
@@ -230,6 +233,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAll(pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -251,11 +255,13 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
 
@@ -270,6 +276,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByStatus(status,pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -291,11 +298,13 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }

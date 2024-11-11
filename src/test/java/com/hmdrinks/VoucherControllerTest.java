@@ -573,6 +573,7 @@ class VoucherControllerTest {
         );
 
         ListAllVoucherResponse listAllPostResponse = new ListAllVoucherResponse(
+                2,
                 Arrays.asList(voucherResponse1, voucherResponse2)
         );
 

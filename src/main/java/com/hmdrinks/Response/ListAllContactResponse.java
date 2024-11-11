@@ -15,5 +15,6 @@ public class ListAllContactResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
+    private int total;
     List<CRUDContactResponse> listContacts;
 }

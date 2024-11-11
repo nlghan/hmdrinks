@@ -224,6 +224,7 @@ public class VoucherService {
     {
         List<Voucher> voucherList = voucherRepository.findAll();
         List<CRUDVoucherResponse> crudVoucherResponses = new ArrayList<>();
+        int total =0;
         for(Voucher voucher : voucherList){
             crudVoucherResponses.add(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
@@ -235,8 +236,9 @@ public class VoucherService {
                     voucher.getStatus(),
                     voucher.getPost().getPostId()
             ));
+            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(crudVoucherResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(total,crudVoucherResponses));
     }
 
     public ResponseEntity<?> disableVoucher(int voucherId)

@@ -550,6 +550,7 @@ class OrderControllerTest {
                 1,
                 2,
                 1,
+                2,
                 1,
                 Arrays.asList(response1,response2)
         );
@@ -623,6 +624,7 @@ class OrderControllerTest {
                 1,
                 2,
                 1,
+                2,
                 1,
                 Arrays.asList(response1,response2)
         );

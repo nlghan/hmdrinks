@@ -160,6 +160,7 @@ public class ProductVarService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<ProductVariants> productList = proVarRepository.findAll(pageable);
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
+        int total = 0;
         for(ProductVariants product1: productList){
             crudProductVarResponseList.add(new CRUDProductVarResponse(
                     product1.getVarId(),
@@ -172,8 +173,9 @@ public class ProductVarService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
-        return new ListProductVarResponse(page,productList.getTotalPages(),limit,crudProductVarResponseList);
+        return new ListProductVarResponse(page,productList.getTotalPages(),limit,total,crudProductVarResponseList);
     }
 
 

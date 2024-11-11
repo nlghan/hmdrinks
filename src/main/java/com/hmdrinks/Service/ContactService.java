@@ -167,6 +167,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAll(pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -178,11 +179,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -195,6 +198,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.WAITING, pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -206,11 +210,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -223,6 +229,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.COMPLETED, pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -234,11 +241,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }

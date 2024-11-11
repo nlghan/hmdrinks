@@ -303,6 +303,7 @@ class ProductControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
         when(productService.listProduct(anyString(), anyString())).thenReturn((ResponseEntity) ResponseEntity.ok().body(listProductResponse));
@@ -565,6 +566,7 @@ class ProductControllerTest {
 
         ListProductImageResponse listProductImageResponse = new ListProductImageResponse(
                 1,
+                2,
                 Arrays.asList(productImageResponse, productImageResponse2)
         );
 
@@ -608,7 +610,7 @@ class ProductControllerTest {
 
         when(productService.deleteImageFromProduct(1, 1))
                 .thenReturn((ResponseEntity )ResponseEntity.status(HttpStatus.OK)
-                        .body(new ListProductImageResponse(1, updatedImages)));
+                        .body(new ListProductImageResponse(1, 2,updatedImages)));
 
         String requestBody = objectMapper.writeValueAsString(req);
 

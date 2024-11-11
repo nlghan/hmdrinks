@@ -131,6 +131,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByTypeAndIsDeletedFalse(typePost,pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -144,11 +145,13 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
+            total++;
         }
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -160,6 +163,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -173,11 +177,13 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
+            total++;
         }
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -189,6 +195,7 @@ public class PostService {
         }
         List<Post> posts = postRepository.findByUserUserIdAndIsDeletedFalse(userId);
         List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -202,8 +209,9 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
+            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPostByUserIdResponse(userId, responses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPostByUserIdResponse(userId,total, responses));
     }
 
     @Transactional

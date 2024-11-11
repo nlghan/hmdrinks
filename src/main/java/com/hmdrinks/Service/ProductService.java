@@ -160,6 +160,7 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findByIsDeletedFalse(pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        int total =0;
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
@@ -185,8 +186,9 @@ public class ProductService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductResponse(page, productList.getTotalPages(), limit, total,crudProductResponseList));
     }
 
     public ResponseEntity<?> getAllProductVariantFromProduct(int id) {
@@ -289,7 +291,7 @@ public class ProductService {
             String url = parts[1];
             productImageResponses.add(new ProductImageResponse(stt, url));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses.size(),productImageResponses));
     }
 
     public ResponseEntity<?> deleteAllImageFromProduct(int proId) {
@@ -321,7 +323,7 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,productImageResponses.size(),productImageResponses));
     }
 
     public ResponseEntity<?> filterProduct(FilterProductBox req) {

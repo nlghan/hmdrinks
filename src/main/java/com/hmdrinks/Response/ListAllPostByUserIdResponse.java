@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ListAllPostByUserIdResponse {
     private  int userId;
+    private int total;
     List<CRUDPostResponse> listPosts;
 }
