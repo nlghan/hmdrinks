@@ -8,6 +8,7 @@ import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Repository.CategoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.TokenRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
@@ -57,8 +58,12 @@ class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ReviewService reviewService;
+    private Recommender recommender;
 
+    @MockBean
+    private ReviewService reviewService;
+    @MockBean
+    private UserRepository userRepository;
     @MockBean
     private UserService userService;
     @MockBean

@@ -10,6 +10,7 @@ import com.hmdrinks.Service.JwtService;
 import com.hmdrinks.Service.UserInfoService;
 import com.hmdrinks.Service.UserService;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -65,6 +66,8 @@ class UserControllerTest {
 
     @Test
     void updateUser_Successfully() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         String dateString = "15/11/2002";
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date date = formatter.parse(dateString);
@@ -110,6 +113,8 @@ class UserControllerTest {
 
     @Test
     void updateUser_NotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         String dateString = "15/11/2002";
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date date = formatter.parse(dateString);
@@ -138,6 +143,8 @@ class UserControllerTest {
 
     @Test
     void updateUser_InvalidAddressFormat() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         String dateString = "15/11/2002";
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date date = formatter.parse(dateString);
@@ -167,6 +174,8 @@ class UserControllerTest {
 
     @Test
     void updateUser_EmailExists() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         String dateString = "15/11/2002";
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date date = formatter.parse(dateString);
@@ -197,6 +206,8 @@ class UserControllerTest {
 
     @Test
     void changePassword_Successfully() throws Exception{
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         ChangePasswordReq req=new ChangePasswordReq(1,"current","newpassword","newpassword");
         ChangePasswordResponse res=new ChangePasswordResponse("Password change successfully","newpassword");
         when(userService.changePasswordResponse(any(ChangePasswordReq.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(res));
@@ -210,6 +221,8 @@ class UserControllerTest {
 
     @Test
     void changePassword_NotFound() throws Exception{
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         ChangePasswordReq req=new ChangePasswordReq(1,"current","newpassword","newpassword");
         Map<String, String> response = new HashMap<>();
         response.put("message", "Not found user");
@@ -224,6 +237,8 @@ class UserControllerTest {
 
     @Test
     void changePassword_CurrentPasswordIncorrect() throws Exception{
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         ChangePasswordReq req=new ChangePasswordReq(1,"current","newpassword","newpassword");
         Map<String, String> response = new HashMap<>();
         response.put("message", "The current password is incorrect");
@@ -238,6 +253,8 @@ class UserControllerTest {
 
     @Test
     void changePassword_UsingOldPassword() throws Exception{
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         ChangePasswordReq req=new ChangePasswordReq(1,"current","newpassword","newpassword");
         Map<String, String> response = new HashMap<>();
         response.put("message", "You're using an old password");
@@ -252,6 +269,8 @@ class UserControllerTest {
 
     @Test
     void changePassword_NoOverlap() throws Exception{
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         ChangePasswordReq req=new ChangePasswordReq(1,"current","newpassword","newpassword");
         Map<String, String> response = new HashMap<>();
         response.put("message", "No overlap");

@@ -1,0 +1,513 @@
+package com.hmdrinks;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hmdrinks.Controller.OrdersController;
+import com.hmdrinks.Controller.PostController;
+import com.hmdrinks.Enum.Payment_Method;
+import com.hmdrinks.Enum.Status_Order;
+import com.hmdrinks.Enum.Status_Payment;
+import com.hmdrinks.Enum.Type_Post;
+import com.hmdrinks.Repository.*;
+import com.hmdrinks.Request.CRUDPostReq;
+import com.hmdrinks.Request.ConfirmCancelOrderReq;
+import com.hmdrinks.Request.CreateNewPostReq;
+import com.hmdrinks.Request.CreateOrdersReq;
+import com.hmdrinks.Response.*;
+import com.hmdrinks.Service.*;
+import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@AutoConfigureMockMvc
+@WebAppConfiguration
+@WebMvcTest(OrdersController.class)
+class OrderControllerTest {
+    private static final String endPointPath="/api/orders";
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+    @MockBean
+    private ProductRepository productRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private ReviewService reviewService;
+    @MockBean
+    private GenerateInvoiceService generateInvoiceService;
+    @MockBean
+    private  PostService postService;
+    @MockBean
+    private OrdersService ordersService;
+
+    @MockBean
+    private CartItemService cartItemService;
+
+    @MockBean
+    private UserService userService;
+    @MockBean
+    private CategoryService categoryService;
+    @MockBean
+    private  ProductService productService;
+    @MockBean
+    private ProductVarService productVarService;
+    @MockBean
+    private SupportFunction supportFunction;
+    @MockBean
+    private CategoryRepository categoryRepository;
+    @MockBean
+    private JwtService jwtService;
+    @MockBean
+    private UserInfoService myUserDetailsService;
+    @MockBean
+    private TokenRepository tokenRepository;
+    @MockBean
+    private PriceHistoryRepository priceHistoryRepository;
+    @MockBean
+    private CartService cartService;
+    @MockBean
+    private ReviewRepository reviewRepository;
+    @MockBean
+    private PostRepository postRepository;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
+
+    @Test
+    void createOrder_Success() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+
+        CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                1,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                10000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                1
+        );
+
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(createOrdersResponse));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(200))
+                .andExpect(jsonPath("$.body.discountPrice").value(5000.0))
+                .andExpect(jsonPath("$.body.userId").value(1))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_NotFoundUser() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found user"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_NotFoundCart() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found cart"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found cart"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_NotAllowCart() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Not allowed to add order"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(406))
+                .andExpect(jsonPath("$.body").value("Not allowed to add order"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_NotFoundUserVoucher() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found userVoucher"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found userVoucher"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_VoucherAlreadyUse() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already in use"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(400))
+                .andExpect(jsonPath("$.body").value("Voucher already in use"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_VoucherIsDelete() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher is deleted"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(400))
+                .andExpect(jsonPath("$.body").value("Voucher is deleted"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_VoucherExpire() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher expired"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(400))
+                .andExpect(jsonPath("$.body").value("Voucher expired"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_CartAlready() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Cart already exists"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(409))
+                .andExpect(jsonPath("$.body").value("Cart already exists"))
+                .andDo(print());
+    }
+
+    @Test
+    void createOrder_DistanceExceed() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreateOrdersReq req = new CreateOrdersReq(
+                1,
+                1,
+                "1",
+                "None"
+        );
+        when(ordersService.addOrder(any(CreateOrdersReq.class)))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded, please update address"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(400))
+                .andExpect(jsonPath("$.body").value("Distance exceeded, please update address"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmCancelOrder_Success() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmCancelOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body("Order has been canceled"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm-cancel")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(200))
+                .andExpect(jsonPath("$.body").value("Order has been canceled"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmCancelOrder_NotFoundOrder() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmCancelOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm-cancel")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found order"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmCancelOrder_NotFoundOrderWaiting() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmCancelOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order status waiting"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm-cancel")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found order status waiting"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmOrder_Success() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body("Confirm success"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(200))
+                .andExpect(jsonPath("$.body").value("Confirm success"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmOrder_NotFound() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(404))
+                .andExpect(jsonPath("$.body").value("Not found order"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmOrder_OrderIsConfirmed() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order already in use"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(400))
+                .andExpect(jsonPath("$.body").value("Order already in use"))
+                .andDo(print());
+    }
+
+    @Test
+    void confirmOrder_OrderTimeOut() throws Exception {
+        ConfirmCancelOrderReq req = new ConfirmCancelOrderReq(1,1);
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        when(ordersService.confirmOrder(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body("Order has been canceled due to timeout"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/confirm")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(jsonPath("$.statusCodeValue").value(200))
+                .andExpect(jsonPath("$.body").value("Order has been canceled due to timeout"))
+                .andDo(print());
+    }
+
+    @Test
+    void getInfoPayment_Success() throws Exception {
+        getInformationPaymentFromOrderIdResponse infoPaymentFromOrderIdResponse = new getInformationPaymentFromOrderIdResponse(
+                1,
+                "99 đường số 7, Linh Trung, Thủ Đức, Hồ Chí Minh",
+                10000.0,
+                LocalDateTime.now(),
+                null,
+                null,
+                LocalDateTime.now(),
+                5000.0,
+                false,
+                "",
+                LocalDateTime.now(),
+                "0769674810",
+                Status_Order.WAITING,
+                95000.0,
+                1,
+                1,
+                new CRUDPaymentResponse(
+                        1,
+                        100000.0,
+                        LocalDateTime.now(),
+                        null,
+                        false,
+                        Payment_Method.CREDIT,
+                        Status_Payment.PENDING,
+                        1
+                )
+        );
+        int orderId = 1;
+        when(ordersService.getInformationPayment(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(infoPaymentFromOrderIdResponse));
+        mockMvc.perform(get(endPointPath + "/info-payment")
+                        .param("orderId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(1))
+                .andExpect(jsonPath("$.discountPrice").value(5000.0))
+                .andExpect(jsonPath("$.infoPaymentResponse.paymentId").value(1))
+                .andExpect(jsonPath("$.infoPaymentResponse.paymentMethod").value("CREDIT"))
+                .andDo(print());
+    }
+
+    @Test
+    void getInfoPayment_NotFoundOrder() throws Exception {
+        when(ordersService.getInformationPayment(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order"));
+        mockMvc.perform(get(endPointPath + "/info-payment")
+                        .param("orderId", "1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found order"))
+                .andDo(print());
+    }
+
+    @Test
+    void getInfoPayment_NotFoundPayment() throws Exception {
+        when(ordersService.getInformationPayment(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment"));
+        mockMvc.perform(get(endPointPath + "/info-payment")
+                        .param("orderId", "1"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found payment"))
+                .andDo(print());
+    }
+
+}

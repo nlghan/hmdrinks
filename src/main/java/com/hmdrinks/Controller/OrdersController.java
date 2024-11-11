@@ -86,11 +86,9 @@ public class OrdersController {
     @PutMapping("/cancel-order")
     public ResponseEntity<?> cancelOrder(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) {
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
-
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
             return authResponse;
         }
-
         return ordersService.cancelOrder(req.getOrderId(), req.getUserId());
     }
 

@@ -90,6 +90,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCartItem_Success() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -120,6 +122,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_UserIdNotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -141,6 +145,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_ProductNotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -162,6 +168,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_ProductVarNotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -183,6 +191,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_CartNotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -204,6 +214,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_QuantityLessThan0() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,
@@ -225,6 +237,8 @@ class CartItemControllerTest {
 
     @Test
     void insertCart_QuantityGreaterThanStock() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         InsertItemToCart req = new InsertItemToCart(
                 1,
                 1,

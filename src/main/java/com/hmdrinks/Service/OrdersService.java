@@ -109,13 +109,13 @@ public class OrdersService {
             }
             voucher = voucherRepository.findByVoucherIdAndIsDeletedFalse(userVoucher.getVoucher().getVoucherId());
             if (voucher == null || voucher.getStatus() == Status_Voucher.EXPIRED || voucher.getIsDeleted()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not allowed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher is deleted");
             }
             boolean checkVoucher = isVoucherValid(voucher);
             if (!checkVoucher) {
                 voucher.setStatus(Status_Voucher.EXPIRED);
                 voucherRepository.save(voucher);
-                return ResponseEntity.status(HttpStatus.OK).body("Voucher expired");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher expired");
             }
 
         }
@@ -207,7 +207,7 @@ public class OrdersService {
         }
         Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId, Status_Order.WAITING);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order status waiting");
         }
         order.setStatus(Status_Order.CANCELLED);
         orderRepository.save(order);
@@ -257,7 +257,7 @@ public class OrdersService {
                 cartRepository.save(cart);
             }
 
-            return ResponseEntity.status(HttpStatus.OK).body("Order has been canceled due to timeout.");
+            return ResponseEntity.status(HttpStatus.OK).body("Order has been canceled due to timeout");
         }
         else
         {
