@@ -7,6 +7,7 @@ import com.hmdrinks.Request.CreatePaymentVNPayReq;
 import com.hmdrinks.Response.IpnResponse;
 import com.hmdrinks.Service.PaymentService;
 import com.hmdrinks.Service.VNPayIpnHandler;
+import com.hmdrinks.Service.ZaloPayService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,9 @@ public class PaymentController {
 
     @Autowired
     private VNPayIpnHandler vnPayIpnHandler;
+
+    @Autowired
+    private ZaloPayService zaloPayService;
 
     public static String getIpAddress(HttpServletRequest request) {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
@@ -55,6 +59,16 @@ public class PaymentController {
         return paymentService.createVNPay(req);
     }
 
+    @PostMapping("/create/credit/zaloPay")
+    public ResponseEntity<?> createPaymentZaloPay(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) throws Exception {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+        return paymentService.createZaloPay(req);
+    }
+
     @GetMapping("/vnpay_ipn")
     IpnResponse processIpn(@RequestParam Map<String, String> params) {
         return vnPayIpnHandler.process(params);
@@ -78,6 +92,13 @@ public class PaymentController {
             return authResponse;
         }
         return paymentService.createPaymentCash(req.getOrderId());
+    }
+
+    @GetMapping("/zalo/callback")
+    public ResponseEntity<?> handleCallbackZalo(
+            @RequestParam String app_trans_id
+) {
+        return  zaloPayService.handleCallBack(app_trans_id);
     }
 
     @GetMapping("/callback")

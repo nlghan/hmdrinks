@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
+import com.hmdrinks.Request.CreatePaymentReq;
 import com.hmdrinks.Request.CreatePaymentVNPayReq;
 import com.hmdrinks.Request.InitPaymentRequest;
 import com.hmdrinks.Response.CRUDPaymentResponse;
@@ -220,10 +221,7 @@ public class PaymentService {
     {
         int orderId1 = req.getOrderId();
         Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
-        if(payment1 == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
-        }
+
         if (payment1 != null) {
             if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
@@ -278,6 +276,61 @@ public class PaymentService {
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
                 initPaymentResponse.getVnpUrl()
+        ), HttpStatus.OK);
+    }
+    @Autowired
+    private ZaloPayService zaloPayService;
+
+    public ResponseEntity<?> createZaloPay(CreatePaymentReq req) throws Exception {
+        int orderId1 = req.getOrderId();
+        Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
+        if (payment1 != null) {
+            if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            }
+            if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
+            }
+        }
+        Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+        }
+        Orders orders1 = orderRepository.findByOrderId(orderId1);
+        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        }
+        Orders order = orderRepository.findByOrderId(orderId1);
+        User user = userRepository.findByUserId(order.getUser().getUserId());
+        Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+        Long totalAmountLong = totalAmount.longValue();
+        String amount = totalAmountLong.toString();
+        String orderId = partnerCode + "-" + UUID.randomUUID();
+        Payment payment = new Payment();
+        payment.setPaymentMethod(Payment_Method.CREDIT);
+        payment.setStatus(Status_Payment.PENDING);
+        payment.setOrder(order);
+        payment.setAmount(totalAmount);
+        payment.setDateCreated(LocalDateTime.now());
+        payment.setOrderIdPayment(orderId);
+        payment.setIsDeleted(false);
+        paymentRepository.save(payment);
+        Map<String, Object> response = zaloPayService.createPayment(totalAmountLong);
+        String orderUrl = (String) response.get("order_url");
+        String appTransId = (String) response.get("app_trans_id");
+
+        payment.setOrderIdPayment(appTransId);
+        paymentRepository.save(payment);
+        return new ResponseEntity<>(new CreatePaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId(),
+                orderUrl
         ), HttpStatus.OK);
     }
 
