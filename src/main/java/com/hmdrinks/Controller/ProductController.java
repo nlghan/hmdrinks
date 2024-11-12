@@ -1,13 +1,17 @@
 package com.hmdrinks.Controller;
 
+import com.hmdrinks.Entity.Product;
+import com.hmdrinks.Repository.ProductRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.*;
-import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.ProductService;
+import com.hmdrinks.Service.Recommender;
 import com.hmdrinks.Service.ReviewService;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.hadoop.yarn.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +29,13 @@ public class ProductController {
     private ReviewService reviewService;
     @Autowired
     private SupportFunction supportFunction;
+    @Autowired
+    private Recommender recommender;
+
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createProduct(@RequestBody CreateProductReq req){
@@ -91,4 +102,26 @@ public class ProductController {
         }
         return productService.deleteAllImageFromProduct(req.getProId());
     }
+
+    @PutMapping(value = "/enable")
+    public ResponseEntity<?> enableProduct(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  productService.enableProduct(req.getId());
+    }
+
+    @PutMapping(value = "/disable")
+    public ResponseEntity<?> disableProduct(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  productService.disableProduct(req.getId());
+    }
+
+    @GetMapping(value = "/reset")
+    public ResponseEntity<?> resetQuantityProduct() {
+        return productService.resetAllQuantityProduct();
+    }
+
+    @GetMapping(value = "/recommended/{userId}")
+    public ResponseEntity<?> getRecommendedBooksByUserId(@PathVariable   Long userId)
+            throws ResourceNotFoundException {
+        return recommender.recommendedBooks(userId,userRepository,productRepository);
+    }
+
 }

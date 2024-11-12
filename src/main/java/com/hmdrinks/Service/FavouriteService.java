@@ -29,7 +29,7 @@ public class FavouriteService {
 
     public ResponseEntity<?> createFavourite(CreateNewFavourite req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not exists");
@@ -65,6 +65,7 @@ public class FavouriteService {
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(id);;
         List<CRUDFavouriteItemResponse> crudFavouriteItemResponses = new ArrayList<>();
+        int total = 0;
         for(FavouriteItem favouriteItem : favouriteItems)
         {
             crudFavouriteItemResponses.add(new CRUDFavouriteItemResponse(
@@ -73,16 +74,18 @@ public class FavouriteService {
                     favouriteItem.getProductVariants().getProduct().getProId(),
                     favouriteItem.getProductVariants().getSize()
             ));
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body( new ListItemFavouriteResponse(
                 id,
+                total,
                 crudFavouriteItemResponses
         ));
     }
 
     public ResponseEntity<?> getFavoriteById(int userId) {
         // Check if user exists
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
         }

@@ -6,6 +6,7 @@ import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.CRUDShipmentReq;
+import com.hmdrinks.Request.UpdateTimeShipmentReq;
 import com.hmdrinks.Response.*;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +49,12 @@ public class ShipmentService {
 
     public ResponseEntity<?> shipmentAllocation(CRUDShipmentReq req)
     {
-       Shippment shippment = shipmentRepository.findByShipmentId(req.getShipmentId());
+       Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(req.getShipmentId());
        if(shippment == null)
             {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
             }
-       User user = userRepository.findByUserId(req.getUserId());
+       User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
        if(user == null)
        {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
@@ -68,8 +69,20 @@ public class ShipmentService {
        shipmentRepository.save(shippment);
 
        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+       if(payment.getIsDeleted())
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment is deleted");
+       }
        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
-       User customer = userRepository.findByUserId(orders.getUser().getUserId());
+       if(orders.getIsDeleted()){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order is deleted");
+       }
+
+       User customer = userRepository.findByUserIdAndIsDeletedFalse(orders.getUser().getUserId());
+       if(customer == null)
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Not Found");
+       }
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
                shippment.getDateCreated(),
@@ -94,6 +107,10 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
         }
+        if(shippment.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment is deleted");
+        }
         if(shippment.getStatus() != Status_Shipment.WAITING)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is not waiting");
@@ -114,7 +131,7 @@ public class ShipmentService {
                 return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock Not Enough");
             }
         }
-        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+        User customer = userRepository.findByUserIdAndIsDeletedFalse(orders.getUser().getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
                 shippment.getDateCreated(),
@@ -174,6 +191,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserIdAndStatus(userId,status,pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -195,11 +213,13 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }
@@ -213,6 +233,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAll(pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -234,11 +255,13 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
 
@@ -253,6 +276,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByStatus(status,pageable);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -274,12 +298,61 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
+            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
+    }
+    public boolean isShipmentDatesValid(Shippment shipment, UpdateTimeShipmentReq updateRequest) {
+        LocalDateTime dateCreated = shipment.getDateCreated();
+        LocalDateTime dateShipped = updateRequest.getDateShipped();
+        LocalDateTime dateDelivered = updateRequest.getDateDelivered();
+
+        // Kiểm tra nếu dateShipped và dateDelivered đều sau dateCreated
+        boolean isDateShippedValid = dateShipped != null && dateShipped.isAfter(dateCreated);
+        boolean isDateDeliveredValid = dateDelivered != null && dateDelivered.isAfter(dateCreated);
+
+        return isDateShippedValid && isDateDeliveredValid;
+    }
+    public ResponseEntity<?> updateTimeShipment(UpdateTimeShipmentReq req)
+    {
+         User user1 = null;
+         Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(req.getShipmentId());
+         if(shippment == null)
+         {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment not found");
+         }
+
+         boolean check = isShipmentDatesValid(shippment,req);
+         if(!check)
+         {
+             return ResponseEntity.status(HttpStatus.CONFLICT).body("Shipment date is not valid");
+         }
+         shippment.setDateDelivered(req.getDateDelivered());
+         shippment.setDateShip(req.getDateShipped());
+         shipmentRepository.save(shippment);
+        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                 shippment.getShipmentId(),
+                 shippment.getDateCreated(),
+                 shippment.getDateDeleted(),
+                 shippment.getDateDelivered(),
+                 shippment.getDateShip(),
+                 shippment.getIsDeleted(),
+                 shippment.getStatus(),
+                 shippment.getPayment().getPaymentId(),
+                 user1 != null ? shippment.getUser().getUserId() : null,
+                 customer.getFullName(),
+                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                 customer.getPhoneNumber(),
+                 customer.getEmail()
+         ));
     }
 }

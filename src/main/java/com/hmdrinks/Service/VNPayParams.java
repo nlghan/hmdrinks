@@ -16,4 +16,5 @@ public class VNPayParams {
     public static final String EXPIRE_DATE = "vnp_ExpireDate";
     public static final String IP_ADDRESS = "vnp_IpAddr";
     public static final String LOCALE = "vnp_Locale";
+    public static final String RESPONSE_CODE = "vnp_ResponseCode";
 }

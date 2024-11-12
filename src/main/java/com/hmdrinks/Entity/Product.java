@@ -24,10 +24,12 @@ public class Product {
     @Column(name = "proName", nullable = false)
     private String proName;
 
+    @Lob
     @Column(name = "listProImg", columnDefinition = "TEXT",nullable = false)
     private String listProImg;
 
-    @Column(name = "description", nullable = false)
+    @Lob
+    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @Column(name = "is_deleted")
@@ -50,5 +52,5 @@ public class Product {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductVariants> productVariants; // Sử dụng List để ánh xạ với các bản ghi của ProductVariants
+    private List<ProductVariants> productVariants;
 }

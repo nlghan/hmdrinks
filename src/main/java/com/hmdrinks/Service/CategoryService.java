@@ -3,12 +3,17 @@ package com.hmdrinks.Service;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.hmdrinks.Entity.Category;
 import com.hmdrinks.Entity.Product;
+import com.hmdrinks.Entity.ProductVariants;
+import com.hmdrinks.Entity.Review;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.CategoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
+import com.hmdrinks.Repository.ProductVariantsRepository;
+import com.hmdrinks.Repository.ReviewRepository;
 import com.hmdrinks.Request.CRUDCategoryRequest;
 import com.hmdrinks.Request.CreateCategoryRequest;
 import com.hmdrinks.Response.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +34,10 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ProductVariantsRepository productVariantsRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     public ResponseEntity<?> crateCategory(CreateCategoryRequest req)
     {
@@ -110,6 +119,7 @@ public class CategoryService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
+        int total = 0;
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
                     category.getCateId(),
@@ -120,8 +130,9 @@ public class CategoryService {
                     category.getDateUpdated(),
                     category.getDateDeleted()
             ));
+            total++;
         }
-        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
     }
 
     public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
@@ -137,7 +148,7 @@ public class CategoryService {
         }
         Page<Product> productList = productRepository.findByCategory_CateIdAndIsDeletedFalse(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
-
+        int total =0;
         for(Product product1: productList)
         {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -164,12 +175,14 @@ public class CategoryService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body( new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
+                total,
                 crudProductResponseList
         ));
 
@@ -193,5 +206,97 @@ public class CategoryService {
             ));
         }
         return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
+    }
+
+    @Transactional
+    public ResponseEntity<?> disableCategory(int cateId)
+    {
+        Category category = categoryRepository.findByCateId(cateId);
+        if(category == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
+        }
+        if(category.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category already disable");
+        }
+        List<Product> productList = productRepository.findByCategory_CateId(cateId);
+        for (Product product: productList)
+        {
+            List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product.getProId());
+            for(ProductVariants productVariant: productVariants)
+            {
+                productVariant.setIsDeleted(true);
+                productVariant.setDateDeleted(LocalDateTime.now());
+                productVariantsRepository.save(productVariant);
+            }
+            List<Review> reviews = reviewRepository.findAllByProduct_ProId(product.getProId());
+            for(Review review: reviews)
+            {
+                review.setIsDeleted(true);
+                review.setDateDeleted(LocalDateTime.now());
+                reviewRepository.save(review);
+            }
+            product.setIsDeleted(true);
+            product.setDateDeleted(LocalDateTime.now());
+            productRepository.save(product);
+        }
+        category.setIsDeleted(true);
+        category.setDateDeleted(LocalDateTime.now());
+        categoryRepository.save(category);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
+                category.getCateId(),
+                category.getCateName(),
+                category.getCateImg(),
+                category.getIsDeleted(),
+                category.getDateCreated(),
+                category.getDateUpdated(),
+                category.getDateDeleted()));
+    }
+
+    @Transactional
+    public ResponseEntity<?> enableCategory(int cateId)
+    {
+        Category category = categoryRepository.findByCateId(cateId);
+        if(category == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
+        }
+        if(!category.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category already enable");
+        }
+        List<Product> productList = productRepository.findByCategory_CateId(cateId);
+        for (Product product:productList)
+        {
+            List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product.getProId());
+            for(ProductVariants productVariant: productVariants)
+            {
+                productVariant.setIsDeleted(false);
+                productVariant.setDateDeleted(null);
+                productVariantsRepository.save(productVariant);
+            }
+            List<Review> reviews = reviewRepository.findAllByProduct_ProId(product.getProId());
+            for(Review review: reviews)
+            {
+                review.setIsDeleted(false);
+                review.setDateDeleted(null);
+                reviewRepository.save(review);
+            }
+            product.setIsDeleted(false);
+            product.setDateDeleted(null);
+            productRepository.save(product);
+        }
+        category.setIsDeleted(false);
+        category.setDateDeleted(null);
+        categoryRepository.save(category);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDCategoryResponse(
+                category.getCateId(),
+                category.getCateName(),
+                category.getCateImg(),
+                category.getIsDeleted(),
+                category.getDateCreated(),
+                category.getDateUpdated(),
+                category.getDateDeleted()));
     }
 }

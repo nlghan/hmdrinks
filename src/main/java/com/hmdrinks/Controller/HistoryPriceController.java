@@ -22,22 +22,23 @@ public class HistoryPriceController {
     @Autowired
     private PriceHistoryService priceHistoryService;
 
-    @PostMapping(value = "/view/all")
+    @GetMapping(value = "/view/all")
     public ResponseEntity<?> createPost(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit
-    ){
+    )
+    {
         return priceHistoryService.getListAllHistoryPrice(page, limit);
     }
 
     @GetMapping(value ="/view/productVar")
-    public ResponseEntity<?> getOnePost(
+    public ResponseEntity<?> getOneProductVar(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit,
-            @RequestParam(name = "proVarId") String proVarId
-    ){
-        return priceHistoryService.getListAllHistoryPriceByProductVarId(page,limit, Integer.parseInt(proVarId));
+            @RequestParam(name = "proVarId") int proVarId
+    )
+    {
+        return priceHistoryService.getListAllHistoryPriceByProductVarId(page,limit, proVarId);
     }
-
 
 }

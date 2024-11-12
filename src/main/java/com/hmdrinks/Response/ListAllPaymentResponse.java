@@ -15,5 +15,6 @@ public class ListAllPaymentResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
-    List<CRUDPaymentResponse> listPosts;
+    private int total;
+    List<CRUDPaymentResponse> listPayments;
 }

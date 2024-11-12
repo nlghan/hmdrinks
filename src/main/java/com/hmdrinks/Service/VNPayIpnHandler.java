@@ -12,12 +12,14 @@ import com.hmdrinks.Repository.PaymentRepository;
 import com.hmdrinks.Repository.ShipmentRepository;
 import com.hmdrinks.Response.IpnResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class VNPayIpnHandler {
@@ -42,14 +44,12 @@ public class VNPayIpnHandler {
         }
         IpnResponse response;
         var txnRef = params.get(VNPayParams.TXN_REF);
+        var code = params.get(VNPayParams.RESPONSE_CODE);
         try {
-            int orderId = Integer.parseInt(txnRef);
-            Orders order = orderRepository.findByOrderId(orderId);
-            if(order != null) {
-                Payment payment = paymentRepository.findByOrderOrderId(orderId);
-                if(payment != null) {
-                    payment.setStatus(Status_Payment.COMPLETED);
-                    paymentRepository.save(payment);
+            Payment payment = paymentRepository.findByOrderIdPayment(txnRef);
+            if(payment != null && code.equals("00")) {
+                      payment.setStatus(Status_Payment.COMPLETED);
+                     paymentRepository.save(payment);
                     Shippment shippment = new Shippment();
                     shippment.setPayment(payment);
                     shippment.setIsDeleted(false);
@@ -57,7 +57,7 @@ public class VNPayIpnHandler {
                     shippment.setDateDelivered(LocalDateTime.now());
                     shippment.setStatus(Status_Shipment.WAITING);
                     shipmentRepository.save(shippment);
-                }
+
             }
             response = VnpIpnResponseConst.SUCCESS;
         }
@@ -65,7 +65,6 @@ public class VNPayIpnHandler {
             switch (e.getResponseCode()) {
                 case BOOKING_NOT_FOUND -> response = VnpIpnResponseConst.ORDER_NOT_FOUND;
                 default -> response = VnpIpnResponseConst.UNKNOWN_ERROR;
-
             }
             try {
                 int orderId = Integer.parseInt(txnRef);

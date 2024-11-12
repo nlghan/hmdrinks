@@ -30,7 +30,7 @@ public class FavouriteItemService {
 
     public ResponseEntity<?> insertFavouriteItem(InsertItemToFavourite req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("User not found");
@@ -40,7 +40,11 @@ public class FavouriteItemService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Product not found");
         }
-        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
+        if(product.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST_400).body("Product is deleted");
+        }
+        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProIdAndIsDeletedFalse(req.getSize(),req.getProId());
         if(productVariants == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("production size not exists");
@@ -100,10 +104,7 @@ public class FavouriteItemService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND_404).body("Favourite not found");
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(req.getFavId());
-        for(FavouriteItem favouriteItem: favouriteItems)
-        {
-            favouriteItemRepository.delete(favouriteItem);
-        }
+        favouriteItemRepository.deleteAll(favouriteItems);
         favourite.setDateUpdated(LocalDateTime.now());
         favouriteRepository.save(favourite);
         return ResponseEntity.status(HttpStatus.OK_200).body(new DeleteFavouriteItemResponse(

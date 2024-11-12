@@ -13,5 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ListProductImageResponse {
     private  int productId;
+    private int total;
     List<ProductImageResponse> productImageResponseList;
 }

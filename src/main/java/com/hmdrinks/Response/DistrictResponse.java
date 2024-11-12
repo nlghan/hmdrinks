@@ -12,6 +12,6 @@ import scala.Int;
 @AllArgsConstructor
 
 public class DistrictResponse {
-    private int provinceId;
-    private String provinceName;
+    private int districtId;
+    private String districtName;
 }

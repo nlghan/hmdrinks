@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     Voucher findByVoucherIdAndIsDeletedFalse(int voucherId);
+    Voucher findByVoucherId(int voucherId);
     List<Voucher> findByIsDeletedFalse();
     Voucher findByPostPostIdAndIsDeletedFalse(int postId);
+    Voucher findByPostPostId(int postId);
 }

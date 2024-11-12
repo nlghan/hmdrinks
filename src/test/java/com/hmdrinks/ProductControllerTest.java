@@ -8,6 +8,7 @@ import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Repository.CategoryRepository;
 import com.hmdrinks.Repository.ProductRepository;
 import com.hmdrinks.Repository.TokenRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
@@ -57,8 +58,12 @@ class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ReviewService reviewService;
+    private Recommender recommender;
 
+    @MockBean
+    private ReviewService reviewService;
+    @MockBean
+    private UserRepository userRepository;
     @MockBean
     private UserService userService;
     @MockBean
@@ -298,6 +303,7 @@ class ProductControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
         when(productService.listProduct(anyString(), anyString())).thenReturn((ResponseEntity) ResponseEntity.ok().body(listProductResponse));
@@ -560,6 +566,7 @@ class ProductControllerTest {
 
         ListProductImageResponse listProductImageResponse = new ListProductImageResponse(
                 1,
+                2,
                 Arrays.asList(productImageResponse, productImageResponse2)
         );
 
@@ -603,7 +610,7 @@ class ProductControllerTest {
 
         when(productService.deleteImageFromProduct(1, 1))
                 .thenReturn((ResponseEntity )ResponseEntity.status(HttpStatus.OK)
-                        .body(new ListProductImageResponse(1, updatedImages)));
+                        .body(new ListProductImageResponse(1, 2,updatedImages)));
 
         String requestBody = objectMapper.writeValueAsString(req);
 

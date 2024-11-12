@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ListItemFavouriteResponse {
     private int favId;
+    private int total;
     List<CRUDFavouriteItemResponse> favouriteItemResponseList;
 }
