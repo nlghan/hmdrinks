@@ -23,9 +23,9 @@ const News = () => {
     const [vouchersPerPage] = useState(2);
     const [currentPageVouchers, setCurrentPageVouchers] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [limit, setLimit] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(1); // Tổng số trang
+    const [limit, setLimit] = useState(4);
+    const [currentPage, setCurrentPage] = useState(1); // Current page for posts
+    const [totalPages, setTotalPages] = useState(1); // Total pages for posts
     const [postData, setPostData] = useState({});
 
     const getUserIdFromToken = (token) => {
@@ -48,61 +48,67 @@ const News = () => {
     const token = getCookie('access_token');
     const userId = getUserIdFromToken(token);
 
-    const fetchPostVoucher = async (page, limit) => {
+    const fetchPostVoucher = async (page, limit, type = 'all') => {
         try {
             const token = getCookie('access_token');
             if (!token) {
                 setError("Bạn cần đăng nhập để xem thông tin này.");
                 return;
             }
-    
+
             const userId = getUserIdFromToken(token);
             if (!userId) {
                 setError("Không thể lấy userId từ token.");
                 return;
             }
-    
+
+            let url = '';
+            if (type === 'all') {
+                // If type is 'all', fetch all posts
+                url = `http://localhost:1010/api/admin/post/view/all?page=${page}&limit=${limit}`;
+            } else {
+                // If type is specific, fetch posts by type
+                url = `http://localhost:1010/api/admin/post/view/type/all?page=${page}&limit=${limit}&type=${type}`;
+            }
+
             // Fetch posts
-            const responsePosts = await axios.get(`http://localhost:1010/api/post/view/all?page=${page}&limit=${limit}`, {
+            const responsePosts = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
+
             const dataPosts = responsePosts.data;
             const fetchedPosts = dataPosts.listPosts || [];
             console.log("Fetched Posts:", fetchedPosts);
-    
+
+            if (fetchedPosts.length === 0) {
+                setError(`Không có bài đăng thuộc loại ${type}`);
+                setPosts([]); // Clear any existing posts
+                return; // Return early since no posts were found
+            }
+
             // Fetch all vouchers
             const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log("Raw API response:", responseVouchers.data);
             const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
             console.log("Fetched Vouchers:", fetchedVouchers);
-            fetchedVouchers.forEach(voucher => console.log("Voucher data:", voucher));
-    
+
             // Map posts to vouchers based on postId
             const postsWithVouchers = fetchedPosts.map(post => {
-                const matchingVoucher = fetchedVouchers.find(voucher => {
-                    const isMatching = voucher.postId === post.postId;
-                    if (isMatching) {
-                        console.log(`Matching Voucher Found: Post ID ${post.postId}, Voucher ID ${voucher.voucherId}`);
-                    }
-                    return isMatching;
-                });
+                const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === post.postId);
                 return {
                     ...post,
                     voucher: matchingVoucher || null
                 };
             });
-    
-            console.log("Posts with Vouchers:", postsWithVouchers);
-    
+
             setPosts(postsWithVouchers);
-            setTotalPages(dataPosts.totalPages);  // Fix: changed from setTotalPage to setTotalPages
+            setTotalPages(dataPosts.totalPages);
+
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -112,7 +118,18 @@ const News = () => {
             console.error('Error fetching posts or vouchers:', error);
         }
     };
-    
+
+
+
+    const [selectedType, setSelectedType] = useState('all');
+
+    const handleTypeChange = (event) => {
+        const newType = event.target.value;
+        setSelectedType(newType);
+        fetchPostVoucher(currentPage, limit, newType);
+    };
+
+
 
     useEffect(() => {
         fetchPostVoucher(currentPage, limit);
@@ -241,18 +258,20 @@ const News = () => {
 
         return paginationNumbers;
     };
-    const totalPageVouchers = Math.ceil(vouchers.length / vouchersPerPage);
 
-    const handlePageChangeVouchers = (newPage) => {
-        if (newPage > 0 && newPage <= totalPageVouchers) {
-            setCurrentPageVouchers(newPage);
-        }
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value); // Cập nhật từ khóa tìm kiếm
     };
+
+    // Filtering posts based on search term
+    const filteredPosts = posts.filter((post) =>
+        (post.title && post.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (post.shortDescription && post.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
     const handleOnSubmit = () => {
         fetchPostVoucher(currentPage, limit);
     };
-
     const handleUpdatePost = async (updatedPost) => {
         console.log("Updating post with data:", updatedPost); // Log dữ liệu vào console
 
@@ -262,6 +281,7 @@ const News = () => {
             return;
         }
 
+        // Cập nhật bài viết trong state
         setPosts((prevPosts) =>
             prevPosts.map((post) =>
                 post.postId === updatedPost.postId ? {
@@ -271,9 +291,13 @@ const News = () => {
             )
         );
 
+        // Cập nhật thông tin bài viết
         setPostData(updatedPost);
-        await fetchPostVoucher(currentPage, limit);
+
+        // Fetch lại danh sách bài viết sau khi cập nhật
+        fetchPostVoucher(currentPage, limit);
     };
+
 
     const handleViewPostDetails = (postId) => {
         setSelectedPostId(postId);
@@ -295,30 +319,69 @@ const News = () => {
 
 
 
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value); // Cập nhật từ khóa tìm kiếm
-    };
-    const filteredPosts = posts.filter((post) =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.shortDescription.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    // useEffect(() => {
-    //     const pages = Math.ceil(filteredPosts.length / limit);
-    //     setTotalPage(pages);
-    //     if (currentPage > pages) {
-    //         setCurrentPage(1); // Reset lại về trang đầu nếu currentPage vượt quá số trang hiện tại
-    //     }
-    // }, [filteredPosts, limit, currentPage]);
+    const handleSwitchChange = async (postId) => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để thực hiện thao tác này.");
+                return;
+            }
 
-    // Logic hiển thị vouchers theo trang
-    const indexOfLastVoucher = currentPageVouchers * vouchersPerPage;
-    const indexOfFirstVoucher = indexOfLastVoucher - vouchersPerPage;
-    const currentVouchers = vouchers.slice(indexOfFirstVoucher, indexOfLastVoucher);
+            // Find the post in the current posts state
+            const postToUpdate = posts.find(post => post.postId === postId);
+            if (!postToUpdate) {
+                console.error("No post found with the given postId:", postId);
+                return;
+            }
+
+            // Determine the correct API endpoint based on isDeleted status
+            const apiUrl = postToUpdate.isDeleted
+                ? 'http://localhost:1010/api/post/enable'
+                : 'http://localhost:1010/api/post/disable';
+
+            const newIsDeletedStatus = !postToUpdate.isDeleted;
+
+            // Send the request to enable or disable the post
+            const response = await axios.put(
+                apiUrl,
+                { id: postId },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // If the API call is successful, update the local state
+            if (response.status === 200) {
+                setPosts((prevPosts) =>
+                    prevPosts.map((post) =>
+                        post.postId === postId
+                            ? {
+                                ...post,
+                                isDeleted: newIsDeletedStatus,
+                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                            }
+                            : post
+                    )
+                );
+                console.log(
+                    `Post with ID ${postId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
+                );
+            } else {
+                setError("Không thể thay đổi trạng thái bài post. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error("Error changing post status:", error);
+            setError("Không thể thay đổi trạng thái bài post. Vui lòng thử lại.");
+        }
+    };
 
     return (
-        
+
         <div className="post-container">
-           <Header isMenuOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} title="Tiếp thị" />
+            <Header isMenuOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} title="Tiếp thị" />
             <div className="post-content">
 
                 <div className="post-voucher-table" >
@@ -326,6 +389,7 @@ const News = () => {
                     <>
                         <div className="post-table">
                             <div className="header-post-table">
+                                <h2>Danh sách bài đăng</h2>
                                 <input
                                     type="text"
                                     placeholder="Tìm kiếm bài đăng..."
@@ -334,7 +398,12 @@ const News = () => {
                                     value={searchTerm} // Gắn giá trị từ state
                                     onChange={handleSearchChange} // Gọi hàm xử lý khi thay đổi từ khóa tìm kiếm
                                 />
-                                <h2>Danh sách bài đăng</h2>
+                                <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '11.5%', borderRadius: '20px' }}>
+                                    <option value="all">Tất cả</option>
+                                    <option value="EVENT">Sự kiện</option>
+                                    <option value="DISCOUNT">Giảm giá</option>
+                                    <option value="NEW">Món mới</option>
+                                </select>
                                 <button className="post-table-add-btn" onClick={() => setFormAddPostVisible(true)} >
                                     Thêm bài đăng và voucher +
                                 </button>
@@ -352,6 +421,7 @@ const News = () => {
                                         postId={postToUpdate?.postId}  // Truyền riêng postId
                                         onClose={handleCloseUpdatePost}
                                         onSave={handleUpdatePost}
+
                                     />
                                 </div>
                             )}
@@ -364,13 +434,14 @@ const News = () => {
                                 </div>
                             )}
 
-                            <table>
+                            <table className='post-list-table'>
                                 <thead>
                                     <tr>
                                         <th>STT</th>
                                         <th>Tiêu đề</th>
-                                        <th>Mô tả ngắn</th>
+                                        <th>Danh mục</th>
                                         <th>Ảnh bài đăng</th>
+                                        <th>Trạng thái</th>
                                         <th>Mã voucher</th>
                                         <th>Giảm giá</th>
                                         <th>Trạng thái</th>
@@ -384,9 +455,21 @@ const News = () => {
                                         <tr key={post.postId}>
                                             <td>{(currentPage - 1) * limit + index + 1}</td>
                                             <td>{post.title}</td>
-                                            <td>{post.shortDescription}</td>
+                                            <td>{post.typePost}</td>
                                             <td>
-                                                {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '70px', height: '70px' }} /> : 'No Image'}
+                                                {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '100px', height: '100px' }} /> : 'No Image'}
+                                            </td>
+                                            <td>
+                                                <label className="cate-switch">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!post.isDeleted} // Checked if post is not deleted
+                                                        onChange={() => handleSwitchChange(post.postId)} // Pass function reference
+                                                    />
+                                                    <span className="cate-slider round"></span>
+                                                </label>
+
+
                                             </td>
 
                                             {/* Display voucher information if available */}
@@ -421,16 +504,23 @@ const News = () => {
                                             <td>
                                                 <div className="admin-post-button-container">
                                                     <button id="admin-post-update-btn3" onClick={() => handleViewPostDetails(post.postId)}>
-                                                        <i className="ti-info-alt"></i>
+                                                        <i className="ti-info-alt" style={{ color: 'violet' }}></i>
                                                     </button>
-                                                    <button id="admin-post-update-btn1" onClick={() => handleUpdatePostClick(post)}>
-                                                        <i className="ti-pencil"></i> {/* Icon cho cập nhật */}
+                                                    <button
+                                                        id="admin-post-update-btn1"
+                                                        onClick={() => handleUpdatePostClick(post)}
+                                                        disabled={post.isDeleted} // Disable the button if the post is deleted
+                                                        style={{ cursor: post.isDeleted ? 'not-allowed' : 'pointer' }} // Show 'not-allowed' cursor if post is deleted
+                                                    >
+                                                        <i
+                                                            className="ti-pencil"
+                                                            style={{ color: post.isDeleted ? 'gray' : 'blue' }} // Change icon color if post is deleted
+                                                        ></i>
+                                                        {/* Icon for update */}
                                                     </button>
 
 
-                                                    <button id="admin-post-update-btn2">
-                                                        <i className="ti-trash"></i>
-                                                    </button>
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -443,45 +533,43 @@ const News = () => {
                                 </tbody>
                             </table>
 
-
-                             {/* Phân trang */}
-                        <div className="pagination" style={{position:'absolute', left:'-100px'}}>
-                            <button
-                                className="btn btn-pre me-2"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                &lt;
-                            </button>
-                            {getPaginationNumbers().map((number, index) => (
+                            {/* Phân trang */}
+                            <div className="pagination" style={{ position: 'absolute', left: '-100px' }}>
                                 <button
-                                    key={index}
-                                    className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
-                                    onClick={() => {
-                                        if (number !== '...') {
-                                            handlePageChange(number);
-                                        }
-                                    }}
-                                    disabled={number === '...'} // Disable button for ellipsis
+                                    className="btn btn-pre me-2"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
                                 >
-                                    {number}
+                                    &lt;
                                 </button>
-                            ))}
-                            <button
-                                className="btn btn-next"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                            >
-                                &gt;
-                            </button>
-                        </div>
+                                {getPaginationNumbers().map((number, index) => (
+                                    <button
+                                        key={index}
+                                        className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'} me-2`}
+                                        onClick={() => {
+                                            if (number !== '...') {
+                                                handlePageChange(number);
+                                            }
+                                        }}
+                                        disabled={number === '...'} // Disable button for ellipsis
+                                    >
+                                        {number}
+                                    </button>
+                                ))}
+                                <button
+                                    className="btn btn-next"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    &gt;
+                                </button>
+                            </div>
                         </div>
                     </>
 
-                </div>
-                <div className="user-voucher-table">
+                    <div className="user-voucher-table">
                     <table>
-                        <thead>
+                        <thead id='user-voucher-table-header'>
                             <tr>
                                 <th>User Voucher ID</th>
                                 <th>User ID</th>
@@ -509,6 +597,7 @@ const News = () => {
 
                 </div>
 
+                </div>
 
             </div>
         </div>

@@ -5,12 +5,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useAuth } from '../../context/AuthProvider.jsx';
+import { useCart } from '../../context/CartContext.jsx';
+import {useFavorite} from '../../context/FavoriteContext.jsx'
 
 const Navbar = ({ currentPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, logout } = useAuth();
 
+
+  const { cartItems } = useCart();
+  const {favoriteCount, clearFavorites} = useFavorite();
+  const totalProducts = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const favCount = favoriteCount
   // Hide breadcrumb if on homepage, product detail page, or root URL
   const [showBreadcrumb, setShowBreadcrumb] = useState(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '');
   // State to manage box shadow visibility
@@ -46,6 +53,7 @@ const Navbar = ({ currentPage }) => {
       console.log("Logged out:", response.data);
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
+      clearFavorites();
       logout();
       navigate('/home');
     } catch (error) {
@@ -112,7 +120,13 @@ const Navbar = ({ currentPage }) => {
   // Update breadcrumb and box shadow visibility when route changes
   useEffect(() => {
     const isProductDetailPage = location.pathname.startsWith('/product/');
-    setShowBreadcrumb(location.pathname !== '/home' && location.pathname !== '/' && location.pathname !== '' && !isProductDetailPage);
+    setShowBreadcrumb(
+      location.pathname !== '/home' && 
+      location.pathname !== '/' && 
+      location.pathname !== '' && 
+      location.pathname !== '/change' && // Add this condition
+      !isProductDetailPage
+    );
     setShowBoxShadow(location.pathname === '/home' || isProductDetailPage);
   }, [location.pathname]);
 
@@ -165,13 +179,15 @@ const Navbar = ({ currentPage }) => {
           
           {/* Group icons in a single div for better spacing control */}
           {isLoggedIn && (
-            <div className="icon-group">
+            <div className="icon-group-nav">
               <li onClick={handleCartIconClick}>
                 <i className="ti-shopping-cart"></i>
+                {totalProducts > 0 && <span className="icon-badge-nav">{totalProducts}</span>}
                 {isSmallScreen && <span> Giỏ Hàng</span>}
               </li>
               <li onClick={handleFavIconClick}>
                 <i className="ti-heart"></i>
+                {favCount > 0 && <span className="icon-badge-nav">{favCount}</span>}
                 {isSmallScreen && <span> Yêu Thích</span>}
               </li>
               <li onClick={handleUserIconClick}>

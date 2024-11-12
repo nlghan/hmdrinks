@@ -28,9 +28,9 @@
     gap: 10px; /* Khoảng cách giữa ảnh và văn bản */
 }
 
-.thumbnail {
-    width: 50px; /* Kích thước ảnh */
-    height: 50px; /* Kích thước ảnh */
+#thumbnail {
+    width: 100px; /* Kích thước ảnh */
+    height: 100px; /* Kích thước ảnh */
     border-radius: 5px; /* Bo tròn góc ảnh */
 }
 

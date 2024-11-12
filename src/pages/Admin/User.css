@@ -31,16 +31,16 @@
   .user-box .header-user-box {
     position: relative;
     display: flex;
-    justify-content: center; 
+    justify-content: space-between; 
     align-items: center; 
     margin-bottom: 10px;
-    flex-direction: row-reverse;
+    flex-direction: row;
+    gap:20px
 }
 
 .user-box h2 {
-  text-align: center;
-  width: 41%;
-  margin-right: 100px;
+  text-align: left;
+  width: 100%;
 }
 .user-button-container {
   display: flex; /* Sử dụng Flexbox để bố trí các nút */
@@ -90,8 +90,6 @@
 }
 
 .add-user-btn {
-    position: absolute;
-    right: 0; /* Căn về cuối dòng */
     padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
@@ -99,6 +97,7 @@
     border-radius: 20px;
     cursor: pointer;
     font-size: 16px;
+    width: 40%;
 }
 
 .add-user-btn:hover {
@@ -107,8 +106,7 @@
 .search-user-input {
   padding: 10px;
   margin-left: -530px; 
-  border: 1px solid #f0c1c1;
-  margin-right: 250px;;
+  border: 1px solid #f0c1c1;;
   border-radius: 4px;
   font-size: 16px;
 }
@@ -593,4 +591,5 @@ input:checked + .slider:before {
   border: 1px solid #f0c1c1;
   border-radius: 4px;
   font-size: 16px;
+  border-radius: 20px;
 }

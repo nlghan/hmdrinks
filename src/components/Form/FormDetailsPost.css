@@ -8,7 +8,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9000;
+    z-index: 99;
+    /* z-index: 9000; */
 }
 .form-details-post-container {
     width: 800px; /* Độ rộng tối đa của khung bài đăng */
@@ -69,6 +70,7 @@
     font-size: 16px; /* Kích thước chữ mô tả */
     margin-bottom: 10px;
     color: #000000;
+    white-space: pre-line;
 }
 .form-details-post-item-short-description {
     font-size: 17px; /* Kích thước chữ mô tả */
@@ -82,10 +84,11 @@
 }
 
 .form-details-post-image img {
-    width: 500px; /* Chiều rộng hình ảnh */
-    height: 400px; /* Chiều cao hình ảnh */
-    object-fit: cover; /* Giữ tỷ lệ hình ảnh */
-    border-radius: 4px; /* Bo góc hình ảnh */
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 20px;
 }
 
 .form-details-post-status {
@@ -116,7 +119,7 @@
     margin-bottom: 10px;
 }
 
-.voucher-key {
+.voucher-key-detail {
     font-size: 18px; /* Kích thước chữ cho key */
     font-weight: bold; /* In đậm chữ key */
     color: green; /* Màu xanh lá cho key */
@@ -128,7 +131,7 @@
     color: darkgreen; /* Màu tối hơn khi hover */
 }
 
-.voucher-discount {
+.voucher-discount-detail {
     font-size: 16px; /* Kích thước chữ cho discount */
     margin-right: 10px; /* Khoảng cách bên phải discount */
 }
@@ -150,3 +153,4 @@
     display: block; /* Mỗi ngày sẽ nằm trên một dòng riêng */
     margin-top: 5px; /* Khoảng cách trên giữa các ngày */
 }
+

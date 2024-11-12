@@ -107,7 +107,7 @@ const ChangePassword = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={"Đổi mật khẩu"}/>
             <div className="change-password-page">
                 <div className="change-password-container">
                     <div className="change-password-image">

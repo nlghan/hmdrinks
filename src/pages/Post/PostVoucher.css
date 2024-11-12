@@ -1,15 +1,18 @@
 /* PostVoucher.css */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 .post-voucher-container {
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 80px 200px;
     position: relative;
     overflow: hidden;
 }
 
+/* Blurred background styling */
 .post-voucher-container::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 10px;
+    top:0;
     left: 0;
     width: 100%;
     height: 100%;
@@ -17,108 +20,97 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    filter: blur(5px) brightness(1.3);
-    transform: scale(1.1);
-    z-index: 0;
+    transform: scale(1);
+    z-index: -1; /* Ensure background is behind main content */
+    border-radius: inherit;
+    opacity: 0.1;
 }
 
-.post-voucher-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.85);
-    z-index: 1;
-}
-
-.post-content-wrapper {
-    position: relative;
-    z-index: 2;
-    max-width: 1200px;
-    margin: 60px auto 0;
-}
-
+/* Back button styling */
 .btn-back {
-    background-color: #ef7280;
+    background: #ff6b6b;
     color: white;
+    padding: 8px 16px;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: bold;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+    z-index: 1; /* Keep it above the background */
 }
-
 .btn-back:hover {
-    background-color: #ec5b5b;
-    transform: translateY(-2px);
+    background-color: #ff5252;
 }
 
+/* Post banner styling */
 .post-banner {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 40px;
-    margin-bottom: 40px;
-    background-color: #fff3f3;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.post-details {
-    flex: 1;
-    padding-right: 40px;
-}
-
-.post-title {
-    font-family: 'Pacifico', cursive;
-    font-size: 36px;
+    gap: 50px;
     margin-bottom: 20px;
-    color: #333;
+    z-index: 1; /* Keep it above the background */
 }
-
-.post-date {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 15px;
-}
-
-.post-short-desc {
-    font-size: 18px;
-    line-height: 1.6;
-    color: #444;
-}
-
 .post-image-wrapper {
-    flex: 1;
+    flex: 2;
 }
-
 .post-banner-image {
     width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
 }
 
+/* Post details styling */
+.post-details {
+    flex: 2;
+    z-index: 1; /* Keep it above the background */
+}
+.post-title {
+    font-size: 40px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    font-family: "Pacifico", cursive;
+}
+.post-title2 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: "Pacifico", cursive;
+    margin-top: 50px;
+}
+.post-date {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 15px;
+}
+.post-short-desc {
+    font-size: 16px;
+    color: #555;
+}
+
+/* Post description section */
 .post-description-section {
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 10px;
-    margin: 30px 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    line-height: 1.8;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #444;
+    line-height: 1.6;
+    z-index: 1; /* Keep it above the background */
+    font-family: 'Inter';
 }
 
+/* Voucher section styling */
+/* Voucher section styling */
+/* Container for the Voucher Section */
+/* Section for the Voucher */
 .voucher-section {
     display: flex;
     justify-content: center;
+    align-items: center;
+    padding: 50px;
+  }
+  
+  .voucher-card {
     margin: 40px 0;
     perspective: 1000px;
 }
@@ -187,20 +179,17 @@
 
 .voucher-dates {
     display: flex;
-    flex-direction: column; /* Chuyển thành column để xếp dọc */
-    gap: 3px; /* Tạo khoảng cách giữa 2 dòng */
-    align-items: center; /* Căn giữa theo chiều ngang */
-    color: #555;
-    font-weight: 500;
-    margin-left: -60px;
-}
-
-.voucher-dates span {
-    display: block; /* Đảm bảo mỗi span chiếm trọn 1 dòng */
-    text-align: center;
-}
-
-.voucher-card::after {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    width: 70%;
+    max-width: 100%;
+    gap:120px;
+    background: #f2fffa;
+    
+  }
+  .voucher-card::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -216,6 +205,88 @@
     transform: rotate(30deg);
     animation: shine 3s infinite;
 }
+  
+  .voucher-image img {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    object-fit: cover;
+  }
+  
+  .voucher-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    
+  }
+  
+  .voucher-discount {
+    font-size: 30px;
+    color: #00796b; /* Deep green color */
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .voucher-description {
+    font-size: 18px;
+    color: #444;
+    font-weight: 600;
+  }
+  
+  .voucher-description p:first-child {
+    font-size: 24px;
+    color: #00796b; /* Deep green color for "HDI" text */
+  }
+  
+  
+  .voucher-dates {
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .voucher-contact {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .voucher-contact span {
+    display: block;
+  }
+
+  .voucher-claim-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #00796b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .voucher-claim-btn:hover {
+    background-color: #e05f3c;
+  }
+  
+  .voucher-claim-btn:focus {
+    outline: none;
+  }
+  
+
+  .voucher-key {
+    display: block;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgb(132 207 170 / 50%);
+}
 
 @keyframes shine {
     from {
@@ -230,106 +301,38 @@
     opacity: 0.3;
 }
 
-@media (max-width: 768px) {
-    .voucher-card {
-        max-width: 90%;
-        padding: 20px;
-    }
-
+/* 
     .voucher-key-user {
         font-size: 24px;
     }
 
     .voucher-discount {
         font-size: 20px;
-    }
+    } */
 }
 
-/* Animation classes */
 .fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 0.5s ease-in-out forwards;
 }
-
-.zoom-in1 {
-    animation: zoomIn1 0.8s ease-out forwards;
-}
-
 .slide-in-left {
-    animation: slideInLeft 0.8s ease-out forwards;
+    animation: slideInLeft 0.5s ease-in-out forwards;
 }
-
 .slide-in-right {
-    animation: slideInRight 0.8s ease-out forwards;
+    animation: slideInRight 0.5s ease-in-out forwards;
 }
-
-/* Rotating circles animation */
-.rotating-circles {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.circle {
-    position: absolute;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-}
-
-.circle:nth-child(1) {
-    width: 60px;
-    height: 60px;
-    animation: rotate1 4s linear infinite;
-}
-
-.circle:nth-child(2) {
-    width: 80px;
-    height: 80px;
-    animation: rotate2 4s linear infinite;
-}
-
-.circle:nth-child(3) {
-    width: 100px;
-    height: 100px;
-    animation: rotate3 4s linear infinite;
-}
-
-/* Keyframes */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
-
-@keyframes zoomIn1 {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
 @keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
-
 @keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
+.post-description-section p {
+  white-space: pre-line;
+}

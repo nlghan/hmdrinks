@@ -20,15 +20,17 @@ const Home = () => {
     const fetchPosts = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all?page=1&limit=30`);
-            setPosts(response.data.listPosts);
+            const reversedPosts = response.data.listPosts.reverse(); // Đảo ngược thứ tự của bài viết
+            setPosts(reversedPosts);
         } catch (error) {
             console.error('Error fetching posts:', error);
         }
     };
-
+    
     useEffect(() => {
         fetchPosts();
     }, []);
+    
 
     useEffect(() => {
         const observerOptions = {
@@ -100,7 +102,7 @@ const Home = () => {
     };
 
     const handleViewMore = () => {
-        setVisiblePosts(posts.length);
+        navigate('/post')
     };
 
     return (
@@ -135,8 +137,8 @@ const Home = () => {
                 <div className="login-modal">
                     <div className="login-modal-content">
                         <p>Bạn cần đăng nhập để xem chi tiết bài đăng.</p>
-                        <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
                         <a href="/login">Đăng nhập</a>
+                        <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>                       
                     </div>
                 </div>
             )}

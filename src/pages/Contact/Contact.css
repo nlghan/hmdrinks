@@ -1,6 +1,6 @@
 .contact-main {
   padding: 60px 0;
-  background-image: url('../../assets/img/about.png');
+  background-image: url('../../assets/img/contact.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -16,7 +16,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(238, 223, 223, 0.438);
+  background-color: rgba(238, 223, 223, 0.2);
 }
 
 .contact-section {
@@ -281,6 +281,9 @@ button[type="submit"] {
   .contact-form-group:nth-child(-n+3) {
     width: 100%;
     flex: none;
+  }
+  .contact-submit-btn{
+    margin-bottom: 10px;
   }
 }
 

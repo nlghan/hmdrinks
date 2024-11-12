@@ -13,7 +13,7 @@
 }
 
 .product-card:hover {
-    background: linear-gradient(to bottom, white 54.5%, #d2f9cfbd 30%);
+    background: linear-gradient(to bottom, white 54.5%, #ffffffbd 30%);
     transform: translateY(-5px); /* Applies the 0.5s transition */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
 }
@@ -30,7 +30,7 @@
 }
 
 .product-card:hover {
-    background: linear-gradient(to bottom, white 54.5%, #d2f9cfbd 30%);
+    background: linear-gradient(to bottom, white 54.5%, #ecffffbd 30%);
     transform: translateY(-4px) !important;
 }
 
@@ -44,9 +44,7 @@
     transform: translateY(40px);
 }
 
-.product-card:hover .info-product-card {
-    transform: translateY(10px);
-}
+
 
 /* Product title */
 .info-product-card h3 {
@@ -61,7 +59,7 @@
 }
 
 .product-card:hover .info-product-card {
-    transform: translateY(10px);
+    transform: translateY(0px);
 }
 
 /* Animation for fading in each letter with zoom */

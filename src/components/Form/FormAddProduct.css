@@ -1,15 +1,17 @@
 /* Overlay for the background */
-.overlay {
-    position: fixed; /* Fixes it to the viewport */
+.add-product-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Darker semi-transparent black background */
-    z-index: 999; /* Higher z-index to overlay other elements */
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }
 
-/* Center the form */
 /* Center the form */
 .form-add-product-container {
     display: flex;
@@ -26,6 +28,7 @@
 .add-pro-form-actions{
     display: flex;
     justify-content: space-between;
+    gap:15px
 }
 
 .add-pro-form-actions #add-submit-btn {
@@ -33,7 +36,8 @@
     color: white;
     width: 365px;
     padding: 12px 20px;
-    
+    border-radius: 20px;
+    justify-content: center;
 }
 
 /* The form itself */
@@ -123,6 +127,8 @@ textarea:focus {
     font-size: 16px; /* Larger font size */
     transition: background-color 0.2s; /* Transition for button hover */
     width: 350px;
+    border-radius: 20px;
+    justify-content: center;
 }
 
 
@@ -136,8 +142,9 @@ textarea:focus {
     color: white;
 }
 
-.cancel-btn:hover {
-    background-color: #c82333; /* Darker red on hover */
+#add-cancel-btn:hover {
+    background-color: #bd535e;
+   
 }
 
 /* Messages styles */

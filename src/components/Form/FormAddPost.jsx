@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import mammoth from 'mammoth';
 import './FormAddPost.css';
 
-// Function to retrieve token from cookies
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-
     if (parts.length === 2) return parts.pop().split(';').shift();
 };
 
@@ -16,25 +15,27 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         description: '',
         shortDescription: '',
         file: null,
-        keyVoucher: '', // Mã giảm giá
+        keyVoucher: '',
         discount: 0,
-        startDate: '2024-11-12 07:01:29',
-        endDate: '2024-11-12 08:01:29',
-        status: 'ACTIVE', // Trạng thái voucher
+        startDate: '2024-12-10 10:23:49',
+        endDate: '2024-12-31 10:23:49',
+        status: 'ACTIVE',
+        typePost: 'NEW',
+        url: '',
+        number: 0
     });
-
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'file') {
-            setFormData({ ...formData, [name]: e.target.files[0] });
-        } else {
-            setFormData({ ...formData, [name]: value });
-        }
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: name === 'startDate' || name === 'endDate' ? formatDateTime(value) : value,
+        }));
     };
-    // Helper function to format the datetime-local value
+
     const formatDateTime = (dateTime) => {
         const date = new Date(dateTime);
         const year = date.getFullYear();
@@ -46,198 +47,164 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
+    const handleFileChange = (e) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            file: e.target.files[0],
+        }));
+    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const { title, description, shortDescription, file, keyVoucher, discount, startDate, endDate, status } = formData;
-        const token = getCookie('access_token');  // Ensure the token is fetched correctly
-
-        if (!token) {
-            setErrorMessage("Bạn cần đăng nhập để thêm bài đăng.");
-            return;
-        }
-
-        if (!title || !description || !shortDescription) {
-            setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
-            return;
-        }
-
-        try {
-            // 1. Create the post
-            const postData = {
-                url: '',
-                description,
-                title,
-                shortDescription,
-                userId,
-            };
-
-            console.log("Creating post with data:", postData);  // Log for debugging
-            const postResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/post/create`, postData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const postId = postResponse.data.postId;  // Get the postId from response
-            console.log("Post created successfully with ID:", postId);  // Log ID of the created post
-
-            // 2. Upload the image if there's any
-            let imageUrl = '';
-            if (file) {
-                const imageFormData = new FormData();
-                imageFormData.append('file', file);
-
-                console.log("Uploading image with data:", imageFormData);  // Log for debugging
-                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/post/upload?postId=${postId}`, imageFormData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                imageUrl = uploadResponse.data.url;
-                console.log("Image uploaded successfully with URL:", imageUrl);  // Log the uploaded image URL
-
-                // Update the post with the uploaded image URL
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/post/update`, {
-                    url: imageUrl,
-                    description,
-                    title,
-                    shortDescription,
-                    userId,
-                    postId,
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
+    // Hàm để tải nội dung từ file Word và đặt vào description
+    const handleWordFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file && file.name.endsWith('.docx')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                setFormData((prevData) => ({
+                    ...prevData,
+                    description: result.value,  // Cập nhật description với nội dung file Word
+                }));
+            } catch (error) {
+                console.error("Lỗi khi tải file Word:", error);
             }
-
-            // 3. Create the voucher
-            const formattedStartDate = formatDateTime(startDate);
-            const formattedEndDate = formatDateTime(endDate);
-            const voucherData = {
-                keyVoucher, 
-                discount,
-                startDate: formattedStartDate,  // Use formatted startDate
-                endDate: formattedEndDate,      // Use formatted endDate
-                status,
-                postId,  // Link the voucher to the post
-            };
-
-            console.log("Creating voucher with data:", voucherData);  // Log for debugging
-            const voucherResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/voucher/create`, voucherData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log("Voucher created successfully:", voucherResponse.data);  // Log voucher creation success
-
-            // Set success message and clear error
-            setSuccessMessage("Bài đăng và voucher đã được tạo thành công!");
-            setErrorMessage("");
-            onSubmit();
-            setTimeout(() => {
-                setSuccessMessage('');
-                onClose();
-            }, 2000);
-
-        } catch (error) {
-            console.error('Error creating post or voucher:', error);  // Log error for debugging
-
-            if (error.response) {
-                console.log("Response data:", error.response.data);  // Log response data for debugging
-                console.log("Response status:", error.response.status);  // Log response status
-                setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi trong quá trình tạo.');
-            } else {
-                setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
-            }
+        } else {
+            alert("Vui lòng chọn file .docx hợp lệ.");
         }
     };
 
-
-
+    const handleSubmit = async () => {
+        const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, status, file, number } = formData;
+    
+        try {
+            const token = getCookie('access_token');
+            const headers = { Authorization: `Bearer ${token}` };
+    
+            setIsCreating(true);
+            const postResponse = await axios.post(
+                'http://localhost:1010/api/post/create',
+                {
+                    title,
+                    description,
+                    shortDescription,
+                    typePost,
+                    userId,
+                    url: formData.url
+                },
+                { headers }
+            );
+            const postId = postResponse.data.postId;
+    
+            let imageUrl = null;
+            if (file) {
+                const imageData = new FormData();
+                imageData.append('file', file);
+    
+                const imageResponse = await axios.post(
+                    `http://localhost:1010/api/image/post/upload?postId=${postId}`,
+                    imageData,
+                    {
+                        headers: {
+                            ...headers,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+    
+                imageUrl = imageResponse.data.imageUrl;
+                setFormData(prevData => ({ ...prevData, url: imageUrl }));
+            }
+    
+            const formattedStartDate = formatDateTime(startDate);
+            const formattedEndDate = formatDateTime(endDate);
+    
+            await axios.post(
+                'http://localhost:1010/api/voucher/create',
+                {
+                    keyVoucher,
+                    discount,
+                    startDate: formattedStartDate,
+                    endDate: formattedEndDate,
+                    status,
+                    postId: postId,
+                    number
+                },
+                { headers }
+            );
+    
+            setSuccessMessage('Tạo bài đăng và voucher thành công!');
+            setErrorMessage('');
+            setTimeout(() => {
+                onSubmit();
+                if (onClose) onClose();
+            }, 1000);
+        } catch (error) {
+            setIsCreating(false);
+            setErrorMessage('Đã xảy ra lỗi khi thêm bài đăng hoặc voucher.');
+            setSuccessMessage('');
+        }finally{
+            setIsCreating(false);
+        }
+    };
+    
 
     return (
         <div className="form-add-post-container">
-            <div className="form-add-post-wrapper">
+            {isCreating && (
+                <div className="loading-overlay active">
+                    <div className="loading-spinner"></div>
+                </div>
+            )}
+            <div className="form-add-post-wrapper">          
                 <h2>Thêm Bài Đăng và Voucher</h2>
                 {errorMessage && <p className="form-add-post-error">{errorMessage}</p>}
                 {successMessage && <p className="form-add-post-success">{successMessage}</p>}
-                <form onSubmit={handleSubmit} className="form-add-post-columns">
+                <form className="form-add-post-columns" onSubmit={(e) => e.preventDefault()}>
                     <div className="form-add-post-column">
                         <h3>Thông tin Bài Đăng</h3>
                         <div className="form-add-post-group">
                             <label htmlFor="title">Tiêu đề</label>
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} />
                         </div>
                         <div className="form-add-post-group">
                             <label htmlFor="description">Mô tả</label>
-                            <textarea
-                                id="description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} />
+                            <label htmlFor="wordFile">Tải nội dung từ file Word</label>
+                            <input type="file" id="wordFile" name="wordFile" accept=".docx" onChange={handleWordFileChange} />
                         </div>
+                        
                         <div className="form-add-post-group">
                             <label htmlFor="shortDescription">Mô tả ngắn</label>
-                            <input
-                                type="text"
-                                id="shortDescription"
-                                name="shortDescription"
-                                value={formData.shortDescription}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <input type="text" id="shortDescription" name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} />
+                        </div>
+                        <div className="form-add-post-group">
+                            <label htmlFor="typePost">Loại bài đăng</label>
+                            <select id="typePost" name="typePost" value={formData.typePost} onChange={handleInputChange}>
+                                <option value="EVENT">EVENT</option>
+                                <option value="NEW">NEW</option>
+                                <option value="DISCOUNT">DISCOUNT</option>
+                            </select>
                         </div>
                         <div className="form-add-post-group">
                             <label htmlFor="file">Ảnh minh họa</label>
-                            <input
-                                type="file"
-                                id="file"
-                                name="file"
-                                accept="image/*"
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <input type="file" id="file" name="file" accept="image/*" onChange={handleFileChange} />
                         </div>
+                        
                     </div>
 
                     <div className="form-add-post-column">
                         <h3>Thông tin Voucher</h3>
                         <div className="form-add-post-group">
                             <label htmlFor="keyVoucher">Mã Voucher</label>
-                            <input
-                                type="text"
-                                id="keyVoucher"
-                                name="keyVoucher"
-                                value={formData.keyVoucher}
-                                onChange={handleInputChange}
-                            />
+                            <input type="text" id="keyVoucher" name="keyVoucher" value={formData.keyVoucher} onChange={handleInputChange} />
                         </div>
                         <div className="form-add-post-group">
                             <label htmlFor="discount">Giảm giá</label>
-                            <input
-                                type="number"
-                                id="discount"
-                                name="discount"
-                                value={formData.discount}
-                                onChange={handleInputChange}
-                            />
+                            <input type="number" id="discount" name="discount" value={formData.discount} onChange={handleInputChange} />
+                        </div>
+                        <div className="form-add-post-group">
+                            <label htmlFor="number">Số lượng</label>
+                            <input type="number" id="number" name="number" value={formData.number} onChange={handleInputChange} />
                         </div>
                         <div className="form-add-post-group">
                             <label htmlFor="startDate">Ngày bắt đầu</label>
@@ -261,24 +228,17 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         </div>
                         <div className="form-add-post-group">
                             <label htmlFor="status">Trạng thái</label>
-                            <select
-                                id="status"
-                                name="status"
-                                value={formData.status}
-                                onChange={handleInputChange}
-                            >
+                            <select id="status" name="status" value={formData.status} onChange={handleInputChange}>
                                 <option value="ACTIVE">ACTIVE</option>
                                 <option value="INACTIVE">INACTIVE</option>
                             </select>
                         </div>
                     </div>
-
-                   
                 </form>
                 <div className="form-add-post-actions">
-                        <button type="submit">Thêm Bài Đăng và Voucher</button>
-                        <button type="button" onClick={onClose}>Hủy</button>
-                    </div>
+                    <button type="button" onClick={handleSubmit} >Lưu</button>
+                    <button type="button" onClick={onClose}>Hủy</button>
+                </div>
             </div>
         </div>
     );

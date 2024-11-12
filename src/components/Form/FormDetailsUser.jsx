@@ -3,6 +3,14 @@ import './FormDetailsUser.css';
 import { assets } from "../../assets/assets.js";
 
 const FormDetailsUser = ({ user, onClose }) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${day}/${month}/${year}`;
+    };
+    console.log("adress: ", user.address)
     return (
         <div className="form-details-user">
             <div className="form-header-details-user">
@@ -41,7 +49,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     </div>
                     <div className="detail-row">
                         <label>Ngày sinh:</label>
-                        <span>{user.birth_date ? new Date(user.birth_date).toLocaleDateString() : 'N/A'}</span>
+                        <span>{formatDate(user.birth_date) }</span>
                     </div>
                     <div className="detail-row">
                         <label>Địa chỉ:</label>
@@ -53,7 +61,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     </div>
                     <div className="detail-row">
                         <label>Điện thoại:</label>
-                        <span>{user.phone}</span>
+                        <span>{user.phoneNumber}</span>
                     </div>
                     <div className="detail-row">
                         <label>Giới tính:</label>

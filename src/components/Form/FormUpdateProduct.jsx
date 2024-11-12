@@ -40,6 +40,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
     // New state to hold selected files for upload
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploadMessage, setUploadMessage] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
 
     // Function to get cookie by name
     const getCookie = (name) => {
@@ -162,7 +163,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 return;
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/view/${proId}`;
+            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/list-image/${proId}`;
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
@@ -170,8 +171,10 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 },
             });
 
-            if (response.data && response.data.productImageResponseList) {
-                setProductImages(response.data.productImageResponseList);
+            // Kiểm tra và lấy danh sách ảnh từ body của response
+            if (response.data && response.data.body.productImageResponseList) {
+                setProductImages(response.data.body.productImageResponseList);
+                console.log("lấy ảnh r nè: ", response.data.body.productImageResponseList);
             } else {
                 console.warn("No images found in the product details.");
             }
@@ -187,6 +190,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             fetchProductDetails();
         }
     }, [proId]);
+
 
     // Function to handle image deletion
     const handleDeleteImage = async (imageId, index) => {
@@ -224,6 +228,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 // Re-fetch the product images after deletion
                 await fetchProductDetails(); // Make sure this function is defined
                 alert("Hình ảnh đã được xóa thành công.");
+                setSelectedFiles([]);
             } else {
                 throw new Error("Xóa hình ảnh thất bại.");
             }
@@ -273,6 +278,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 // Re-fetch the product images after deleting all
                 await fetchProductDetails();
                 alert('Tất cả hình ảnh đã được xóa thành công.');
+                setSelectedFiles([]);
             } else {
                 throw new Error('Xóa tất cả hình ảnh thất bại.');
             }
@@ -291,23 +297,29 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
     };
 
     // Function to upload files
+    const [isUploading, setIsUploading] = useState(false); // Thêm trạng thái isUploading
+
     const handleFileUpload = async () => {
         if (selectedFiles.length === 0) {
             setUploadMessage("Vui lòng chọn ít nhất một hình ảnh để tải lên.");
+            console.log("Vui lòng chọn ít nhất một hình ảnh.");
             return;
         }
     
         // Tạo FormData và thêm các tệp hình ảnh
         const imageFormData = new FormData();
         selectedFiles.forEach(file => {
-            imageFormData.append('files', file); // Sử dụng 'files' cho phép tải lên nhiều tệp
+            imageFormData.append('files', file);
         });
     
         const token = getCookie('access_token');
         if (!token) {
             setUploadMessage("Bạn cần đăng nhập để thực hiện thao tác này.");
+            console.log("Chưa đăng nhập.");
             return;
         }
+    
+        setIsUploading(true);
     
         try {
             // Gửi yêu cầu tải lên hình ảnh
@@ -324,16 +336,36 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
     
             // Kiểm tra và cập nhật trạng thái sản phẩm hình ảnh
             if (uploadResponse.data && uploadResponse.data.productImageResponseList) {
-                setProductImages(uploadResponse.data.productImageResponseList);
+                setProductImages(uploadResponse.data.productImageResponseList); // Cập nhật hình ảnh ngay sau khi tải lên thành công
                 setUploadMessage("Hình ảnh đã được tải lên thành công.");
-                setSelectedFiles([]); // Xóa danh sách tệp đã chọn
-            } 
+                console.log("Hình ảnh đã được tải lên thành công.");
+    
+                // Fetch lại hình ảnh mới nhất từ API
+                await fetchProductDetails();
+            } else {
+                setUploadMessage("Hình ảnh đã được tải lên thành công.");
+                await fetchProductDetails();
+                setSelectedFiles([]); // Đảm bảo reset selectedFiles
+                console.log("Hình ảnh đã được tải lên thành công.");
+            }
+    
+            // Reset selected files sau khi tải lên thành công
+            setSelectedFiles([]); // Đảm bảo reset selectedFiles
         } catch (err) {
             console.error("Error uploading images:", err);
             setUploadMessage("Có lỗi xảy ra khi tải lên hình ảnh. Vui lòng thử lại sau.");
+        } finally {
+            setSelectedFiles([]); 
+            setIsUploading(false);
         }
     };
-
+    
+    
+    // Sử dụng useEffect để log giá trị uploadMessage khi nó thay đổi
+    useEffect(() => {
+        console.log("uploadMessage đã thay đổi: ", uploadMessage);
+    }, [uploadMessage]); // Gọi effect khi uploadMessage thay đổi
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -477,6 +509,11 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
     return (
         <div className="form-update-product">
+            {isCreating && (
+                <div className="loading-overlay active">
+                    <div className="loading-spinner"></div>
+                </div>
+            )}
             <form onSubmit={handleSubmit} style={{
                 background: "white",
                 width: "100%",
@@ -486,10 +523,15 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                 display: "flex", // Use flexbox for layout
                 gap: "20px", // Space between sections
-                flexDirection: "column"
+                flexDirection: "column",
+                marginTop: '5px',
+                marginBottom: '20px',
+                overflowY: "auto", // Allow scrolling when content exceeds maxHeight
+                paddingTop:'10px'
+                
             }}>
                 <div style={{
-                display: "flex"
+                    display: "flex"
                 }}>
                     {/* Left Section for Product Information */}
                     <div className="product-info-section">
@@ -526,13 +568,20 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             <h3>Hình ảnh sản phẩm:</h3>
                             <div className="uploaded-images">
                                 {productImages.length === 0 ? (
-                                    <p>Chưa có hình ảnh nào được tải lên.</p>
+                                    // Nếu chưa có ảnh thì hiển thị thông báo
+                                    <p>{uploadMessage || "Chưa có ảnh tải lên"}</p>
                                 ) : (
+                                    // Nếu có ảnh, hiển thị ảnh và nút xóa
                                     productImages.map((image, index) => (
                                         <div key={index} className="image-container">
-                                            <img src={image.url} alt={`Product ${index}`} />
+                                            <img
+                                                src={image.linkImage || image.url} // Kiểm tra lại key nếu cần
+                                                alt={`Product ${index}`}
+                                              
+                                            />
                                             <button
                                                 type="button"
+                                                className="delete-button"
                                                 onClick={() => handleDeleteImage(image.id, index)}
                                                 disabled={deletingImageId === image.id}
                                             >
@@ -543,38 +592,56 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                 )}
                             </div>
 
+
+
                             {/* File input for image upload */}
                             <input
                                 type="file"
                                 multiple
                                 accept="image/*"
                                 onChange={handleFileChange}
-                                style={{marginBottom:"15px"}}
+                                style={{ marginBottom: "15px" }}
                             />
-                            {uploadMessage && <div className="upload-message">{uploadMessage}</div>}
+
+                            {/* Hiển thị thông báo upload */}
+                            <div style={{display:'flex', justifyContent:'space-around'}}>
                             <button
                                 type="button"
                                 onClick={handleFileUpload}
-                                style={{marginLeft:"50px", backgroundColor:'#4095e8'}}
+                                style={{ backgroundColor: '#4095e8', position: 'relative', borderRadius:'20px' }}
+                                disabled={isUploading} // Disable button khi đang tải lên
                             >
-                                Tải lên hình ảnh
+                                {isUploading ? (
+                                    <>
+                                        <span className="loading-spinner-button">
+                                            <svg width="20" height="20" viewBox="0 0 50 50" className="spin" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="25" cy="25" r="20" stroke="gray" strokeWidth="5" fill="none" />
+                                                <circle cx="25" cy="25" r="20" stroke="blue" strokeWidth="5" fill="none" strokeDasharray="125.6" strokeDashoffset="0" strokeLinecap="round">
+                                                    <animate attributeName="stroke-dashoffset" values="0;251.2" dur="1s" keyTimes="0;1" repeatCount="indefinite" />
+                                                </circle>
+                                            </svg>
+                                        </span>
+                                        Đang tải lên...
+                                    </>
+                                ) : (
+                                    'Tải lên hình ảnh'
+                                )}
                             </button>
+
                             <button
                                 type="button"
                                 onClick={handleDeleteAllImages}
                                 disabled={deletingAllImages}
+                                style={{borderRadius:'20px'}}
                             >
                                 {deletingAllImages ? 'Đang xóa tất cả...' : 'Xóa tất cả hình ảnh'}
                             </button>
+                            </div>
+
+
+                            
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="description">Mô tả:</label>
-                            <textarea
-                                id="description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                            ></textarea>
-                        </div>
+
                     </div>
 
                     {/* Right Section for Product Variants */}
@@ -616,6 +683,15 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                 </div>
                             </div>
                         ))}
+                        <div className="form-group">
+                            <label htmlFor="description">Mô tả:</label>
+                            <textarea
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                style={{height:"100px"}}
+                            ></textarea>
+                        </div>
                     </div>
                 </div>
 

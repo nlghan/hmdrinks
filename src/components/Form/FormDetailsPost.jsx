@@ -84,6 +84,13 @@ const FormDetailsPost = ({ postId, onClose }) => {
                 <div className="form-details-post-details">
                     {post ? (
                         <>
+                            <div className="form-details-post-image">
+                                {post.url ? (
+                                    <img src={post.url} alt={post.title} />
+                                ) : (
+                                    <p>Hình ảnh không có sẵn</p>
+                                )}
+                            </div>
                             <h3 className="form-details-post-item-title">{post.title}</h3>
                             <p className="form-details-post-item-date">
                                 <strong></strong> {post.dateCreated ? formatDate(post.dateCreated) : 'N/A'}
@@ -98,12 +105,16 @@ const FormDetailsPost = ({ postId, onClose }) => {
                             <div className="form-details-post-voucher">
                                 <h4>Thông Tin Voucher</h4>
                                 <div className="voucher-item">
-                                    <span className={`voucher-key ${voucher && voucher.status === 'ACTIVE' ? 'active' : 'expired'}`}>
+                                    <span className={`voucher-key-detail ${voucher && voucher.status === 'ACTIVE' ? 'active' : 'expired'}`}>
                                         {voucher ? voucher.key : 'N/A'}
                                     </span>
-                                    <span className="voucher-discount">
+                                    <span className="voucher-discount-detail">
                                         {voucher ? `${voucher.discount} VNĐ` : 'N/A'}
                                     </span>
+                                    <span className="voucher-discount-detail">
+                                        {voucher ? `${voucher.number} voucher` : 'N/A'}
+                                    </span>
+
                                 </div>
                                 <div className="voucher-dates">
                                     <span className="voucher-start-date">
@@ -114,13 +125,7 @@ const FormDetailsPost = ({ postId, onClose }) => {
                                     </span>
                                 </div>
                             </div>
-                            <div className="form-details-post-image">
-                                {post.bannerUrl ? (
-                                    <img src={post.bannerUrl} alt={post.title} />
-                                ) : (
-                                    <p>Hình ảnh không có sẵn</p>
-                                )}
-                            </div>
+                            
                             {post.isDeleted && <p className="form-details-post-status"><strong>Trạng Thái:</strong> Đã xóa</p>}
                         </>
                     ) : (

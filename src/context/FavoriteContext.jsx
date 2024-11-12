@@ -36,42 +36,58 @@ export const FavoriteProvider = ({ children }) => {
 
     // Fetch favorite items on mount
     const fetchFavoriteItems = async () => {
+        const token = getCookie('access_token');
+        
+        // Only proceed if the user is logged in (token is available)
+        if (!token) {
+            console.warn("User is not logged in. No favorite items to fetch.");
+            return;
+        }
+    
         try {
-            let items = [];
-            
-            if (token) {
-                // Case 1: Token is available
-                const userId = getUserIdFromToken(token);
-                const favResponse = await axios.get(`http://localhost:1010/api/fav/list-favItem/${userId}`, {
-                    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
-                });
-                items = favResponse.data.favouriteItemResponseList || [];
-            } else {
-                // Case 2: No token provided
-                const favResponse = await axios.get(`http://localhost:1010/api/fav/list-favItem/guest`, {
-                    headers: { 'accept': '*/*' }  // No Authorization header
-                });
-                items = favResponse.data.favouriteItemResponseList || [];
+            // Decode userId from token
+            const userId = getUserIdFromToken(token);
+            if (!userId) {
+                console.error("User ID not found in token.");
+                return;
             }
     
+            // Fetch favId for the logged-in user
+            const favResponse = await axios.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+            });
+    
+            const favId = favResponse.data.favId;
+            if (!favId) {
+                console.error("Favorite ID not found for the user.");
+                return;
+            }
+    
+            // Fetch favorite items based on favId
+            const favItemsResponse = await axios.get(`http://localhost:1010/api/fav/list-favItem/${favId}`, {
+                headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
+            });
+            
+            const items = favItemsResponse.data.favouriteItemResponseList || [];
             setFavoriteItems(items);
     
-            // Fetch product details for the favorite items
+            // Fetch product details for each favorite item
             const productRequests = items.map(item =>
                 axios.get(`http://localhost:1010/api/product/view/${item.proId}`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}`, 'accept': '*/*' } : { 'accept': '*/*' }
+                    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
             const productResponses = await Promise.all(productRequests);
     
-            // Fetch prices for the products
+            // Fetch prices for each product variant
             const priceRequests = items.map(item =>
                 axios.get(`http://localhost:1010/api/product/variants/${item.proId}`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}`, 'accept': '*/*' } : { 'accept': '*/*' }
+                    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
             const priceResponses = await Promise.all(priceRequests);
     
+            // Construct products details with name, images, category, and price
             const products = productResponses.reduce((acc, response, index) => {
                 const product = response.data;
                 const priceData = priceResponses[index].data.responseList;
@@ -89,13 +105,15 @@ export const FavoriteProvider = ({ children }) => {
             }, {});
             setProductDetails(products);
     
-            // Fetch category details for the products
+            // Fetch category details for each product's category
             const categoryRequests = Object.values(products).map(product =>
                 axios.get(`http://localhost:1010/api/cate/view/${product.cateId}`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}`, 'accept': '*/*' } : { 'accept': '*/*' }
+                    headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
             const categoryResponses = await Promise.all(categoryRequests);
+    
+            // Construct category details with name and image
             const categories = categoryResponses.reduce((acc, response) => {
                 const category = response.data;
                 acc[category.cateId] = {
@@ -107,23 +125,11 @@ export const FavoriteProvider = ({ children }) => {
             setCategoryDetails(categories);
     
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                console.log("No favorite list found for the user. This is expected for new accounts.");
-                setFavoriteItems([]);
-                setProductDetails({});
-                setCategoryDetails({});
-                setErrorMessage(null);
-            } else {
-                // setErrorMessage("An error occurred while fetching favorite items.");
-                console.error(error);
-            }
+            console.error("Error fetching favorite items:", error);
+            // setErrorMessage("An error occurred while fetching favorite items.");
         }
     };
     
-    
-    
-    
-
     useEffect(() => {
         fetchFavoriteItems();
     }, [token]);
@@ -358,9 +364,18 @@ const addFavorite = async (product) => {
         }
     };
 
+    const favoriteCount = favoriteItems.length;
+    const clearFavorites = () => {
+        setFavoriteItems([]); // Xóa danh sách yêu thích trong state
+        setProductDetails({});
+        setCategoryDetails({});
+        setErrorMessage(null);
+    };
+    
+
 
     return (
-        <FavoriteContext.Provider value={{ favoriteItems, productDetails, categoryDetails, addFavorite, removeFavorite, errorMessage, deleteAll }}>
+        <FavoriteContext.Provider value={{ favoriteItems, productDetails, categoryDetails, addFavorite, removeFavorite, errorMessage, deleteAll, favoriteCount, clearFavorites }}>
             {children}
         </FavoriteContext.Provider>
     );

@@ -40,9 +40,12 @@
     text-decoration: none;
     border-radius: 5px;
     transition: background-color 0.3s ease;
-    position:relative;
-    bottom: -70px;
-    right: -160px;
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    right: 60px;
+    bottom: 0px;
+
   }
   
   .soda-ad-button:hover {
