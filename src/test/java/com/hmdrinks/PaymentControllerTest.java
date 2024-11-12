@@ -787,7 +787,4 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("$.Message").value("Successful"));
     }
 
-    // call back momo đang fix
-
-
 }

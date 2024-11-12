@@ -45,6 +45,8 @@ public class OrdersService {
     private SupportFunction supportFunction;
     @Autowired
     private  ShipmentRepository shipmentRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     public boolean isNumeric(String voucherId) {
         if (voucherId == null) {
@@ -448,4 +450,30 @@ public class OrdersService {
         }
         return ResponseEntity.status(HttpStatus.OK).body("Order cancelled successfully");
     }
+
+    public ResponseEntity<?> detailItemOrders(int orderId)
+    {
+        Orders orders = orderRepository.findByOrderId(orderId);
+        if (orders == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        OrderItem orderItem = orders.getOrderItem();
+        Cart cart = orderItem.getCart();
+        List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+        List<ItemOrderResponse> itemOrderResponses = new ArrayList<>();
+        for(CartItem cartItem: cartItems)
+        {
+            ProductVariants productVariants = cartItem.getProductVariants();
+            itemOrderResponses.add(new ItemOrderResponse(
+                    cartItem.getCartItemId(),
+                    cart.getCartId(),
+                    productVariants.getProduct().getProId(),
+                    productVariants.getProduct().getProName(),
+                    productVariants.getSize(),
+                    productVariants.getPrice(),
+                    cartItem.getTotalPrice(),
+                    cartItem.getQuantity()
+            ));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ListItemOrderResponse(orderId,itemOrderResponses.size(),itemOrderResponses));
+    }
+
 }

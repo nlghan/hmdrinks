@@ -92,5 +92,9 @@ public class OrdersController {
         return ordersService.cancelOrder(req.getOrderId(), req.getUserId());
     }
 
+    @GetMapping("/detail-item/{orderId}")
+    public ResponseEntity<?> detailItem(@PathVariable int orderId) {
+        return  ordersService.detailItemOrders(orderId);
+    }
 
 }
