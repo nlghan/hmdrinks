@@ -469,6 +469,7 @@ const News = () => {
                                                     <span className="cate-slider round"></span>
                                                 </label>
 
+
                                             </td>
 
                                             {/* Display voucher information if available */}

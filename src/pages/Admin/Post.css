@@ -20,10 +20,14 @@
   justify-content: space-between;
   width: 100%;
   flex-direction: column;
+/*   height: calc(100vh - 100px);
+  overflow: auto;
+  padding: 20px; */
+
 }
 
 .post-table {
-  margin: 10px 0;
+  margin: 0;
   width: 100%;
   display: flex;
   border-radius: 10px;
@@ -34,7 +38,11 @@
   align-items: center;
   margin-right: 40px;
   height: 650px;
+/*   height: fit-content;
+  min-height: 500px; */
+
   position: relative;
+  overflow: visible;
 }
 
 .voucher-table,
@@ -221,6 +229,11 @@ tr:hover {
 
   .admin-post-button-container {
     flex-direction: row;
+  }
+
+  .post-voucher-table {
+    height: auto;
+    min-height: calc(100vh - 100px);
   }
 }
 @media (max-width: 1200px) {
