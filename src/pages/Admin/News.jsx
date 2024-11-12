@@ -23,7 +23,7 @@ const News = () => {
     const [vouchersPerPage] = useState(2);
     const [currentPageVouchers, setCurrentPageVouchers] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [limit, setLimit] = useState(1);
+    const [limit, setLimit] = useState(5);
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(1); // Tổng số trang
     const [postData, setPostData] = useState({});
@@ -202,7 +202,7 @@ const News = () => {
     }, []);
 
     const handlePageChange = (newPage) => {
-        if (newPage > 0 && newPage <= totalPage) {
+        if (newPage > 0 && newPage <= totalPages) {  // Corrected to use totalPages
             setCurrentPage(newPage);
         }
     };
@@ -386,7 +386,7 @@ const News = () => {
                                             <td>{post.title}</td>
                                             <td>{post.shortDescription}</td>
                                             <td>
-                                                {post.bannerUrl ? <img src={post.bannerUrl} alt="Post Banner" style={{ width: '70px', height: '70px' }} /> : 'No Image'}
+                                                {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '70px', height: '70px' }} /> : 'No Image'}
                                             </td>
 
                                             {/* Display voucher information if available */}

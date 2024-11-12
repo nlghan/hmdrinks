@@ -160,7 +160,7 @@
     padding: 30px 20px;
 }
 
-.voucher-key {
+.voucher-key-user {
     display: block;
     font-size: 32px;
     font-weight: bold;
@@ -236,7 +236,7 @@
         padding: 20px;
     }
 
-    .voucher-key {
+    .voucher-key-user {
         font-size: 24px;
     }
 

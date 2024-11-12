@@ -119,7 +119,7 @@ const PostVoucher = () => {
                             <div className="voucher-section slide-in-right">
                                 <div className="voucher-card">
                                     <div className="voucher-content">
-                                        <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                                        <span className={`voucher-key-user ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
                                             {voucher.key}
                                         </span>
                                         <div className="voucher-details">
