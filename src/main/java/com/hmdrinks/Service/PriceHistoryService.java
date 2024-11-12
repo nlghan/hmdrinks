@@ -38,6 +38,7 @@ public class PriceHistoryService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<PriceHistory> priceHistories = priceHistoryRepository.findByProductVariant_VarId(productVarId, pageable);
         List<PriceHistoryResponse> priceHistoryResponses = new ArrayList<>();
+        int total = 0;
         for(PriceHistory priceHistory : priceHistories) {
             priceHistoryResponses.add(new PriceHistoryResponse(
                          priceHistory.getHistoryId(),
@@ -46,6 +47,7 @@ public class PriceHistoryService {
                           priceHistory.getOldPrice(),
                     priceHistory.getNewPrice()
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -53,6 +55,7 @@ public class PriceHistoryService {
                         page,
                         priceHistories.getTotalPages(),
                         limit,
+                        total,
                         priceHistoryResponses
                 )
         );
@@ -65,6 +68,7 @@ public class PriceHistoryService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<PriceHistory> priceHistories = priceHistoryRepository.findAll(pageable);
         List<PriceHistoryResponse> priceHistoryResponses = new ArrayList<>();
+        int total = 0;
         for(PriceHistory priceHistory : priceHistories) {
             priceHistoryResponses.add(new PriceHistoryResponse(
                     priceHistory.getHistoryId(),
@@ -73,6 +77,7 @@ public class PriceHistoryService {
                     priceHistory.getOldPrice(),
                     priceHistory.getNewPrice()
             ));
+            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -80,6 +85,7 @@ public class PriceHistoryService {
                         page,
                         priceHistories.getTotalPages(),
                         limit,
+                        total,
                         priceHistoryResponses
                 )
         );

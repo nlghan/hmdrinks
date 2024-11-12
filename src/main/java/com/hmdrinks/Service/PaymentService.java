@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
+import com.hmdrinks.Request.CreatePaymentReq;
 import com.hmdrinks.Request.CreatePaymentVNPayReq;
 import com.hmdrinks.Request.InitPaymentRequest;
 import com.hmdrinks.Response.CRUDPaymentResponse;
@@ -33,8 +34,8 @@ public class PaymentService {
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
-    private final String ipnUrl = "https://a7f2-113-22-7-90.ngrok-free.app/api/payment/callback";
+    private final String redirectUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
+    private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
     private final int orderExpireTime = 30;
@@ -63,27 +64,31 @@ public class PaymentService {
 
     public ResponseEntity<?> createPayment(int orderId1) {
         try {
-            Payment payment1 = paymentRepository.findByOrderOrderId(orderId1);
+            Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
             if (payment1 != null) {
                 if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
                 }
                 if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
                 }
             }
-            Orders orders = orderRepository.findByOrderIdAndStatus(orderId1, Status_Order.CONFIRMED);
+            Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
             if (orders == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
             }
             Orders orders1 = orderRepository.findByOrderId(orderId1);
-            if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            if (orders1.getStatus() == Status_Order.CANCELLED) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
             }
             String orderId = partnerCode + "-" + UUID.randomUUID();
             String requestId = partnerCode + "-" + UUID.randomUUID();
-            Orders order = orderRepository.findByOrderId(orderId1);
-            User user = userRepository.findByUserId(order.getUser().getUserId());
+            Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId1);
+            User user = userRepository.findByUserIdAndIsDeletedFalse(order.getUser().getUserId());
+            if(user == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+            }
             Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
             Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
@@ -215,22 +220,23 @@ public class PaymentService {
     public ResponseEntity<?> createVNPay(CreatePaymentVNPayReq req)
     {
         int orderId1 = req.getOrderId();
-        Payment payment1 = paymentRepository.findByOrderOrderId(orderId1);
+        Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
+
         if (payment1 != null) {
             if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment cash already create");
             }
             if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
             }
         }
-        Orders orders = orderRepository.findByOrderIdAndStatus(orderId1, Status_Order.CONFIRMED);
+        Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId1);
-        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        if (orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId1);
         User user = userRepository.findByUserId(order.getUser().getUserId());
@@ -272,11 +278,70 @@ public class PaymentService {
                 initPaymentResponse.getVnpUrl()
         ), HttpStatus.OK);
     }
+    @Autowired
+    private ZaloPayService zaloPayService;
+
+    public ResponseEntity<?> createZaloPay(CreatePaymentReq req) throws Exception {
+        int orderId1 = req.getOrderId();
+        Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
+        if (payment1 != null) {
+            if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
+            }
+            if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
+            }
+        }
+        Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
+        }
+        Orders orders1 = orderRepository.findByOrderId(orderId1);
+        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cancelled");
+        }
+        Orders order = orderRepository.findByOrderId(orderId1);
+        User user = userRepository.findByUserId(order.getUser().getUserId());
+        Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+        Long totalAmountLong = totalAmount.longValue();
+        String amount = totalAmountLong.toString();
+        String orderId = partnerCode + "-" + UUID.randomUUID();
+        Payment payment = new Payment();
+        payment.setPaymentMethod(Payment_Method.CREDIT);
+        payment.setStatus(Status_Payment.PENDING);
+        payment.setOrder(order);
+        payment.setAmount(totalAmount);
+        payment.setDateCreated(LocalDateTime.now());
+        payment.setOrderIdPayment(orderId);
+        payment.setIsDeleted(false);
+        paymentRepository.save(payment);
+        Map<String, Object> response = zaloPayService.createPayment(totalAmountLong);
+        String orderUrl = (String) response.get("order_url");
+        String appTransId = (String) response.get("app_trans_id");
+
+        payment.setOrderIdPayment(appTransId);
+        paymentRepository.save(payment);
+        return new ResponseEntity<>(new CreatePaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId(),
+                orderUrl
+        ), HttpStatus.OK);
+    }
 
     public ResponseEntity<?> callBack(String resultCode, String orderId) {
         Payment payment = paymentRepository.findByOrderIdPayment(orderId);
         if (payment == null) {
             return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
+        }
+        if(payment.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment is deleted");
         }
         if ("0".equals(resultCode)) {
             payment.setStatus(Status_Payment.COMPLETED);
@@ -335,9 +400,13 @@ public class PaymentService {
     }
 
     public ResponseEntity<?> checkStatusPayment(int paymentId) {
-        Payment payment = paymentRepository.findByPaymentId(paymentId);
+        Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
         if (payment == null) {
             return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
+        }
+        if(payment.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment is deleted");
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment.getPaymentId(),
@@ -355,22 +424,27 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrderOrderId(orderId);
         if (payment != null) {
             if (payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.OK).body("Bad request");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
             }
             if (payment.getStatus() == Status_Payment.COMPLETED) {
-                return ResponseEntity.status(HttpStatus.OK).body("Payment already completed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment already completed");
             }
         }
         Orders orders = orderRepository.findByOrderIdAndStatus(orderId, Status_Order.CONFIRMED);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId);
-        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        if (orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId);
+
         User user = userRepository.findByUserId(order.getUser().getUserId());
+        if(user.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is deleted");
+        }
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice()+ order.getDeliveryFee();
         Payment payment1 = new Payment();
         payment1.setAmount(totalAmount);
@@ -405,8 +479,9 @@ public class PaymentService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Payment> payments = paymentRepository.findAll(pageable);
+        Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -420,11 +495,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }
@@ -434,8 +511,9 @@ public class PaymentService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Payment> payments = paymentRepository.findAllByStatus(statusPayment, pageable);
+        Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -449,11 +527,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total  ,
                 responses
         ));
     }
@@ -463,8 +543,9 @@ public class PaymentService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Payment> payments = paymentRepository.findAllByPaymentMethod(paymentMethod, pageable);
+        Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
+        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -478,11 +559,13 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
                 payments.getTotalPages(),
                 limit,
+                total,
                 responses
         ));
     }

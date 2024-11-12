@@ -1,4 +1,6 @@
 package com.hmdrinks.Controller;
+import com.hmdrinks.Enum.Role;
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.*;
@@ -38,6 +40,15 @@ public class AdminController {
         return userService.getListAllUser(page, limit);
     }
 
+    @GetMapping(value = "/listUser-role")
+    public ResponseEntity<?> listAllUserByRole(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit,
+            @RequestParam(name = "role") Role role
+    ) {
+        return userService.getListAllUserByRole(page, limit, role);
+    }
+
     @PostMapping(value = "/create-account")
     public ResponseEntity<?> createAccount(@RequestBody CreateAccountUserReq req){
         return ResponseEntity.ok(adminService.createAccountUser(req));
@@ -62,13 +73,13 @@ public class AdminController {
         return ResponseEntity.ok(adminService.deleteALlReviewProduct(req.getId()));
     }
 
-//    @PostMapping("/filter-product")
-//    public ResponseEntity<FilterProductBoxResponse> filterProduct(
-//            @RequestBody FilterProductBox req
-//    ) {
-//
-//        return ResponseEntity.ok(adminService.filterProduct(req));
-//    }
+    @PostMapping("/filter-product")
+    public ResponseEntity<FilterProductBoxResponse> filterProduct(
+            @RequestBody FilterProductBox req
+    ) {
+
+        return ResponseEntity.ok(adminService.filterProduct(req));
+    }
 
     @GetMapping(value = "/list-product")
     public ResponseEntity<ListProductResponse> listAllProduct(
@@ -101,8 +112,21 @@ public class AdminController {
     }
 
     @GetMapping("/cate/view/{id}/product")
-    public ResponseEntity<GetViewProductCategoryResponse> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
+    public ResponseEntity<?> getALLProductFromCategory(@PathVariable Integer id,@RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit){
         return ResponseEntity.ok(adminService.getAllProductFromCategory(id,page,limit));
+    }
+
+    @GetMapping(value = "/post/view/all")
+    public ResponseEntity<ListAllPostResponse> getAllPosts(@RequestParam(name = "page") String page,
+                                                           @RequestParam(name = "limit") String limit){
+        return  ResponseEntity.ok(adminService.getAllPost(page,limit));
+    }
+
+    @GetMapping(value = "/post/view/type/all")
+    public ResponseEntity<ListAllPostResponse> getAllPostsByTye(@RequestParam(name = "page") String page,
+                                                                @RequestParam(name = "limit") String limit,
+                                                                @RequestParam(name = "type") Type_Post typePost){
+        return  ResponseEntity.ok(adminService.getAllPostByType(page,limit,typePost));
     }
 
 }

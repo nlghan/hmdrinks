@@ -15,5 +15,6 @@ public class ListProductResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
+    private int toal;
     List<CRUDProductResponse> productResponses;
 }

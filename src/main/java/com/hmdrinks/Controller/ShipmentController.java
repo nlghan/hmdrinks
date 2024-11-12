@@ -63,4 +63,10 @@ public class ShipmentController {
     {
         return  shipmentService.getListAllShipmentByStatus(page,limit,statusShipment);
     }
+
+    @PutMapping("/update-time")
+    public ResponseEntity<?> updateTimeShipment(@RequestBody UpdateTimeShipmentReq req)
+    {
+        return shipmentService.updateTimeShipment(req);
+    }
 }

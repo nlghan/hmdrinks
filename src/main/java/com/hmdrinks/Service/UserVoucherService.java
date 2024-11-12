@@ -45,7 +45,7 @@ public class UserVoucherService {
     public ResponseEntity<?> getVoucher(GetVoucherReq req)
     {
 
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
@@ -94,13 +94,14 @@ public class UserVoucherService {
     }
 
     public ResponseEntity<?> listAllVoucherUserId(int userId){
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
          List<UserVoucher> userVoucherList = userVoucherRepository.findByUserUserId(userId);
          List<GetVoucherResponse> listVoucherResponse = new ArrayList<>();
+         int total =0;
          for(UserVoucher userVoucher : userVoucherList)
          {
              listVoucherResponse.add( new GetVoucherResponse(
@@ -109,7 +110,8 @@ public class UserVoucherService {
                      userVoucher.getVoucher().getVoucherId(),
                      userVoucher.getStatus().toString()
              ));
+             total++;
          }
-         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(listVoucherResponse));
+         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(total,listVoucherResponse));
     }
 }

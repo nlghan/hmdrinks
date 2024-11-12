@@ -12,5 +12,6 @@ import java.util.List;
 @Setter
 public class ListAllCartUserResponse {
     private  int userId;
+    private int total;
     List<CreateNewCartResponse> listCart;
 }

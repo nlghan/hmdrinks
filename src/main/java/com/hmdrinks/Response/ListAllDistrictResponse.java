@@ -13,5 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 
 public class ListAllDistrictResponse {
+    private int total;
     List<DistrictResponse> districtResponseList;
 }

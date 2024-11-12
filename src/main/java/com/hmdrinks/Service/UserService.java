@@ -1,23 +1,26 @@
 package com.hmdrinks.Service;
 
-import com.hmdrinks.Entity.OTP;
-import com.hmdrinks.Entity.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hmdrinks.Entity.*;
+import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Sex;
+import com.hmdrinks.Enum.TypeLogin;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
-import com.hmdrinks.Repository.OtpRepository;
-import com.hmdrinks.Repository.UserRepository;
+import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.ChangePasswordReq;
 import com.hmdrinks.Request.UserInfoUpdateReq;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import  org.springframework.mail.*;
 
 import com.hmdrinks.Response.*;
@@ -25,10 +28,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -41,6 +50,31 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JavaMailSender javaMailSender;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private ShipmentRepository shipmentRepository;
+    @Autowired
+    private  PaymentRepository paymentRepository;
+    @Autowired
+    private UserVoucherRepository userVoucherRepository;
+    @Autowired
+    private  ReviewRepository reviewRepository;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
+
+    private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+    private static final String GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
     public ResponseEntity<?> getListAllUser(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
@@ -49,6 +83,7 @@ public class UserService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findAll(pageable);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
+        int total = 0;
         for (User user : userList) {
             String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
@@ -68,8 +103,41 @@ public class UserService {
                         user.getDateCreated(),
                         user.getRole().toString()
                 ));
+            total++;
             }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,total, detailUserResponseList));
+    }
+
+    public ResponseEntity<?> getListAllUserByRole(String pageFromParam, String limitFromParam,Role role) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<User> userList = userRepository.findAllByRole(role,pageable);
+        List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
+        int total = 0;
+        for (User user : userList) {
+            String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
+            detailUserResponseList.add(new DetailUserResponse(
+                    user.getUserId(),
+                    user.getUserName(),
+                    user.getFullName(),
+                    user.getAvatar(),
+                    user.getBirthDate(),
+                    fullLocation,
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getSex().toString(),
+                    user.getType().toString(),
+                    user.getIsDeleted(),
+                    user.getDateDeleted(),
+                    user.getDateUpdated(),
+                    user.getDateCreated(),
+                    user.getRole().toString()
+            ));
+            total++;
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, total,detailUserResponseList));
     }
 
     public ResponseEntity<?> getDetailUserInfoResponse(Integer id){
@@ -96,6 +164,18 @@ public class UserService {
                 userList.getRole().toString()
         ));
     }
+
+    public static boolean isAge18OrAbove(java.util.Date birthDate) {
+        LocalDate birthLocalDate = birthDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate currentDate = LocalDate.now();
+
+        int age = Period.between(birthLocalDate, currentDate).getYears();
+        return age >= 15;
+    }
+
     public ResponseEntity<?> updateUserInfoResponse(UserInfoUpdateReq req){
         User userList = userRepository.findByUserId(req.getUserId());
         if (userList == null) {
@@ -112,6 +192,11 @@ public class UserService {
         ResponseEntity<?> authResponse =  supportFunction.checkPhoneNumber(req.getPhoneNumber(), req.getUserId(), userRepository);
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
             return authResponse;
+        }
+        System.out.println(req.getBirthDay());
+        boolean check = isAge18OrAbove(req.getBirthDay());
+        if(!check){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The person is not old enough (must be at least 18 years old)");
         }
         LocalDate currentDate = LocalDate.now();
         String[] locationParts = req.getAddress().split(",");
@@ -134,6 +219,7 @@ public class UserService {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Invalid address format");
         }
+
         userRepository.save(userList);
         return ResponseEntity.status(HttpStatus.OK).body(new UpdateUserInfoResponse(
                 userList.getUserId(),
@@ -266,6 +352,7 @@ public class UserService {
 
     public ResponseEntity<?> changePasswordResponse(ChangePasswordReq req) {
         User users = userRepository.findByUserId(req.getUserId());
+
         if (users == null) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Not found user");
@@ -293,5 +380,236 @@ public class UserService {
                 message,
                 req.getNewPassword()
         ));
+    }
+
+    @Transactional
+    public  ResponseEntity<?> disableAccount(int userId)
+    {
+        User users = userRepository.findByUserId(userId);
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if(users.getRole() == Role.ADMIN)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not delete Admin");
+        }
+        if(users.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already disable");
+        }
+        List<Review> reviews = reviewRepository.findByUser_UserId(userId);
+        for(Review review : reviews)
+        {
+            review.setIsDeleted(true);
+            review.setDateDeleted(LocalDateTime.now());
+            reviewRepository.save(review);
+        }
+        List<Orders> orders = orderRepository.findAllByUserUserId(userId);
+        for(Orders order : orders)
+        {
+            order.setIsDeleted(true);
+            order.setDateDeleted(LocalDateTime.now());
+            orderRepository.save(order);
+            Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
+            if(payment != null){
+                payment.setIsDeleted(true);
+                payment.setDateDeleted(LocalDateTime.now());
+                paymentRepository.save(payment);
+                Shippment shippment = shipmentRepository.findByPaymentPaymentId(payment.getPaymentId());
+                if(shippment != null){
+                    shippment.setIsDeleted(true);
+                    shippment.setDateDeleted(LocalDateTime.now());
+                    shipmentRepository.save(shippment);
+                }
+            }
+
+        }
+        users.setIsDeleted(true);
+        users.setDateDeleted(Date.valueOf(LocalDate.now()));
+        userRepository.save(users);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDAccountUserResponse(
+                users.getUserId(),
+                users.getUserName(),
+                users.getFullName(),
+                users.getAvatar(),
+                users.getBirthDate(),
+                users.getStreet() + ", " + users.getWard() + ", " + users.getDistrict() + ", " + users.getCity(),
+                users.getEmail(),
+                users.getPhoneNumber(),
+                users.getSex().toString(),
+                users.getType().toString(),
+                users.getIsDeleted(),
+                users.getDateDeleted(),
+                users.getDateUpdated(),
+                users.getDateCreated(),
+                users.getRole().toString()
+        ));
+    }
+
+    @Transactional
+    public  ResponseEntity<?> enableAccount(int userId)
+    {
+        User users = userRepository.findByUserId(userId);
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        if(!users.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User already enable");
+        }
+        List<Review> reviews = reviewRepository.findByUser_UserId(userId);
+        for(Review review : reviews)
+        {
+            review.setIsDeleted(false);
+            review.setDateDeleted(null);
+            reviewRepository.save(review);
+        }
+        List<Orders> orders = orderRepository.findAllByUserUserId(userId);
+        for(Orders order : orders)
+        {
+            order.setIsDeleted(false);
+            order.setDateDeleted(null);
+            orderRepository.save(order);
+            Payment payment = paymentRepository.findByOrderOrderId(order.getOrderId());
+            if(payment != null){
+                payment.setIsDeleted(false);
+                payment.setDateDeleted(null);
+                paymentRepository.save(payment);
+                Shippment shippment = shipmentRepository.findByPaymentPaymentId(payment.getPaymentId());
+                if(shippment != null){
+                    shippment.setIsDeleted(false);
+                    shippment.setDateDeleted(null);
+                    shipmentRepository.save(shippment);
+                }
+            }
+        }
+        users.setIsDeleted(false);
+        users.setDateDeleted(null);
+        userRepository.save(users);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDAccountUserResponse(
+                users.getUserId(),
+                users.getUserName(),
+                users.getFullName(),
+                users.getAvatar(),
+                users.getBirthDate(),
+                users.getStreet() + ", " + users.getWard() + ", " + users.getDistrict() + ", " + users.getCity(),
+                users.getEmail(),
+                users.getPhoneNumber(),
+                users.getSex().toString(),
+                users.getType().toString(),
+                users.getIsDeleted(),
+                users.getDateDeleted(),
+                users.getDateUpdated(),
+                users.getDateCreated(),
+                users.getRole().toString()
+        ));
+    }
+
+    public String googleLogin(String code) {
+        String accessToken = exchangeCodeForAccessToken(code);
+        if (accessToken != null) {
+            return getGoogleUserInfo(accessToken);}
+        return null;
+    }
+
+    private String exchangeCodeForAccessToken(String code) {
+        try {
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(GOOGLE_TOKEN_URL)
+                    .queryParam("code", code)
+                    .queryParam("client_id", clientId)
+                    .queryParam("client_secret", clientSecret)
+                    .queryParam("redirect_uri", redirectUri)
+                    .queryParam("grant_type", "authorization_code");
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String accessToken = parseAccessToken(response.getBody());
+                return accessToken;
+            } else {
+                throw new RuntimeException("Failed to get access token, status code: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String parseAccessToken(String responseBody) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            String accessToken = jsonNode.get("access_token").asText();
+            return accessToken;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Transactional
+    public String getGoogleUserInfo(String accessToken) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(GOOGLE_USER_INFO_URL, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String responseBody = response.getBody();
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode userInfo = objectMapper.readTree(responseBody);
+                String email = userInfo.get("email").asText();
+                User user = userRepository.findByEmail(email);
+                if (user == null) {
+                    if(!user.getIsDeleted())
+                    {
+                        user = new User();
+                        user.setEmail(email);
+                        String givenName = userInfo.get("given_name").asText();
+                        String familyName = userInfo.get("family_name").asText();
+                        String fullName = givenName + " " + familyName;
+                        user.setFullName(fullName);
+                        user.setAvatar(userInfo.get("picture").asText());
+                        user.setType(TypeLogin.EMAIL);
+                        user.setUserName(email);
+                        user.setPassword("");
+                        user.setPhoneNumber(null);
+                        user.setCity("");
+                        user.setDistrict("");
+                        user.setStreet("");
+                        user.setWard("");
+                        user.setSex(Sex.OTHER);
+                        user.setRole(Role.CUSTOMER);
+                        user.setIsDeleted(false);
+                        user.setDateCreated(Date.valueOf(LocalDate.now()));
+                        userRepository.save(user);
+                    }
+                } else {
+                    if (user.getType() == TypeLogin.BASIC && !user.getIsDeleted()) {
+                        user.setType(TypeLogin.BOTH);
+                        userRepository.save(user);
+                    }
+                }
+                return email;
+            } else {
+                throw new RuntimeException("Failed to get user info, status code: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            e.printStackTrace();
+            return null;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

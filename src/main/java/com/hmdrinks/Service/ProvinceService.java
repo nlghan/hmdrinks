@@ -25,7 +25,7 @@ public class ProvinceService {
 
     public ResponseEntity<?> fetchProvinces() {
         List<ProvinceResponse> provinceList = new ArrayList<>();
-
+        int total = 0;
         try {
             URL url = new URL(API_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -39,20 +39,20 @@ public class ProvinceService {
                 response.append(output);
             }
             conn.disconnect();
-
-            // Parse the response as a JsonArray
             JsonArray jsonResponse = JsonParser.parseString(response.toString()).getAsJsonArray();
+
             for (JsonElement element : jsonResponse) {
                 JsonObject province = element.getAsJsonObject();
                 int provinceCode = province.get("code").getAsInt();
                 String provinceName = province.get("name").getAsString();
 
                 provinceList.add(new ProvinceResponse(provinceCode, provinceName));
+                total++;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllProvinceResponse(provinceList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllProvinceResponse(total,provinceList));
     }
 
 
@@ -61,7 +61,7 @@ public class ProvinceService {
         String API_URL_DISTRICT_BASE = "https://provinces.open-api.vn/api/d/search/?q=";
         List<DistrictResponse> districtList = new ArrayList<>();
         String[] queryTypes = {"Quận", "Huyện", "Thành phố", "Thị xã"};
-
+        int total = 0;
         try {
             for (String query : queryTypes) {
                 URL url = new URL(API_URL_DISTRICT_BASE + URLEncoder.encode(query, "UTF-8") + "&p=" + provinceCode);
@@ -89,6 +89,7 @@ public class ProvinceService {
                         String districtName = district.get("name").getAsString();
 
                         districtList.add(new DistrictResponse(districtId, districtName));
+                        total++;
                     }
                 }
                 conn.disconnect();
@@ -100,8 +101,7 @@ public class ProvinceService {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi lấy danh sách quận/huyện.");
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllDistrictResponse(districtList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllDistrictResponse(total,districtList));
     }
 
 
@@ -110,7 +110,7 @@ public class ProvinceService {
         String API_URL_WARD_BASE = "https://provinces.open-api.vn/api/w/search/?q=";
         List<WardResponse> wardList = new ArrayList<>();
         String[] queryTypes = {"Phường", "Xã", "Thị trấn"};
-
+        int total = 0;
         try {
             for (String query : queryTypes) {
                 // Tạo URL đầy đủ cho API với từng loại tìm kiếm
@@ -139,6 +139,7 @@ public class ProvinceService {
                         String wardName = ward.get("name").getAsString();
 
                         wardList.add(new WardResponse(wardId, wardName));
+                        total++;
                     }
                 }
                 conn.disconnect();
@@ -151,7 +152,7 @@ public class ProvinceService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi lấy danh sách phường/xã/thị trấn.");
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllWardResponse(wardList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllWardResponse(total,wardList));
     }
 
 }

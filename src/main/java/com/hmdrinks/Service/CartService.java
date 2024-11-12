@@ -34,7 +34,7 @@ public class CartService {
 
     public ResponseEntity<?> createCart(CreateNewCart req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
@@ -62,7 +62,7 @@ public class CartService {
 
     public ResponseEntity<?> getAllCartFromUser(int userId)
     {
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if(user == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
@@ -70,6 +70,7 @@ public class CartService {
 
         List<Cart> carts = cartRepository.findByUserUserId(userId);
         List<CreateNewCartResponse> cartResponses = new ArrayList<>();
+        int total = 0;
         for(Cart cart : carts)
         {
             cartResponses.add(new CreateNewCartResponse(
@@ -79,8 +80,9 @@ public class CartService {
                     cart.getUser().getUserId(),
                     cart.getStatus()
             ));
+            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body( new ListAllCartUserResponse(userId, cartResponses));
+        return ResponseEntity.status(HttpStatus.OK).body( new ListAllCartUserResponse(userId,total, cartResponses));
     }
 
     public ResponseEntity<?> getAllItemCart(int id){
@@ -91,6 +93,7 @@ public class CartService {
         }
         List<CartItem> cartItems = cartItemRepository.findByCart_CartId(id);
         List<CRUDCartItemResponse> crudCartItemResponses = new ArrayList<>();
+        int total = 0;
         for(CartItem cartItem : cartItems)
         {
             crudCartItemResponses.add( new CRUDCartItemResponse(
@@ -101,9 +104,11 @@ public class CartService {
                 cartItem.getTotalPrice(),
                 cartItem.getQuantity()
         ));
+            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListItemCartResponse(
                 id,
+                total,
                 crudCartItemResponses
         ));
     }

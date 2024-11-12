@@ -3,6 +3,7 @@ package com.hmdrinks.Service;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.Sex;
 import com.hmdrinks.Enum.TypeLogin;
+import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Exception.NotFoundException;
@@ -44,6 +45,8 @@ public class AdminService {
     private SupportFunction supportFunction;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    private PostRepository postRepository;
 
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
@@ -118,7 +121,7 @@ public class AdminService {
         if (req.getIsDeleted() != null && !req.getIsDeleted() && existingUser.getIsDeleted()) {
             existingUser.setIsDeleted(false);
         }
-        // Update user details only if provided in the request
+
         if (req.getFullName() != null && !req.getFullName().isEmpty()) {
             existingUser.setFullName(req.getFullName());
         }
@@ -205,13 +208,14 @@ public class AdminService {
         return "All review product deleted";
     }
 
-    public ListProductImageResponse getAllProductImages(int proId) {
+    public ResponseEntity<?> getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
-        Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
+        Product product = productRepository.findByProId(proId);
         if (product == null) {
-            throw new NotFoundException("Not found product with ID: " + proId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found product with ID: " + proId);
         }
         String currentProImg = product.getListProImg();
+        int total = 0;
         if(currentProImg != null && !currentProImg.trim().isEmpty())
         {
             String[] imageEntries = currentProImg.split(", ");
@@ -220,9 +224,10 @@ public class AdminService {
                 int stt = Integer.parseInt(parts[0]);
                 String url = parts[1];
                 productImageResponses.add(new ProductImageResponse(stt, url));
+                total++;
             }
         }
-        return new ListProductImageResponse(proId,productImageResponses);
+        return  ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,total,productImageResponses));
     }
 
     public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
@@ -310,7 +315,10 @@ public class AdminService {
             sort = Sort.by(Sort.Direction.DESC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -329,7 +337,10 @@ public class AdminService {
             sort = Sort.by(Sort.Direction.ASC, "price");
             List<ProductVariants> productVariants = productVariantsRepository.findByProduct_Category_CateIdAndProduct_ProIdIn(req.getC(), req.getP(), sort);
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -353,7 +364,10 @@ public class AdminService {
                     );
 
             for (ProductVariants productVariant : productVariants) {
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),productVariant.getProduct().getProId());
+                Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),productVariant.getProduct().getProId());
+                if(avgRating == null) {
+                    avgRating = 0.0;
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         productVariant.getVarId(),
@@ -372,9 +386,13 @@ public class AdminService {
             List<Product> product = productRepository.findTopRatedProductsDescByAdmin(req.getC(), req.getP());
             for (Product product1 : product) {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
-                Double  avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                Double  avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
-                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(Math.round(avgRating * 10) / 10.0,
+                    if(avgRating == null) {
+                        avgRating = 0.0;
+                    }
+                    crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
+                            Math.round(avgRating * 10) / 10.0,
                             productVariant.getVarId(),
                             productVariant.getProduct().getProId(),
                             productVariant.getSize(),
@@ -385,6 +403,7 @@ public class AdminService {
                             productVariant.getDateCreated(),
                             productVariant.getDateUpdated()
                     ));
+                    total += 1;
                 }
 
             }
@@ -393,7 +412,10 @@ public class AdminService {
             for (Product product1 : product) {
                 List<ProductVariants> productVariants = productVariantsRepository.findByProduct_ProId(product1.getProId());
                 for (ProductVariants productVariant : productVariants) {
-                    Double avgRating = productRepository.findAverageRatingByProductId(req.getC(),product1.getProId());
+                    Double avgRating = productRepository.findAverageRatingByProductIdAdmin(req.getC(),product1.getProId());
+                    if(avgRating == null) {
+                        avgRating = 0.0;
+                    }
                     crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                             Math.round(avgRating * 10) / 10.0,
                             productVariant.getVarId(),
@@ -426,6 +448,7 @@ public class AdminService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        int total = 0;
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
@@ -451,8 +474,9 @@ public class AdminService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
-        return new ListProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
+        return new ListProductResponse(page, productList.getTotalPages(), limit,total, crudProductResponseList);
     }
 
     public CRUDProductResponse getOneProduct(Integer id) {
@@ -485,7 +509,7 @@ public class AdminService {
         );
     }
 
-    public GetViewProductCategoryResponse getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
+    public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -494,11 +518,11 @@ public class AdminService {
         Category category = categoryRepository.findByCateId(id);
         if(category == null)
         {
-            throw new BadRequestException("cateId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cateId not exists");
         }
         Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
-
+        int total =0 ;
         for(Product product1: productList)
         {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -525,13 +549,79 @@ public class AdminService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
 
-        return new GetViewProductCategoryResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new GetViewProductCategoryResponse(
                 page,
                 productList.getTotalPages(),
                 limit,
+                total,
                 crudProductResponseList
+        ));
+    }
+
+    public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAllByType(typePost,pageable);
+        List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
+        for(Post post : posts) {
+            responses.add(new CRUDPostResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate()
+            ));
+            total++;
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                total,
+                responses
+        );
+    }
+
+    public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<CRUDPostResponse> responses = new ArrayList<>();
+        int total = 0;
+        for(Post post : posts) {
+            responses.add(new CRUDPostResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate()
+            ));
+            total++;
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                total,
+                responses
         );
     }
 }

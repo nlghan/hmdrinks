@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ListAllVoucherUserIdResponse {
+    private int total;
     List<GetVoucherResponse> getVoucherResponseList;
 }
 

@@ -38,7 +38,7 @@ public class ContactService {
     private JavaMailSender javaMailSender1;
 
     public ResponseEntity<?> createContact(CreateContactReq req) {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
@@ -80,7 +80,7 @@ public class ContactService {
     }
 
     public ResponseEntity<?> updateContact(CrudContactReq req){
-        Contact contact = contactRepository.findByContactIdAndUserUserId(req.getContactId(), req.getUserId());
+        Contact contact = contactRepository.findByContactIdAndUserUserIdAndIsDeletedFalse(req.getContactId(), req.getUserId());
         if (contact == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
@@ -167,6 +167,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAll(pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -178,11 +179,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -195,6 +198,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.WAITING, pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -206,11 +210,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }
@@ -223,6 +229,7 @@ public class ContactService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.COMPLETED, pageable);
         List<CRUDContactResponse> responses = new ArrayList<>();
+        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -234,11 +241,13 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
+            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
+                total,
                 responses
         );
     }

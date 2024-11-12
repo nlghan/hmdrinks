@@ -15,5 +15,6 @@ public class ListAllScheduledShipmentsResponse {
     private int currentPage;
     private long totalPage;
     private int limit;
+    private int total;
     List<CRUDShipmentResponse> listShipment;
 }

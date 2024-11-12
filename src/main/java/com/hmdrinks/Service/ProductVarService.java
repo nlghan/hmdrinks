@@ -48,6 +48,14 @@ public class ProductVarService {
         {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Variant Size Already Exists");
         }
+        if(req.getStock() <=0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock greater than 0");
+        }
+        if(req.getPrice() < 1000.0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price greater than 1000");
+        }
         ProductVariants productVariants1 = new ProductVariants();
         productVariants1.setProduct(product);
         productVariants1.setSize(req.getSize());
@@ -107,6 +115,14 @@ public class ProductVarService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Variant Not Found");
         }
+        if(req.getStock() <=0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock greater than 0");
+        }
+        if(req.getPrice() < 1000.0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price greater than 1000");
+        }
         if(req.getPrice() != productVariants1.getPrice())
         {
             PriceHistory priceHistory = new PriceHistory();
@@ -144,6 +160,7 @@ public class ProductVarService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<ProductVariants> productList = proVarRepository.findAll(pageable);
         List<CRUDProductVarResponse> crudProductVarResponseList = new ArrayList<>();
+        int total = 0;
         for(ProductVariants product1: productList){
             crudProductVarResponseList.add(new CRUDProductVarResponse(
                     product1.getVarId(),
@@ -156,7 +173,10 @@ public class ProductVarService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
+            total++;
         }
-        return new ListProductVarResponse(page,productList.getTotalPages(),limit,crudProductVarResponseList);
+        return new ListProductVarResponse(page,productList.getTotalPages(),limit,total,crudProductVarResponseList);
     }
+
+
 }

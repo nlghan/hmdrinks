@@ -2,6 +2,7 @@ package com.hmdrinks.Controller;
 
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
+import com.hmdrinks.Request.IdReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.VoucherService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,5 +42,15 @@ public class VoucherController {
     )
     {
         return ResponseEntity.ok(voucherService.updateVoucher(req));
+    }
+
+    @PutMapping(value = "/enable")
+    public ResponseEntity<?> enableVoucher(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  voucherService.enableVoucher(req.getId());
+    }
+
+    @PutMapping(value = "/disable")
+    public ResponseEntity<?> disableVoucher(@RequestBody IdReq req, HttpServletRequest httpRequest) {
+        return  voucherService.disableVoucher(req.getId());
     }
 }

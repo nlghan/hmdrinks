@@ -11,9 +11,12 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Post findByPostId(int postId);
+    Post findByPostIdAndIsDeletedFalse(int postId);
     List<Post> findAll();
     Page<Post> findAll(Pageable pageable);
-    List<Post> findByUserUserId(Integer userId);
+    Page<Post> findAllByIsDeletedFalse(Pageable pageable);
 
+    List<Post> findByUserUserIdAndIsDeletedFalse(Integer userId);
     Page<Post> findAllByType(Type_Post typePost,Pageable pageable);
+    Page<Post> findAllByTypeAndIsDeletedFalse(Type_Post typePost,Pageable pageable);
 }

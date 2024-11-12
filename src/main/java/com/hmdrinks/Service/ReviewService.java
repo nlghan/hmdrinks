@@ -31,15 +31,15 @@ public class ReviewService {
 
     public ResponseEntity<?> createReview(CreateNewReview req)
     {
-        Product product = productRepository.findByProId(req.getProId());
+        Product product = productRepository.findByProIdAndIsDeletedFalse(req.getProId());
         if(product == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not fount product");
         }
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Review not found");
+                    .body("User is deleted");
         }
         Review review = new Review();
         review.setContent(req.getContent());
@@ -64,11 +64,11 @@ public class ReviewService {
         ));
     }
 
-    public ResponseEntity<CRUDReviewResponse> updateReview(CRUDReviewReq req) {
+    public ResponseEntity<?> updateReview(CRUDReviewReq req) {
         Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
         if (review == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new CRUDReviewResponse("Review not found"));
+                    .body("Review not found");
         }
 
         review.setContent(req.getContent());
@@ -93,7 +93,6 @@ public class ReviewService {
 
     public ResponseEntity<String> deleteOneReview(DeleteReviewReq req) {
         Review review = reviewRepository.findByReviewIdAndUser_UserIdAndIsDeletedFalse(req.getReviewId(), req.getUserId());
-
         if (review == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Review not found");
@@ -110,10 +109,13 @@ public class ReviewService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-
-        // Sử dụng phương thức mới để chỉ lấy review không bị xóa
+        int total = 0;
         Page<Review> reviews = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(proId, pageable);
-
+        List<Review> reviews1 = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(proId);
+        for(Review review : reviews1)
+        {
+            total += 1;
+        }
         List<CRUDReviewResponse> crudReviewResponseList = new ArrayList<>();
         for (Review review : reviews) {
             crudReviewResponseList.add(new CRUDReviewResponse(
@@ -134,6 +136,7 @@ public class ReviewService {
                 page,
                 reviews.getTotalPages(),
                 limit,
+                total,
                 crudReviewResponseList
         ));
     }

@@ -10,8 +10,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ShipmentRepository extends JpaRepository<Shippment, Integer> {
-   Shippment findByShipmentId(int shipmentId);
+   Shippment findByShipmentIdAndIsDeletedFalse(int shipmentId);
 
+   Shippment findByPaymentPaymentIdAndIsDeletedFalse(int paymentId);
+
+   Shippment findByPaymentPaymentId(int paymentId);
    Shippment findByUserUserIdAndShipmentId(int userId, int shipmentId);
    Page<Shippment> findAll(Pageable pageable);
    Page<Shippment> findAllByStatus(Status_Shipment statusShipment, Pageable pageable);

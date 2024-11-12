@@ -32,18 +32,17 @@ public class VoucherService {
     private UserVoucherRepository userVoucherRepository;
 
     public ResponseEntity<?> createVoucher(CreateVoucherReq req) {
-        Post post = postRepository.findByPostId(req.getPostId());
+        Post post = postRepository.findByPostIdAndIsDeletedFalse(req.getPostId());
         if (post == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Post not found");
         }
 
-        Voucher existingVoucher = voucherRepository.findByPostPostIdAndIsDeletedFalse(req.getPostId());
+        Voucher existingVoucher = voucherRepository.findByPostPostId(req.getPostId());
         if (existingVoucher != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Voucher Post already exists");
         }
-
         LocalDateTime createPostDate = post.getDateCreate();
         LocalDateTime currentDate = LocalDateTime.now();
 
@@ -225,6 +224,7 @@ public class VoucherService {
     {
         List<Voucher> voucherList = voucherRepository.findAll();
         List<CRUDVoucherResponse> crudVoucherResponses = new ArrayList<>();
+        int total =0;
         for(Voucher voucher : voucherList){
             crudVoucherResponses.add(new CRUDVoucherResponse(
                     voucher.getVoucherId(),
@@ -236,7 +236,63 @@ public class VoucherService {
                     voucher.getStatus(),
                     voucher.getPost().getPostId()
             ));
+            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(crudVoucherResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(total,crudVoucherResponses));
     }
+
+    public ResponseEntity<?> disableVoucher(int voucherId)
+    {
+        Voucher voucher = voucherRepository.findByVoucherId(voucherId);
+        if(voucher == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+        }
+        if(voucher.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already disabled");
+        }
+        voucher.setIsDeleted(true);
+        voucher.setDateDeleted(LocalDateTime.now());
+        voucher.setStatus(Status_Voucher.EXPIRED);
+        voucherRepository.save(voucher);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
+                voucher.getVoucherId(),
+                voucher.getKey(),
+                voucher.getNumber(),
+                voucher.getStartDate(),
+                voucher.getEndDate(),
+                voucher.getDiscount(),
+                voucher.getStatus(),
+                voucher.getPost().getPostId()
+        ));
+    }
+
+    public ResponseEntity<?> enableVoucher(int voucherId)
+    {
+        Voucher voucher = voucherRepository.findByVoucherId(voucherId);
+        if(voucher == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+        }
+        if(!voucher.getIsDeleted())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Voucher already enable");
+        }
+        voucher.setIsDeleted(false);
+        voucher.setDateDeleted(null);
+        voucher.setStatus(Status_Voucher.ACTIVE);
+        voucherRepository.save(voucher);
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDVoucherResponse(
+                voucher.getVoucherId(),
+                voucher.getKey(),
+                voucher.getNumber(),
+                voucher.getStartDate(),
+                voucher.getEndDate(),
+                voucher.getDiscount(),
+                voucher.getStatus(),
+                voucher.getPost().getPostId()
+        ));
+    }
+
 }

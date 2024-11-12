@@ -14,12 +14,17 @@ import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
      Payment findByPaymentId(int paymentId);
+     Payment findByPaymentIdAndIsDeletedFalse(int paymentId);
      Payment findByOrderOrderId(int orderId);
+     Payment findByOrderOrderIdAndIsDeletedFalse(int orderId);
 
      Page<Payment> findAll(Pageable pageable);
+     Page<Payment> findAllByIsDeletedFalse(Pageable pageable);
 
      Page<Payment> findAllByStatus(Status_Payment status, Pageable pageable);
+     Page<Payment> findAllByStatusAndIsDeletedFalse(Status_Payment status, Pageable pageable);
      Page<Payment> findAllByPaymentMethod(Payment_Method paymentMethod, Pageable pageable);
+     Page<Payment> findAllByPaymentMethodAndIsDeletedFalse(Payment_Method paymentMethod, Pageable pageable);
 
      Payment findByOrderOrderIdAndStatus(int orderId, Status_Payment status);
 

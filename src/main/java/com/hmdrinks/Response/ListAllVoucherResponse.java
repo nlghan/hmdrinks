@@ -11,5 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ListAllVoucherResponse {
+    private int total;
     List<CRUDVoucherResponse> voucherResponseList;
 }
