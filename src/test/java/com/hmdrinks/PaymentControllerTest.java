@@ -1,14 +1,10 @@
 package com.hmdrinks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hmdrinks.Controller.OrdersController;
 import com.hmdrinks.Controller.PaymentController;
 import com.hmdrinks.Enum.Payment_Method;
-import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.ConfirmCancelOrderReq;
-import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreatePaymentReq;
 import com.hmdrinks.Request.CreatePaymentVNPayReq;
 import com.hmdrinks.Response.*;
@@ -243,7 +239,7 @@ class PaymentControllerTest {
                 ""
         );
 
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -263,7 +259,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -282,7 +278,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -301,7 +297,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -320,7 +316,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -339,7 +335,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")

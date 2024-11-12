@@ -3,10 +3,7 @@ package com.hmdrinks;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Controller.OrdersController;
 import com.hmdrinks.Controller.PostController;
-import com.hmdrinks.Enum.Payment_Method;
-import com.hmdrinks.Enum.Status_Order;
-import com.hmdrinks.Enum.Status_Payment;
-import com.hmdrinks.Enum.Type_Post;
+import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
@@ -737,11 +734,9 @@ class OrderControllerTest {
         req.setUserId(1);
         req.setOrderId(100);
 
-        // Mock authorized user response
         when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt()))
                 .thenReturn(ResponseEntity.ok().build());
 
-        // Mock shipment in progress or completed response
         when(ordersService.cancelOrder(anyInt(), anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed"));
 
@@ -751,6 +746,48 @@ class OrderControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(content().string("Order cannot be cancelled as shipment is in progress or completed"));
     }
+
+    @Test
+    void detailItemOrder_Success() throws Exception {
+        ItemOrderResponse response1 = new ItemOrderResponse(
+                1,
+                1,
+                1,
+                "SP1",
+                Size.S,
+                20000.0,
+                100000.0,
+                5
+        );
+
+        ItemOrderResponse response2 = new ItemOrderResponse(
+                2,
+                1,
+                1,
+                "SP1",
+                Size.L,
+                25000.0,
+                100000.0,
+                4
+        );
+
+        ListItemOrderResponse listItemOrderResponse = new ListItemOrderResponse(
+                1,
+                2,
+                Arrays.asList(response1,response2)
+        );
+
+        when(ordersService.detailItemOrders(anyInt())).thenReturn((ResponseEntity) ResponseEntity.ok(listItemOrderResponse));
+        mockMvc.perform(get(endPointPath + "/detail-item/{orderId}",1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.listItemOrders.length()").value(2))
+                .andExpect(jsonPath("$.listItemOrders[0].cartItemId").value(1))
+                .andExpect(jsonPath("$.listItemOrders[1].size").value("L"))
+                .andDo(print());
+    }
+
+
+
 
 
 }

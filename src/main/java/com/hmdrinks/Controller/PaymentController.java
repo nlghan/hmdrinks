@@ -82,7 +82,18 @@ public class PaymentController {
             return authResponse;
         }
 
-        return paymentService.createPayment(req.getOrderId());
+        return paymentService.createPaymentMomo(req.getOrderId());
+    }
+
+    @PostMapping("/create/credit/payOs")
+    public ResponseEntity<?> createPaymentPayOs(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+
+        return paymentService.createPaymentATM(req.getOrderId());
     }
 
     @PostMapping("/create/cash")
