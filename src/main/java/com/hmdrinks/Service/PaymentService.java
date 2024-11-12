@@ -67,7 +67,7 @@ public class PaymentService {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
             if (payment1 != null) {
                 if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
                 }
                 if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
@@ -75,11 +75,11 @@ public class PaymentService {
             }
             Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
             if (orders == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
             }
             Orders orders1 = orderRepository.findByOrderId(orderId1);
-            if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            if (orders1.getStatus() == Status_Order.CANCELLED) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
             }
             String orderId = partnerCode + "-" + UUID.randomUUID();
             String requestId = partnerCode + "-" + UUID.randomUUID();
@@ -224,7 +224,7 @@ public class PaymentService {
 
         if (payment1 != null) {
             if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment cash already create");
             }
             if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
@@ -232,11 +232,11 @@ public class PaymentService {
         }
         Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId1);
-        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        if (orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId1);
         User user = userRepository.findByUserId(order.getUser().getUserId());
@@ -286,7 +286,7 @@ public class PaymentService {
         Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
         if (payment1 != null) {
             if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
             }
             if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
@@ -294,11 +294,11 @@ public class PaymentService {
         }
         Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId1);
         if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId1);
         User user = userRepository.findByUserId(order.getUser().getUserId());
@@ -422,25 +422,21 @@ public class PaymentService {
 
     public ResponseEntity<?> createPaymentCash(int orderId) {
         Payment payment = paymentRepository.findByOrderOrderId(orderId);
-        if(payment.getIsDeleted())
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment is deleted");
-        }
         if (payment != null) {
             if (payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.OK).body("Bad request");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
             }
             if (payment.getStatus() == Status_Payment.COMPLETED) {
-                return ResponseEntity.status(HttpStatus.OK).body("Payment already completed");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment already completed");
             }
         }
         Orders orders = orderRepository.findByOrderIdAndStatus(orderId, Status_Order.CONFIRMED);
         if (orders == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order NOT CONFIRMED");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
         }
         Orders orders1 = orderRepository.findByOrderId(orderId);
-        if (orders1.getStatus() == Status_Order.WAITING || orders1.getStatus() == Status_Order.CANCELLED) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        if (orders1.getStatus() == Status_Order.CANCELLED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId);
 
