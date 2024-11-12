@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import mammoth from 'mammoth';
 import './FormAddPost.css';
 
 const getCookie = (name) => {
@@ -20,8 +21,8 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         endDate: '2024-12-31 10:23:49',
         status: 'ACTIVE',
         typePost: 'NEW',
-        url: '',  // Add url field here
-        number:0
+        url: '',
+        number: 0
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -53,6 +54,25 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         }));
     };
 
+    // Hàm để tải nội dung từ file Word và đặt vào description
+    const handleWordFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file && file.name.endsWith('.docx')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                setFormData((prevData) => ({
+                    ...prevData,
+                    description: result.value,  // Cập nhật description với nội dung file Word
+                }));
+            } catch (error) {
+                console.error("Lỗi khi tải file Word:", error);
+            }
+        } else {
+            alert("Vui lòng chọn file .docx hợp lệ.");
+        }
+    };
+
     const handleSubmit = async () => {
         const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, status, file, number } = formData;
     
@@ -60,7 +80,6 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
             const token = getCookie('access_token');
             const headers = { Authorization: `Bearer ${token}` };
     
-            // Step 1: Create Post
             setIsCreating(true);
             const postResponse = await axios.post(
                 'http://localhost:1010/api/post/create',
@@ -70,13 +89,12 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                     shortDescription,
                     typePost,
                     userId,
-                    url: formData.url  // Include url in post data
+                    url: formData.url
                 },
                 { headers }
             );
             const postId = postResponse.data.postId;
     
-            // Step 2: Upload Image for Post, retrieve URL
             let imageUrl = null;
             if (file) {
                 const imageData = new FormData();
@@ -94,10 +112,9 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                 );
     
                 imageUrl = imageResponse.data.imageUrl;
-                setFormData(prevData => ({ ...prevData, url: imageUrl })); // Update url
+                setFormData(prevData => ({ ...prevData, url: imageUrl }));
             }
     
-            // Step 3: Create Voucher with number field added
             const formattedStartDate = formatDateTime(startDate);
             const formattedEndDate = formatDateTime(endDate);
     
@@ -110,7 +127,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                     endDate: formattedEndDate,
                     status,
                     postId: postId,
-                    number // Add the missing `number` field here
+                    number
                 },
                 { headers }
             );
@@ -152,7 +169,10 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         <div className="form-add-post-group">
                             <label htmlFor="description">Mô tả</label>
                             <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} />
+                            <label htmlFor="wordFile">Tải nội dung từ file Word</label>
+                            <input type="file" id="wordFile" name="wordFile" accept=".docx" onChange={handleWordFileChange} />
                         </div>
+                        
                         <div className="form-add-post-group">
                             <label htmlFor="shortDescription">Mô tả ngắn</label>
                             <input type="text" id="shortDescription" name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} />
@@ -169,6 +189,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                             <label htmlFor="file">Ảnh minh họa</label>
                             <input type="file" id="file" name="file" accept="image/*" onChange={handleFileChange} />
                         </div>
+                        
                     </div>
 
                     <div className="form-add-post-column">

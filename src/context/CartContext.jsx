@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Create Context
 const CartContext = createContext();
@@ -24,9 +25,9 @@ export const CartProvider = ({ children }) => {
             console.log("User is not logged in, skipping cart fetch.");
             return; // Exit the function early
         }
-    
+
         const token = getCookie('access_token');
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -35,17 +36,17 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             const data = await response.json();
             console.log("Cart List Response:", data); // Debugging response
-    
+
             if (response.ok) {
                 const cartList = data.listCart || [];
                 console.log("Cart List:", cartList); // Checking cart list
-    
+
                 // Check if there is a cart with the status "NEW"
                 const newCart = cartList.find(cart => cart.statusCart === 'NEW');
-    
+
                 if (newCart) {
                     // If there is already a "NEW" cart, just retrieve its cartId
                     if (cartId !== newCart.cartId) { // Check if cartId has been set
@@ -66,7 +67,7 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart:', error);
         }
     };
-    
+
 
     useEffect(() => {
         const initializeCart = async () => {
@@ -221,8 +222,9 @@ export const CartProvider = ({ children }) => {
         // Nếu cartId vẫn không có sau khi gọi ensureCartExists, không tiếp tục
         if (!cartId) {
             console.error('No cartId found!');
-            return;
+
         }
+
 
         // Fetch product details including the price based on size
         const productDetails = await fetchProductDetails(product.productId, product.size);
@@ -283,6 +285,64 @@ export const CartProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error while adding item to cart:', error);
+        }
+    };
+
+    const [selectedVoucher, setSelectedVoucher] = useState(null); // Add state for selectedVoucher
+    const [note, setNote] = useState(""); // Add state for note
+    const navigate = useNavigate()
+
+
+
+    const handleCheckout = async () => {
+        const token = getCookie('access_token');
+        const userId = parseInt(getUserIdFromToken(token), 10);
+
+        if (!userId || !cartId) {
+            console.error("User ID or Cart ID is missing");
+            return;
+        }
+
+        const orderData = { userId, cartId, voucherId: selectedVoucher, note };
+
+        console.log('Data to be sent to the server:', orderData);
+
+        try {
+            const response = await fetch('http://localhost:1010/api/orders/create', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            const data = await response.json();
+
+            console.log('Response Status:', response.status);
+            console.log('Response Body:', data.body);
+
+            if (data.statusCodeValue === 400) {
+                alert(`Error: ${data.body}`);
+                navigate('/info');
+            } else if (data.statusCodeValue === 200) {
+                console.log('Order created successfully: ', data);
+
+                // Pass the newly created order data to the Order page
+                alert(`Đặt hàng thành công`);
+
+                setCartItems([]);  // Clear cart after successful checkout
+                await ensureCartExists(userId);
+
+                // Navigate to the order page and pass the order data using state
+                navigate('/order', { state: { orderData: data.body } });
+
+            } else {
+                console.error('Error creating order:', data);
+            }
+        } catch (error) {
+            console.error('Error while making order request:', error);
         }
     };
 
@@ -612,7 +672,7 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem }}>
+        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, handleCheckout }}>
             {children}
         </CartContext.Provider>
     );

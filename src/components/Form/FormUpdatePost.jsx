@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './FormUpdatePost.css';
 import { formatISO } from 'date-fns';
+import mammoth from 'mammoth';
 
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -42,6 +43,25 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+     // Hàm để tải nội dung từ file Word và đặt vào description
+     const handleWordFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file && file.name.endsWith('.docx')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                setFormData((prevData) => ({
+                    ...prevData,
+                    description: result.value,  // Cập nhật description với nội dung file Word
+                }));
+            } catch (error) {
+                console.error("Lỗi khi tải file Word:", error);
+            }
+        } else {
+            alert("Vui lòng chọn file .docx hợp lệ.");
+        }
     };
 
 
@@ -379,6 +399,10 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                 onChange={handleInputChange}
                                 required
                             />
+                
+                            <label htmlFor="wordFile">Tải nội dung từ file Word</label>
+                            <input type="file" id="wordFile" name="wordFile" accept=".docx" onChange={handleWordFileChange} />
+                       
                         </div>
                         <div className="form-update-post-group">
                             <label htmlFor="shortDescription">Mô tả ngắn</label>

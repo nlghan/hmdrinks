@@ -1,0 +1,98 @@
+.order-background-container{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1007' height='806' viewBox='0 0 1007 806' fill='rgba(221, 45, 80, 0.9)' stroke-width='1px'%3E%3Cpath d='M895.13 -200.09C993.128 -123.54 1027.19 34.8807 995.227 155.053C961.104 283.328 791.957 326.814 724.549 441.159C672.668 529.164 712.072 652.411 652.921 735.705C593.052 820.012 497.272 882.109 396.133 903.623C296.755 924.763 200.417 851.204 98.8429 853.569C-8.75754 856.075 -107.398 932.771 -213.986 917.83C-326.749 902.023 -431.512 843.126 -516.473 767.316C-605.308 688.049 -699.869 591.657 -712.236 473.242C-724.872 352.252 -614.412 253.81 -582.356 136.461C-554.839 35.726 -606.302 -92.2929 -536.527 -169.986C-463.121 -251.721 -322.471 -213.92 -223.978 -262.585C-141.699 -303.238 -94.4871 -395.739 -9.50265 -430.385C81.1919 -467.358 186.919 -501.635 278.729 -467.524C371.889 -432.911 386.134 -289.071 477.305 -249.515C607.385 -193.078 783.386 -287.378 895.13 -200.09Z' fill='%23DD2D50' fill-opacity='0.05'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+
+}
+.order-container {
+    position: relative;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    
+  }
+  
+  .content {
+    position: relative;
+    z-index: 1; /* Ensures the content is on top of the background */
+  }
+  
+  .progress-steps {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 33%;
+    font-size: 24px;
+    color: #ccc;
+    
+  }
+  
+  .step.active {
+    color: #ff6666;
+  }
+  
+  .info-order-sections {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    width: 900px;
+  }
+  
+  .info-section {
+    width: 48%;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .action-buttons {
+    text-align: center;
+  }
+  
+  .back-button, .checkout-button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .back-button {
+    background-color: #ffcccc;
+  }
+  
+  .checkout-button {
+    background-color: #ff6666;
+    color: #fff;
+  }
+
+  .info-section form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .info-section label {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .info-section input {
+    padding: 8px;
+    margin-top: 5px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .form-control:disabled {
+    background-color: rgba(240, 240, 240, 0.3) !important;
+    opacity: 1;
+  }

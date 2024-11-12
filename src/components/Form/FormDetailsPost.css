@@ -69,6 +69,7 @@
     font-size: 16px; /* Kích thước chữ mô tả */
     margin-bottom: 10px;
     color: #000000;
+    white-space: pre-line;
 }
 .form-details-post-item-short-description {
     font-size: 17px; /* Kích thước chữ mô tả */
@@ -151,3 +152,4 @@
     display: block; /* Mỗi ngày sẽ nằm trên một dòng riêng */
     margin-top: 5px; /* Khoảng cách trên giữa các ngày */
 }
+

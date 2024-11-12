@@ -24,6 +24,7 @@ import { CartProvider } from "./context/CartContext";
 import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
 import { FavoriteProvider } from './context/FavoriteContext';
+import Order from "./pages/Order/Order";
 
 const App = () => {
   const location = useLocation();
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/favorite" element={<Favorite />} />
             <Route path="/news" element={<News />} />
             <Route path="/post" element={<NewsUser />} />
+            <Route path="/order" element={<Order />} />
             <Route path="/marketing/:postId" element={<PostVoucher />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<Navigate to="/" />} />
