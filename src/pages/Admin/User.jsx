@@ -56,7 +56,7 @@ const User = () => {
     const handleTypeChange = (event) => {
         const selectedRole = event.target.value;
         setSelectedType(selectedRole);  // Update selected role state
-        fetchUsers(1, 10, selectedRole);  // Call fetchUsers with the selected role
+        fetchUsers(1, 7, selectedRole);  // Call fetchUsers with the selected role
     };
     
 
