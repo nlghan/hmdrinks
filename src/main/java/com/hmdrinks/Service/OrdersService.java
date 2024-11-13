@@ -221,14 +221,14 @@ public class OrdersService {
             userVoucher.setStatus(Status_UserVoucher.INACTIVE);
             userVoucherRepository.save(userVoucher);
         }
-        OrderItem orderItem1 = order.getOrderItem();
-        if(orderItem1 != null)
-        {
-            orderItemRepository.delete(order.getOrderItem());
-            Cart cart = cartRepository.findByCartId(order.getOrderItem().getCart().getCartId());
-            cart.setStatus(Status_Cart.NEW);
-            cartRepository.save(cart);
-        }
+//        OrderItem orderItem1 = order.getOrderItem();
+//        if(orderItem1 != null)
+//        {
+//            orderItemRepository.delete(order.getOrderItem());
+//            Cart cart = cartRepository.findByCartId(order.getOrderItem().getCart().getCartId());
+//            cart.setStatus(Status_Cart.NEW);
+//            cartRepository.save(cart);
+//        }
         return ResponseEntity.status(HttpStatus.OK).body("Order has been canceled");
     }
 
