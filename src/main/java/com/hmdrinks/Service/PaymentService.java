@@ -543,20 +543,19 @@ public class PaymentService {
         String extractedCode = orderCode.replace("PayOS", "");
         PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(Long.valueOf(extractedCode));
         String status = paymentLinkData.getStatus();
-        if(status.equals("EXPIRED"))
-        {
-            payment.setStatus(Status_Payment.FAILED);
-            paymentRepository.save(payment);
-        } else if (status.equals("PAID")) {
-            payment.setStatus(Status_Payment.COMPLETED);
-            paymentRepository.save(payment);
-        } else if (status.equals("CANCELLED")) {
-            payment.setStatus(Status_Payment.FAILED);
-            paymentRepository.save(payment);
-        } else
-        {
-            payment.setStatus(Status_Payment.PENDING);
-            paymentRepository.save(payment);
+        switch (status) {
+            case "EXPIRED", "CANCELLED" -> {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            case "PAID" -> {
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+            }
+            default -> {
+                payment.setStatus(Status_Payment.PENDING);
+                paymentRepository.save(payment);
+            }
         }
         CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
                 payment.getPaymentId(),
