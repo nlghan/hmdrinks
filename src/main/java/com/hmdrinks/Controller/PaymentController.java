@@ -109,7 +109,15 @@ public class PaymentController {
     public ResponseEntity<?> handleCallbackZalo(
             @RequestParam String app_trans_id)
     {
+
         return  zaloPayService.handleCallBack(app_trans_id);
+    }
+
+    @GetMapping("/payOS/callback")
+    public ResponseEntity<?> handleCallbackPayOS(
+            @RequestParam int orderCode) throws Exception {
+
+        return  paymentService.handleCallBackPayOS(orderCode);
     }
 
     @GetMapping("/momo/callback")

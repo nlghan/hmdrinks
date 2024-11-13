@@ -292,7 +292,7 @@ public class PaymentService {
                     .buyerEmail(user.getEmail())
                     .buyerName(user.getPhoneNumber())
                     .buyerName(user.getFullName())
-                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 20 * 60)) // 20 phut
+                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60)) // 20 phut
                     .items(items).build();
 
             CheckoutResponseData result = payOS.createPaymentLink(paymentData);
@@ -740,6 +740,58 @@ public class PaymentService {
                 total,
                 responses
         ));
+    }
+
+    public ResponseEntity<?> handleCallBackPayOS(int orderCode) throws Exception {
+        PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+        List<Payment> payments = paymentRepository.findAll();
+        String orderCode1="";
+        for (Payment payment : payments) {
+            String equal = "PayOS" + orderCode;
+            System.out.println("PayOS" + orderCode);
+            if(payment.getOrderIdPayment().equals(equal))
+            {
+                orderCode1 = payment.getOrderIdPayment();
+            }
+        }
+
+        if(orderCode1.equals(""))
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found orderCode");
+        }
+        Payment payment = paymentRepository.findByOrderIdPayment(orderCode1);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+        }
+        String extractedCode = orderCode1.replace("PayOS", "");
+        PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(Long.valueOf(extractedCode));
+        String status = paymentLinkData.getStatus();
+        switch (status) {
+            case "EXPIRED", "CANCELLED" -> {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            case "PAID" -> {
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+            }
+            default -> {
+                payment.setStatus(Status_Payment.PENDING);
+                paymentRepository.save(payment);
+            }
+        }
+        CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId()
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
 
     private String hmacSHA256(String key, String data) {
