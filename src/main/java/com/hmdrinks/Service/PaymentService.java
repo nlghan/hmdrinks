@@ -49,7 +49,7 @@ public class PaymentService {
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
-    private final int orderExpireTime = 30;
+    private final int orderExpireTime = 15;
     private final String lang = "vi";
     private String orderInfo = "Payment Order";
     @Autowired
@@ -290,6 +290,7 @@ public class PaymentService {
                     .buyerEmail(user.getEmail())
                     .buyerName(user.getPhoneNumber())
                     .buyerName(user.getFullName())
+                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 20 * 60)) // 20 phut
                     .items(items).build();
 
             CheckoutResponseData result = payOS.createPaymentLink(paymentData);
@@ -454,31 +455,37 @@ public class PaymentService {
         ), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> callBack(String resultCode, String orderId) {
+    public ResponseEntity<Map<String, Object>> callBack(String resultCode, String orderId) {
         Payment payment = paymentRepository.findByOrderIdPayment(orderId);
         if (payment == null) {
-            return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "Not found payment"));
         }
-        if(payment.getIsDeleted())
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment is deleted");
+        if (payment.getIsDeleted()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("status", "error", "message", "Payment is deleted"));
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("paymentId", payment.getPaymentId());
+
         if ("0".equals(resultCode)) {
             payment.setStatus(Status_Payment.COMPLETED);
             paymentRepository.save(payment);
+
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
             List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
                 if (productVariants.getStock() > cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 } else {
-                    String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.add("Location", redirectUrl + "?status=" + 404 + "&paymentId=" + payment.getPaymentId() + "&text=" + "insufficient quantity");
-                    return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+                    response.put("status", HttpStatus.BAD_REQUEST.value());
+                    response.put("message", "Insufficient quantity");
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
             }
 
@@ -490,34 +497,38 @@ public class PaymentService {
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
 
-            String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", redirectUrl + "?status=" + 200 + "&paymentId=" + payment.getPaymentId());
-            return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", "Payment completed successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             payment.setStatus(Status_Payment.FAILED);
             paymentRepository.save(payment);
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             orders.setStatus(Status_Order.CANCELLED);
             orderRepository.save(orders);
+
             UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
                     orders.getUser().getUserId(), orders.getVoucher().getVoucherId()
             );
-            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
-            userVoucherRepository.save(userVoucher);
+            if (userVoucher != null) {
+                userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                userVoucherRepository.save(userVoucher);
+            }
+
             OrderItem orderItem1 = orders.getOrderItem();
             if (orderItem1 != null) {
-                orderItemRepository.delete(orders.getOrderItem());
-                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                orderItemRepository.delete(orderItem1);
+                Cart cart = cartRepository.findByCartId(orderItem1.getCart().getCartId());
                 cart.setStatus(Status_Cart.NEW);
                 cartRepository.save(cart);
             }
-            String redirectUrl = "https://www.facebook.com";
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", redirectUrl + "?status=" + 400 + "&paymentId=" + payment.getPaymentId());
-            return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+
+            response.put("status", HttpStatus.BAD_REQUEST.value());
+            response.put("message", "Payment failed");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
 
     public ResponseEntity<?> checkStatusPayment(int paymentId) {
         Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);

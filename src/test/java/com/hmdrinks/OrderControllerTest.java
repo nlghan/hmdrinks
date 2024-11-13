@@ -786,8 +786,13 @@ class OrderControllerTest {
                 .andDo(print());
     }
 
-
-
-
+    @Test
+    void detailItemOrder_NotFound() throws Exception {
+        when(ordersService.detailItemOrders(anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found"));
+        mockMvc.perform(get(endPointPath + "/detail-item/{orderId}",1))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Order not found"))
+                .andDo(print());
+    }
 
 }

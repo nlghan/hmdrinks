@@ -107,26 +107,16 @@ public class PaymentController {
 
     @GetMapping("/zalo/callback")
     public ResponseEntity<?> handleCallbackZalo(
-            @RequestParam String app_trans_id
-) {
+            @RequestParam String app_trans_id)
+    {
         return  zaloPayService.handleCallBack(app_trans_id);
     }
 
-    @GetMapping("/callback")
+    @GetMapping("/momo/callback")
     public ResponseEntity<?> handleCallback(
-            @RequestParam String partnerCode,
             @RequestParam String orderId,
-            @RequestParam String requestId,
-            @RequestParam String amount,
-            @RequestParam String orderInfo,
-            @RequestParam String orderType,
-            @RequestParam String transId,
-            @RequestParam String resultCode,
-            @RequestParam String message,
-            @RequestParam String payType,
-            @RequestParam String responseTime,
-            @RequestParam String extraData,
-            @RequestParam String signature) {
+            @RequestParam String resultCode)
+    {
             return  paymentService.callBack(resultCode,orderId);
     }
 
