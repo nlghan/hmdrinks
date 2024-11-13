@@ -143,6 +143,11 @@ public class PaymentController {
         return paymentService.getAllPaymentMethod(page, limit,method);
     }
 
+    @GetMapping("/info/payOs/{paymentId}")
+    public ResponseEntity<?> getInformationPayOS(@PathVariable int paymentId) throws Exception {
+        return paymentService.getInformationPayOs(paymentId);
+    }
+
     @GetMapping("/listAll-status")
     public ResponseEntity<?> listAllByStatus(@RequestParam(name = "page") String page,
                                              @RequestParam(name = "limit") String limit,
