@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Contact.css';
-import { assets } from '../../assets/assets'; 
+import { assets } from '../../assets/assets';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import trachanh from '../../assets/img/about.png';
@@ -12,6 +12,7 @@ const Contact = () => {
     phone: '',
     message: ''
   });
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,10 +22,39 @@ const Contact = () => {
     }));
   };
 
+  const getUserIdFromToken = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payload));
+      return decodedPayload.UserId;
+    } catch (error) {
+      console.error("Cannot decode token:", error);
+      return null;
+    }
+  };
+
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  };
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý logic gửi form ở đây
-    console.log('Form submitted:', formData);
+
+    const token = getCookie('access_token');
+    const userId = getUserIdFromToken(token);
+
+    console.log("Token:", token); // Log token
+    console.log("UserId:", userId); // Log userId
+
+    if (!userId) {
+      setShowLoginPrompt(true);
+    } else {
+      console.log('Send data');
+
+    }
   };
 
   // Thêm refs
@@ -50,11 +80,11 @@ const Contact = () => {
     // Observe elements
     if (contactInfoRef.current) observer.observe(contactInfoRef.current);
     if (contactFormRef.current) observer.observe(contactFormRef.current);
-    
+
     contactItemRefs.current.forEach(ref => {
       if (ref) observer.observe(ref);
     });
-    
+
     formGroupRefs.current.forEach(ref => {
       if (ref) observer.observe(ref);
     });
@@ -64,12 +94,26 @@ const Contact = () => {
     };
   }, []);
 
+
+
   return (
     <>
       <Navbar currentPage="Liên Hệ" />
+      {showLoginPrompt && (
+                <div className="login-modal">
+                  <div className="login-modal-content">
+                    <p>Bạn cần đăng nhập để liên hệ với chúng tôi.</p>
+                    <a href="/login">Đăng nhập</a>
+                    <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+                  </div>
+                </div>
+              )}
       <div className="contact-main">
+        
         <div className="contact-section">
+          
           <div className="contact-info" ref={contactInfoRef}>
+            
             <h2>Thông Tin Liên Hệ</h2>
             <div className="contact-info-item" ref={el => contactItemRefs.current[0] = el}>
               <i className="ti-mobile"></i>
@@ -154,6 +198,7 @@ const Contact = () => {
                 ></textarea>
               </div>
               <button type="submit" className="contact-submit-btn" ref={el => formGroupRefs.current[4] = el}>Gửi Ngay</button>
+              
             </form>
           </div>
         </div>

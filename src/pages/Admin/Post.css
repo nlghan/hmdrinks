@@ -7,6 +7,7 @@
   min-height: 100vh;
   height: auto;
   background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+  padding-left: 70px;
 }
 
 .header-post-container {
@@ -23,7 +24,6 @@
 }
 
 .post-table {
-  margin: 10px 0;
   width: 100%;
   display: flex;
   border-radius: 10px;
@@ -82,7 +82,6 @@
 }
 
 .post-content {
-  margin-left: 20px;
   width: 100%;
 }
 

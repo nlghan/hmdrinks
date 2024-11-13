@@ -1,0 +1,28 @@
+.payment-status {
+    display: flex; /* Sử dụng flexbox */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    min-height: 100vh; /* Chiều cao tối thiểu là 100% chiều cao màn hình */
+    text-align: center; /* Căn giữa văn bản */
+  }
+  
+  .payment-status.success {
+    color: green; /* Bạn có thể thêm màu sắc cho thành công */
+  }
+  
+  .payment-status.failure {
+    color: red; /* Bạn có thể thêm màu sắc cho thất bại */
+  }
+  
+  .payment-status div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .payment-status p {
+    font-size: 35px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  

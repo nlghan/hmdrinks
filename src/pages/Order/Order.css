@@ -1,14 +1,14 @@
 .order-background-container{
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1007' height='806' viewBox='0 0 1007 806' fill='rgba(221, 45, 80, 0.9)' stroke-width='1px'%3E%3Cpath d='M895.13 -200.09C993.128 -123.54 1027.19 34.8807 995.227 155.053C961.104 283.328 791.957 326.814 724.549 441.159C672.668 529.164 712.072 652.411 652.921 735.705C593.052 820.012 497.272 882.109 396.133 903.623C296.755 924.763 200.417 851.204 98.8429 853.569C-8.75754 856.075 -107.398 932.771 -213.986 917.83C-326.749 902.023 -431.512 843.126 -516.473 767.316C-605.308 688.049 -699.869 591.657 -712.236 473.242C-724.872 352.252 -614.412 253.81 -582.356 136.461C-554.839 35.726 -606.302 -92.2929 -536.527 -169.986C-463.121 -251.721 -322.471 -213.92 -223.978 -262.585C-141.699 -303.238 -94.4871 -395.739 -9.50265 -430.385C81.1919 -467.358 186.919 -501.635 278.729 -467.524C371.889 -432.911 386.134 -289.071 477.305 -249.515C607.385 -193.078 783.386 -287.378 895.13 -200.09Z' fill='%23DD2D50' fill-opacity='0.05'/%3E%3C/svg%3E");
+    /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1007' height='806' viewBox='0 0 1007 806' fill='rgba(221, 45, 80, 0.9)' stroke-width='1px'%3E%3Cpath d='M895.13 -200.09C993.128 -123.54 1027.19 34.8807 995.227 155.053C961.104 283.328 791.957 326.814 724.549 441.159C672.668 529.164 712.072 652.411 652.921 735.705C593.052 820.012 497.272 882.109 396.133 903.623C296.755 924.763 200.417 851.204 98.8429 853.569C-8.75754 856.075 -107.398 932.771 -213.986 917.83C-326.749 902.023 -431.512 843.126 -516.473 767.316C-605.308 688.049 -699.869 591.657 -712.236 473.242C-724.872 352.252 -614.412 253.81 -582.356 136.461C-554.839 35.726 -606.302 -92.2929 -536.527 -169.986C-463.121 -251.721 -322.471 -213.92 -223.978 -262.585C-141.699 -303.238 -94.4871 -395.739 -9.50265 -430.385C81.1919 -467.358 186.919 -501.635 278.729 -467.524C371.889 -432.911 386.134 -289.071 477.305 -249.515C607.385 -193.078 783.386 -287.378 895.13 -200.09Z' fill='%23DD2D50' fill-opacity='0.05'/%3E%3C/svg%3E");
     background-size: cover;
-    background-position: center;
+    background-position: center; */
 
 }
 .order-container {
     position: relative;
     padding: 20px;
     font-family: Arial, sans-serif;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     
   }
@@ -20,18 +20,55 @@
   
   .progress-steps {
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
+    align-items: center;
     margin-bottom: 20px;
-  }
-  
-  .step {
+    position: relative;
+}
+
+.step {
     display: flex;
     flex-direction: column;
+    align-items: center;
     text-align: center;
     width: 33%;
     font-size: 24px;
     color: #ccc;
-    
+    position: relative;
+}
+
+/* Horizontal line between steps with gaps at each end */
+.step:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 15px; /* Aligns with the step icon */
+    left: -80%; /* Centers the line within the step */
+    width: 90%; /* Reduces width to 50% */
+    height: 3px;
+    background: #979797;
+    z-index: -1;
+}
+
+/* Optional: Color active step */
+.step.active {
+    color: #ff6666;
+}
+
+
+
+  .order-action-buttons{
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 0;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .order-action-buttons .checkout-button, .order-action-buttons .back-button{
+    width: 250px;
+    margin: 0px;
+    border-radius: 5px;
   }
   
   .step.active {
@@ -41,58 +78,159 @@
   .info-order-sections {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 30px;
-    width: 900px;
+    width: 1200px;
   }
-  
-  .info-section {
-    width: 48%;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .action-buttons {
-    text-align: center;
-  }
-  
-  .back-button, .checkout-button {
-    padding: 10px 20px;
-    margin-right: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .back-button {
-    background-color: #ffcccc;
-  }
-  
-  .checkout-button {
-    background-color: #ff6666;
-    color: #fff;
-  }
+  /* Add keyframes for shimmering border effect */
+/* Shimmer Border Effect */
+@keyframes shimmer-border {
+  0% { border-color: #ff6666; }
+  25% { border-color: #ffcc66; }
+  50% { border-color: #66ccff; }
+  75% { border-color: #66ffcc; }
+  100% { border-color: #ff6666; }
+}
 
-  .info-section form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .info-section label {
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .info-section input {
-    padding: 8px;
-    margin-top: 5px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .form-control:disabled {
-    background-color: rgba(240, 240, 240, 0.3) !important;
-    opacity: 1;
-  }
+/* Glittering Border Effect */
+@keyframes glitter {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+.info-section {
+  width: 48%;
+  padding: 20px;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden; /* Prevents the glitter from spilling out */
+  box-shadow: 0 0 15px rgba(255, 182, 193, 0.5), /* Light pink shadow */
+              0 0 25px rgba(252, 243, 227, 0.4), /* Light orange shadow */
+              0 0 35px rgba(203, 234, 244, 0.4); /* Light blue shadow */
+}
+
+/* Rainbow glitter effect with pseudo-element */
+.info-section::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 5px;
+  background: linear-gradient(
+      120deg,
+      rgba(252, 243, 227, 0.7),  /* Orange */
+      rgba(217, 250, 217, 0.5),  /* Green */
+      rgba(223, 246, 254, 0.5),  /* Deep Sky Blue */
+      rgba(240, 227, 252, 0.5),  /* Blue Violet */
+      rgba(249, 216, 234, 0.5)   /* Deep Pink */
+  );
+  background-size: 300% 300%; /* Enlarges background to enable smooth scrolling */
+  pointer-events: none; /* Makes sure it doesn't interfere with clicks */
+  z-index: 1;
+  animation: glitter 5s ease-in-out infinite;
+}
+
+/* Ensure content inside .info-section is above the glitter */
+.info-section > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Rest of the form styling */
+.info-section form {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-section label {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.info-section input {
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-control:disabled {
+  background-color: rgba(240, 240, 240, 0.3) !important;
+  opacity: 1;
+}
+
+.info-section h2 {
+  font-family: 'Pacifico', cursive;
+}
+
+.payment-method-section {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 20px;
+  background: linear-gradient(
+    120deg,
+    rgba(135, 206, 250, 0.3),  /* Light Blue */
+    rgba(255, 223, 128, 0.3),  /* Soft Yellow */
+    rgba(221, 250, 243, 0.3)   /* Light Pink */
+  );
+}
+
+
+.payment-method-section h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+  font-family: 'Pacifico', cursive;
+}
+
+.payment-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+  gap: 15px; /* Space between items */
+  padding: 10px 0;
+}
+
+.payment-options label {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  justify-content: space-around;
+  gap: 10px; /* Space between the radio, text, and image */
+}
+
+.payment-options label:hover {
+  background-color: #fddacf;
+}
+
+.payment-options input[type="radio"] {
+  margin-right: 10px;
+  accent-color: #ff6666; /* Customize radio button color */
+  flex: 0.2;
+}
+
+.payment-options label:hover input[type="radio"] {
+  accent-color: #3E8E41;
+
+}
+
+.payment-options label:active {
+  background-color: #ddd;
+}
+
+.payment-options img {
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+}
+

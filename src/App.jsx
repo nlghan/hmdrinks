@@ -25,7 +25,8 @@ import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
 import { FavoriteProvider } from './context/FavoriteContext';
 import Order from "./pages/Order/Order";
-
+import PaymentStatus from "./pages/Payment/PaymentStatus";
+import PaymentOnlineStatus from "./pages/Payment/PaymentOnlineStatus";
 const App = () => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
@@ -56,6 +57,8 @@ const App = () => {
             <Route path="/order" element={<Order />} />
             <Route path="/marketing/:postId" element={<PostVoucher />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/payment-status" element={<PaymentStatus />} />
+            <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
