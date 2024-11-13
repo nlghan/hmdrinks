@@ -27,6 +27,11 @@ const News = () => {
     const [currentPage, setCurrentPage] = useState(1); // Current page for posts
     const [totalPages, setTotalPages] = useState(1); // Total pages for posts
     const [postData, setPostData] = useState({});
+    const [voucherSearchTerm, setVoucherSearchTerm] = useState('');
+    const [allVouchers, setAllVouchers] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [voucher, setVoucher] = useState(null);
+    const [post, setPost] = useState(null);
 
     const getUserIdFromToken = (token) => {
         try {
@@ -299,8 +304,30 @@ const News = () => {
     };
 
 
-    const handleViewPostDetails = (postId) => {
+    const handleViewPostDetails = async (postId) => {
         setSelectedPostId(postId);
+        setIsLoading(true);
+        try {
+            const token = getCookie('access_token');
+            // Fetch voucher details cho post được chọn
+            const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${postId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.data && response.data.getVoucherResponseList) {
+                // Lấy voucher đầu tiên từ danh sách (nếu có)
+                const voucherData = response.data.getVoucherResponseList[0];
+                setVoucher(voucherData);
+            } else {
+                setVoucher(null);
+            }
+        } catch (error) {
+            console.error("Error fetching voucher details:", error);
+            setError("Không thể tải thông tin voucher");
+            setVoucher(null);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleUpdatePostClick = (post) => {
@@ -378,6 +405,115 @@ const News = () => {
         }
     };
 
+    const handleVoucherSearch = (event) => {
+        setVoucherSearchTerm(event.target.value);
+    };
+
+    // Thêm hàm formatDate ở đầu component
+    const formatDate = (dateString) => {
+        try {
+            if (!dateString) {
+                console.log('Date string is empty or null:', dateString);
+                return '';
+            }
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                console.log('Invalid date string:', dateString);
+                return '';
+            }
+            return date.toLocaleDateString('vi-VN');
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '';
+        }
+    };
+
+    // Thêm logs để kiểm tra dữ liệu
+    useEffect(() => {
+        const fetchPostDetails = async () => {
+            if (!selectedPostId) return; // Thêm điều kiện kiểm tra
+
+            const token = getCookie('access_token');
+            try {
+                const response = await axios.get(`http://localhost:1010/api/post/view/${selectedPostId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                setPost(response.data.body);
+
+                const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
+                console.log("Fetched Posts:", response.data.body);
+                console.log("Fetched Vouchers:", fetchedVouchers);
+                
+                // Log để kiểm tra cấu trúc dữ liệu
+                if (fetchedVouchers.length > 0) {
+                    console.log("Sample Voucher Structure:", {
+                        key: fetchedVouchers[0].key,
+                        discount: fetchedVouchers[0].discount,
+                        startDate: fetchedVouchers[0].startDate,
+                        endDate: fetchedVouchers[0].endDate,
+                        status: fetchedVouchers[0].status
+                    });
+                }
+
+                const matchingVoucher = fetchedVouchers.find(
+                    (voucher) => String(voucher.postId) === String(selectedPostId)
+                );
+                setVoucher(matchingVoucher || null);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPostDetails();
+    }, [selectedPostId]); // Thay đổi dependency từ postId sang selectedPostId
+
+    // Thêm useEffect để fetch dữ liệu ban đầu
+    useEffect(() => {
+        fetchPostVoucher(currentPage, limit);
+    }, [currentPage, limit]);
+
+    // Thêm log cho filteredVouchers
+    const filteredVouchers = filteredPosts.filter(post => {
+        console.log("Checking post:", post);
+        console.log("Post voucher:", post.voucher);
+        return post.voucher && 
+               post.voucher.key && 
+               (post.voucher.key.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
+                post.voucher.status.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
+                post.voucher.discount.toString().includes(voucherSearchTerm));
+    });
+
+    // Thêm useEffect để fetch tất cả vouchers khi component mount
+    useEffect(() => {
+        const fetchAllVouchers = async () => {
+            setIsLoading(true);
+            try {
+                const token = getCookie('access_token');
+                const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.data && response.data.body) {
+                    const fetchedVouchers = response.data.body.voucherResponseList || [];
+                    setAllVouchers(fetchedVouchers);
+                }
+            } catch (error) {
+                console.error("Error fetching vouchers:", error);
+                setError("Không thể tải danh sách voucher");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAllVouchers();
+    }, []); // Empty dependency array means this runs once when component mounts
+
     return (
 
         <div className="post-container">
@@ -417,7 +553,7 @@ const News = () => {
                             {isUpdatePostOpen && (
                                 <div className="overlay-update-post">
                                     <FormUpdatePost
-                                        post={postToUpdate}  // Truyền toàn bộ đối tượng post
+                                        post={postToUpdate}  // Truyền toàn bộ đi tượng post
                                         postId={postToUpdate?.postId}  // Truyền riêng postId
                                         onClose={handleCloseUpdatePost}
                                         onSave={handleUpdatePost}
@@ -443,7 +579,7 @@ const News = () => {
                                         <th>Ảnh bài đăng</th>
                                         <th>Trạng thái</th>
                                         <th>Mã voucher</th>
-                                        <th>Giảm giá</th>
+                                        {/* <th>Giảm giá</th> */}
                                         <th>Trạng thái</th>
                                         <th>Ngày bắt đầu</th>
                                         <th>Ngày kết thúc</th>
@@ -469,11 +605,12 @@ const News = () => {
                                                     <span className="cate-slider round"></span>
                                                 </label>
 
+
                                             </td>
 
                                             {/* Display voucher information if available */}
                                             <td>{post.voucher ? post.voucher.key : ''}</td>
-                                            <td>{post.voucher && post.voucher.discount !== 0 ? post.voucher.discount : ''}</td>
+                                            {/* <td>{post.voucher && post.voucher.discount !== 0 ? post.voucher.discount : ''}</td> */}
 
                                             <td>
                                                 {/* Check if all voucher fields are empty and display empty string if so */}
@@ -567,34 +704,65 @@ const News = () => {
                     </>
 
                     <div className="user-voucher-table">
-                    <table>
-                        <thead id='user-voucher-table-header'>
-                            <tr>
-                                <th>User Voucher ID</th>
-                                <th>User ID</th>
-                                <th>Voucher ID</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {userVouchers && userVouchers.length > 0 ? (
-                                userVouchers.map((userVoucher) => (
-                                    <tr key={userVoucher.id}>
-                                        <td>{userVoucher.id}</td>
-                                        <td>{userVoucher.userId}</td>
-                                        <td>{userVoucher.voucherId}</td>
-                                        <td>{userVoucher.status}</td>
-                                    </tr>
-                                ))
+                        <div className="header-post-table">
+                            <h2>Danh sách voucher</h2>
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm voucher..."
+                                className="search-post-admin-input"
+                                value={voucherSearchTerm}
+                                onChange={handleVoucherSearch}
+                            />
+                        </div>
+                        <div className="table-wrapper">
+                            {isLoading ? (
+                                <div className="loading-message">Đang tải dữ liệu...</div>
+                            ) : error ? (
+                                <div className="error-message">{error}</div>
                             ) : (
-                                <tr>
-                                    <td colSpan="4">Không có voucher nào của người dùng.</td>
-                                </tr>
+                                <table className='post-list-table'>
+                                    <thead>
+                                        <tr>
+                                            <th style={{width: '8%'}}>STT</th>
+                                            <th style={{width: '15%'}}>Mã Voucher</th>
+                                            <th style={{width: '15%'}}>Giảm giá</th>
+                                            <th style={{width: '12%'}}>Số lượng</th>
+                                            <th style={{width: '15%'}}>Ngày bắt đầu</th>
+                                            <th style={{width: '15%'}}>Ngày kết thúc</th>
+                                            <th style={{width: '20%'}}>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {allVouchers.length > 0 ? (
+                                            allVouchers
+                                                .filter(voucher => 
+                                                    voucher.key?.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
+                                                    voucher.status?.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
+                                                    voucher.discount?.toString().includes(voucherSearchTerm)
+                                                )
+                                                .map((voucher, index) => (
+                                                    <tr key={voucher.id || index}>
+                                                        <td>{index + 1}</td>
+                                                        <td>{voucher.key}</td>
+                                                        <td>{voucher.discount?.toLocaleString()} VND</td>
+                                                        <td>{voucher.number || 0}</td>
+                                                        <td>{formatDate(voucher.startDate)}</td>
+                                                        <td>{formatDate(voucher.endDate)}</td>
+                                                        <td>{voucher.status}</td>
+                                                    </tr>
+                                                ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="7" style={{ textAlign: 'center' }}>
+                                                    Không có voucher nào.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             )}
-                        </tbody>
-                    </table>
-
-                </div>
+                        </div>
+                    </div>
 
                 </div>
 

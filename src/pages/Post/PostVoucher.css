@@ -105,24 +105,26 @@
 /* Section for the Voucher */
 .voucher-section {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 50px;
-  }
-  
-  .voucher-card {
+    gap: 30px;
+    position: relative;
+    animation: slideShow 15s linear infinite;
+    width: max-content; /* Cho phép section mở rộng theo nội dung */
+}
+
+.voucher-card {
+    position: relative;
     display: flex;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     overflow: hidden;
-    width: 70%;
-    max-width: 100%;
-    gap:120px;
+    width: 800px; /* Chiều rộng cố định cho mỗi card */
+    gap: 120px;
     background: #f2fffa;
-    
-  }
-  .voucher-card::after {
+    flex-shrink: 0;
+}
+
+.voucher-card::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -137,58 +139,57 @@
     );
     transform: rotate(30deg);
     animation: shine 3s infinite;
+    animation-delay: calc(var(--card-index) * 0.5s);
 }
-  
-  .voucher-image img {
+
+.voucher-image img {
     width: 100%;
     height: auto;
     max-width: 400px;
     object-fit: cover;
-  }
-  
-  .voucher-content {
+}
+
+.voucher-content {
     display: flex;
     flex-direction: column;
     text-align: center;
     justify-content: center;
-    
-  }
-  
-  .voucher-discount {
+}
+
+.voucher-discount {
     font-size: 30px;
     color: #00796b; /* Deep green color */
     font-weight: bold;
     margin-bottom: 5px;
-  }
-  
-  .voucher-description {
+}
+
+.voucher-description {
     font-size: 18px;
     color: #444;
     font-weight: 600;
-  }
-  
-  .voucher-description p:first-child {
+}
+
+.voucher-description p:first-child {
     font-size: 24px;
     color: #00796b; /* Deep green color for "HDI" text */
-  }
-  
-  
-  .voucher-dates {
+}
+
+.voucher-dates {
     font-size: 14px;
     color: #777;
-  }
-  
-  .voucher-contact {
+}
+
+.voucher-contact {
     margin-top: 10px;
     font-size: 14px;
     color: #777;
-  }
-  
-  .voucher-contact span {
-    display: block;
-  }
+}
 
-  .voucher-claim-btn {
+.voucher-contact span {
+    display: block;
+}
+
+.voucher-claim-btn {
     margin-top: 15px;
     padding: 10px 20px;
     background-color: #00796b;
@@ -199,18 +200,17 @@
     font-size: 16px;
     font-weight: bold;
     transition: background-color 0.3s ease;
-  }
-  
-  .voucher-claim-btn:hover {
-    background-color: #e05f3c;
-  }
-  
-  .voucher-claim-btn:focus {
-    outline: none;
-  }
-  
+}
 
-  .voucher-key {
+.voucher-claim-btn:hover {
+    background-color: #e05f3c;
+}
+
+.voucher-claim-btn:focus {
+    outline: none;
+}
+
+.voucher-key {
     display: block;
     font-size: 40px;
     font-weight: bold;
@@ -233,7 +233,6 @@
 .rotating-circles {
     opacity: 0.3;
 }
-
 
 /* Animation effects */
 .fade-in {
@@ -259,5 +258,57 @@
 }
 
 .post-description-section p {
-  white-space: pre-line;
+    white-space: pre-line;
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideShow {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-100% / 2)); /* Di chuyển một nửa tổng chiều rộng */
+    }
+}
+
+/* Thêm hover effect để dừng animation */
+.voucher-section:hover {
+    animation-play-state: paused;
+}
+
+@media (max-width: 1200px) {
+    .voucher-card {
+        width: 600px;
+        gap: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .voucher-card {
+        width: 300px;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .voucher-image img {
+        max-width: 100%;
+    }
+}
+
+/* Thêm wrapper cho voucher section */
+.voucher-wrapper {
+    width: 100%;
+    overflow: hidden;
+    padding: 50px 0;
+    position: relative;
 }
