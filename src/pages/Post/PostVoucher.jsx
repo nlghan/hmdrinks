@@ -47,6 +47,7 @@ const PostVoucher = () => {
                 const matchingVoucher = fetchedVouchers.find(
                     (voucher) => String(voucher.postId) === String(postId)
                 );
+                console.log("Fetched Voucher Data:", matchingVoucher);
                 setVoucher(matchingVoucher || null);
             } catch (err) {
                 setError(err.message);
@@ -128,25 +129,31 @@ const PostVoucher = () => {
                         {voucher && (
                             <>
                                 <h3 className="post-title2">Thu thập voucher</h3>
-                                <div className="voucher-section slide-in-right">
-                                    <div className="voucher-card">
-                                        <div className="voucher-image">
-                                            <img src={voucherImg} alt="voucher" />
-                                        </div>
-                                        <div className="voucher-content">
-                                            <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                                                {voucher.key}
-                                            </span>
-                                            <div className="voucher-details">
-                                                <span className="voucher-discount">{voucher.discount.toLocaleString()} VND</span>
-                                                <div className="voucher-dates">
-                                                    <span>Từ: {formatDate(voucher.startDate)}</span>
-                                                    <br />
-                                                    <span>Đến: {formatDate(voucher.endDate)}</span>
+                                <div className="voucher-wrapper">
+                                    <div className="voucher-section">
+                                        {[...Array(voucher.number)].map((_, index) => (
+                                            <div className="voucher-card" key={`original-${index}`}>
+                                                <div className="voucher-image">
+                                                    <img src={voucherImg} alt="voucher" />
+                                                </div>
+                                                <div className="voucher-content">
+                                                    <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                                                        {voucher.key}
+                                                    </span>
+                                                    <div className="voucher-details">
+                                                        <span className="voucher-discount">{voucher.discount.toLocaleString()} VND</span>
+                                                        <div className="voucher-dates">
+                                                            <span>Từ: {formatDate(voucher.startDate)}</span>
+                                                            <br />
+                                                            <span>Đến: {formatDate(voucher.endDate)}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button className="voucher-claim-btn" onClick={() => claimVoucher(voucher.voucherId)}>
+                                                        Nhận Ngay
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <button className="voucher-claim-btn" onClick={() => claimVoucher(voucher.voucherId)}>Nhận Ngay</button>
-                                        </div>
+                                        ))}
                                     </div>
                                 </div>
                             </>
