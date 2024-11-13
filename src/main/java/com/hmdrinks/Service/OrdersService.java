@@ -213,11 +213,14 @@ public class OrdersService {
         }
         order.setStatus(Status_Order.CANCELLED);
         orderRepository.save(order);
-        UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
+        if(order.getVoucher() != null)
+        {
+            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
                     order.getUser().getUserId(), order.getVoucher().getVoucherId()
             );
-        userVoucher.setStatus(Status_UserVoucher.INACTIVE);
-        userVoucherRepository.save(userVoucher);
+            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+            userVoucherRepository.save(userVoucher);
+        }
         OrderItem orderItem1 = order.getOrderItem();
         if(orderItem1 != null)
         {
