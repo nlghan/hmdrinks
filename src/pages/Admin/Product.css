@@ -7,6 +7,7 @@
     margin: 0;
     height: auto;
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+    padding-left: 70px;
 }
 
 .product-content {
@@ -25,6 +26,7 @@
     display: flex;
     flex-direction: column;
     height: fit-content;
+    
 }
 
 .product-title,

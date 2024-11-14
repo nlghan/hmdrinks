@@ -1,20 +1,64 @@
-.flex-header{
-    display: inline-flex;
-    gap:20px;
-    padding: 20px 0px;
+/* Đảm bảo header không bị menu che khuất khi menu mở rộng */
+.header {
+  position: relative; /* Đảm bảo menu không đè lên header */
+  z-index: 100; /* Đặt z-index cao hơn menu nếu cần */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between; /* Căn chỉnh header với khoảng cách đều */
+  align-items: center;
+  background-color: #fff; /* Màu nền cho header */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng cho header */
+  height: 60px; /* Chiều cao của header */
+  margin-bottom: 10px;
+
 }
-.header-menu-toggle{
-    background-color: #fc6764; /* Button color */
-  color: white; /* Button text color */
+
+.flex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 20px; /* Khoảng cách giữa các phần tử */
+}
+
+.header-menu-toggle {
+  background-color: #fc6764; /* Màu nền của nút toggle */
+  color: white; /* Màu chữ */
   border: none;
   padding: 10px;
   cursor: pointer;
-  width:36px; /* Full width */
-  border-radius: 4px; /* Rounded corners */
-  margin-bottom: 15px; /* Margin below the button */
+  width: 36px; /* Kích thước của nút */
+  border-radius: 4px; /* Góc tròn cho nút */
   transition: background-color 0.3s;
 }
 
-.header-menu-toggle:hover{
-  background-color: #28a745
+.header-menu-toggle:hover {
+  background-color: #28a745; /* Màu nền khi hover */
+}
+
+/* Đảm bảo title của header không bị chồng lên menu */
+.flex-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+  flex-grow: 1; /* Đảm bảo title chiếm hết không gian còn lại */
+}
+
+/* Khi menu mở rộng, tạo không gian cho header */
+.menu-side-menu.expanded + .flex-header {
+  margin-left: 250px; /* Tạo khoảng cách cho menu */
+}
+
+/* Nếu menu không mở rộng, header không bị xô lệch */
+.menu-side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.menu-side-menu.expanded {
+  width: 250px; /* Mở rộng menu */
 }

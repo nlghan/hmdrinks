@@ -6,6 +6,7 @@
     margin: 0;
     height: 100vh;
     background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+    
   }
   
   .user-table-row {
@@ -421,6 +422,8 @@ input:checked + .slider:before {
     display: flex;
     position: relative;
     padding: 20px;
+    padding-left: 70px;
+
 }
 .user-menu-flex {
     position: relative;
