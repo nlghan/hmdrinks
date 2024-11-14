@@ -82,7 +82,18 @@ public class PaymentController {
             return authResponse;
         }
 
-        return paymentService.createPayment(req.getOrderId());
+        return paymentService.createPaymentMomo(req.getOrderId());
+    }
+
+    @PostMapping("/create/credit/payOs")
+    public ResponseEntity<?> createPaymentPayOs(@RequestBody CreatePaymentReq req, HttpServletRequest httpRequest) {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+
+        return paymentService.createPaymentATM(req.getOrderId());
     }
 
     @PostMapping("/create/cash")
@@ -96,26 +107,24 @@ public class PaymentController {
 
     @GetMapping("/zalo/callback")
     public ResponseEntity<?> handleCallbackZalo(
-            @RequestParam String app_trans_id
-) {
+            @RequestParam String app_trans_id)
+    {
+
         return  zaloPayService.handleCallBack(app_trans_id);
     }
 
-    @GetMapping("/callback")
+    @GetMapping("/payOS/callback")
+    public ResponseEntity<?> handleCallbackPayOS(
+            @RequestParam int orderCode) throws Exception {
+
+        return  paymentService.handleCallBackPayOS(orderCode);
+    }
+
+    @GetMapping("/momo/callback")
     public ResponseEntity<?> handleCallback(
-            @RequestParam String partnerCode,
             @RequestParam String orderId,
-            @RequestParam String requestId,
-            @RequestParam String amount,
-            @RequestParam String orderInfo,
-            @RequestParam String orderType,
-            @RequestParam String transId,
-            @RequestParam String resultCode,
-            @RequestParam String message,
-            @RequestParam String payType,
-            @RequestParam String responseTime,
-            @RequestParam String extraData,
-            @RequestParam String signature) {
+            @RequestParam String resultCode)
+    {
             return  paymentService.callBack(resultCode,orderId);
     }
 
@@ -140,6 +149,11 @@ public class PaymentController {
 
     {
         return paymentService.getAllPaymentMethod(page, limit,method);
+    }
+
+    @GetMapping("/info/payOs/{paymentId}")
+    public ResponseEntity<?> getInformationPayOS(@PathVariable int paymentId) throws Exception {
+        return paymentService.getInformationPayOs(paymentId);
     }
 
     @GetMapping("/listAll-status")

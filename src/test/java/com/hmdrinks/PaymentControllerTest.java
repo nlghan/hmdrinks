@@ -1,14 +1,10 @@
 package com.hmdrinks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hmdrinks.Controller.OrdersController;
 import com.hmdrinks.Controller.PaymentController;
 import com.hmdrinks.Enum.Payment_Method;
-import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.ConfirmCancelOrderReq;
-import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreatePaymentReq;
 import com.hmdrinks.Request.CreatePaymentVNPayReq;
 import com.hmdrinks.Response.*;
@@ -243,7 +239,7 @@ class PaymentControllerTest {
                 ""
         );
 
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -263,7 +259,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -282,7 +278,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -301,7 +297,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -320,7 +316,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -339,7 +335,7 @@ class PaymentControllerTest {
                 1,
                 1
         );
-        when(paymentService.createPayment(anyInt()))
+        when(paymentService.createPaymentMomo(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
         String requestBody = objectMapper.writeValueAsString(req);
         mockMvc.perform(post(endPointPath + "/create/credit/momo")
@@ -381,6 +377,130 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("$.orderId").value(1))
                 .andDo(print());
     }
+
+    @Test
+    void createPaymentPayOS_Success() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1
+        );
+        CreatePaymentResponse response = new CreatePaymentResponse(
+                1,
+                100000.0,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                false,
+                Payment_Method.CREDIT,
+                Status_Payment.PENDING,
+                1,
+                ""
+        );
+
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.amount").value(100000.0))
+                .andExpect(jsonPath("$.orderId").value(1))
+                .andDo(print());
+    }
+
+
+    @Test
+    void createPaymentPayOS_PaymentCash() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1);
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Payment create with type cash"))
+                .andDo(print());
+    }
+
+    @Test
+    void createPaymentPayOS_PaymentAlready() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1);
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Payment already exists"))
+                .andDo(print());
+    }
+
+    @Test
+    void createPaymentPayOS_OrderNotConfirm() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1);
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Order not confirmed"))
+                .andDo(print());
+    }
+
+    @Test
+    void createPaymentPayOS_OrderCancelled() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1);
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Order is cancelled"))
+                .andDo(print());
+    }
+
+    @Test
+    void createPaymentPayOS_UserNotFound() throws Exception {
+        ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
+        when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
+        CreatePaymentReq req = new CreatePaymentReq(
+                1,
+                1);
+        when(paymentService.createPaymentATM(anyInt()))
+                .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user"));
+        String requestBody = objectMapper.writeValueAsString(req);
+        mockMvc.perform(post(endPointPath + "/create/credit/payOs")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(requestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found user"))
+                .andDo(print());
+    }
+
 
     @Test
     void createPaymentZaloPay_PaymentCash() throws Exception {
@@ -785,6 +905,60 @@ class PaymentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.RspCode").value("00"))
                 .andExpect(jsonPath("$.Message").value("Successful"));
+    }
+
+    @Test
+    public void testHandleCallback_PaymentNotFound() throws Exception {
+        when(paymentService.callBack(anyString(), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("status", "error", "message", "Not found payment")));
+
+        mockMvc.perform(get(endPointPath+ "/momo/callback")
+                        .param("orderId", "12345")
+                        .param("resultCode", "0"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value("error"))
+                .andExpect(jsonPath("$.message").value("Not found payment"));
+    }
+
+    @Test
+    public void testHandleCallback_PaymentDeleted() throws Exception {
+        when(paymentService.callBack(anyString(), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("status", "error", "message", "Payment is deleted")));
+        mockMvc.perform(get(endPointPath +"/momo/callback")
+                        .param("orderId", "12345")
+                        .param("resultCode", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("error"))
+                .andExpect(jsonPath("$.message").value("Payment is deleted"));
+    }
+
+    @Test
+    public void testHandleCallback_PaymentCompleted() throws Exception {
+        when(paymentService.callBack(anyString(), anyString()))
+                .thenReturn(ResponseEntity.ok(Map.of("status", HttpStatus.OK.value(), "message", "Payment completed successfully")));
+        mockMvc.perform(get( endPointPath + "/momo/callback")
+                        .param("orderId", "12345")
+                        .param("resultCode", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.message").value("Payment completed successfully"));
+    }
+
+    @Test
+    public void testHandleCallback_PaymentFailed() throws Exception {
+        // Arrange: Mock the service response for a failed payment
+        when(paymentService.callBack(anyString(), anyString()))
+                .thenReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("status", HttpStatus.BAD_REQUEST.value(), "message", "Payment failed")));
+
+        mockMvc.perform(get(endPointPath + "/momo/callback")
+                        .param("orderId", "12345")
+                        .param("resultCode", "1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.message").value("Payment failed"));
     }
 
 }

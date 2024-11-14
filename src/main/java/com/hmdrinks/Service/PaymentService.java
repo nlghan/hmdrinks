@@ -10,7 +10,9 @@ import com.hmdrinks.Request.InitPaymentRequest;
 import com.hmdrinks.Response.CRUDPaymentResponse;
 import com.hmdrinks.Response.CreatePaymentResponse;
 import com.hmdrinks.Response.ListAllPaymentResponse;
+import jakarta.transaction.Transactional;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import vn.payos.PayOS;
+import vn.payos.type.CheckoutResponseData;
+import vn.payos.type.ItemData;
+import vn.payos.type.PaymentData;
+import vn.payos.type.PaymentLinkData;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -30,15 +37,21 @@ import java.util.*;
 
 @Service
 public class PaymentService {
+    //payos
+    private static final String clientId = "eba81bf7-4dbf-4ec9-a7c2-d0e6e3cb1a72";
+    private static final String apiKey = "e62918ef-78fb-4e98-b285-08d85f66c246";
+    private static final String checksumKey = "c09a95acbce4b57d256c4c788634f640ba6abd9d8ed4670508f4fe34fe95de98";
+    private static  final String webhookUrl = "https://www.facebook.com/";
 
+    //momo
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
+    private final String redirectUrl = "https://www.facebook.com";
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
-    private final int orderExpireTime = 30;
+    private final int orderExpireTime = 15;
     private final String lang = "vi";
     private String orderInfo = "Payment Order";
     @Autowired
@@ -62,7 +75,12 @@ public class PaymentService {
     @Autowired
     private VNPayService vnPayService;
 
-    public ResponseEntity<?> createPayment(int orderId1) {
+    private static Long generateRandomOrderCode() {
+        Random random = new Random();
+        int randomNumber = 100000 + random.nextInt(900000);
+        return Long.valueOf(randomNumber);
+    }
+    public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
             if (payment1 != null) {
@@ -204,6 +222,111 @@ public class PaymentService {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<?> createPaymentATM(int orderId1) {
+        try {
+            Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
+            if (payment1 != null) {
+                if (payment1.getPaymentMethod() == Payment_Method.CASH && payment1.getStatus() == Status_Payment.PENDING) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
+                }
+                if (payment1.getStatus() == Status_Payment.COMPLETED || payment1.getStatus() == Status_Payment.PENDING) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Payment already exists");
+                }
+            }
+            Orders orders = orderRepository.findByOrderIdAndStatusAndIsDeletedFalse(orderId1, Status_Order.CONFIRMED);
+            if (orders == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order not confirmed");
+            }
+            Orders orders1 = orderRepository.findByOrderId(orderId1);
+            if (orders1.getStatus() == Status_Order.CANCELLED) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is cancelled");
+            }
+
+
+            Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId1);
+            User user = userRepository.findByUserIdAndIsDeletedFalse(order.getUser().getUserId());
+            if(user == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+            }
+            Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+            int totalAmountLong = (int) totalAmount.longValue();
+            OrderItem orderItem = order.getOrderItem();
+            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(orderItem.getCart().getCartId());
+            List<ItemData> items = new ArrayList<>();
+            for (CartItem cartItem : cartItems) {
+                ProductVariants productVariants = cartItem.getProductVariants();
+                ItemData itemData = ItemData.builder()
+                        .name(productVariants.getProduct().getProName() + "-" + productVariants.getSize())
+                        .quantity(cartItem.getQuantity())
+                        .price((int) productVariants.getPrice())
+                        .build();
+                items.add(itemData);
+            }
+            int deliveryFee = (int) order.getDeliveryFee();
+            PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+            Long orderCode = generateRandomOrderCode();
+            ItemData itemData = ItemData.builder()
+                    .name("Phí giao hàng")
+                    .quantity(1)
+                    .price(deliveryFee)
+                    .build();
+            items.add(itemData);
+
+            int discount = (int) order.getDiscountPrice();
+            ItemData itemData1 = ItemData.builder()
+                    .name("Giảm giá")
+                    .quantity(1)
+                    .price(discount)
+                    .build();
+            items.add(itemData1);
+
+            PaymentData paymentData = PaymentData.builder()
+                    .orderCode(orderCode)
+                    .amount(totalAmountLong)
+                    .description("Thanh toán đơn hàng")
+                    .returnUrl(webhookUrl + "/success")
+                    .cancelUrl(webhookUrl + "/cancel")
+                    .buyerAddress(order.getAddress())
+                    .buyerEmail(user.getEmail())
+                    .buyerName(user.getPhoneNumber())
+                    .buyerName(user.getFullName())
+                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60)) // 20 phut
+                    .items(items).build();
+
+            CheckoutResponseData result = payOS.createPaymentLink(paymentData);
+            String link = result.getCheckoutUrl();
+            Payment payment = new Payment();
+            if (result.getStatus().equals("PENDING")) {
+                payment.setPaymentMethod(Payment_Method.CREDIT);
+                payment.setStatus(Status_Payment.PENDING);
+                payment.setOrder(order);
+                payment.setAmount(totalAmount);
+                payment.setDateCreated(LocalDateTime.now());
+                payment.setOrderIdPayment("PayOS" + orderCode);
+                payment.setIsDeleted(false);
+                paymentRepository.save(payment);
+            }
+            return new ResponseEntity<>(new CreatePaymentResponse(
+                    payment.getPaymentId(),
+                    payment.getAmount(),
+                    payment.getDateCreated(),
+                    payment.getDateDeleted(),
+                    payment.getIsDeleted(),
+                    payment.getPaymentMethod(),
+                    payment.getStatus(),
+                    payment.getOrder().getOrderId(),
+                    link
+            ), HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = Map.of("statusCode", 500, "message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public static String generateUniqueNumericString(int length) {
         String digits = "123456789";
         StringBuilder result = new StringBuilder();
@@ -334,31 +457,37 @@ public class PaymentService {
         ), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> callBack(String resultCode, String orderId) {
+    public ResponseEntity<Map<String, Object>> callBack(String resultCode, String orderId) {
         Payment payment = paymentRepository.findByOrderIdPayment(orderId);
         if (payment == null) {
-            return new ResponseEntity<>("Not found payment", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "Not found payment"));
         }
-        if(payment.getIsDeleted())
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment is deleted");
+        if (payment.getIsDeleted()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("status", "error", "message", "Payment is deleted"));
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("paymentId", payment.getPaymentId());
+
         if ("0".equals(resultCode)) {
             payment.setStatus(Status_Payment.COMPLETED);
             paymentRepository.save(payment);
+
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
             List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
                 if (productVariants.getStock() > cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 } else {
-                    String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.add("Location", redirectUrl + "?status=" + 404 + "&paymentId=" + payment.getPaymentId() + "&text=" + "insufficient quantity");
-                    return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+                    response.put("status", HttpStatus.BAD_REQUEST.value());
+                    response.put("message", "Insufficient quantity");
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
             }
 
@@ -370,34 +499,77 @@ public class PaymentService {
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
 
-            String redirectUrl = "https://www.facebook.com"; // Địa chỉ trang bạn muốn redirect
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", redirectUrl + "?status=" + 200 + "&paymentId=" + payment.getPaymentId());
-            return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", "Payment completed successfully");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             payment.setStatus(Status_Payment.FAILED);
             paymentRepository.save(payment);
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             orders.setStatus(Status_Order.CANCELLED);
             orderRepository.save(orders);
+
             UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
                     orders.getUser().getUserId(), orders.getVoucher().getVoucherId()
             );
-            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
-            userVoucherRepository.save(userVoucher);
+            if (userVoucher != null) {
+                userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                userVoucherRepository.save(userVoucher);
+            }
+
             OrderItem orderItem1 = orders.getOrderItem();
             if (orderItem1 != null) {
-                orderItemRepository.delete(orders.getOrderItem());
-                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                orderItemRepository.delete(orderItem1);
+                Cart cart = cartRepository.findByCartId(orderItem1.getCart().getCartId());
                 cart.setStatus(Status_Cart.NEW);
                 cartRepository.save(cart);
             }
-            String redirectUrl = "https://www.facebook.com";
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", redirectUrl + "?status=" + 400 + "&paymentId=" + payment.getPaymentId());
-            return new ResponseEntity<>("Redirecting...", headers, HttpStatus.FOUND);
+
+            response.put("status", HttpStatus.BAD_REQUEST.value());
+            response.put("message", "Payment failed");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Transactional
+    public ResponseEntity<?> getInformationPayOs(int paymentId) throws Exception {
+        PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+        Payment payment = paymentRepository.findByPaymentId(paymentId);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+        }
+        String orderCode = payment.getOrderIdPayment();
+        String extractedCode = orderCode.replace("PayOS", "");
+        PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(Long.valueOf(extractedCode));
+        String status = paymentLinkData.getStatus();
+        switch (status) {
+            case "EXPIRED", "CANCELLED" -> {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            case "PAID" -> {
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+            }
+            default -> {
+                payment.setStatus(Status_Payment.PENDING);
+                paymentRepository.save(payment);
+            }
+        }
+        CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId()
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
+    }
+
 
     public ResponseEntity<?> checkStatusPayment(int paymentId) {
         Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
@@ -568,6 +740,58 @@ public class PaymentService {
                 total,
                 responses
         ));
+    }
+
+    public ResponseEntity<?> handleCallBackPayOS(int orderCode) throws Exception {
+        PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
+        List<Payment> payments = paymentRepository.findAll();
+        String orderCode1="";
+        for (Payment payment : payments) {
+            String equal = "PayOS" + orderCode;
+            System.out.println("PayOS" + orderCode);
+            if(payment.getOrderIdPayment().equals(equal))
+            {
+                orderCode1 = payment.getOrderIdPayment();
+            }
+        }
+
+        if(orderCode1.equals(""))
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found orderCode");
+        }
+        Payment payment = paymentRepository.findByOrderIdPayment(orderCode1);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+        }
+        String extractedCode = orderCode1.replace("PayOS", "");
+        PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(Long.valueOf(extractedCode));
+        String status = paymentLinkData.getStatus();
+        switch (status) {
+            case "EXPIRED", "CANCELLED" -> {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            case "PAID" -> {
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+            }
+            default -> {
+                payment.setStatus(Status_Payment.PENDING);
+                paymentRepository.save(payment);
+            }
+        }
+        CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId()
+        );
+        return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
 
     private String hmacSHA256(String key, String data) {
