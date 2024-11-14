@@ -52,6 +52,8 @@ public class ZaloPayService {
     private final PaymentRepository paymentRepository;
     @Autowired
     private ShipmentRepository shipmentRepository;
+    @Autowired
+    private PaymentService paymentService;
 
     public ZaloPayService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
@@ -197,6 +199,7 @@ public class ZaloPayService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
+                paymentService.assignShipments();
             }
             response.put("status", 1);
             return ResponseEntity.ok().body(response);

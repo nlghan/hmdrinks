@@ -34,6 +34,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -79,6 +80,26 @@ public class PaymentService {
         Random random = new Random();
         int randomNumber = 100000 + random.nextInt(900000);
         return Long.valueOf(randomNumber);
+    }
+    public void assignShipments() {
+        List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
+                .stream()
+                .sorted(Comparator.comparing(Shippment::getDateCreated))
+                .collect(Collectors.toList());
+
+        List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
+        for (Shippment shipment : pendingShipments) {
+
+            User selectedShipper = shippers.stream()
+                    .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
+                    .orElse(null);
+
+            if (selectedShipper != null) {
+                shipment.setUser(selectedShipper);
+                shipment.setStatus(Status_Shipment.SHIPPING); // Đổi trạng thái đơn hàng
+                shipmentRepository.save(shipment);
+            }
+        }
     }
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
@@ -490,7 +511,6 @@ public class PaymentService {
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
             }
-
             Shippment shippment = new Shippment();
             shippment.setPayment(payment);
             shippment.setIsDeleted(false);
@@ -498,6 +518,7 @@ public class PaymentService {
             shippment.setDateDelivered(LocalDateTime.now());
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
+            assignShipments();
 
             response.put("status", HttpStatus.OK.value());
             response.put("message", "Payment completed successfully");
@@ -749,7 +770,7 @@ public class PaymentService {
         for (Payment payment : payments) {
             String equal = "PayOS" + orderCode;
             System.out.println("PayOS" + orderCode);
-            if(payment.getOrderIdPayment().equals(equal))
+            if(equal.equals(payment.getOrderIdPayment()))
             {
                 orderCode1 = payment.getOrderIdPayment();
             }
@@ -775,6 +796,14 @@ public class PaymentService {
             case "PAID" -> {
                 payment.setStatus(Status_Payment.COMPLETED);
                 paymentRepository.save(payment);
+                Shippment shippment = new Shippment();
+                shippment.setPayment(payment);
+                shippment.setIsDeleted(false);
+                shippment.setDateCreated(LocalDateTime.now());
+                shippment.setDateDelivered(LocalDateTime.now());
+                shippment.setStatus(Status_Shipment.WAITING);
+                shipmentRepository.save(shippment);
+                assignShipments();
             }
             default -> {
                 payment.setStatus(Status_Payment.PENDING);

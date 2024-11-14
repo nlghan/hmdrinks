@@ -27,6 +27,10 @@ import java.util.Optional;
     @Query("SELECT u FROM User u WHERE u.role = :role")
     Page<User> findAllByRole(@Param("role") Role role, Pageable pageable);
 
+
+    @Query("SELECT u FROM User u WHERE u.role = :role")
+    List<User> findAllByRole(@Param("role") Role role);
+
    Page<User> findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
            String userName,
            String email,

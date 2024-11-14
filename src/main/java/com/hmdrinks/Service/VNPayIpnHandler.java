@@ -31,6 +31,8 @@ public class VNPayIpnHandler {
     private ShipmentRepository shipmentRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private PaymentService paymentService;
 
     public static class VnpIpnResponseConst {
         public static final IpnResponse SUCCESS = new IpnResponse("00", "Successful");
@@ -57,6 +59,7 @@ public class VNPayIpnHandler {
                     shippment.setDateDelivered(LocalDateTime.now());
                     shippment.setStatus(Status_Shipment.WAITING);
                     shipmentRepository.save(shippment);
+                    paymentService.assignShipments();
 
             }
             response = VnpIpnResponseConst.SUCCESS;
