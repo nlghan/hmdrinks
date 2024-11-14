@@ -14,9 +14,13 @@ const getCookie = (name) => {
 };
 const getUserIdFromToken = (token) => {
     try {
+        // Tách payload từ token
         const payload = token.split('.')[1];
+        // Giải mã payload từ base64
         const decodedPayload = JSON.parse(atob(payload));
-        return decodedPayload.UserId;
+
+        // Ép kiểu UserId thành int (số nguyên)
+        return parseInt(decodedPayload.UserId, 10); // 10 là hệ cơ số thập phân
     } catch (error) {
         console.error("Cannot decode token:", error);
         return null;

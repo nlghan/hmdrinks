@@ -5,7 +5,7 @@
   left: 0;
   width: 60px; /* Chiều rộng khi chỉ hiển thị icon */
   height: 100vh;
-  background: linear-gradient(to bottom right, rgb(252, 252, 252), rgb(255, 242, 206));
+  background: white;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden; /* Ẩn nội dung khi ở trạng thái thu gọn */
@@ -40,6 +40,7 @@
   margin: 0;
   font-weight: 400;
   font-family: 'Inter';
+  margin-left: 10px;
 }
 
 .menu-items li {
@@ -104,4 +105,22 @@
 .menu-side-menu:not(.expanded) .menu-and-user:hover {
   cursor: pointer; /* Giữ con trỏ pointer khi hover vào icon trong trạng thái thu gọn */
   transform: scale(1.05);
+}
+
+/* Custom size cho logo mini khi menu thu nhỏ */
+.menu-side-menu:not(.expanded) .menu-logo {
+    padding: 5px;
+    margin-top: 10px;
+    width: 50px;
+    height: 50px;
+    margin-left: -5px;
+    object-fit: contain;
+}
+
+/* Giữ nguyên style cho logo khi menu mở rộng */
+.menu-side-menu.expanded .menu-logo {
+    width: 100%;
+    padding: 20px 0;
+    height: auto;
+    margin-left: -5px;
 }

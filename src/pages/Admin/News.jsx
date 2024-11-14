@@ -274,9 +274,27 @@ const News = () => {
         (post.shortDescription && post.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    const handleOnSubmit = () => {
-        fetchPostVoucher(currentPage, limit);
+    const handleOnSubmit = async () => {
+        try {
+            // Fetch lại danh sách posts
+            await fetchPostVoucher(currentPage, limit);
+            
+            // Fetch lại danh sách vouchers
+            const token = getCookie('access_token');
+            const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.data && response.data.body) {
+                const fetchedVouchers = response.data.body.voucherResponseList || [];
+                setAllVouchers(fetchedVouchers);
+            }
+        } catch (error) {
+            console.error("Error refreshing data after post addition:", error);
+            setError("Không thể cập nhật dữ liệu sau khi thêm bài đăng");
+        }
     };
+
     const handleUpdatePost = async (updatedPost) => {
         console.log("Updating post with data:", updatedPost); // Log dữ liệu vào console
 
