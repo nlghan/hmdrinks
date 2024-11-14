@@ -1,20 +1,69 @@
-.flex-header{
-    display: inline-flex;
-    gap:20px;
-    padding: 20px 0px;
-}
-.header-menu-toggle{
-    background-color: #fc6764; /* Button color */
-  color: white; /* Button text color */
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  width:36px; /* Full width */
-  border-radius: 4px; /* Rounded corners */
-  margin-bottom: 15px; /* Margin below the button */
-  transition: background-color 0.3s;
+.header {
+    position: relative;
+    z-index: 1000;
 }
 
-.header-menu-toggle:hover{
-  background-color: #28a745
+.flex-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0px;
+    position: relative;
+    z-index: 1;
+}
+
+.header-menu-toggle {
+    position: relative;
+    z-index: 1001;
+    background-color: #fc6764;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    height: 38px;
+    width: 38px;
+    border-radius: 4px;
+    margin: 0;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-menu-toggle:hover {
+    background-color: #28a745
+}
+
+/* Thêm style cho tiêu đề trong header */
+.flex-header h1 {
+    color: #333;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 25px;
+    border-radius: 10px;
+    display: inline-block;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    z-index: 1;
+}
+
+/* Thêm border gradient bên dưới */
+.flex-header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, #fc6764, #f8b5c1);
+    border-radius: 3px;
+}
+
+/* Thêm hover effect */
+.flex-header h1:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
 }

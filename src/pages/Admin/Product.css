@@ -5,13 +5,27 @@
     padding: 20px;
     width: 100%;
     margin: 0;
-    height: auto;
-    background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+    min-height: 100vh;
+    background-image: url('../../assets/img/contact.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
 }
-
+.product-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 223, 223, 0.2);
+    z-index: 0;
+}
 .product-content {
     display: flex;
     justify-content: space-between;
+    z-index: 1;
 }
 
 /* Categories Section Styling */
@@ -257,18 +271,53 @@
 }
 
 .btn-pro-add1 {
-    background-color: #e8680d;
-    height: 50%;
-    border-radius: 20px;
-    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    padding: 10px 15px;
+    background-color: #ffffff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.btn-pro-add1 i {
+    font-size: 20px;
+    color: #4CAF50;
+    font-weight: bold;
 }
 
 .btn-pro-add1:hover {
-    background-color: hsl(33, 92%, 46%);
-    transform: scale(1.01); /* Tăng kích thước nhẹ */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Thêm bóng đổ để tạo chiều sâu */
+    background-color: #cae3cb;
+    transform: scale(1.1);
 }
 
+.btn-pro-add1::before {
+    content: "Thêm sản phẩm";
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-pro-add1:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
 
 .btn-pro-view {
     background-color: #78afdc;

@@ -541,7 +541,7 @@ const News = () => {
                                     <option value="NEW">Món mới</option>
                                 </select>
                                 <button className="post-table-add-btn" onClick={() => setFormAddPostVisible(true)} >
-                                    Thêm bài đăng và voucher +
+                                    <i className="ti-plus"></i>
                                 </button>
                             </div>
 

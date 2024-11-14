@@ -5,13 +5,27 @@
   padding: 20px;
   width: 100%;
   margin: 0;
-  height: 100vh;
-  background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
+  min-height: 100vh;
+  background-image: url('../../assets/img/contact.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
 }
-
+.category-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 223, 223, 0.2);
+    z-index: 0;
+}
 .category-row {
   display: flex;
   justify-content: space-between;
+  z-index: 1;
 }
 
 .main-section-cate {
