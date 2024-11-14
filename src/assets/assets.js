@@ -23,6 +23,7 @@ import login from '../assets/img/login.jpg'
 import gg from '../assets/img/icongg.jpg'
 import avtrang from '../assets/img/avatar_trang.jpg'
 import voucher from '../assets/img/voucher.png'
+import logomini from '../assets/img/logomini.png'
 
 export const assets =
 {
@@ -50,5 +51,6 @@ export const assets =
     login,
     gg,
     avtrang,
-    voucher
+    voucher,
+    logomini
 };

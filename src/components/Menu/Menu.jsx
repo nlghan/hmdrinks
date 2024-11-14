@@ -46,7 +46,11 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
             {isMenuOpen && <div className="menu-dim-background" onClick={toggleMenu}></div>}
             <div className={`menu-side-menu ${isMenuOpen ? 'expanded' : ''}`}>
                 <ul className="menu-items">
-                    <img src={assets.logo} alt='' className="menu-logo" />
+                    <img 
+                        src={isMenuOpen ? assets.logo : assets.logomini} 
+                        alt='' 
+                        className="menu-logo" 
+                    />
                     <div className='menu-and-user' onClick={() => navigate('/dashboard')}>
                         <i className='ti-home' />
                         <li>Trang quản trị</li>
