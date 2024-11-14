@@ -81,7 +81,9 @@ public class PaymentService {
         int randomNumber = 100000 + random.nextInt(900000);
         return Long.valueOf(randomNumber);
     }
-    public void assignShipments() {
+
+    @Transactional
+    public  void assignShipments() {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))

@@ -4,12 +4,15 @@ package com.hmdrinks.Service;
 import com.hmdrinks.Entity.Orders;
 import com.hmdrinks.Entity.Payment;
 import com.hmdrinks.Entity.Shippment;
+import com.hmdrinks.Entity.User;
+import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Status_Shipment;
 import com.hmdrinks.Exception.BusinessException;
 import com.hmdrinks.Repository.OrderRepository;
 import com.hmdrinks.Repository.PaymentRepository;
 import com.hmdrinks.Repository.ShipmentRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Response.IpnResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,12 +37,34 @@ public class VNPayIpnHandler {
     private OrderRepository orderRepository;
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private UserRepository userRepository;
 
     public static class VnpIpnResponseConst {
         public static final IpnResponse SUCCESS = new IpnResponse("00", "Successful");
         public static final IpnResponse SIGNATURE_FAILED = new IpnResponse("97", "Signature failed");
         public static final IpnResponse ORDER_NOT_FOUND = new IpnResponse("01", "Order not found");
         public static final IpnResponse UNKNOWN_ERROR = new IpnResponse("99", "Unknown error");
+    }
+    public void assignShipments() {
+        List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
+                .stream()
+                .sorted(Comparator.comparing(Shippment::getDateCreated))
+                .collect(Collectors.toList());
+
+        List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
+        for (Shippment shipment : pendingShipments) {
+
+            User selectedShipper = shippers.stream()
+                    .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
+                    .orElse(null);
+
+            if (selectedShipper != null) {
+                shipment.setUser(selectedShipper);
+                shipment.setStatus(Status_Shipment.SHIPPING); // Đổi trạng thái đơn hàng
+                shipmentRepository.save(shipment);
+            }
+        }
     }
     public IpnResponse process(Map<String, String> params) {
         if (!vnPayService.verifyIpn(params)) {
@@ -59,7 +85,7 @@ public class VNPayIpnHandler {
                     shippment.setDateDelivered(LocalDateTime.now());
                     shippment.setStatus(Status_Shipment.WAITING);
                     shipmentRepository.save(shippment);
-                    paymentService.assignShipments();
+                    assignShipments();
 
             }
             response = VnpIpnResponseConst.SUCCESS;
