@@ -129,8 +129,6 @@ const Order = () => {
                 handleZaloPay();
             } else if (selectedPaymentMethod === 'vnPay') {
                 handleVnPay();
-            } else if (selectedPaymentMethod === 'payos') {
-                handlePayOS();
             } else {
                 setError('Vui lòng chọn phương thức thanh toán.');
             }
@@ -184,9 +182,49 @@ const Order = () => {
     };
 
     // Handle Credit Card Payment
-    const handleCreditCard = () => {
+    const handleCreditCard = async () => {
         console.log("Thanh toán bằng thẻ ngân hàng");
-        // Add logic to handle Credit Card payment
+
+        const token = getCookie('access_token');
+        if (!token) {
+            console.error("Không tìm thấy token");
+            return;
+        }
+    
+        const userId = getUserIdFromToken(token);  // Assuming this function is defined
+        const orderId = orderData.orderId;         // Assuming orderData contains the orderId
+    
+        try {
+            // Send a POST request to the payment creation API
+            const response = await axios.post(
+                'http://localhost:1010/api/payment/create/credit/payOs',
+                {
+                    orderId: orderId,
+                    userId: userId
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+    
+            // Check the API response
+            if (response.data.statusPayment === 'PENDING') {
+                console.log("Thanh toán đã được tạo, trạng thái: PENDING");
+                const link = response.data.linkPayment;
+    
+                // Redirect to the link received from the response
+                window.location.href = link;
+            } else {
+                console.error("Thanh toán thất bại");
+                navigate('/payment-status', { state: { status: 'failure' } });
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
+            navigate('/payment-status', { state: { status: 'failure' } });
+        }
     };
 
     // Handle MOMO Payment
@@ -637,18 +675,6 @@ const Order = () => {
                                                 onChange={handlePaymentMethodChange}
                                             /> VNPay
                                             <img src={vn} style={{ width: '50px', height: '40px', flex: '0.4' }} />
-                                        </label>
-                                    </div>
-
-                                    <div>
-                                        <label>
-                                            <input
-                                                type="radio"
-                                                name="paymentMethod"
-                                                value="payos"
-                                                onChange={handlePaymentMethodChange}
-                                            /> PayOS
-                                            <img src={payos} style={{ width: '50px', height: '40px', flex: '0.4' }} />
                                         </label>
                                     </div>
                                 </div>

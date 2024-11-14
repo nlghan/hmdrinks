@@ -254,7 +254,7 @@ const Product = () => {
                 const activeIds = updatedProducts.filter(product => !product.deleted).map(product => product.proId);
                 setActiveProducts("delete: " + activeIds);
 
-                setTotalPages(response.data.totalPage || 1);
+                setTotalPages(response.data.totalPage||response.data.body.totalPage || 1);
             } else {
                 setProducts([]);
                 console.log("No products found in parsed product data");  // Log nếu không có sản phẩm trong dữ liệu đã phân tích
