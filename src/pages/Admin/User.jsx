@@ -285,7 +285,9 @@ const User = () => {
                                     <option value="CUSTOMER">Khách hàng</option>
                                     <option value="SHIPPER">Nhân viên</option>
                                 </select>
-                            <button className="add-user-btn" onClick={handleAddUserClick}>Thêm người dùng +</button>
+                            <button className="add-user-btn" onClick={handleAddUserClick}>
+                                <i className="ti-plus"></i>
+                            </button>
                         </div>
                         {error && <div className="error-message">{error}</div>}
                         <table>

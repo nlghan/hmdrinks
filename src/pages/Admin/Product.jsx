@@ -401,7 +401,7 @@ const Product = () => {
             }
 
             const startPage = Math.max(2, currentPage - 1); // Bắt đầu từ trang thứ 2 hoặc trang hiện tại -1
-            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối hoặc trang hiện tại +1
+            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối ho���c trang hiện tại +1
 
             for (let i = startPage; i <= endPage; i++) {
                 paginationNumbers.push(i);
@@ -510,7 +510,7 @@ const Product = () => {
                             />
 
                             <button className="btn-pro-add1" onClick={() => setIsFormVisible(true)}>
-                                Thêm sản phẩm
+                                <i className="ti-plus"></i>
                             </button>
                         </div>
                     </div>

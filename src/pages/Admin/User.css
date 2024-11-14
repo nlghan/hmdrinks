@@ -5,14 +5,27 @@
     width: 100%;
     margin: 0;
     height: 100vh;
-    background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
-    
+    background-image: url('../../assets/img/contact.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
   }
+  .user-table::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 223, 223, 0.2);
+    z-index: 0;
+}
   
   .user-table-row {
     display: flex;
     justify-content: space-between;   
-    
+    z-index: 1;
   }
   
   .user-main-section {
@@ -91,19 +104,54 @@
 }
 
 .add-user-btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
+    padding: 10px 15px;
+    background-color: #ffffff;
     color: white;
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
-    width: 40%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.add-user-btn i {
+    font-size: 20px;
+    color: #4CAF50;
+    font-weight: bold;
 }
 
 .add-user-btn:hover {
-    background-color: #45a049;
+    background-color: #cae3cb;
+    transform: scale(1.1);
 }
+
+.add-user-btn::before {
+    content: "Thêm người dùng";
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.add-user-btn:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
 .search-user-input {
   padding: 10px;
   margin-left: -530px; 

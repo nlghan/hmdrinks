@@ -6,14 +6,27 @@
   margin: 0;
   min-height: 100vh;
   height: auto;
-  background: linear-gradient(to bottom right, rgba(255, 228, 238, 1), rgba(251, 255, 206, 1));
-  padding-left: 70px;
+  background-image: url('../../assets/img/contact.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
 }
 
-.header-post-container {
+.post-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(238, 223, 223, 0.2);
+  z-index: 0;
+}
+
+.post-content {
   position: relative;
-  top: 20px;
-  left: 22px;
+  z-index: 1;
 }
 
 .post-voucher-table {
@@ -32,8 +45,8 @@
   display: flex;
   border-radius: 10px;
   padding: 15px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   flex-direction: column;
   align-items: center;
   margin-right: 40px;
@@ -51,6 +64,8 @@
   max-height: 300px;
   overflow: hidden;
   margin: 10px 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .voucher-table table,
@@ -122,13 +137,52 @@
 }
 
 .post-table-add-btn {
-  padding: 10px 20px;
-  background-color: #4CAF50;
+  padding: 10px 15px;
+  background-color: #ffffff;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 70%;
   cursor: pointer;
-  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.post-table-add-btn i {
+  font-size: 20px;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.post-table-add-btn:hover {
+  background-color: #cae3cb;
+  transform: scale(1.1);
+}
+
+.post-table-add-btn::before {
+  content: "Thêm bài đăng và voucher";
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.post-table-add-btn:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
 
 table {
@@ -412,8 +466,8 @@ tr:hover {
     flex-direction: column;
     border-radius: 10px;
     padding: 15px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     height: auto;
     min-height: 500px;
     position: relative;
@@ -524,7 +578,7 @@ tr:hover {
     color: #333;
 }
 
-/* Điều chỉnh độ rộng các cột */
+/* Điều chỉnh đ rộng các cột */
 .user-voucher-table .post-list-table th:nth-child(1),
 .user-voucher-table .post-list-table td:nth-child(1) {
     width: 8%; /* STT */
