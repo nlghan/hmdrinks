@@ -97,13 +97,13 @@ public class CartService {
         for(CartItem cartItem : cartItems)
         {
             crudCartItemResponses.add( new CRUDCartItemResponse(
-                cartItem.getCartItemId(),
-                cartItem.getProductVariants().getProduct().getProId(),
-                cartItem.getCart().getCartId(),
-                cartItem.getProductVariants().getSize(),
-                cartItem.getTotalPrice(),
-                cartItem.getQuantity()
-        ));
+                    cartItem.getCartItemId(),
+                    cartItem.getProductVariants().getProduct().getProId(),
+                    cartItem.getCart().getCartId(),
+                    cartItem.getProductVariants().getSize(),
+                    cartItem.getTotalPrice(),
+                    cartItem.getQuantity()
+            ));
             total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListItemCartResponse(
