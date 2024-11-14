@@ -107,8 +107,8 @@
     display: flex;
     gap: 30px;
     position: relative;
-    animation: slideShow 15s linear infinite;
-    width: max-content; /* Cho phép section mở rộng theo nội dung */
+    animation: slideShow var(--animation-duration, 3s) linear infinite;
+    width: max-content;
 }
 
 .voucher-card {
@@ -277,7 +277,7 @@
         transform: translateX(0);
     }
     100% {
-        transform: translateX(calc(-100% / 2)); /* Di chuyển một nửa tổng chiều rộng */
+        transform: translateX(calc(-100% / 2));
     }
 }
 
@@ -311,4 +311,137 @@
     overflow: hidden;
     padding: 50px 0;
     position: relative;
+}
+
+/* Animation styles */
+.loading-animation, .success-animation, .error-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.loading-modal, .success-modal, .error-modal {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    animation: modalSlideIn 0.5s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #00796b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Success icon styles */
+.success-icon, .error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.checkmark-circle, .cross-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #00796b;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #00796b;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Error icon styles */
+.cross-circle {
+    stroke: #e74c3c;
+}
+
+.cross-line {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #e74c3c;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Animation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-60px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal text styles */
+.loading-modal h3, .success-modal h3, .error-modal h3 {
+    margin: 15px 0 5px;
+    font-size: 24px;
+}
+
+.loading-modal p, .success-modal p, .error-modal p {
+    color: #636e72;
+    margin: 0;
+    font-size: 16px;
+}
+
+.success-modal h3 { color: #00796b; }
+.error-modal h3 { color: #e74c3c; }
+
+.voucher-claim-btn.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.voucher-claim-btn.disabled:hover {
+    background-color: #ccc;
 }

@@ -34,6 +34,10 @@ const PostVoucher = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [voucher, setVoucher] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [isVoucherClaimed, setIsVoucherClaimed] = useState(false);
 
     useEffect(() => {
         const fetchPostDetails = async (voucherId) => {
@@ -63,13 +67,11 @@ const PostVoucher = () => {
     }, [postId]);
 
     const claimVoucher = async (voucherId) => {
+        setIsLoading(true);
         const token = getCookie('access_token');
         try {
             const userId = getUserIdFromToken(token);
-    
-            // Log payload để kiểm tra nội dung gửi lên server
             const payload = { userId, voucherId };
-            console.log("Payload gửi lên server:", payload);
             
             const response = await axios.post(
                 'http://localhost:1010/api/user-voucher/get-voucher',
@@ -77,10 +79,19 @@ const PostVoucher = () => {
                 { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
             
-            alert('Voucher collected successfully!');
+            setIsLoading(false);
+            setShowSuccess(true);
+            setIsVoucherClaimed(true);
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 2000);
         } catch (err) {
             console.error('Error claiming voucher:', err);
-            alert('Failed to claim voucher.');
+            setIsLoading(false);
+            setShowError(true);
+            setTimeout(() => {
+                setShowError(false);
+            }, 2000);
         }
     };
     
@@ -134,7 +145,10 @@ const PostVoucher = () => {
                             <>
                                 <h3 className="post-title2">Thu thập voucher</h3>
                                 <div className="voucher-wrapper">
-                                    <div className="voucher-section">
+                                    <div 
+                                        className="voucher-section"
+                                        style={{"--animation-duration": `${voucher.number * 4}s`}}
+                                    >
                                         {[...Array(voucher.number)].map((_, index) => (
                                             <div className="voucher-card" key={`original-${index}`}>
                                                 <div className="voucher-image">
@@ -152,8 +166,12 @@ const PostVoucher = () => {
                                                             <span>Đến: {formatDate(voucher.endDate)}</span>
                                                         </div>
                                                     </div>
-                                                    <button className="voucher-claim-btn" onClick={() => claimVoucher(voucher.voucherId)}>
-                                                        Nhận Ngay
+                                                    <button 
+                                                        className={`voucher-claim-btn ${isVoucherClaimed ? 'disabled' : ''}`}
+                                                        onClick={() => claimVoucher(voucher.voucherId)}
+                                                        disabled={isVoucherClaimed}
+                                                    >
+                                                        {isVoucherClaimed ? 'Đã nhận' : 'Nhận Ngay'}
                                                     </button>
                                                 </div>
                                             </div>
@@ -165,6 +183,53 @@ const PostVoucher = () => {
                     </div>
                 )}
             </div>
+
+            {isLoading && (
+                <div className="loading-animation">
+                    <div className="loading-modal">
+                        <div className="loading-spinner">
+                            <div className="spinner"></div>
+                        </div>
+                        <h3>Đang xử lý...</h3>
+                        <p>Vui lòng đợi trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {showSuccess && (
+                <div className="success-animation">
+                    <div className="success-modal">
+                        <div className="success-icon">
+                            <div className="success-icon-circle">
+                                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                    <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Nhận voucher thành công!</h3>
+                        <p>Chúc mừng bạn đã nhận được voucher.</p>
+                    </div>
+                </div>
+            )}
+
+            {showError && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none"/>
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Bạn đã thu thập voucher rồi!</h3>
+                        <p>Một người dùng chỉ nhận voucher một lần.</p>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </>
     );
