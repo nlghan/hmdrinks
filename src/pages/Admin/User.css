@@ -470,6 +470,8 @@ input:checked + .slider:before {
     display: flex;
     position: relative;
     padding: 20px;
+    padding-left: 70px;
+
 }
 .user-menu-flex {
     position: relative;

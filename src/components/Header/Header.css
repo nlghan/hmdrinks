@@ -1,69 +1,64 @@
+/* Đảm bảo header không bị menu che khuất khi menu mở rộng */
 .header {
-    position: relative;
-    z-index: 1000;
+  position: relative; /* Đảm bảo menu không đè lên header */
+  z-index: 100; /* Đặt z-index cao hơn menu nếu cần */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between; /* Căn chỉnh header với khoảng cách đều */
+  align-items: center;
+  background-color: #fff; /* Màu nền cho header */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng cho header */
+  height: 60px; /* Chiều cao của header */
+  margin-bottom: 10px;
+
 }
 
 .flex-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 0px;
-    position: relative;
-    z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 20px; /* Khoảng cách giữa các phần tử */
 }
 
 .header-menu-toggle {
-    position: relative;
-    z-index: 1001;
-    background-color: #fc6764;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    height: 38px;
-    width: 38px;
-    border-radius: 4px;
-    margin: 0;
-    transition: background-color 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background-color: #fc6764; /* Màu nền của nút toggle */
+  color: white; /* Màu chữ */
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 36px; /* Kích thước của nút */
+  border-radius: 4px; /* Góc tròn cho nút */
+  transition: background-color 0.3s;
 }
 
 .header-menu-toggle:hover {
-    background-color: #28a745
+  background-color: #28a745; /* Màu nền khi hover */
 }
 
-/* Thêm style cho tiêu đề trong header */
+/* Đảm bảo title của header không bị chồng lên menu */
 .flex-header h1 {
-    color: #333;
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 25px;
-    border-radius: 10px;
-    display: inline-block;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 0;
-    z-index: 1;
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+  flex-grow: 1; /* Đảm bảo title chiếm hết không gian còn lại */
 }
 
-/* Thêm border gradient bên dưới */
-.flex-header h1::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(to right, #fc6764, #f8b5c1);
-    border-radius: 3px;
+/* Khi menu mở rộng, tạo không gian cho header */
+.menu-side-menu.expanded + .flex-header {
+  margin-left: 250px; /* Tạo khoảng cách cho menu */
 }
 
-/* Thêm hover effect */
-.flex-header h1:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+/* Nếu menu không mở rộng, header không bị xô lệch */
+.menu-side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.menu-side-menu.expanded {
+  width: 250px; /* Mở rộng menu */
 }

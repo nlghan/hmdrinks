@@ -41,7 +41,6 @@
 }
 
 .post-table {
-  margin: 0;
   width: 100%;
   display: flex;
   border-radius: 10px;
@@ -106,7 +105,6 @@
 }
 
 .post-content {
-  margin-left: 5px;  
   width: 100%;
 }
 
