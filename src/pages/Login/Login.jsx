@@ -50,6 +50,7 @@ const Login = () => {
             // Save tokens to cookies
             if (response.data.access_token) {
                 Cookies.set('access_token', response.data.access_token, { expires: 7 });
+                sessionStorage.setItem('access_token', response.data.access_token);
             }
             if (response.data.refresh_token) {
                 Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });

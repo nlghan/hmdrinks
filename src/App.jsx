@@ -31,6 +31,7 @@ import { FavoriteProvider } from './context/FavoriteContext';
 import Order from "./pages/Order/Order";
 import PaymentStatus from "./pages/Payment/PaymentStatus";
 import PaymentOnlineStatus from "./pages/Payment/PaymentOnlineStatus";
+
 import Cookies from 'js-cookie';
 
 
@@ -61,6 +62,9 @@ const LoginRedirect = () => {
 
   return <Navigate to="/home" />;
 };
+
+import PaymentOnlineStatusPayos from "./pages/Payment/PaymentOnlineStatusPayos";
+import IntermediaryPage from "./pages/Payment/IntermediaryPage";
 
 const App = () => {
   const location = useLocation();
@@ -100,6 +104,8 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/payment-status" element={<PaymentStatus />} />
             <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
+            <Route path="/intermediary-page" element={<IntermediaryPage />} />
+            <Route path="/payment-online-status-payos" element={<PaymentOnlineStatusPayos />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

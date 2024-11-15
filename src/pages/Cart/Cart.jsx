@@ -7,10 +7,11 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId,  selectedVoucher, note, setSelectedVoucher, setNote, handleCheckout } = useCart();
+    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId,  selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout } = useCart();
     const [vouchers, setVouchers] = useState([]);
 
     const [selectedItem, setSelectedItem] = useState(null);
+    
 
     const handleNoteChange = (event) => {
         setNote(event.target.value); // Update note
@@ -188,11 +189,17 @@ const Cart = () => {
     const handBack = () => {
         navigate('/menu');
     };
+    
 
     return (
         <>
             <Navbar currentPage={'Giỏ hàng'} />
             <div className="cart-background-container">
+            {isCreating && (
+                <div className="loading-overlay active">
+                    <div className="loading-spinner"></div>
+                </div>
+            )}
                 <div className="cart-all-container">
                     <h1 className="cart-title">Giỏ hàng</h1>
                     <div className="cart-container">
