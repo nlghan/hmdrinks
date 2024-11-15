@@ -193,6 +193,7 @@ const Menu = () => {
         const quantity = 1; // Đặt số lượng mặc định là 1
         const { proId, proName, price, size, stock } = product;
 
+        
         // Kiểm tra xem userId có tồn tại hay không
         if (!userId) {
             setShowLoginPrompt(true); // Hiện thông báo yêu cầu đăng nhập

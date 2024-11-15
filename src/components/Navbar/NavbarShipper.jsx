@@ -93,7 +93,7 @@ const NavbarShipper = ({ currentPage }) => {
             Cookies.remove('refresh_token');
             clearFavorites();
             logout();
-            navigate('/shipper-home');
+            navigate('/home');
         } catch (error) {
             console.error('Error during logout:', error);
         }

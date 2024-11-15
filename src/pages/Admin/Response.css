@@ -1,0 +1,334 @@
+.overlay-details-response {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.overlay-response {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.response-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+    height: 100vh;
+    background-image: url('../../assets/img/contact.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    margin-left: 40px;
+}
+
+.response-table::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 223, 223, 0.2);
+    z-index: 0;
+}
+
+.response-table-row {
+    display: flex;
+    justify-content: space-between;   
+    z-index: 1;
+    margin-left: 30px;
+    height: 85%;
+}
+
+.response-main-section {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+}
+
+.response-stats-section {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    margin-left: 10px;
+    position: relative;
+    width: 400px;
+}
+
+.response-box {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin-right: 10px;
+    width: 60%;
+    height: 100%;
+}
+
+.response-box .header-response-box {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-direction: row;
+    gap: 20px;
+}
+.header-response-box {
+    margin-top: 10px;
+}
+.response-box h2 {
+    text-align: left;
+    width: 100%;
+    font-size: 30px;
+}
+
+.search-response-input {
+    padding: 10px;
+    margin-left: 0px;
+    border: 1px solid #f0c1c1;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+.response-box table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.response-box table th,
+.response-box table td {
+    padding: 4px;
+    text-align: left;
+    border: none;
+}
+
+.response-box table th {
+    font-size: 18px;
+    background-color: #ffffff;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ddd;
+}
+
+.response-box table td {
+    padding: 4px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.response-box table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.response-button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-left: -80px;
+}
+
+.response-button-container button {
+    flex: 1;
+    width: 25px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+    background: white;
+}
+
+#response-update-btn1 {
+    cursor: pointer;
+    font-size: 20px;
+    color: blue;
+}
+
+#response-update-btn3 {
+    cursor: pointer;
+    font-size: 20px;
+    color: green;
+}
+.checkbox-label {
+    width: 20px; /* Kích thước của label */
+    height: 20px; /* Kích thước của label */
+    background-color: #f0f0f0; /* Màu nền mặc định */
+    border: 1px solid #ccc; /* Đường viền */
+    border-radius: 4px; /* Bo góc */
+    display: inline-block;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    display: none; /* Ẩn checkbox mặc định */
+}
+
+input[type="checkbox"]:checked + .checkbox-label {
+    background-color: #4CAF50; /* Màu nền khi checkbox được chọn */
+}
+.response-admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 45%;
+    position: fixed;
+    bottom: 4px;
+    position: absolute;
+}
+
+.response-admin-pagination .response-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ed8ca1;
+    color: #ffffff;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+
+.response-admin-pagination .response-btn:hover:not(:disabled) {
+    background-color: #7397b8;
+}
+
+.response-admin-pagination .response-btn:disabled {
+    cursor: not-allowed;
+}
+
+.response-admin-pagination .response-btn-page {
+    background-color: #33a1b4;
+    margin: 5px;
+}
+
+.response-admin-pagination .response-btn-page:hover {
+    background-color: #5a6268;
+}
+
+.response-admin-pagination .response-btn-light {
+    background-color: #f8f9fa;
+    color: #000;
+    margin: 5px;
+}
+
+.response-admin-pagination .response-btn-light:hover {
+    background-color: #e2e6ea;
+}
+
+.response-btn-pre, .response-btn-next {
+    font-weight: bold;
+}
+
+.response-percentage-circle, .response-percentage-circle2, .response-percentage-circle3 {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 40px;
+    left: 15px;
+    z-index: 0;
+}
+
+.response-percentage-text {
+    position: absolute;
+    z-index: 1;
+    font-size: 16px;
+    color: #000;
+}
+
+.response-percentage-circle {
+    background: conic-gradient(rgb(255, 255, 255) 70%, #efa0ed 0%);
+}
+
+.response-percentage-circle2 {
+    background: conic-gradient(rgb(255, 255, 255) 80%, #f48d8d 0%);
+}
+
+.response-percentage-circle3 {
+    background: conic-gradient(rgb(255, 255, 255) 60%, #eaca71 0%);
+}
+.response-inner-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #efa0ed;
+    position: absolute;
+    z-index: -1;
+}
+.response-inner-circle2 {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #f48d8d;
+    position: absolute;
+    z-index: -1;
+  }
+  
+ .response-inner-circle3 {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #eaca71;
+    position: absolute;
+    z-index: -1;
+  }
+  
+
+.response-stat-box1, .response-stat-box2, .response-stat-box3 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    margin-right: 60px;
+    width: 350px;
+    height: 150px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.response-stat-box1 { background-color: #efa0ed; }
+.response-stat-box2 { background-color: #f48d8d; }
+.response-stat-box3 { background-color: #eaca71; }
+
+.response-box table th:nth-child(2),
+.response-box table td:nth-child(2) {
+    width: 20%; /* Set this to the desired width */
+    /* Adjust the width as needed to match the Contact ID column */
+}
+.response-box table th:nth-child(1),
+.response-box table td:nth-child(1) {
+    width: 10%; /* Set this to the desired width */
+    /* Adjust the width as needed to match the Contact ID column */
+}
+.response-box table th:nth-child(3),
+.response-box table td:nth-child(3) {
+    width: 50%; /* Set this to the desired width */
+    /* Adjust the width as needed to match the Contact ID column */
+}

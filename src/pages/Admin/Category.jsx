@@ -364,8 +364,8 @@ const Category = () => {
     return (
         <div className="category" style={{paddingLeft:'70px'}}>
             {isCreating && (
-            <div className="loading-overlay active">
-                <div className="loading-spinner"></div>
+            <div className="category-loading-overlay active">
+                <div className="category-loading-spinner"></div>
             </div>
         )}
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Danh mục" />

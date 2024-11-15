@@ -122,3 +122,150 @@
     color: red;
     transition: color 0.3s ease;
 }
+
+/* Animation styles */
+.product-card-loading-animation, .product-card-success-animation, .product-card-error-animation {
+    position: fixed;
+    top: 50%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+    background: transparent;
+    pointer-events: none;
+}
+
+.product-card-loading-modal, .product-card-success-modal, .product-card-error-modal {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px 30px;
+    border-radius: 8px;
+    text-align: center;
+    animation: modalSlideIn 0.5s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(5px);
+    pointer-events: auto;
+}
+
+/* Loading spinner */
+.product-card-loading-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.product-card-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #00796b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Success icon */
+.product-card-success-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.product-card-checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #00796b;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.product-card-checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #00796b;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Error icon */
+.product-card-cross-circle {
+    stroke: #e74c3c;
+}
+
+.product-card-cross-line {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #e74c3c;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Animation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes modalSlideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal text styles */
+.product-card-loading-modal h3, .product-card-success-modal h3, .product-card-error-modal h3 {
+    margin: 10px 0 5px;
+    font-size: 18px;
+}
+
+.product-card-loading-modal p, .product-card-success-modal p, .product-card-error-modal p {
+    color: #636e72;
+    margin: 0;
+    font-size: 14px;
+}
+
+.product-card-success-modal h3 { color: #00796b; }
+.product-card-error-modal h3 { color: #e74c3c; }
+
+/* Shake animation for error */
+.product-card-error-modal {
+    animation: modalSlideIn 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}

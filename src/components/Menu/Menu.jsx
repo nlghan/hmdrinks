@@ -76,7 +76,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
                         <li>Tiếp thị</li>
                     </div>
                     <div className='menu-and-user'>
-                        <i className='ti-share-alt' />
+                        <i className='ti-share-alt' onClick={() => navigate('/response')}/>
                         <li>Phản hồi</li>
                     </div>
                     <div className='menu-and-user'>

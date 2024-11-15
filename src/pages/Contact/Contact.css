@@ -381,13 +381,10 @@ button[type="submit"] {
   animation-delay: 1.1s;
 }
 
-.success-animation {
+.contact-success-animation {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -395,7 +392,7 @@ button[type="submit"] {
   animation: fadeIn 0.3s ease-out;
 }
 
-.success-modal {
+.contact-success-modal {
   background: white;
   padding: 30px 40px;
   border-radius: 12px;
@@ -404,37 +401,37 @@ button[type="submit"] {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.success-modal h3 {
+.contact-success-modal h3 {
   color: #2d3436;
   margin: 15px 0 5px;
   font-size: 24px;
 }
 
-.success-modal p {
+.contact-success-modal p {
   color: #636e72;
   margin: 0;
   font-size: 16px;
 }
 
-.success-icon {
+.contact-success-icon {
   width: 80px;
   height: 80px;
   margin: 0 auto;
   position: relative;
 }
 
-.success-icon-circle {
+.contact-success-icon-circle {
   width: 80px;
   height: 80px;
   position: relative;
 }
 
-.checkmark {
+.contact-checkmark {
   width: 80px;
   height: 80px;
 }
 
-.checkmark-circle {
+.contact-checkmark-circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
   stroke-width: 2;
@@ -444,7 +441,7 @@ button[type="submit"] {
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
-.checkmark-check {
+.contact-checkmark-check {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
@@ -479,13 +476,10 @@ button[type="submit"] {
   }
 }
 
-.error-animation {
+.contact-error-animation {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -493,7 +487,7 @@ button[type="submit"] {
   animation: fadeIn 0.3s ease-out;
 }
 
-.error-modal {
+.contact-error-modal {
   background: white;
   padding: 30px 40px;
   border-radius: 12px;
@@ -502,37 +496,37 @@ button[type="submit"] {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.error-modal h3 {
+.contact-error-modal h3 {
   color: #e74c3c;
   margin: 15px 0 5px;
   font-size: 24px;
 }
 
-.error-modal p {
+.contact-error-modal p {
   color: #636e72;
   margin: 0;
   font-size: 16px;
 }
 
-.error-icon {
+.contact-error-icon {
   width: 80px;
   height: 80px;
   margin: 0 auto;
   position: relative;
 }
 
-.error-icon-circle {
+.contact-error-icon-circle {
   width: 80px;
   height: 80px;
   position: relative;
 }
 
-.cross {
+.contact-cross {
   width: 80px;
   height: 80px;
 }
 
-.cross-circle {
+.contact-cross-circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
   stroke-width: 2;
@@ -542,7 +536,7 @@ button[type="submit"] {
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
-.cross-line {
+.contact-cross-line {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
@@ -552,7 +546,7 @@ button[type="submit"] {
 }
 
 /* Thêm animation cho cross */
-@keyframes crossRotate {
+@keyframes contact-crossRotate {
   0% {
     transform: scale(0) rotate(45deg);
     opacity: 0;
@@ -564,7 +558,7 @@ button[type="submit"] {
 }
 
 /* Thêm shake animation cho error modal */
-.error-modal {
+.contact-error-modal {
   animation: modalSlideIn 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
 }
 
@@ -574,13 +568,10 @@ button[type="submit"] {
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-.loading-animation {
+.contact-loading-animation {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -588,7 +579,7 @@ button[type="submit"] {
   animation: fadeIn 0.3s ease-out;
 }
 
-.loading-modal {
+.contact-loading-modal {
   background: white;
   padding: 30px 40px;
   border-radius: 12px;
@@ -597,26 +588,26 @@ button[type="submit"] {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.loading-modal h3 {
+.contact-loading-modal h3 {
   color: #2d3436;
   margin: 15px 0 5px;
   font-size: 24px;
 }
 
-.loading-modal p {
+.contact-loading-modal p {
   color: #636e72;
   margin: 0;
   font-size: 16px;
 }
 
-.loading-spinner {
+.contact-loading-spinner {
   width: 80px;
   height: 80px;
   margin: 0 auto;
   position: relative;
 }
 
-.spinner {
+.contact-spinner {
   width: 80px;
   height: 80px;
   border: 4px solid #f3f3f3;
@@ -631,17 +622,17 @@ button[type="submit"] {
 }
 
 /* Thêm animation cho transition giữa các trạng thái */
-.loading-modal, .success-modal, .error-modal {
+.contact-loading-modal, .contact-success-modal, .contact-error-modal {
   position: relative;
   transition: transform 0.3s ease-out;
 }
 
-.loading-modal.hide {
+.contact-loading-modal.hide {
   transform: scale(0.8);
   opacity: 0;
 }
 
-.success-modal.show, .error-modal.show {
+.contact-success-modal.show, .contact-error-modal.show {
   transform: scale(1);
   opacity: 1;
 }
@@ -653,11 +644,11 @@ button[type="submit"] {
   100% { transform: scale(1); }
 }
 
-.loading-spinner {
+.contact-loading-spinner {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
 /* Làm mịn transition */
-.loading-animation, .success-animation, .error-animation {
+.contact-loading-animation, .contact-success-animation, .contact-error-animation {
   transition: opacity 0.3s ease-out;
 }

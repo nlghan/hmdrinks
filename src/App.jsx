@@ -20,6 +20,7 @@ import Product from "./pages/Admin/Product";
 import Menu from "./pages/Menu/Menu";
 import NewsUser from "./pages/News/NewsUser";
 import Contact from "./pages/Contact/Contact";
+import Response from "./pages/Admin/Response";
 import News from "./pages/Admin/News";
 import PostVoucher from './pages/Post/PostVoucher';
 import ProductDetail from "./pages/Menu/ProductDetail"; 
@@ -102,6 +103,7 @@ const App = () => {
             <Route path="/order" element={<Order />} />
             <Route path="/marketing/:postId" element={<PostVoucher />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/response" element={<Response />} />
             <Route path="/payment-status" element={<PaymentStatus />} />
             <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
             <Route path="/intermediary-page" element={<IntermediaryPage />} />
