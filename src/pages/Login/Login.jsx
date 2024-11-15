@@ -81,6 +81,9 @@ const Login = () => {
             } else if (role.includes("CUSTOMER")) {
                 login();
                 navigate('/home');
+            } else if (role.includes("SHIPPER")) {
+                login();
+                navigate('/shipper-home');
             }
 
         } catch (error) {

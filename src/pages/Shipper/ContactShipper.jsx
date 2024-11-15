@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './Contact.css';
+import './ContactShipper.css';
 import { assets } from '../../assets/assets';
-import Navbar from '../../components/Navbar/Navbar';
+import NavbarShipper from '../../components/Navbar/NavbarShipper';
 import Footer from '../../components/Footer/Footer';
 import trachanh from '../../assets/img/about.png';
-import axios from 'axios';
-
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,9 +13,6 @@ const Contact = () => {
     message: ''
   });
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,52 +40,22 @@ const Contact = () => {
   };
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const token = getCookie('access_token');
     const userId = getUserIdFromToken(token);
 
+    console.log("Token:", token); // Log token
+    console.log("UserId:", userId); // Log userId
+
     if (!userId) {
-      setIsLoading(false);
       setShowLoginPrompt(true);
     } else {
-      const contactData = {
-        userId: userId,
-        description: formData.message
-      };
+      console.log('Send data');
 
-      try {
-        const response = await axios.post('http://localhost:1010/api/contact/create', contactData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        setIsLoading(false);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-        }, 2000);
-
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          message: ''
-        });
-      } catch (error) {
-        setIsLoading(false);
-        setShowError(true);
-        setTimeout(() => {
-          setShowError(false);
-        }, 2000);
-      }
     }
   };
-  
 
   // Thêm refs
   const contactInfoRef = useRef(null);
@@ -133,23 +98,7 @@ const Contact = () => {
 
   return (
     <>
-      <Navbar currentPage="Liên Hệ" />
-      {showSuccess && (
-        <div className="success-animation">
-          <div className="success-modal">
-            <div className="success-icon">
-              <div className="success-icon-circle">
-                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                  <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                  <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                </svg>
-              </div>
-            </div>
-            <h3>Gửi thành công!</h3>
-            <p>Chúng tôi sẽ liên hệ với bạn sớm nhất có thể.</p>
-          </div>
-        </div>
-      )}
+      <NavbarShipper currentPage="Liên Hệ" />
       {showLoginPrompt && (
                 <div className="login-modal">
                   <div className="login-modal-content">
@@ -159,33 +108,6 @@ const Contact = () => {
                   </div>
                 </div>
               )}
-      {showError && (
-        <div className="error-animation">
-          <div className="error-modal">
-            <div className="error-icon">
-              <div className="error-icon-circle">
-                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                  <circle className="cross-circle" cx="26" cy="26" r="25" fill="none"/>
-                  <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36"/>
-                </svg>
-              </div>
-            </div>
-            <h3>Gửi thất bại!</h3>
-            <p>Có lỗi xảy ra, vui lòng thử lại.</p>
-          </div>
-        </div>
-      )}
-      {isLoading && (
-        <div className="loading-animation">
-          <div className="loading-modal">
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-            </div>
-            <h3>Đang xử lý...</h3>
-            <p>Vui lòng đợi trong giây lát</p>
-          </div>
-        </div>
-      )}
       <div className="contact-main">
         
         <div className="contact-section">
@@ -276,7 +198,6 @@ const Contact = () => {
                 ></textarea>
               </div>
               <button type="submit" className="contact-submit-btn" ref={el => formGroupRefs.current[4] = el}>Gửi Ngay</button>
-
               
             </form>
           </div>

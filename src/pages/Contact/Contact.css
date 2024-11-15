@@ -380,3 +380,284 @@ button[type="submit"] {
   animation: zoomIn2 0.3s ease-out forwards;
   animation-delay: 1.1s;
 }
+
+.success-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.success-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.success-modal h3 {
+  color: #2d3436;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.success-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.success-icon-circle {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.checkmark {
+  width: 80px;
+  height: 80px;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #00b894;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #00b894;
+  stroke-width: 3;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes modalSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.error-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.error-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.error-modal h3 {
+  color: #e74c3c;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.error-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.error-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.error-icon-circle {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.cross {
+  width: 80px;
+  height: 80px;
+}
+
+.cross-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #e74c3c;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.cross-line {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #e74c3c;
+  stroke-width: 3;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Thêm animation cho cross */
+@keyframes crossRotate {
+  0% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+/* Thêm shake animation cho error modal */
+.error-modal {
+  animation: modalSlideIn 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.loading-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loading-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.loading-modal h3 {
+  color: #2d3436;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.loading-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.loading-spinner {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.spinner {
+  width: 80px;
+  height: 80px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Thêm animation cho transition giữa các trạng thái */
+.loading-modal, .success-modal, .error-modal {
+  position: relative;
+  transition: transform 0.3s ease-out;
+}
+
+.loading-modal.hide {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.success-modal.show, .error-modal.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Thêm pulse effect cho spinner */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.loading-spinner {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Làm mịn transition */
+.loading-animation, .success-animation, .error-animation {
+  transition: opacity 0.3s ease-out;
+}
