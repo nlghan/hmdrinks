@@ -290,7 +290,9 @@ export const CartProvider = ({ children }) => {
 
     const [selectedVoucher, setSelectedVoucher] = useState(null); // Add state for selectedVoucher
     const [note, setNote] = useState(""); // Add state for note
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [isCreating, setIsCreating] = useState(false);
+
 
 
 
@@ -308,6 +310,7 @@ export const CartProvider = ({ children }) => {
         console.log('Data to be sent to the server:', orderData);
 
         try {
+            setIsCreating(true);
             const response = await fetch('http://localhost:1010/api/orders/create', {
                 method: 'POST',
                 headers: {
@@ -329,9 +332,6 @@ export const CartProvider = ({ children }) => {
             } else if (data.statusCodeValue === 200) {
                 console.log('Order created successfully: ', data);
 
-                // Pass the newly created order data to the Order page
-                alert(`Đặt hàng thành công`);
-
                 setCartItems([]);  // Clear cart after successful checkout
                 await ensureCartExists(userId);
 
@@ -343,6 +343,8 @@ export const CartProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Error while making order request:', error);
+        }finally{
+            setIsCreating(false);
         }
     };
 
@@ -672,7 +674,7 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, handleCheckout }}>
+        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout }}>
             {children}
         </CartContext.Provider>
     );
