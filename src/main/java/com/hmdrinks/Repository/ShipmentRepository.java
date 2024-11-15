@@ -8,10 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 
 public interface ShipmentRepository extends JpaRepository<Shippment, Integer> {
    Shippment findByShipmentIdAndIsDeletedFalse(int shipmentId);
-
+   List<Shippment> findByStatus(Status_Shipment status);
    Shippment findByPaymentPaymentIdAndIsDeletedFalse(int paymentId);
 
    Shippment findByPaymentPaymentId(int paymentId);

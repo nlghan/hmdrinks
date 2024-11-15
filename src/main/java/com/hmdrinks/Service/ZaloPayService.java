@@ -3,10 +3,13 @@ package com.hmdrinks.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.Payment;
 import com.hmdrinks.Entity.Shippment;
+import com.hmdrinks.Entity.User;
+import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Status_Shipment;
 import com.hmdrinks.Repository.PaymentRepository;
 import com.hmdrinks.Repository.ShipmentRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Service.crypto.HMACUtil;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.SneakyThrows;
@@ -40,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ZaloPayService {
@@ -52,9 +56,31 @@ public class ZaloPayService {
     private final PaymentRepository paymentRepository;
     @Autowired
     private ShipmentRepository shipmentRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public ZaloPayService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
+    }
+    public void assignShipments() {
+        List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
+                .stream()
+                .sorted(Comparator.comparing(Shippment::getDateCreated))
+                .collect(Collectors.toList());
+
+        List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
+        for (Shippment shipment : pendingShipments) {
+
+            User selectedShipper = shippers.stream()
+                    .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
+                    .orElse(null);
+
+            if (selectedShipper != null) {
+                shipment.setUser(selectedShipper);
+                shipment.setStatus(Status_Shipment.SHIPPING); // Đổi trạng thái đơn hàng
+                shipmentRepository.save(shipment);
+            }
+        }
     }
 
     public Map<String, Object> createPayment(Long total) throws Exception {
@@ -197,6 +223,7 @@ public class ZaloPayService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
+                assignShipments();
             }
             response.put("status", 1);
             return ResponseEntity.ok().body(response);
