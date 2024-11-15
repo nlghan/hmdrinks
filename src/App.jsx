@@ -31,6 +31,7 @@ import { FavoriteProvider } from './context/FavoriteContext';
 import Order from "./pages/Order/Order";
 import PaymentStatus from "./pages/Payment/PaymentStatus";
 import PaymentOnlineStatus from "./pages/Payment/PaymentOnlineStatus";
+import PaymentOnlineStatusVnpay from "./pages/Payment/PaymentOnlineStatusVNPay";
 
 import Cookies from 'js-cookie';
 
@@ -65,6 +66,7 @@ const LoginRedirect = () => {
 
 import PaymentOnlineStatusPayos from "./pages/Payment/PaymentOnlineStatusPayos";
 import IntermediaryPage from "./pages/Payment/IntermediaryPage";
+import PaymentOnlineStatusMomo from "./pages/Payment/PaymentOnlineStatusMomo";
 
 const App = () => {
   const location = useLocation();
@@ -106,6 +108,8 @@ const App = () => {
             <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
             <Route path="/intermediary-page" element={<IntermediaryPage />} />
             <Route path="/payment-online-status-payos" element={<PaymentOnlineStatusPayos />} />
+            <Route path="/payment-online-status-momo" element={<PaymentOnlineStatusMomo />} />
+            <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
