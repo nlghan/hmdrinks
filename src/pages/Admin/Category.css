@@ -407,7 +407,7 @@
     gap: 8px;
 }
 /* Loading Overlay */
-.loading-overlay {
+.category-loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -423,7 +423,7 @@
   transition: opacity 0.3s ease;
 }
 
-.loading-overlay.active {
+.category-loading-overlay.active {
   visibility: visible; /* Show when active */
   opacity: 1;
 }
@@ -437,8 +437,7 @@
   }
 }
 
-
-.loading-spinner {
+.category-loading-spinner {
   border: 8px solid transparent;
   border-top: 8px solid #fc9e39;
   border-radius: 50%;
@@ -450,7 +449,7 @@
 }
 
 /* Add a pulse effect to the spinner */
-.loading-spinner:before {
+.category-loading-spinner:before {
   content: '';
   position: absolute;
   top: -12px;
