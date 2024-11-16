@@ -228,9 +228,48 @@ const Order = () => {
     };
 
     // Handle MOMO Payment
-    const handleMomo = () => {
+    const handleMomo = async () => {
         console.log("Thanh toán qua MOMO");
-        // Add logic to handle MOMO payment
+        const token = getCookie('access_token');
+        if (!token) {
+            console.error("Không tìm thấy token");
+            return;
+        }
+    
+        const userId = getUserIdFromToken(token);  // Assuming this function is defined
+        const orderId = orderData.orderId;         // Assuming orderData contains the orderId
+    
+        try {
+            // Send a POST request to the payment creation API
+            const response = await axios.post(
+                'http://localhost:1010/api/payment/create/credit/momo',
+                {
+                    orderId: orderId,
+                    userId: userId
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+    
+            // Check the API response
+            if (response.data.statusPayment === 'PENDING') {
+                console.log("Thanh toán đã được tạo, trạng thái: PENDING");
+                const link = response.data.linkPayment;
+    
+                // Redirect to the link received from the response
+                window.location.href = link;
+            } else {
+                console.error("Thanh toán thất bại");
+                navigate('/payment-status', { state: { status: 'failure' } });
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
+            navigate('/payment-status', { state: { status: 'failure' } });
+        }
     };
 
     // Handle ZaloPay Payment
@@ -280,9 +319,50 @@ const Order = () => {
     
 
     // Handle VNPay Payment
-    const handleVnPay = () => {
+    const handleVnPay = async () => {
         console.log("Thanh toán qua VNPay");
         // Add logic to handle VNPay payment
+        const token = getCookie('access_token');
+        if (!token) {
+            console.error("Không tìm thấy token");
+            return;
+        }
+    
+        const userId = getUserIdFromToken(token);  // Assuming this function is defined
+        const orderId = orderData.orderId;         // Assuming orderData contains the orderId
+    
+        try {
+            // Send a POST request to the payment creation API
+            const response = await axios.post(
+                'http://localhost:1010/api/payment/create/credit/vnPay',
+                {
+                    orderId: orderId,
+                    userId: userId,
+                    ipAddress: "string"
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+    
+            // Check the API response
+            if (response.data.statusPayment === 'PENDING') {
+                console.log("Thanh toán đã được tạo, trạng thái: PENDING");
+                const link = response.data.linkPayment;
+    
+                // Redirect to the link received from the response
+                window.location.href = link;
+            } else {
+                console.error("Thanh toán thất bại");
+                navigate('/payment-status', { state: { status: 'failure' } });
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
+            navigate('/payment-status', { state: { status: 'failure' } });
+        }
     };
 
     // Handle PayOS Payment
