@@ -1,7 +1,7 @@
 /* Đảm bảo header không bị menu che khuất khi menu mở rộng */
 .header {
   position: relative; /* Đảm bảo menu không đè lên header */
-  z-index: 100; /* Đặt z-index cao hơn menu nếu cần */
+  z-index: 1; /* Đặt z-index cao hơn menu nếu cần */
   padding: 10px 20px;
   display: flex;
   justify-content: space-between; /* Căn chỉnh header với khoảng cách đều */
