@@ -5,12 +5,13 @@ import Header from '../../components/Header/Header';
 import axios from 'axios';
 import FormDetailsResponse from '../../components/Form/FormDetailsResponse';
 import FormResponse from '../../components/Form/FormResponse';
+import GaugeCard from '../../components/Card/GaugeCardRes';
 
 function Response() {
     const [responses, setResponses] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
-    const [limit, setLimit] = useState(7);
+    const [limit, setLimit] = useState(8);
     const [error, setError] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -152,7 +153,7 @@ function Response() {
 
     // Lọc responses dựa trên searchTerm và selectedType
     const filteredResponses = responses.filter(response => {
-        const matchesSearch = 
+        const matchesSearch =
             (response.description?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
             (response.userId?.toString() || '').includes(searchTerm);
         const matchesType = selectedType === 'all' || response.status === selectedType;
@@ -262,9 +263,9 @@ function Response() {
                                 onChange={handleSearchChange}
                                 id="search-response"
                             />
-                            <select 
-                                value={selectedType} 
-                                onChange={handleTypeChange} 
+                            <select
+                                value={selectedType}
+                                onChange={handleTypeChange}
                                 className="type-select"
                                 style={{ width: '40%', borderRadius: '20px' }}
                             >
@@ -273,9 +274,9 @@ function Response() {
                                 <option value="WAITING">Đang chờ</option>
                             </select>
                         </div>
-                        
+
                         {error && <div className="error-message">{error}</div>}
-                        
+
                         <table>
                             <thead>
                                 <tr>
@@ -295,7 +296,7 @@ function Response() {
                                         <td>
                                             <span className={`status-${response.status.toLowerCase()}`}>
                                                 {response.status === 'WAITING' ? 'Đang chờ' :
-                                                 response.status === 'COMPLETED' ? 'Đã duyệt' : 'Từ chối'}
+                                                    response.status === 'COMPLETED' ? 'Đã duyệt' : 'Từ chối'}
                                             </span>
                                         </td>
                                         <td>
@@ -318,8 +319,8 @@ function Response() {
                         </table>
 
                         <div className="response-admin-pagination">
-                            <button 
-                                className="response-btn btn-pre" 
+                            <button
+                                className="response-btn btn-pre"
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
                             >
@@ -335,7 +336,7 @@ function Response() {
                                     {number}
                                 </button>
                             ))}
-                            <button 
+                            <button
                                 className="response-btn btn-next"
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPage}
@@ -346,44 +347,26 @@ function Response() {
                     </div>
 
                     <div className="response-stats-section">
-                        <div className="response-stat-box1">
-                            <div className="response-percentage-circle"style={{ background: `conic-gradient(rgb(255, 255, 255) ${pendingPercentage}%, #efa0ed 0%)` }}>
-                                <div className="response-inner-circle"></div>
-                                <span>{pendingPercentage}%</span>
-                            </div>
-                            <div className="response-stat-boxtext1">
-                                <h3>Đang chờ</h3>
-                            </div>
-                            <div className="response-stat-boxcount">
-                                <p>{pendingCount} phản hồi</p>
-                            </div>
-                        </div>
-
-                        <div className="response-stat-box2">
-                            <div className="response-percentage-circle2"style={{ background: `conic-gradient(rgb(255, 255, 255) ${approvedPercentage}%, #f48d8d 0%)` }}>
-                                <div className="response-inner-circle2"></div>
-                                <span>{approvedPercentage}%</span>
-                            </div>
-                            <div className="response-stat-boxtext1">
-                                <h3>Đã duyệt</h3>
-                            </div>
-                            <div className="response-stat-boxcount">
-                                <p>{approvedCount} phản hồi</p>
-                            </div>
-                        </div>
-
-                        <div className="response-stat-box3">
-                            <div className="response-percentage-circle3"style={{ background: `conic-gradient(rgb(255, 255, 255) ${rejectedPercentage}%, #eaca71 0%)` }}>
-                                <div className="response-inner-circle3"></div>
-                                <span>{rejectedPercentage}%</span>
-                            </div>
-                            <div className="response-stat-boxtext1">
-                                <h3>Từ chối</h3>
-                            </div>
-                            <div className="response-stat-boxcount">
-                                <p>{rejectedCount} phản hồi</p>
-                            </div>
-                        </div>
+                        <GaugeCard
+                            percentage={pendingPercentage}
+                            width='300px'
+                            height='150px'
+                            data="Đang Chờ"
+                            number1={pendingCount}
+                            description="phản hồi"
+                            color='#ffffff'
+                            backgroundColor='#F9C5CA'
+                        />
+                        <GaugeCard
+                            percentage={approvedPercentage}
+                            width='300px'
+                            height='150px'
+                            data="Đã duyệt"
+                            number1={approvedCount}
+                            description="phản hồi"
+                            color='#ffffff'
+                            backgroundColor='#B0D1D8'
+                        />
                     </div>
                 </div>
             </div>

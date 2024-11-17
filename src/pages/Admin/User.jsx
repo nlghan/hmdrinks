@@ -8,6 +8,7 @@ import Menu from '../../components/Menu/Menu';
 import FormAddUser from '../../components/Form/FormAddUser';
 import FormDetailsUser from '../../components/Form/FormDetailsUser';
 import FormUpdateUser from '../../components/Form/FormUpdateUser';
+import GaugeCard from '../../components/Card/GaugeCardRes';
 
 
 const User = () => {
@@ -37,6 +38,14 @@ const User = () => {
     const boxRef = useRef(null);
     const [selectedType, setSelectedType] = useState('all');
 
+    const [pendingCount, setPendingCount] = useState(0);
+    const [approvedCount, setApprovedCount] = useState(0);
+    const [rejectedCount, setRejectedCount] = useState(0);
+
+    const [adminPercentage, setAdminPercentage] = useState(0);
+    const [customerPercentage, setCustomerPercentage] = useState(0);
+    const [shipperPercentage, setShipperPercentage] = useState(0);
+
     const getUserIdFromToken = (token) => {
         try {
             const payload = token.split('.')[1];
@@ -58,7 +67,7 @@ const User = () => {
         setSelectedType(selectedRole);  // Update selected role state
         fetchUsers(1, 7, selectedRole);  // Call fetchUsers with the selected role
     };
-    
+
 
     const fetchUsers = async (page, limit, role = 'all') => {
         try {
@@ -67,15 +76,15 @@ const User = () => {
                 setError("Bạn cần đăng nhập để xem thông tin này.");
                 return;
             }
-    
+
             const userId = getUserIdFromToken(token);
             if (!userId) {
                 setError("Không thể lấy userId từ token.");
                 return;
             }
-    
-            let url = ''; 
-    
+
+            let url = '';
+
             // Check if the role is 'all', then use the first API for all users
             if (role === 'all') {
                 url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
@@ -83,54 +92,106 @@ const User = () => {
                 // Otherwise, fetch users based on the specific role (ADMIN, USER, SHIPPER, etc.)
                 url = `http://localhost:1010/api/admin/listUser-role?page=${page}&limit=${limit}&role=${role}`;
             }
-    
+
             const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             console.log('Response data:', response.data);
-    
+
             const data = response.data;
             const userData = data.detailUserResponseList;
-    
+
             // Check if the userData is empty
             if (!userData || userData.length === 0) {
                 // setError("Không tìm thấy người dùng với tiêu chí tìm kiếm.");
                 setUsers([]); // Clear users list if empty
                 return; // Exit early if no users found
             }
-    
+
             setUsers(userData);
             setCurrentPage(data.currentPage);
             setTotalPage(data.totalPage);
             setLimit(data.limit);
-    
+
             const initialSwitchStates = {};
             userData.forEach(user => {
                 initialSwitchStates[user.userId] = user.isDelete === false;
             });
             setSwitches(initialSwitchStates);
-    
-            // Count the users based on their roles
-            const adminCount = userData.filter(user => user.role === 'ADMIN').length;
-            const customerCount = userData.filter(user => user.role === 'USER').length;
-            const shipperCount = userData.filter(user => user.role === 'SHIPPER').length;
-            const totalUsers = userData.length;
-    
-            setAdminCount(adminCount);
-            setCustomerCount(customerCount);
-            setShipperCount(shipperCount);
-            setTotalUsers(totalUsers);
-    
+
         } catch (error) {
             console.error('Error fetching users:', error);
             setError("Không thể lấy thông tin người dùng.");
         }
     };
+
+
+    const fetchTotalCounts = async () => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                console.log("No access token found.");
+                return;
+            }
     
+            const firstPageUrl = `http://localhost:1010/api/admin/listUser?page=1&limit=${limit}`; // Lấy trang đầu tiên
+            console.log("Fetching first page:", firstPageUrl);
+            const firstPageResponse = await axios.get(firstPageUrl, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
     
+            const totalPages = firstPageResponse.data.totalPage; // Lấy tổng số trang
+            console.log('Total Pages:', totalPages); // Kiểm tra tổng số trang
+            let allUsers = [];
+    
+            // Lặp qua tất cả các trang để lấy dữ liệu
+            for (let page = 1; page <= totalPages; page++) {
+                const url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
+                console.log(`Fetching page ${page}:`, url);
+                const response = await axios.get(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                console.log(`Response for page ${page}:`, response.data); // Kiểm tra phản hồi cho từng trang
+                allUsers = allUsers.concat(response.data.detailUserResponseList || []);
+            }
+    
+            // Tính toán số lượng người dùng theo vai trò
+            const adminCount = allUsers.filter(user => user.role === 'ADMIN').length;
+            const customerCount = allUsers.filter(user => user.role === 'CUSTOMER').length;
+            const shipperCount = allUsers.filter(user => user.role === 'SHIPPER').length;
+            const totalUsers = allUsers.length;
+    
+            setAdminCount(adminCount);
+            setCustomerCount(customerCount);
+            setShipperCount(shipperCount);
+    
+            // Tính toán phần trăm
+            const adminPercentage = totalUsers ? ((adminCount / totalUsers) * 100).toFixed(0) : 0;
+            const customerPercentage = totalUsers ? ((customerCount / totalUsers) * 100).toFixed(0) : 0;
+            const shipperPercentage = totalUsers ? ((shipperCount / totalUsers) * 100).toFixed(0) : 0;
+    
+            setAdminPercentage(adminPercentage);
+            setCustomerPercentage(customerPercentage);
+            setShipperPercentage(shipperPercentage);
+    
+        } catch (error) {
+            console.error('Error fetching total counts:', error);
+            setError("Không thể lấy thông tin tổng số lượng người dùng.");
+            console.log("Error details:", error.response ? error.response.data : error.message);
+        }
+    };
+    
+    useEffect(() => {
+        fetchTotalCounts(); // Gọi hàm fetchTotalCounts khi component được mount
+    }, []);
 
     useEffect(() => {
         fetchUsers(currentPage, limit);
@@ -150,32 +211,56 @@ const User = () => {
         setUsers(prevUsers => [...prevUsers, formData]);
     };
 
-    const handleSwitchChange = (userId) => {
-        const userToUpdate = users.find(user => user.userId === userId);
+    const handleSwitchChange = async (userId) => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để thực hiện thao tác này.");
+                return;
+            }
 
-        const newIsDeletedStatus = !userToUpdate.isDelete;
+            // Find the user in the current users state
+            const userToUpdate = users.find(user => user.userId === userId);
+            if (!userToUpdate) {
+                console.error("No user found with the given userId:", userId);
+                return;
+            }
 
-        const updatedUsers = users.map((user) =>
-            user.userId === userId ? { ...user, isDelete: newIsDeletedStatus } : user
-        );
+            // Determine the correct API endpoint based on isDelete status
+            const apiUrl = userToUpdate.isDelete
+                ? 'http://localhost:1010/api/user/enable'
+                : 'http://localhost:1010/api/user/disable';
 
-        setUsers(updatedUsers);
+            const newIsDeletedStatus = !userToUpdate.isDelete;
 
-        const token = getCookie('access_token');
-        if (token) {
-            axios.put(`http://localhost:1010/api/admin/update-account`, {
-                userId: userId,
-                isDeleted: newIsDeletedStatus,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            // Send the request to enable or disable the user
+            const response = await axios.put(
+                apiUrl,
+                { id: userId }, // Send the userId in the request body
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
                 }
-            }).then(response => {
-                console.log("Cập nhật thành công:", response.data);
-            }).catch(error => {
-                console.error("Lỗi cập nhật:", error);
-                setUsers(users);
-            });
+            );
+
+            // If the API call is successful, update the local state
+            if (response.status === 200) {
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user.userId === userId
+                            ? { ...user, isDelete: newIsDeletedStatus }
+                            : user
+                    )
+                );
+                console.log(`User with ID ${userId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`);
+            } else {
+                setError("Không thể thay đổi trạng thái người dùng. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error("Error changing user status:", error);
+            setError("Không thể thay đổi trạng thái người dùng. Vui lòng thử lại.");
         }
     };
 
@@ -246,9 +331,6 @@ const User = () => {
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const adminPercentage = totalUsers ? ((adminCount / totalUsers) * 100).toFixed(0) : 0;
-    const customerPercentage = totalUsers ? ((customerCount / totalUsers) * 100).toFixed(0) : 0;
-    const shipperPercentage = totalUsers ? ((shipperCount / totalUsers) * 100).toFixed(0) : 0;
 
     return (
         <div className="user-table">
@@ -270,21 +352,21 @@ const User = () => {
                 <div className="user-main-section">
                     <div className="user-box">
                         <div className="header-user-box">
-                        <h2>Danh Sách Người Dùng</h2>
+                            <h2>Danh Sách Người Dùng</h2>
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm người dùng..."
                                 className="search-user-input"
                                 onChange={handleSearchChange}
                                 id="search-user"
-                               
-                            />                        
+
+                            />
                             <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '40%', borderRadius: '20px' }}>
-                                    <option value="all">Tất cả</option>
-                                    <option value="ADMIN">Quản trị viên</option>
-                                    <option value="CUSTOMER">Khách hàng</option>
-                                    <option value="SHIPPER">Nhân viên</option>
-                                </select>
+                                <option value="all">Tất cả</option>
+                                <option value="ADMIN">Quản trị viên</option>
+                                <option value="CUSTOMER">Khách hàng</option>
+                                <option value="SHIPPER">Nhân viên</option>
+                            </select>
                             <button className="add-user-btn" onClick={handleAddUserClick}>
                                 <i className="ti-plus"></i>
                             </button>
@@ -320,10 +402,10 @@ const User = () => {
                                         </td>
                                         <td>
                                             <div className="user-button-container">
-                                                <button id="user-update-btn3"  onClick={() => handleDetailsClick(user)}>
+                                                <button id="user-update-btn3" onClick={() => handleDetailsClick(user)}>
                                                     <i className="ti-info-alt"></i> {/* Themify icon for details */}
                                                 </button>
-                                                <button id="user-update-btn1"   onClick={() => handleUpdateClick(user)}>
+                                                <button id="user-update-btn1" onClick={() => handleUpdateClick(user)}>
                                                     <i className="ti-pencil"></i> {/* Themify icon for update */}
                                                 </button>
 
@@ -373,55 +455,37 @@ const User = () => {
                 </div>
 
                 <div className="user-stats-section">
+                    <GaugeCard
+                        percentage={adminPercentage}
+                        width='300px'
+                        height='150px'
+                        data="ADMIN"
+                        number1={adminCount}
+                        description="người dùng"
+                        color='#ffffff'
+                        backgroundColor='#FED8D7'
+                    />
+                    <GaugeCard
+                        percentage={customerPercentage}
+                        width='300px'
+                        height='150px'
+                        data="CUSTOMER"
+                        number1={customerCount}
+                        description="người dùng"
+                        color='#ffffff'
+                        backgroundColor='#F0D8BC'
+                    />
+                    <GaugeCard
+                        percentage={shipperPercentage}
+                        width='300px'
+                        height='150px'
+                        data="SHIPPER"
+                        number1={shipperCount}
+                        description="người dùng"
+                        color='#ffffff'
+                        backgroundColor='#CFE9E8'
+                    />
 
-                    <div className="user-stat-box1">
-                        <div className="user-percentage-circle">
-                            <div className="user-inner-circle"></div>
-                            <span>{adminPercentage}%</span>
-                        </div>
-                        <div className="user-stat-boxicon"></div>
-                        <div className="user-stat-boxtext1">
-                            <h3>ADMIN</h3>
-                        </div>
-                        <div className="user-stat-boxcount">
-                            <h4>{adminCount}</h4>
-                        </div>
-                        <div className="user-stat-boxdetails">
-                            <h5>Last 24 Hours</h5>
-                        </div>
-                    </div>
-                    <div className="user-stat-box2">
-                        <div className="user-percentage-circle2">
-                            <div className="user-inner-circle2"></div>
-                            <span>{customerPercentage}%</span>
-                        </div>
-                        <div className="user-stat-boxicon"></div>
-                        <div className="user-stat-boxtext1">
-                            <h3>CUSTOMER</h3>
-                        </div>
-                        <div className="user-stat-boxcount">
-                            <h4>{customerCount}</h4>
-                        </div>
-                        <div className="user-stat-boxdetails">
-                            <h5>Last 24 Hours</h5>
-                        </div>
-                    </div>
-                    <div className="user-stat-box3">
-                        <div className="user-percentage-circle3">
-                            <div className="user-inner-circle3"></div>
-                            <span>{shipperPercentage}%</span>
-                        </div>
-                        <div className="user-stat-boxicon"></div>
-                        <div className="user-stat-boxtext1">
-                            <h3>SHIPPER</h3>
-                        </div>
-                        <div className="user-stat-boxcount">
-                            <h4>{shipperCount}</h4>
-                        </div>
-                        <div className="user-stat-boxdetails">
-                            <h5>Last 24 Hours</h5>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

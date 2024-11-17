@@ -375,6 +375,65 @@ const Product = () => {
         }
     };
 
+    const handleSwitchChange = async (productId) => {
+        try {
+            const token = Cookies.get('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để thực hiện thao tác này.");
+                return;
+            }
+
+            // Find the product in the current products state
+            const productToUpdate = products.find(product => product.proId === productId);
+            if (!productToUpdate) {
+                console.error("No product found with the given productId:", productId);
+                return;
+            }
+
+            // Determine the correct API endpoint based on isDeleted status
+            const apiUrl = productToUpdate.deleted
+                ? `${import.meta.env.VITE_API_BASE_URL}/product/enable`
+                : `${import.meta.env.VITE_API_BASE_URL}/product/disable`;
+
+            const newIsDeletedStatus = !productToUpdate.deleted;
+
+            // Send the request to enable or disable the product
+            const response = await axios.put(
+                apiUrl,
+                { id: productId },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // If the API call is successful, update the local state
+            if (response.status === 200) {
+                setProducts((prevProducts) =>
+                    prevProducts.map((product) =>
+                        product.proId === productId
+                            ? {
+                                ...product,
+                                deleted: newIsDeletedStatus,
+                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                            }
+                            : product
+                    )
+                );
+                console.log(
+                    `Product with ID ${productId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
+                );
+            } else {
+                setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error("Error changing product status:", error);
+            setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+        }
+    };
+
     if (loading) {
         return <LoadingAnimation />;
     }
@@ -401,7 +460,7 @@ const Product = () => {
             }
 
             const startPage = Math.max(2, currentPage - 1); // Bắt đầu từ trang thứ 2 hoặc trang hiện tại -1
-            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối ho���c trang hiện tại +1
+            const endPage = Math.min(totalPages - 1, currentPage + 1); // Kết thúc ở trang trước cuối hoặc trang hiện tại +1
 
             for (let i = startPage; i <= endPage; i++) {
                 paginationNumbers.push(i);
@@ -423,34 +482,6 @@ const Product = () => {
             setCurrentPage(newPage); // Thay đổi trang
         }
     };
-
-    const handleSwitchChange = (proId) => {
-        // Tìm sản phẩm cần cập nhật
-        const productToUpdate = products.find(product => product.proId === proId);
-        if (!productToUpdate) {
-            setError("Không tìm thấy sản phẩm.");
-            return;
-        }
-
-        // Nếu isDeleted = true thì không thể thay đổi trạng thái
-        if (productToUpdate.deleted) {
-            setError("Sản phẩm đã bị xóa. Không thể kích hoạt lại.");
-            return;
-        }
-
-        // Đảo ngược trạng thái isDeleted
-        const newIsDeletedStatus = !productToUpdate.deleted;
-
-        // Cập nhật trạng thái cho switch
-        const updatedProducts = products.map(product =>
-            product.proId === proId ? { ...product, deleted: newIsDeletedStatus } : product
-        );
-
-        setProducts(updatedProducts);
-    };
-
-
-
 
     return (
         <div className="product-page">
@@ -556,14 +587,13 @@ const Product = () => {
                                             </td>
                                             <td>{product.description}</td>
                                             <td>
-                                                <label className="cate-switch">
+                                                <label className="pro-switch">
                                                     <input
                                                         type="checkbox"
-                                                        checked={!product.deleted} // Checkbox sẽ checked nếu isDeleted là false
-                                                        onChange={() => handleSwitchChange(product.proId)}
-                                                        disabled={!activeProducts.includes(product.proId)} // Vô hiệu hóa switch nếu sản phẩm không còn active
+                                                        checked={product.deleted === false} // Checkbox sẽ checked nếu isDeleted là false
+                                                        onChange={() => handleSwitchChange(product.proId)}                                
                                                     />
-                                                    <span className="cate-slider round"></span>
+                                                    <span className="pro-slider round"></span>
                                                 </label>
                                             </td>
 

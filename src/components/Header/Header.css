@@ -10,7 +10,8 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng cho header */
   height: 60px; /* Chiều cao của header */
   margin-bottom: 10px;
-
+  margin-top: -20px;
+  margin-left: -20px
 }
 
 .flex-header {

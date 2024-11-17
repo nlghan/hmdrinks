@@ -104,7 +104,52 @@
   text-align: left;
   border-bottom: 1px solid #ccc;
 }
+.post-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; 
+  height: 20px; 
+  margin-left: 5px;
+  margin-top: 15px;
+}
 
+.post-switch input {
+  opacity: 0; 
+  width: 0;
+  height: 0;
+}
+
+.post-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #a25d5d; 
+  transition: .4s; 
+  border-radius: 20px;
+}
+
+.post-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; 
+  width: 16px; 
+  left: 2px;
+  bottom: 2px;
+  background-color: white; 
+  transition: .4s; 
+  border-radius: 50%; 
+}
+
+input:checked + .post-slider {
+  background-color: #4CAF50; 
+}
+
+input:checked + .post-slider:before {
+  transform: translateX(20px); 
+}
 .post-content {
   width: 100%;
 }

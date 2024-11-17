@@ -10,6 +10,7 @@ import AboutShipper from './pages/Shipper/AboutShipper';
 import ContactShipper from './pages/Shipper/ContactShipper';
 import InfoShipper from './pages/Shipper/InfoShipper';
 import Dashboard from './pages/Admin/Dashboard';
+import Analytics from './pages/Admin/Analytics';
 import User from './pages/Admin/User';
 import Info from './pages/Info/Info';
 import About from "./pages/About/About";
@@ -82,6 +83,7 @@ const App = () => {
             <Route path="/login" element={<LoginRedirect />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/analytics" element={<Analytics/>} />
             <Route path="/user" element={<User />} />
             <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
             <Route path="/shipper-info" element={isLoggedIn ? <InfoShipper /> : <Navigate to="/login" />} />
