@@ -48,7 +48,7 @@ const Analytics = () => {
                     backgroundColor='#f9f9f9'
                 />
                 <HorizontalBars 
-                    width={500}
+                    width={600}
                     height={400}
                     data={sampleData}
                 />
