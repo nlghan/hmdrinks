@@ -23,7 +23,7 @@ const HorizontalBars = ({ width, height, data }) => {
         <BarChart
           className="bar-chart"
           dataset={data}
-          yAxis={[{ scaleType: 'band', dataKey: 'product' }]}
+          yAxis={[{ scaleType: 'band', dataKey: 'product',  }]}
           series={[
             {
               dataKey: 'userFav',
@@ -33,8 +33,10 @@ const HorizontalBars = ({ width, height, data }) => {
             },
           ]}
           layout="horizontal"
+          margin={{ left: 115, right: 20, top: 20, bottom: 20 }} // Thêm khoảng trống bên trái
           {...chartSetting}
         />
+
       </div>
     </div>
   );

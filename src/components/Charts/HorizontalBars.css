@@ -18,10 +18,10 @@
 
 .horizontal-chart-container {
     width: 100%; /* Chiều rộng của biểu đồ */
-    max-width: 500px; /* Chiều rộng tối đa */
+    max-width: 600px; /* Chiều rộng tối đa */
     border-radius: 8px; /* Bo góc cho biểu đồ */
     overflow: visible; /* Đảm bảo không ẩn các phần thừa */
-    padding-left: 50px;
+    padding-left: 20px;
     padding-right: 20px; /* Thêm padding bên phải nếu cần */
     padding-top: 20px; /* Thêm padding trên cùng nếu cần */
     padding-bottom: 20px; /* Thêm padding dưới cùng nếu cần */
