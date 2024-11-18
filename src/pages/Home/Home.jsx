@@ -17,11 +17,23 @@ const Home = () => {
     const [categories, setCategories] = useState([]);
     const [visiblePosts, setVisiblePosts] = useState(3);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [showLoginPromptMess, setShowLoginPromptMess] = useState('');
     const postRefs = useRef([]);
     const categoryRefs = useRef([]); // Refs for categories
     const navigate = useNavigate();
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const h2Refs = useRef([]);
+    const getUserIdFromToken = (token) => {
+        try {
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
+            return decodedPayload.UserId;
+        } catch (error) {
+            console.error("Cannot decode token:", error);
+            return null;
+        }
+    };
+
 
     const banners = [
         {
@@ -74,8 +86,8 @@ const Home = () => {
     const handleCategoryClick = (categoryId) => {
         navigate('/menu', { state: { selectedCategoryId: categoryId } }); // Truyền state qua navigate
     };
-    
-    
+
+
 
     useEffect(() => {
         // Auto-slide setup for banners
@@ -141,6 +153,7 @@ const Home = () => {
     const handleDetailsClick = (postId) => {
         const token = getCookie('access_token');
         if (!token) {
+            setShowLoginPromptMess('Bạn cần đăng nhập để xem chi tiết bài đăng')
             setShowLoginPrompt(true);
         } else {
             navigate(`/marketing/${postId}`);
@@ -220,6 +233,7 @@ const Home = () => {
         if (!userId) {
             setIsLoading(false);
             setShowLoginPrompt(true);
+            setShowLoginPromptMess("Bạn cần đăng nhập để gửi góp ý.");
         } else {
             const contactData = {
                 userId: userId,
@@ -255,6 +269,8 @@ const Home = () => {
             }
         }
     };
+
+
 
 
     // Thêm refs
@@ -476,7 +492,7 @@ const Home = () => {
                 {showLoginPrompt && (
                     <div className="login-modal">
                         <div className="login-modal-content">
-                            <p>Bạn cần đăng nhập để xem chi tiết bài đăng.</p>
+                            <p>{showLoginPromptMess}</p> {/* Display the message */}
                             <a href="/login">Đăng nhập</a>
                             <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
                         </div>
