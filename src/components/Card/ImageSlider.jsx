@@ -25,11 +25,11 @@ const ImageSlider = ({ images }) => {
 
     return (
         <div className="slider-container">
-            <button className="slider-button" onClick={prevSlide}>❮</button>
+            <button className="slider-button" onClick={prevSlide}><i className='ti-arrow-left'/></button>
             <div className="slide" style={{ backgroundImage: `url(${images[currentIndex]})` }}>
                 {/* You can add more content here if needed */}
             </div>
-            <button className="slider-button" onClick={nextSlide}>❯</button>
+            <button className="slider-button" onClick={nextSlide}><i className='ti-arrow-right'/></button>
         </div>
     );
 };

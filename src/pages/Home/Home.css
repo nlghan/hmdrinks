@@ -11,6 +11,12 @@
     padding: 20px;
 }
 
+.home-content h2{
+    font-size: 36px;
+    margin-bottom: 40px;
+    font-family: "Pacifico", cursive;
+}
+
 .post-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* Display 3 PostCards per row */
@@ -28,6 +34,7 @@
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin-top: 40px;
 }
 
 .view-more-btn:hover {
@@ -97,6 +104,257 @@
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
+/* General Banner Styling */
+.home-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px;
+    background-color: #fbe0dc; /* Default background color */
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover; /* Ensure background image covers the whole container */
+    background-position: center; /* Keep the background centered */
+}
+
+.home-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(239, 235, 235, 0.7); /* Semi-transparent overlay */
+    z-index: 1; /* Overlay sits above smoke but behind content */
+}
+
+.home-banner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: -30%; /* Start the smoke slightly below */
+    background: url('../../assets/img/snow.png'); /* Replace with your smoke image path */
+    background-size: cover; /* Ensure smoke image covers the whole container */
+    opacity:0.7; /* Transparent smoke effect */
+    animation: marquee1 60s linear infinite; /* Smoke animation */
+    z-index: 0; /* Smoke sits behind the overlay */
+}
+
+@keyframes marquee1 {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-80%);
+    }
+}
+
+
+/* Content on the Left */
+.banner-content-home {
+    max-width: 50%;
+    z-index: 2; /* Keep content on top */
+    padding: 60px;
+}
+
+.banner-content-home h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #080808;
+    margin-bottom: 20px;
+    font-family: 'Pacifico';
+}
+
+.banner-content-home p {
+    font-size: 1.2rem;
+    color: #111111;
+    margin-bottom: 30px;
+}
+
+.banner-content-home button {
+    padding: 12px 20px;
+    background-color: #77a464; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.banner-content-home button:hover {
+    background-color: #678a54; /* Darker green on hover */
+}
+
+/* Banner Image on the Right */
+.banner-image {
+    max-width: 45%;
+    height: auto;
+    margin-right: 4%;
+    margin-top: 0px !important;
+    border-radius: 20px; 
+}
+
+/* Arrow Navigation */
+/* Nút chuyển (Arrow Button) */
+.banner-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-20%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.banner-arrow:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+}
+
+/* Mũi tên trái */
+.banner-arrow-left {
+    left: 20px;
+}
+
+/* Mũi tên phải */
+.banner-arrow-right {
+    right: 20px;
+}
+
+/* Biểu tượng bên trong nút */
+.banner-arrow i {
+    font-size: 1.5rem;
+    color: #a4646a; /* Màu xanh lá cây */
+    transition: color 0.3s ease;
+}
+
+.banner-arrow:hover i {
+    color: #4a7a3a; /* Đậm màu hơn khi hover */
+}
+
+
+/* Index Indicators */
+.banner-indicator {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2;
+    font-size: 1rem;
+    color: #888;
+    text-align: center;
+}
+
+.banner-indicator span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+/* Fade-in effect */
+.fade-in {
+  opacity: 0;
+  animation: fadeInAnimation 2s forwards;
+}
+
+/* Define the fadeInLeft animation */
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%); /* Start from left outside the screen */
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0); /* End at normal position */
+    }
+}
+
+/* Apply fadeInLeft to banner content */
+.fadeInLeft {
+    animation: fadeInLeft 1s ease-out; /* 1s duration, ease-out timing function */
+}
+
+
+
+/* Zoom-out effect (from large to small) */
+@keyframes zoomOut {
+    from {
+        opacity: 1;  /* Start fully visible */
+        transform: scale(1.3); /* Start larger */
+    }
+    to {
+        opacity: 1;  /* Ensure it stays fully visible */
+        transform: scale(1); /* End at normal size */
+    }
+}
+
+.zoom-out {
+    animation: zoomOut 1.3s ease forwards; /* 'forwards' ensures final state is retained */
+}
+
+.banner-btn{
+    width: 50%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+
+
+/* The actual fade-in animation */
+@keyframes fadeInAnimation {
+  to {
+    opacity: 1;
+  }
+}
+
+/* This will apply the fade effect to the content and image */
+.banner-content-home, .banner-image {
+    opacity: 1;
+}
+
+.banner-content-home.visible, .banner-image.visible {
+  opacity: 1;
+
+}
+
+
+
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Hidden Elements Appear Animation */
+.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
 @keyframes fadeInUp {
     0% {
         opacity: 0;
@@ -120,6 +378,96 @@
 .post-card-wrapper:nth-child(3n + 3) {
     animation-delay: 0.4s;
 }
+
+/* Categories Section */
+.categories-home-section {
+    margin: 40px 20px;
+    text-align: center;
+}
+
+.categories-home-section h2 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 36px;
+    margin-bottom: 40px;
+    font-family: "Pacifico", cursive;
+}
+
+.categories-home-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 5 columns per row */
+    gap: 30px; /* Space between cards */
+    padding: 0 100px; /* Optional padding for better alignment */
+}
+
+.category-card {
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+    color: #000000; /* Ensure text is white for better contrast */
+    font-size: 25px;
+}
+
+/* Animation for categories */
+.category-card {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.category-card.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.category-card:hover {
+    transform: scale(1.005) !important; /* Slight zoom effect */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+
+/* Background Colors */
+.bg-0 {
+    background-color: #fedbd3; /* Vibrant Orange */
+}
+
+.bg-1 {
+    background-color: #d0e9f8; /* Bright Blue */
+}
+
+.bg-2 {
+    background-color: #e1f8c6; /* Fresh Green */
+}
+
+.bg-3 {
+    background-color: #f6e6c5; /* Warm Yellow */
+}
+
+.bg-4 {
+    background-color: #f9ddfe; /* Vibrant Purple */
+}
+
+
+.category-image {
+    width: 100%;
+    height: 300px; /* Fixed height for uniform cards */
+    object-fit: cover;
+    border-bottom: 1px solid #ddd; /* Optional divider below image */
+}
+
+.category-title {
+    font-size: 25px;
+    font-weight: bold;
+    padding: 10px 0;
+    text-transform: capitalize; /* Capitalize the first letter */
+    text-align: center;
+    font-family: 'Inter';
+}
+
+
 /* Responsive adjustments for post grid */
 @media (max-width: 1024px) {
     .post-grid {
@@ -169,3 +517,155 @@
         padding: 15px; /* Adjust padding for smaller screens */
     }
 }
+
+.categories-home-section h2,
+.home-content h2 {
+    opacity: 0;
+    transform: translateY(20px);
+}
+.opening-hours {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #f8fbfe;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    flex-direction: column;
+}
+
+.opening-hours .hour-content {
+    flex: 1;
+}
+
+.opening-hours h2 {
+    font-size: 36px;
+    margin-bottom: 40px;
+    font-family: "Pacifico", cursive;
+    margin-top: 40px;
+}
+
+.opening-hours p {
+    color: #34495e;
+    font-size: 30px;
+    margin: 0;
+
+}
+
+.opening-hours strong {
+    color: #2980b9;
+}
+
+.opening-hours .hour-image img {
+    max-width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.opening-container{
+    display: flex;
+    flex-direction: row;
+    gap:100px
+}
+
+.feedback-section {
+    position: relative; /* Để lớp phủ được đặt đúng */
+    background-image: url('../../assets/img/banner5.png'); /* Đường dẫn tới ảnh nền */
+    background-size: cover;
+    background-position: center;
+    padding: 50px 20px;
+    text-align: center;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden; /* Đảm bảo lớp phủ không bị tràn */
+  }
+  
+  .feedback-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Màu đen với độ mờ 50% */
+    z-index: 1; /* Đặt lớp phủ bên dưới nội dung */
+  }
+  
+  .feedback-section h2,
+  .feedback-container {
+    position: relative; /* Để nội dung nằm trên lớp phủ */
+    z-index: 2;
+  }
+  
+  
+  .feedback-section h2 {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    font-family: 'Pacifico';
+    color:#fef0af;
+  }
+  
+  .feedback-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .feedback-item {
+    flex: 1 1 300px;
+    max-width: 300px;
+    text-align: center;
+  }
+  /* Initial state: hidden and translate down */
+.feedback-item {
+    opacity: 0;
+    transform: translateY(50px); /* Start slightly below */
+    transition: opacity 1s ease, transform 1s ease; /* Smooth transition */
+}
+
+/* Fade-in and slide-up effect */
+.feedback-item.visible {
+    opacity: 1; /* Fully visible */
+    transform: translateY(0); /* Reset position */
+}
+
+  
+  .feedback-circle {
+    background-color: rgba(255, 255, 255, 0.8); /* Màu nền trắng mờ */
+    border-radius: 50%;
+    padding: 70px 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  .feedback-circle p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .feedback-circle span {
+    font-weight: bold;
+    font-size: 14px;
+    color: #ff6347;
+  }
+  
+
+
+  .contact-home-submit-btn{
+    width: 300px !important;
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    margin-top: 0px;
+  }
+
+  #contact-home{
+    font-size: 36px;
+    font-family: 'Pacifico';
+  }

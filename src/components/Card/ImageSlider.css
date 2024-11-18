@@ -1,3 +1,4 @@
+/* Container for the image slider */
 .slider-container {
     position: relative;
     width: 100%;
@@ -7,14 +8,7 @@
     background-color: rgb(249, 249, 249);
 }
 
-.slide {
-    width: 100%;
-    height: 100%;
-    background-size: cover; /* Cover the entire area */
-    background-position: center; /* Center the background image */
-    transition: background-image 0.5s ease; /* Smooth transition */
-}
-
+/* Ensure the buttons are hidden by default */
 .slider-button {
     position: absolute;
     top: 50%;
@@ -25,16 +19,35 @@
     padding: 10px;
     border-radius: 50%;
     z-index: 10; /* Ensure buttons are above images */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease-in-out; /* Smooth transition */
 }
 
+/* Positioning the left button */
 .slider-button:first-of-type {
     left: 10px; /* Position left button */
 }
 
+/* Positioning the right button */
 .slider-button:last-of-type {
     right: 10px; /* Position right button */
 }
 
+/* Show the buttons when the slider container is hovered */
+.slider-container:hover .slider-button {
+    opacity: 1; /* Make buttons visible when hovered */
+}
+
+/* Button hover effect */
 .slider-button:hover {
     background-color: rgba(255, 255, 255, 1); /* Solid background on hover */
+}
+
+/* Slide div to hold the background image */
+.slide {
+    width: 100%;
+    height: 100%;
+    background-size: cover; /* Cover the entire area */
+    background-position: center; /* Center the background image */
+    transition: background-image 0.5s ease; /* Smooth transition */
 }
