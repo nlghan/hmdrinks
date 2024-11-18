@@ -80,12 +80,12 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
                         <li>Phản hồi</li>
                     </div>
                     <div className='menu-and-user'>
-                        <i className='ti-image' />
-                        <li>Analytics</li>
+                        <i className='ti-image' onClick={() => navigate('/analytics')}/>
+                        <li>Thống kê</li>
                     </div>
                     <div className='menu-and-user' onClick={handleLogout}>
                         <i className='ti-back-left' />
-                        <li>Logout</li>
+                        <li>Đăng xuất</li>
                     </div>
                 </ul>
             </div>

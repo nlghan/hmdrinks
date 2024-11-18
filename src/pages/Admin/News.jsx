@@ -614,15 +614,14 @@ const News = () => {
                                                 {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '100px', height: '100px' }} /> : 'No Image'}
                                             </td>
                                             <td>
-                                                <label className="cate-switch">
+                                                <label className="post-switch">
                                                     <input
                                                         type="checkbox"
                                                         checked={!post.isDeleted} // Checked if post is not deleted
                                                         onChange={() => handleSwitchChange(post.postId)} // Pass function reference
                                                     />
-                                                    <span className="cate-slider round"></span>
+                                                    <span className="post-slider round"></span>
                                                 </label>
-
 
                                             </td>
 

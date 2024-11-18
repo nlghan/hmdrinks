@@ -33,7 +33,8 @@
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-    margin-left: 40px;
+    margin-top: 20px;
+    margin-left: 70px;
 }
 
 .response-table::before {
@@ -51,7 +52,7 @@
     display: flex;
     justify-content: space-between;   
     z-index: 1;
-    margin-left: 30px;
+    margin-left: 10px;
     height: 85%;
 }
 
@@ -63,16 +64,16 @@
 
 .response-stats-section {
     display: flex;
-    gap: 10px;
+    gap: 60px;
     flex-direction: column;
     margin-left: 10px;
-    position: relative;
+    margin-top: 30px;
     width: 400px;
 }
 
 .response-box {
     flex: 1;
-    background-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

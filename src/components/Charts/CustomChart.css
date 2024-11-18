@@ -1,0 +1,27 @@
+.custom-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Căn giữa các thành phần */
+    margin: 20px; /* Khoảng cách xung quanh biểu đồ */
+    background-color: rgba(255, 255, 255, 0.90);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px; /* Bo góc cho biểu đồ */
+    position: relative; /* Đặt vị trí tương đối cho container */
+    padding: 20px; /* Thêm padding để chứa nội dung */
+}
+
+.custom-chart-title {
+    font-size: 1.5rem; /* Kích thước chữ cho tiêu đề */
+    margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
+    color: #333; /* Màu chữ */
+}
+
+.custom-chart-container {
+    width: 100%; /* Chiều rộng của biểu đồ */
+    max-width: 700px; /* Chiều rộng tối đa */
+    border-radius: 8px; /* Bo góc cho biểu đồ */
+    overflow: visible; /* Đảm bảo không ẩn các phần thừa */
+    position: relative; /* Đặt vị trí tương đối để sử dụng z-index */
+    z-index: 1; /* Đặt z-index cho container */
+    background-color: rgba(255, 255, 255, 0); /* Màu nền trong suốt */
+} 

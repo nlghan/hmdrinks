@@ -37,8 +37,8 @@
 }
 
 .list-cate-box {
-  flex: 1;
-    background-color: #ffffff;
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -112,7 +112,9 @@
   transition: background-color 0.3s;
   margin-left: 480px; /* Adjust margin as needed */
 }
-
+.updates-box {
+  background-color: rgba(255, 255, 255, 0.95);
+}
 
 .updates-box h2 {
   justify-content: center;
@@ -168,7 +170,7 @@
 
 .list-cate-box {
   flex: 1;
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -220,8 +222,10 @@
   .cate-switch {
     position: relative;
     display: inline-block;
-    width: 50px;
-    height: 23px;
+    width: 40px; 
+    height: 20px; 
+    margin-left: 10px;
+    margin-top: 15px;
 }
 
 .cate-switch input {
@@ -232,52 +236,37 @@
 
 /* Slider */
 .cate-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc; /* Màu nền khi chưa được checked */
-    transition: .4s; /* Hiệu ứng chuyển tiếp */
-    border-radius: 34px; /* Bo tròn */
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc; 
+  transition: .4s; 
+  border-radius: 20px;
 }
 
 /* Hình tròn bên trong slider */
 .cate-slider:before {
-    position: absolute;
-    content: "";
-    height: 21px;
-    width: 21px;
-    left: 4px;
-    bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%; /* Bo tròn */
+  position: absolute;
+  content: "";
+  height: 16px; 
+  width: 16px; 
+  left: 2px;
+  bottom: 2px;
+  background-color: white; 
+  transition: .4s; 
+  border-radius: 50%; 
 }
 
-/* Khi checkbox được checked */
 .cate-switch input:checked + .cate-slider {
-    background-color: #00B087; /* Màu khi checked */
+  background-color: #4CAF50; 
 }
 
-/* Di chuyển hình tròn sang bên phải khi checked */
 .cate-switch input:checked + .cate-slider:before {
-    transform: translateX(26px); /* Di chuyển hình tròn */
+    transform: translateX(20px); 
 }
-
-/* Khi checkbox bị vô hiệu hóa */
-.cate-switch input:disabled + .cate-slider {
-    background-color: #ddd; /* Màu khi switch bị vô hiệu hóa */
-    cursor: not-allowed; /* Con trỏ chuột không cho phép */
-}
-
-/* Màu khi switch bị vô hiệu hóa và checked */
-.cate-switch input:disabled:checked + .cate-slider {
-    background-color: #b0bec5;
-}
-
-
 
 .check-box-active-cate{
   margin-right: 10px;

@@ -34,7 +34,7 @@
     width: 28.5%;
     border: 1px solid #ddd;
     padding: 15px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.94);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -106,7 +106,51 @@
     content: '❤️';
     margin-right: 8px;
 }
+.pro-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px; 
+    height: 20px; 
+    margin-left: 10px;
+}
 
+.pro-switch input {
+    opacity: 0; 
+    width: 0;
+    height: 0;
+}
+
+.pro-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc; 
+    transition: .4s; 
+    border-radius: 20px;
+}
+
+.pro-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; 
+    width: 16px; 
+    left: 2px;
+    bottom: 2px;
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+}
+
+input:checked + .pro-slider {
+    background-color: #4CAF50; 
+}
+
+input:checked + .pro-slider:before {
+    transform: translateX(20px); 
+}
 /* Products Section Styling */
 /* Products Section Styling */
 /* Products Section Styling */
@@ -114,7 +158,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     table-layout: fixed; /* Distribute columns evenly */
@@ -244,7 +288,7 @@
 .product-list {
     width: 70%;
     padding-left: 20px;
-    background-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

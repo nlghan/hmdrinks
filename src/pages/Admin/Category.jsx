@@ -156,28 +156,64 @@ const Category = () => {
         }
     };
 
-    const handleSwitchChange = (cateId) => {
-        // Find the category to get its current isDeleted status
-        const categoryToUpdate = categories.find(cat => cat.cateId === cateId);
+    const handleSwitchChange = async (cateId) => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để thực hiện thao tác này.");
+                return;
+            }
 
-        // Determine the new isDeleted status
-        // The switch should be active (isDeleted: false or null) to become inactive and vice versa
-        const newIsDeletedStatus = !(categoryToUpdate.isDeleted === null || categoryToUpdate.isDeleted === false);
+            // Find the category in the current categories state
+            const categoryToUpdate = categories.find(category => category.cateId === cateId);
+            if (!categoryToUpdate) {
+                console.error("No category found with the given cateId:", cateId);
+                return;
+            }
 
-        // Update the category state on the client
-        const updatedCategories = categories.map((category) =>
-            category.cateId === cateId ? { ...category, isDeleted: newIsDeletedStatus } : category
-        );
+            // Determine the correct API endpoint based on isDeleted status
+            const apiUrl = categoryToUpdate.isDeleted
+                ? `${import.meta.env.VITE_API_BASE_URL}/cate/enable`
+                : `${import.meta.env.VITE_API_BASE_URL}/cate/disable`;
 
-        // Update categories
-        setCategories(updatedCategories);
+            const newIsDeletedStatus = !categoryToUpdate.isDeleted;
 
-        // Update the switch states to reflect the change
-        const updatedSwitchStates = {
-            ...switches,
-            [cateId]: newIsDeletedStatus // Update the switch state based on the new isDeleted status
-        };
-        setSwitches(updatedSwitchStates);
+            // Send the request to enable or disable the category
+            const response = await axios.put(
+                apiUrl,
+                { id: cateId }, // Send the cateId in the request body
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // If the API call is successful, update the local state
+            if (response.status === 200) {
+                setCategories((prevCategories) =>
+                    prevCategories.map((category) =>
+                        category.cateId === cateId
+                            ? {
+                                ...category,
+                                isDeleted: newIsDeletedStatus,
+                                // Optionally, you can add a dateDeleted field if needed
+                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                            }
+                            : category
+                    )
+                );
+                console.log(
+                    `Category with ID ${cateId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
+                );
+            } else {
+                setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error("Error changing category status:", error);
+            setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
+        }
     };
 
     const handleAddCategory = async () => {
@@ -493,7 +529,7 @@ const Category = () => {
                                                 <label className="cate-switch">
                                                     <input
                                                         type="checkbox"
-                                                        checked={switches[category.cateId] || false} // Use the state to check if it is active
+                                                        checked={category.isDeleted === false} // Use the state to check if it is active
                                                         onChange={() => handleSwitchChange(category.cateId)}
                                                     />
                                                     <span className="cate-slider round"></span>
