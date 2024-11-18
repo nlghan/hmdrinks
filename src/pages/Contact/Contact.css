@@ -205,7 +205,7 @@
   resize: vertical;
 }
 
-.contact-submit-btn {
+.contact-submit-btn1 {
   padding: 12px 30px;
   border: none;
   border-radius: 5px;
@@ -217,7 +217,7 @@
   animation-delay: 0.8s;
 }
 
-.contact-submit-btn:hover {
+.contact-submit-btn1:hover {
   background-color: #d74556;
 }
 
@@ -282,7 +282,7 @@ button[type="submit"] {
     width: 100%;
     flex: none;
   }
-  .contact-submit-btn{
+  .contact-submit-btn1{
     margin-bottom: 10px;
   }
 }
@@ -375,7 +375,7 @@ button[type="submit"] {
 .contact-form-group:nth-child(4) { animation-delay: 1s; }
 
 /* Thêm hiệu ứng cho button submit */
-.contact-submit-btn {
+.contact-submit-btn1 {
   opacity: 0;
   animation: zoomIn2 0.3s ease-out forwards;
   animation-delay: 1.1s;
