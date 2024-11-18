@@ -59,7 +59,7 @@ const Favorite = () => {
                 <div className='delete-all-button' style={{ marginBottom: '0px' }} onClick={handleDeleteAll}>Xóa tất cả</div>
                 <div className="carousel-container">
                     
-                    <button onClick={handlePrev} disabled={visibleIndex === 0} className="carousel-button">{"<"}</button>
+                    <button onClick={handlePrev} disabled={visibleIndex === 0} className="carousel-button"><i className='ti-arrow-left'/></button>
                     
                     <div className="favorites-container">
                         {favoriteItems.slice(visibleIndex, visibleIndex + itemsPerPage).map(item => (
@@ -79,7 +79,7 @@ const Favorite = () => {
                         ))}
                     </div>
 
-                    <button onClick={handleNext} disabled={visibleIndex + itemsPerPage >= favoriteItems.length} className="carousel-button">{">"}</button>
+                    <button onClick={handleNext} disabled={visibleIndex + itemsPerPage >= favoriteItems.length} className="carousel-button"><i className='ti-arrow-right'/></button>
                 </div>
             </div>
             <Footer />

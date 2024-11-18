@@ -9,9 +9,11 @@ import momo from '../../assets/img/momo.png'
 import zalo from '../../assets/img/zalo.png'
 import vn from '../../assets/img/vnpay.png'
 import payos from '../../assets/img/payos.png'
+import { useCart } from '../../context/CartContext';
 const Order = () => {
     const { state } = useLocation();
     const { orderData } = state || {};
+    const {ensureCartExists} = useCart();
 
     const [currentStep, setCurrentStep] = useState("confirmation");
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
@@ -510,6 +512,7 @@ const Order = () => {
                 // Kiểm tra phản hồi từ API
                 if (response.data.body === 'Order has been canceled') {
                     alert("Đơn hàng đã được hủy.");
+                    await ensureCartExists(userId);
                     navigate('/menu');  // Điều hướng về trang menu sau khi hủy thành công
                 } else {
                     setError("Không thể hủy đơn hàng.");
@@ -528,6 +531,7 @@ const Order = () => {
                 // Kiểm tra phản hồi từ API
                 if (response.data === 'Order cancelled successfully') {
                     alert("Đơn hàng đã được hủy.");
+                    await ensureCartExists(userId);
                     navigate('/menu');  // Điều hướng về trang menu sau khi hủy thành công
                 } else {
                     setError("Không thể hủy đơn hàng.");

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
+import { useLocation} from "react-router-dom";
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -26,6 +27,8 @@ const useDebounce = (value, delay) => {
 };
 
 const Menu = () => {
+    const location = useLocation();
+    const { selectedCategoryId: selectedCategoryIdFromHome } = location.state || {}; // Get selectedCategoryId from Home
     const { isLoggedIn } = useAuth(); // Get login status from useAuth
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -35,12 +38,17 @@ const Menu = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(8);
     const [categoryLimit] = useState(10);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(selectedCategoryIdFromHome || null); // Set initial value of selectedCategoryId
     const [searchTerm, setSearchTerm] = useState('');
     const [favoritedProIds, setFavoritedProIds] = useState([]); // State for favorited product IDs
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo(0, 0); // Scroll to the top of the page
+    }, []); // Only when the component is mounted
+
 
     const getUserIdFromToken = (token) => {
         try {
@@ -193,7 +201,7 @@ const Menu = () => {
         const quantity = 1; // Đặt số lượng mặc định là 1
         const { proId, proName, price, size, stock } = product;
 
-        
+
         // Kiểm tra xem userId có tồn tại hay không
         if (!userId) {
             setShowLoginPrompt(true); // Hiện thông báo yêu cầu đăng nhập

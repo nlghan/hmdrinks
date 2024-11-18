@@ -259,7 +259,7 @@ export const CartProvider = ({ children }) => {
             if (response.ok) {
                 console.log('Item added to cart successfully:', data);
                 // Show alert for successful addition to cart
-                alert(`${product.name} đã được thêm vào giỏ hàng!`);
+                // alert(`${product.name} đã được thêm vào giỏ hàng!`);
 
                 // Update cart items
                 setCartItems((prevItems) => {
@@ -674,7 +674,7 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout }}>
+        <CartContext.Provider value={{ cartItems, ensureCartExists,cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout }}>
             {children}
         </CartContext.Provider>
     );
