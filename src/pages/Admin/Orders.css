@@ -1,0 +1,223 @@
+.orders-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+    height: 100vh;
+    background-image: url('../../assets/img/contact.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    margin-top: 20px;
+    padding-left: 70px;
+}
+
+.orders-table-row{
+    display: flex;
+    justify-content: space-between;   
+    z-index: 1;
+    margin-left: 10px;
+    height: 100%;
+    
+}
+
+.orders-box {
+    min-height: 750px; /* Prevents shrinking */
+    padding: 20px;
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+    position: relative;
+    width: 99%;
+    
+}
+
+.table-orders {
+    width: 99%;
+    table-layout: fixed; /* Fixed table layout */
+}
+
+.table-orders th,
+.table-orders td {
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+
+
+.header-orders-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-orders-input {
+    padding: 10px;
+    border-radius: 50px !important;
+    border: 1px solid #ddd;
+    width: 30% !important;
+}
+
+.type-select {
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+}
+.table-orders {
+    width: 100%; /* Makes the table take up the full width of the container */
+    border-collapse: collapse; /* Ensures borders are merged into one line */
+    margin-top: 20px; /* Adds margin to the top of the table */
+    
+}
+
+.table-orders th, .table-orders td {
+    padding: 12px 15px; /* Adds padding inside table cells for better spacing */
+    text-align: left; /* Aligns text to the left within the cells */
+    border-bottom: 1px solid #ddd; /* Adds a light gray border between rows */
+}
+
+.table-orders th {
+    background-color: #f4f4f4; /* Light gray background color for table headers */
+    font-weight: bold; /* Makes the header text bold */
+    color: #333; /* Dark color for text in headers */
+}
+
+/* Set specific widths for each column */
+.table-orders th:nth-child(1), .table-orders td:nth-child(1) {
+    width: 8%; /* Width for the STT (Index) column */
+}
+
+.table-orders th:nth-child(2), .table-orders td:nth-child(2) {
+    width: 11%; /* Width for the Mã Đơn Hàng (Order Code) column */
+}
+
+
+
+.table-orders th:nth-child(4), .table-orders td:nth-child(4) {
+    width: 15%; /* Width for the Email column */
+}
+
+.table-orders th:nth-child(5), .table-orders td:nth-child(5) {
+    width: 10%; /* Width for the Điện Thoại (Phone Number) column */
+}
+
+.table-orders th:nth-child(6), .table-orders td:nth-child(6) {
+    width: 10%; /* Width for the Địa Chỉ (Address) column */
+}
+
+.table-orders th:nth-child(7), .table-orders td:nth-child(7) {
+    width: 10%; /* Width for the Ngày Đặt (Order Date) column */
+}
+
+.table-orders th:nth-child(8), .table-orders td:nth-child(8) {
+    width: 10%; /* Width for the Ngày Giao (Delivery Date) column */
+}
+
+.table-orders th:nth-child(9), .table-orders td:nth-child(9) {
+    width: 9%; /* Width for the Trạng Thái (Status) column */
+}
+
+/* Styling for rows */
+.table-orders tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray background for every even row */
+    
+}
+
+.table-orders tr:hover {
+    background-color: #f1f1f1; /* Slightly darker background color when hovering over a row */
+}
+
+/* Basic styling for the select dropdown */
+#select-status {
+    width: 100%;
+    padding: 5px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #fff;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Status colors for the options */
+#select-status option {
+    padding: 10px;
+}
+
+/* Custom styles for each status */
+#select-status option[value='WAITING'] {
+    background-color: #ffffff; /* Yellow for WAITING */
+    color:black;
+}
+
+#select-status option[value='SHIPPING'] {
+    background-color: #ffffff;; /* Blue for SHIPPING */
+    color:black;
+}
+
+#select-status option[value='SUCCESS'] {
+    background-color: #ffffff;; /* Green for SUCCESS */
+    color:black;
+}
+
+#select-status option[value='CANCELLED'] {
+    background-color: #ffffff;; /* Red for CANCELLED */
+    color:black;
+}
+
+
+
+.orders-button-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 18px;
+    color: #555;
+}
+
+.orders-admin-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.orders-btn {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.orders-btn-page {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.orders-btn-light {
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.orders-btn:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}

@@ -361,7 +361,7 @@ const User = () => {
                                 id="search-user"
 
                             />
-                            <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '40%', borderRadius: '20px' }}>
+                            <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '400px', borderRadius: '20px' }}>
                                 <option value="all">Tất cả</option>
                                 <option value="ADMIN">Quản trị viên</option>
                                 <option value="CUSTOMER">Khách hàng</option>
