@@ -74,4 +74,10 @@ public class ShipmentController {
     {
         return shipmentService.updateTimeShipment(req);
     }
+
+    @GetMapping("/view/{shipmentId}")
+    public ResponseEntity<?> getOneShipment(@PathVariable int shipmentId) {
+        return shipmentService.getOneShipment(shipmentId);
+    }
+
 }

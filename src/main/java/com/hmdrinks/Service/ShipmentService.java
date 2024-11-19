@@ -415,6 +415,8 @@ public class ShipmentService {
 
         return isDateShippedValid && isDateDeliveredValid;
     }
+
+
     public ResponseEntity<?> updateTimeShipment(UpdateTimeShipmentReq req)
     {
          User user1 = null;
@@ -451,4 +453,31 @@ public class ShipmentService {
                  customer.getEmail()
          ));
     }
+    public ResponseEntity<?> getOneShipment(int shipmentId){
+        Shippment shipment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
+        if(shipment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Lấy thông tin khách hàng
+        User customer = shipment.getUser();  // Giả sử User là Customer
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shipment.getShipmentId(),
+                shipment.getDateCreated(),
+                shipment.getDateDeleted(),
+                shipment.getDateDelivered(),
+                shipment.getDateShip(),
+                shipment.getIsDeleted(),
+                shipment.getStatus(),
+                shipment.getPayment().getPaymentId(),
+                shipment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
 }
