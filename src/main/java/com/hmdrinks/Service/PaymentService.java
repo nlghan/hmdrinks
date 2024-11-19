@@ -765,6 +765,24 @@ public class PaymentService {
         ));
     }
 
+    public ResponseEntity<?> getOnePayment(int paymentId){
+        Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId()
+        ));
+    }
+
     public ResponseEntity<?> handleCallBackPayOS(int orderCode) throws Exception {
         PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
         List<Payment> payments = paymentRepository.findAll();

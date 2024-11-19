@@ -164,4 +164,9 @@ public class PaymentController {
     {
         return paymentService.getAllPaymentStatus(page, limit, status);
     }
+
+    @GetMapping("/view/{paymentId}")
+    public ResponseEntity<?> viewPayment(@PathVariable int paymentId) {
+        return paymentService.getOnePayment(paymentId);
+    }
 }

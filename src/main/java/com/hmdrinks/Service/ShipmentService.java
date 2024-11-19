@@ -150,6 +150,40 @@ public class ShipmentService {
         ));
     }
 
+    public ResponseEntity<?> cancelShipment(int shipmentId,int userId)
+    {
+        Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
+        if(shippment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
+        }
+        if(shippment.getStatus() != Status_Shipment.SHIPPING)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        }
+        shippment.setStatus(Status_Shipment.CANCELLED);
+        shipmentRepository.save(shippment);
+
+        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shippment.getShipmentId(),
+                shippment.getDateCreated(),
+                shippment.getDateDeleted(),
+                shippment.getDateDelivered(),
+                shippment.getDateShip(),
+                shippment.getIsDeleted(),
+                shippment.getStatus(),
+                shippment.getPayment().getPaymentId(),
+                shippment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
     public ResponseEntity<?> successShipment(int shipmentId,int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
