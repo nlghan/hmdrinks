@@ -22,6 +22,8 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
     @Autowired
+    private  ShipmentService shipmentService;
+    @Autowired
     private ContactService contactService;
     @Autowired
     private ReviewService reviewService;
@@ -48,6 +50,7 @@ public class AdminController {
     ) {
         return userService.getListAllUserByRole(page, limit, role);
     }
+
 
     @PostMapping(value = "/create-account")
     public ResponseEntity<?> createAccount(@RequestBody CreateAccountUserReq req){
@@ -135,6 +138,11 @@ public class AdminController {
             @RequestParam(name = "limit") String limit
     ) {
         return ResponseEntity.ok(adminService.listCategory(page, limit));
+    }
+
+    @PostMapping("/shipment/activate")
+    public ResponseEntity<?> activeShipment(@RequestBody AdminActivateShipmentReq req) {
+        return shipmentService.activate_Admin(req.getShipmentId(), req.getStatus());
     }
 
 }
