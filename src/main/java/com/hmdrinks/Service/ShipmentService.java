@@ -237,6 +237,7 @@ public class ShipmentService {
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+            User shipper = shippment.getUser();
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
             CRUDShipmentResponse response = new CRUDShipmentResponse(
@@ -248,7 +249,7 @@ public class ShipmentService {
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
-                    user1 != null ? shippment.getUser().getUserId() : null,
+                    shipper.getUserId(),
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
