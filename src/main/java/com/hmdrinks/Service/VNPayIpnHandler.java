@@ -76,16 +76,16 @@ public class VNPayIpnHandler {
         try {
             Payment payment = paymentRepository.findByOrderIdPayment(txnRef);
             if(payment != null && code.equals("00")) {
-                      payment.setStatus(Status_Payment.COMPLETED);
-                     paymentRepository.save(payment);
-                    Shippment shippment = new Shippment();
-                    shippment.setPayment(payment);
-                    shippment.setIsDeleted(false);
-                    shippment.setDateCreated(LocalDateTime.now());
-                    shippment.setDateDelivered(LocalDateTime.now());
-                    shippment.setStatus(Status_Shipment.WAITING);
-                    shipmentRepository.save(shippment);
-                    assignShipments();
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+                Shippment shippment = new Shippment();
+                shippment.setPayment(payment);
+                shippment.setIsDeleted(false);
+                shippment.setDateCreated(LocalDateTime.now());
+                shippment.setDateDelivered(LocalDateTime.now());
+                shippment.setStatus(Status_Shipment.WAITING);
+                shipmentRepository.save(shippment);
+                assignShipments();
 
             }
             response = VnpIpnResponseConst.SUCCESS;

@@ -129,4 +129,12 @@ public class AdminController {
         return  ResponseEntity.ok(adminService.getAllPostByType(page,limit,typePost));
     }
 
+    @GetMapping(value = "/list-category")
+    public ResponseEntity<ListCategoryResponse> listAllCategory(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
+    ) {
+        return ResponseEntity.ok(adminService.listCategory(page, limit));
+    }
+
 }
