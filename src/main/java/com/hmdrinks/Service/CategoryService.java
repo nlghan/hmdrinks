@@ -117,7 +117,7 @@ public class CategoryService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Category> categoryList = categoryRepository.findAll(pageable);
+        Page<Category> categoryList = categoryRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         int total = 0;
         for(Category category: categoryList){

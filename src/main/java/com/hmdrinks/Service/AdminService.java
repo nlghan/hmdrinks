@@ -624,4 +624,28 @@ public class AdminService {
                 responses
         );
     }
+
+    public ListCategoryResponse listCategory(String pageFromParam, String limitFromParam)
+    {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Category> categoryList = categoryRepository.findAll(pageable);
+        List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
+        int total = 0;
+        for(Category category: categoryList){
+            crudCategoryResponseList.add(new CRUDCategoryResponse(
+                    category.getCateId(),
+                    category.getCateName(),
+                    category.getCateImg(),
+                    category.getIsDeleted(),
+                    category.getDateCreated(),
+                    category.getDateUpdated(),
+                    category.getDateDeleted()
+            ));
+            total++;
+        }
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
+    }
 }

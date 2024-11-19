@@ -94,7 +94,7 @@ public class ZaloPayService {
         order.put("amount", total);
         order.put("description", "HMDrinks - Payment for the order #" + transId);
         order.put("bank_code", "");
-        order.put("callback_url", " https://romantic-alive-pheasant.ngrok-free.app/payment-online-status/");
+        order.put("callback_url", "https://romantic-alive-pheasant.ngrok-free.app/payment-online-status/");
         order.put("embed_data", "{\"redirecturl\":\"http://localhost:5173/payment-online-status\"}");
         order.put("item", "[]");
 
