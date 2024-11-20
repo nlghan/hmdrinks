@@ -51,6 +51,17 @@ public class ShipmentController {
         return  shipmentService.getListShipmentStatusByShipper(page,limit,userId,statusShipment);
     }
 
+    @GetMapping("/shipper/listShippments")
+    public ResponseEntity<?> getListShipmentsByShipper(@RequestParam(name = "page") String page,
+                                                            @RequestParam(name = "limit") String limit,
+                                                            @RequestParam(name = "userId") Integer userId)
+
+    {
+        return  shipmentService.getListAllShipmentByShipper(page,limit,userId);
+    }
+
+
+
 
     @GetMapping("/view/list-All")
     public ResponseEntity<?> getListShipment(@RequestParam(name = "page") String page,
@@ -78,6 +89,11 @@ public class ShipmentController {
     @GetMapping("/view/{shipmentId}")
     public ResponseEntity<?> getOneShipment(@PathVariable int shipmentId) {
         return shipmentService.getOneShipment(shipmentId);
+    }
+
+    @GetMapping("/view/order/{orderId}")
+    public ResponseEntity<?> getOneShipmentByOrderId(@PathVariable int orderId) {
+        return shipmentService.getOneShipment(orderId);
     }
 
 }
