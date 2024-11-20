@@ -39,16 +39,16 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentService {
     //payos
-    private static final String clientId = "eba81bf7-4dbf-4ec9-a7c2-d0e6e3cb1a72";
-    private static final String apiKey = "e62918ef-78fb-4e98-b285-08d85f66c246";
-    private static final String checksumKey = "c09a95acbce4b57d256c4c788634f640ba6abd9d8ed4670508f4fe34fe95de98";
-    private static  final String webhookUrl = "https://www.facebook.com/";
+    private static final String clientId = "0e21da23-8871-45ef-8624-694417cf10eb";
+    private static final String apiKey = "0ad492a1-cf68-446e-901d-d282171cbdd9";
+    private static final String checksumKey = "465b9e56baff7a17688d4867b9ad117f9f0ccc95732f18971f9e94b72ffe9a2e";
+    private static  final String webhookUrl = " https://0a21-14-241-170-199.ngrok-free.app/intermediary-page";
 
     //momo
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://www.facebook.com";
+    private final String redirectUrl = "https://0a21-14-241-170-199.ngrok-free.app/intermediary-page";
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
@@ -309,8 +309,8 @@ public class PaymentService {
                     .orderCode(orderCode)
                     .amount(totalAmountLong)
                     .description("Thanh toán đơn hàng")
-                    .returnUrl(webhookUrl + "/success")
-                    .cancelUrl(webhookUrl + "/cancel")
+                    .returnUrl(webhookUrl)
+                    .cancelUrl(webhookUrl)
                     .buyerAddress(order.getAddress())
                     .buyerEmail(user.getEmail())
                     .buyerName(user.getPhoneNumber())
@@ -762,6 +762,24 @@ public class PaymentService {
                 limit,
                 total,
                 responses
+        ));
+    }
+
+    public ResponseEntity<?> getOnePayment(int paymentId){
+        Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
+        if(payment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId()
         ));
     }
 

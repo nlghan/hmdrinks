@@ -37,6 +37,11 @@ public class ShipmentController {
         return shipmentService.successShipment(req.getShipmentId(),req.getUserId());
     }
 
+    @PostMapping("/activate/cancel")
+    public ResponseEntity<?> activeCancel(@RequestBody AllocationShipmentReq req) {
+        return shipmentService.successShipment(req.getShipmentId(),req.getUserId());
+    }
+
     @GetMapping("/shipper/listShippment")
     public ResponseEntity<?> getListShipmentStatusByShipper(@RequestParam(name = "page") String page,
                                                             @RequestParam(name = "limit") String limit,
@@ -69,4 +74,10 @@ public class ShipmentController {
     {
         return shipmentService.updateTimeShipment(req);
     }
+
+    @GetMapping("/view/{shipmentId}")
+    public ResponseEntity<?> getOneShipment(@PathVariable int shipmentId) {
+        return shipmentService.getOneShipment(shipmentId);
+    }
+
 }

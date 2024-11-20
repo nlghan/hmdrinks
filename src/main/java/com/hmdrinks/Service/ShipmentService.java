@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import scala.Int;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -149,6 +150,71 @@ public class ShipmentService {
         ));
     }
 
+    public ResponseEntity<?> cancelShipment(int shipmentId,int userId)
+    {
+        Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
+        if(shippment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
+        }
+        if(shippment.getStatus() != Status_Shipment.SHIPPING)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
+        }
+        shippment.setStatus(Status_Shipment.CANCELLED);
+        shipmentRepository.save(shippment);
+
+        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shippment.getShipmentId(),
+                shippment.getDateCreated(),
+                shippment.getDateDeleted(),
+                shippment.getDateDelivered(),
+                shippment.getDateShip(),
+                shippment.getIsDeleted(),
+                shippment.getStatus(),
+                shippment.getPayment().getPaymentId(),
+                shippment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
+    public ResponseEntity<?> activate_Admin(int shipmentId, Status_Shipment statusShipment)
+    {
+        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
+        if(shippment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
+        }
+        shippment.setStatus(statusShipment);
+        shipmentRepository.save(shippment);
+
+        Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+        User customer = userRepository.findByUserId(orders.getUser().getUserId());
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shippment.getShipmentId(),
+                shippment.getDateCreated(),
+                shippment.getDateDeleted(),
+                shippment.getDateDelivered(),
+                shippment.getDateShip(),
+                shippment.getIsDeleted(),
+                shippment.getStatus(),
+                shippment.getPayment().getPaymentId(),
+                shippment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
+
     public ResponseEntity<?> successShipment(int shipmentId,int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
@@ -229,16 +295,41 @@ public class ShipmentService {
         User user1 = null;
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
+
         if (limit >= 100) limit = 100;
+
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAll(pageable);
+
         List<CRUDShipmentResponse> responses = new ArrayList<>();
         int total = 0;
-        for(Shippment shippment : shippments)
-        {
+
+        for (Shippment shippment : shippments) {
+            // Retrieve shipper (user associated with shipment)
+            User shipper = shippment.getUser();
+            Integer shipperId = (shipper != null) ? shipper.getUserId() : null;
+
+            // Retrieve payment and ensure it's valid
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+
+            // Ensure the payment and associated order exist
+            if (payment == null || payment.getOrder() == null) {
+                continue;  // Skip if there's no associated payment or order
+            }
+
+            // Retrieve order and associated customer (user)
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
+
+            // Set default values for customer if null
+            String customerFullName = (customer != null) ? customer.getFullName() : "Unknown Customer";
+            String customerAddress = (customer != null)
+                    ? (customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity())
+                    : "Unknown Address";
+            String customerPhone = (customer != null) ? customer.getPhoneNumber() : "Unknown Phone";
+            String customerEmail = (customer != null) ? customer.getEmail() : "Unknown Email";
+
+            // Create response object
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
                     shippment.getDateCreated(),
@@ -248,24 +339,29 @@ public class ShipmentService {
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
-                    user1 != null ? shippment.getUser().getUserId() : null,
-                    customer.getFullName(),
-                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
-                    customer.getPhoneNumber(),
-                    customer.getEmail()
+                    shipperId,  // Use shipperId, it can be null
+                    customerFullName,
+                    customerAddress,
+                    customerPhone,
+                    customerEmail
             );
+
+            // Add response to list
             responses.add(response);
             total++;
         }
-        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
+
+        // Return response with shipment data
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
                 total,
                 responses
         ));
-
     }
+
+
 
     public ResponseEntity<?> getListAllShipmentByStatus(String pageFromParam, String limitFromParam,Status_Shipment status)
     {
@@ -319,6 +415,8 @@ public class ShipmentService {
 
         return isDateShippedValid && isDateDeliveredValid;
     }
+
+
     public ResponseEntity<?> updateTimeShipment(UpdateTimeShipmentReq req)
     {
          User user1 = null;
@@ -355,4 +453,31 @@ public class ShipmentService {
                  customer.getEmail()
          ));
     }
+    public ResponseEntity<?> getOneShipment(int shipmentId){
+        Shippment shipment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
+        if(shipment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Lấy thông tin khách hàng
+        User customer = shipment.getUser();  // Giả sử User là Customer
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shipment.getShipmentId(),
+                shipment.getDateCreated(),
+                shipment.getDateDeleted(),
+                shipment.getDateDelivered(),
+                shipment.getDateShip(),
+                shipment.getIsDeleted(),
+                shipment.getStatus(),
+                shipment.getPayment().getPaymentId(),
+                shipment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
 }
