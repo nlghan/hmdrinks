@@ -60,7 +60,7 @@ public class Orders { // Changed from Orders to Order
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voucherId")
     private Voucher voucher;
-    
+
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
