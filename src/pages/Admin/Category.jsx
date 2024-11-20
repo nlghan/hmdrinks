@@ -77,7 +77,7 @@ const Category = () => {
                 return;
             }
 
-            let apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=${page}&limit=${limit}`;
+            let apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/list-category?page=${page}&limit=${limit}`;
             if (keyword) {
                 apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
             }

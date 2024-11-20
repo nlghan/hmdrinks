@@ -24,8 +24,8 @@ import Contact from "./pages/Contact/Contact";
 import Response from "./pages/Admin/Response";
 import News from "./pages/Admin/News";
 import PostVoucher from './pages/Post/PostVoucher';
-import ProductDetail from "./pages/Menu/ProductDetail"; 
-import { useAuth } from './context/AuthProvider'; 
+import ProductDetail from "./pages/Menu/ProductDetail";
+import { useAuth } from './context/AuthProvider';
 import { CartProvider } from "./context/CartContext";
 import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
@@ -34,6 +34,8 @@ import Order from "./pages/Order/Order";
 import PaymentStatus from "./pages/Payment/PaymentStatus";
 import PaymentOnlineStatus from "./pages/Payment/PaymentOnlineStatus";
 import PaymentOnlineStatusVnpay from "./pages/Payment/PaymentOnlineStatusVNPay";
+import Orders from "./pages/Admin/Orders";
+import ShipmentDetail from "./pages/Shipper/ShipmentDetail";
 
 import Cookies from 'js-cookie';
 
@@ -85,7 +87,7 @@ const App = () => {
             <Route path="/login" element={<LoginRedirect />} />
             <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/analytics" element={<Analytics/>} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/user" element={<User />} />
             <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
             <Route path="/shipper-info" element={isLoggedIn ? <InfoShipper /> : <Navigate to="/login" />} />
@@ -114,6 +116,11 @@ const App = () => {
             <Route path="/payment-online-status-payos" element={<PaymentOnlineStatusPayos />} />
             <Route path="/payment-online-status-momo" element={<PaymentOnlineStatusMomo />} />
             <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route
+              path="/shipment-detail/:shipmentId"
+              element={isLoggedIn ? <ShipmentDetail /> : <Navigate to="/home" />}
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

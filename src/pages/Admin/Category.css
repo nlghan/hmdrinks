@@ -300,7 +300,8 @@
 .sort-select {
   padding: 5px;
   border-color: #bcb9b9;
-  border-radius: 4px;
+  border-radius: 50px;
+  width: 200px;
 }
 
 .cate-img {

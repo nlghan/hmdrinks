@@ -10,13 +10,13 @@
 
 .shipper-home-content {
     flex: 1;
-    padding: 20px;
+    padding: 20px 300px;
 }
 
 .shipper-post-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 50px;
     margin-bottom: 20px;
 }
 
@@ -82,22 +82,79 @@
     background-color: #ff4f41;
 }
 
-.shipper-post-card-wrapper {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.5s ease;
+.shipment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.shipper-post-card-wrapper.hidden {
-    opacity: 0;
-    transform: translateY(50px);
+.shipment-item {
+    border: 2px solid #d9534f; /* Đường viền dày hơn và có màu đậm hơn */
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
 }
 
-.shipper-post-card-wrapper.visible {
-    opacity: 1;
-    transform: translateY(0);
-    animation: fadeInUp 0.6s ease-out forwards;
+
+.shipment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
 }
+
+.shipment-id{
+    display: flex;
+    margin-left: 15px;
+    border-radius: 50px;
+    border: 1px solid #c33838;
+    width: 150px;
+    text-align: center;
+    background: white;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.shipment-body {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    padding: 0px 15px;
+}
+
+.btn-view-details-ship,
+.btn-deliver {
+    background-color: #fa8072;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 20%;
+    margin-bottom: 4px;
+    margin-right: 4px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.btn-view-details-ship{
+    background: transparent;
+}
+
+.btn-view-details:hover,
+.btn-deliver:hover {
+    background-color: #e36a5a;
+}
+
 
 @keyframes fadeInUp {
     0% {

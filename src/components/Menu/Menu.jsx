@@ -67,7 +67,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
                         <i className='ti-paint-bucket' />
                         <li>Sản phẩm</li>
                     </div>
-                    <div className='menu-and-user'>
+                    <div className='menu-and-user' onClick={() => navigate('/orders')}>
                         <i className='ti-pencil-alt' />
                         <li>Đơn hàng</li>
                     </div>

@@ -6,7 +6,6 @@
 .shipper-navbar {
     width: auto;
     display: flex; 
-    padding: 0 50px 0 102px;
     justify-content: space-between;
     align-items: center;
     background-color: #f8f9fa;  /* Màu nền nhẹ nhàng hơn */
