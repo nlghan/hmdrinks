@@ -53,7 +53,18 @@ const News = () => {
     const token = getCookie('access_token');
     const userId = getUserIdFromToken(token);
 
+    const postVoucherCache = new Map();
+
     const fetchPostVoucher = async (page, limit, type = 'all') => {
+        const cacheKey = `${page}-${limit}-${type}`;
+        if (postVoucherCache.has(cacheKey)) {
+            console.log("Sử dụng dữ liệu từ cache:", cacheKey);
+            const cachedData = postVoucherCache.get(cacheKey);
+            setPosts(cachedData.postsWithVouchers);
+            setTotalPages(cachedData.totalPages);
+            return;
+        }
+
         try {
             const token = getCookie('access_token');
             if (!token) {
@@ -69,14 +80,11 @@ const News = () => {
 
             let url = '';
             if (type === 'all') {
-                // If type is 'all', fetch all posts
                 url = `http://localhost:1010/api/admin/post/view/all?page=${page}&limit=${limit}`;
             } else {
-                // If type is specific, fetch posts by type
                 url = `http://localhost:1010/api/admin/post/view/type/all?page=${page}&limit=${limit}&type=${type}`;
             }
 
-            // Fetch posts
             const responsePosts = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -85,24 +93,15 @@ const News = () => {
 
             const dataPosts = responsePosts.data;
             const fetchedPosts = dataPosts.listPosts || [];
-            console.log("Fetched Posts:", fetchedPosts);
 
-            if (fetchedPosts.length === 0) {
-                setError(`Không có bài đăng thuộc loại ${type}`);
-                setPosts([]); // Clear any existing posts
-                return; // Return early since no posts were found
-            }
-
-            // Fetch all vouchers
             const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
-            console.log("Fetched Vouchers:", fetchedVouchers);
 
-            // Map posts to vouchers based on postId
+            const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
+
             const postsWithVouchers = fetchedPosts.map(post => {
                 const matchingVoucher = fetchedVouchers.find(voucher => voucher.postId === post.postId);
                 return {
@@ -111,18 +110,20 @@ const News = () => {
                 };
             });
 
+            // Cập nhật cache
+            postVoucherCache.set(cacheKey, {
+                postsWithVouchers,
+                totalPages: dataPosts.totalPages,
+            });
+
             setPosts(postsWithVouchers);
             setTotalPages(dataPosts.totalPages);
 
         } catch (error) {
-            if (error.response && error.response.status === 401) {
-                setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-            } else {
-                setError("Không thể lấy thông tin bài post hoặc voucher.");
-            }
             console.error('Error fetching posts or vouchers:', error);
         }
     };
+
 
 
 
@@ -140,7 +141,56 @@ const News = () => {
         fetchPostVoucher(currentPage, limit);
     }, [currentPage]);
 
+    const fetchUserVouchersBatch = async (userIds) => {
+        const token = getCookie('access_token');
+        if (!token) {
+            setError("Bạn cần đăng nhập để xem thông tin này.");
+            return;
+        }
+
+        const batchSize = 5; // Giới hạn mỗi lần gửi tối đa 5 yêu cầu
+        for (let i = 0; i < userIds.length; i += batchSize) {
+            const batch = userIds.slice(i, i + batchSize);
+            await Promise.all(
+                batch.map(async (userId) => {
+                    try {
+                        const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${userId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                            },
+                        });
+
+                        if (response.data?.getVoucherResponseList?.length > 0) {
+                            setUserVouchers((prevVouchers) => [
+                                ...prevVouchers,
+                                ...response.data.getVoucherResponseList,
+                            ]);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching vouchers for userId ${userId}:`, error);
+                        if (error.response?.status === 429) {
+                            const retryAfter = error.response.headers['retry-after'] || 1000; // Mặc định 1 giây nếu không có header
+                            console.warn(`Rate limit hit for userId ${userId}. Retrying after ${retryAfter}ms...`);
+                            await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000)); // Chờ theo thời gian được chỉ định
+                        }
+                    }
+                })
+            );
+            await new Promise((resolve) => setTimeout(resolve, 2000)); // Chờ 2 giây trước khi xử lý batch tiếp theo
+        }
+    };
+
+    const userCache = new Map();
+
     const fetchAllUsers = async () => {
+        if (userCache.has('allUsers')) {
+            console.log("Sử dụng dữ liệu từ cache: allUsers");
+            const cachedData = userCache.get('allUsers');
+            setUsers(cachedData.users);
+            await fetchUserVouchersBatch(cachedData.userIds);
+            return;
+        }
+
         try {
             const token = getCookie('access_token');
             if (!token) {
@@ -156,15 +206,14 @@ const News = () => {
             while (hasMoreUsers) {
                 const response = await axios.get(`http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        'Authorization': `Bearer ${token}`,
+                    },
                 });
 
                 const userData = response.data.detailUserResponseList;
 
                 if (userData && userData.length > 0) {
                     allUsers.push(...userData);
-
                     if (userData.length < limit) {
                         hasMoreUsers = false;
                     }
@@ -175,49 +224,20 @@ const News = () => {
                 page++;
             }
 
+            const userIds = allUsers.map((user) => user.userId);
+
+            // Lưu dữ liệu vào cache
+            userCache.set('allUsers', { users: allUsers, userIds });
+
             setUsers(allUsers);
-
-            const userIds = allUsers.map(user => user.userId);
             if (userIds.length > 0) {
-                await Promise.all(userIds.map(userId => fetchUserVouchers(userId)));
+                await fetchUserVouchersBatch(userIds);
             }
-
         } catch (error) {
             console.error("Error fetching all users:", error);
-            setError("Không thể lấy danh sách người dùng.");
         }
     };
 
-    const fetchUserVouchers = async (userId) => {
-        try {
-            const token = getCookie('access_token');
-            if (!token) {
-                setError("Bạn cần đăng nhập để xem thông tin này.");
-                return;
-            }
-
-            const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${userId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.data?.getVoucherResponseList?.length === 0) {
-                return;
-            }
-
-            setUserVouchers(prevVouchers => [
-                ...prevVouchers,
-                ...response.data.getVoucherResponseList
-            ]);
-
-        } catch (error) {
-            console.error(`Error fetching vouchers for userId ${userId}:`, error);
-            if (error.response) {
-                console.error("Error response:", error.response);
-            }
-        }
-    };
 
     useEffect(() => {
         fetchAllUsers();
@@ -278,13 +298,13 @@ const News = () => {
         try {
             // Fetch lại danh sách posts
             await fetchPostVoucher(currentPage, limit);
-            
+
             // Fetch lại danh sách vouchers
             const token = getCookie('access_token');
             const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             if (response.data && response.data.body) {
                 const fetchedVouchers = response.data.body.voucherResponseList || [];
                 setAllVouchers(fetchedVouchers);
@@ -464,7 +484,7 @@ const News = () => {
                 const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
                 console.log("Fetched Posts:", response.data.body);
                 console.log("Fetched Vouchers:", fetchedVouchers);
-                
+
                 // Log để kiểm tra cấu trúc dữ liệu
                 if (fetchedVouchers.length > 0) {
                     console.log("Sample Voucher Structure:", {
@@ -500,9 +520,9 @@ const News = () => {
     const filteredVouchers = filteredPosts.filter(post => {
         console.log("Checking post:", post);
         console.log("Post voucher:", post.voucher);
-        return post.voucher && 
-               post.voucher.key && 
-               (post.voucher.key.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
+        return post.voucher &&
+            post.voucher.key &&
+            (post.voucher.key.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
                 post.voucher.status.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
                 post.voucher.discount.toString().includes(voucherSearchTerm));
     });
@@ -516,7 +536,7 @@ const News = () => {
                 const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (response.data && response.data.body) {
                     const fetchedVouchers = response.data.body.voucherResponseList || [];
                     setAllVouchers(fetchedVouchers);
@@ -740,19 +760,19 @@ const News = () => {
                                 <table className='post-list-table'>
                                     <thead>
                                         <tr>
-                                            <th style={{width: '8%'}}>STT</th>
-                                            <th style={{width: '15%'}}>Mã Voucher</th>
-                                            <th style={{width: '15%'}}>Giảm giá</th>
-                                            <th style={{width: '12%'}}>Số lượng</th>
-                                            <th style={{width: '15%'}}>Ngày bắt đầu</th>
-                                            <th style={{width: '15%'}}>Ngày kết thúc</th>
-                                            <th style={{width: '20%'}}>Trạng thái</th>
+                                            <th style={{ width: '8%' }}>STT</th>
+                                            <th style={{ width: '15%' }}>Mã Voucher</th>
+                                            <th style={{ width: '15%' }}>Giảm giá</th>
+                                            <th style={{ width: '12%' }}>Số lượng</th>
+                                            <th style={{ width: '15%' }}>Ngày bắt đầu</th>
+                                            <th style={{ width: '15%' }}>Ngày kết thúc</th>
+                                            <th style={{ width: '20%' }}>Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {allVouchers.length > 0 ? (
                                             allVouchers
-                                                .filter(voucher => 
+                                                .filter(voucher =>
                                                     voucher.key?.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
                                                     voucher.status?.toLowerCase().includes(voucherSearchTerm.toLowerCase()) ||
                                                     voucher.discount?.toString().includes(voucherSearchTerm)

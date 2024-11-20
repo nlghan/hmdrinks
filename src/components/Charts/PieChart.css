@@ -2,17 +2,17 @@
     display: flex;
     flex-direction: column;
     align-items: center; /* Căn giữa các thành phần */
-    margin: 20px; /* Khoảng cách xung quanh biểu đồ */
-    background-color: red;
+    background-color: rgba(255, 255, 255, 0.85);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 12px; /* Bo góc cho biểu đồ */
-    position: relative; /* Đặt vị trí tương đối cho container */
-    padding: 20px; /* Thêm padding để chứa nội dung */
-    max-width: 400px; /* Giới hạn chiều rộng tối đa cho CustomChart */
+    position: relative; 
+    margin-top: -20px;
+    max-width:350px;
+    margin-left: 85px;
 }
 
 .pie-chart-title {
-    font-size: 1.5rem; /* Kích thước chữ cho tiêu đề */
+    font-size: 1.4rem; /* Kích thước chữ cho tiêu đề */
     margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
     color: #333; /* Màu chữ */
 }
@@ -24,5 +24,7 @@
     position: relative; /* Đặt vị trí tương đối để sử dụng z-index */
     z-index: 1; /* Đặt z-index cho container */
     background-color: rgba(255, 255, 255, 0);
-    background-color: red; /* Màu nền trong suốt */
+    margin-left: 60px;
+    margin-right: -20px;
+    width:100%;
 }

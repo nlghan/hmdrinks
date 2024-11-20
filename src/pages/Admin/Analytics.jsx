@@ -106,7 +106,7 @@ const Analytics = () => {
             </div>
             <div className="analytics-row">
                 <CustomChart />
-                <HorizontalBars width={600} height={500} />
+                <HorizontalBars width={600} height={500}/>
             </div>
         </div>
     );

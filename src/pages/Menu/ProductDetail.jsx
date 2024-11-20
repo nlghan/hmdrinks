@@ -6,6 +6,8 @@ import './ProductDetail.css';
 import axios from 'axios';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider';
+import ProductCard from '../../components/Card/ProductCard'; // Import ProductCard
+import ProductRecommend from '../../components/Card/ProductRecommend'; // Import ProductRecommend
 
 const ProductDetail = () => {
     const location = useLocation();
@@ -30,7 +32,7 @@ const ProductDetail = () => {
     const { isLoggedIn, logout } = useAuth();
     const [total, setTotal] = useState(0);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-
+    const [recommendedProducts, setRecommendedProducts] = useState([]); // State to hold recommended products
 
     const getUserIdFromToken = (token) => {
         try {
@@ -396,7 +398,72 @@ const ProductDetail = () => {
     };
     const [activeTab, setActiveTab] = useState('description');
 
+    useEffect(() => {
+        const fetchRecommendedProducts = async () => {
+            const token = getCookie('access_token');
+            const userId = getUserIdFromToken(token);
+            if (userId) {
+                try {
+                    console.log(`Fetching recommended products for userId: ${userId}`);
+                    const response = await axios.get(`http://localhost:1010/api/product/recommended/${userId}`);
+                    console.log('API Response:', response.data); // Log the entire response
 
+                    if (response.data && response.data.listRecommend) {
+                        const currentProductName = product.proName; // Get the current product's name
+                        const uniqueRecommendedProducts = [];
+                        const seenProductNames = new Set(); // To track unique product names
+
+                        // Iterate through the recommended products
+                        for (const recommendation of response.data.listRecommend) {
+                            // Check if the product name is not the same as the current product and not already seen
+                            if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
+                                uniqueRecommendedProducts.push(recommendation); // Add to unique products
+                                seenProductNames.add(recommendation.proName); // Mark this product name as seen
+                            }
+
+                            // Stop if we have collected 3 unique products
+                            if (uniqueRecommendedProducts.length === 3) {
+                                break; // Exit the loop if we have 3 unique products
+                            }
+                        }
+
+                        // If we have less than 3 unique products, continue checking the rest of the recommendations
+                        if (uniqueRecommendedProducts.length < 3) {
+                            for (const recommendation of response.data.listRecommend) {
+                                // Continue checking for more unique products
+                                if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
+                                    uniqueRecommendedProducts.push(recommendation); // Add to unique products
+                                    seenProductNames.add(recommendation.proName); // Mark this product name as seen
+                                }
+
+                                // Stop if we have collected 3 unique products
+                                if (uniqueRecommendedProducts.length === 3) {
+                                    break; // Exit the loop if we have 3 unique products
+                                }
+                            }
+                        }
+
+                        // Set the recommended products state
+                        setRecommendedProducts(uniqueRecommendedProducts);
+                    } else {
+                        console.warn('Unexpected response structure:', response.data);
+                        setRecommendedProducts([]); // Reset to empty if structure is unexpected
+                    }
+                } catch (error) {
+                    console.error('Error fetching recommended products:', error);
+                }
+            } else {
+                console.warn('User ID is not available.');
+            }
+        };
+
+        fetchRecommendedProducts();
+    }, [product]); // Fetch recommended products when the product changes
+
+    const handleProductRecommendClick = (product) => {
+        console.log("Navigating to product with ID:", product.proId); // Debugging line
+        navigate(`/product/${product.proId}`, { state: { product } });
+    };
 
     return (
         <>
@@ -657,15 +724,14 @@ const ProductDetail = () => {
 
 
                     <h2 className="fade-in h2-maybe">Có thể bạn sẽ thích</h2>
-                    <div className="related-products fade-in">
-                        {product.relatedProducts?.length > 0 ? (
-                            product.relatedProducts.map((relatedProduct, index) => (
-                                <div key={index} className="related-product-card">
-                                    <img src={relatedProduct.imageUrl} alt={relatedProduct.name} />
-                                    <h3>{relatedProduct.name}</h3>
-                                    <span>{relatedProduct.price}</span>
-                                    <button>Mua ngay</button>
-                                </div>
+                    <div className="related-products fade-in" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                        {recommendedProducts.length > 0 ? (
+                            recommendedProducts.map((product, index) => (
+                                <ProductRecommend
+                                    key={index}
+                                    product={product}
+                                    onClick={() => handleProductRecommendClick(product)}
+                                />
                             ))
                         ) : (
                             <p>Không có sản phẩm liên quan.</p>

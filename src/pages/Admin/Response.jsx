@@ -304,9 +304,11 @@ function Response() {
                                                 <button id="response-update-btn3" onClick={() => handleDetailsClick(response)}>
                                                     <i className="ti-info-alt"></i>
                                                 </button>
-                                                <button id="response-update-btn1" onClick={() => handleUpdateClick(response)}>
-                                                    <i className="ti-pencil"></i>
-                                                </button>
+                                                {response.status !== 'COMPLETED' && (
+                                                    <button id="response-update-btn1" onClick={() => handleUpdateClick(response)}>
+                                                        <i className="ti-pencil"></i>
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

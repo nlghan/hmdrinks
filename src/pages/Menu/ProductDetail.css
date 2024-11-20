@@ -355,7 +355,10 @@
 
 .related-products {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Use space-around for even spacing */
+    margin: 0 -10px;
+    height: 30%;
 }
 
 .related-product-card {
