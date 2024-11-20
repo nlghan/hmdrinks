@@ -8,6 +8,7 @@ import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.CRUDShipmentReq;
 import com.hmdrinks.Request.UpdateTimeShipmentReq;
 import com.hmdrinks.Response.*;
+import jakarta.transaction.Transactional;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -256,8 +257,11 @@ public class ShipmentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserIdAndStatus(userId,status,pageable);
+        List<Shippment> shippments1 = shipmentRepository.findAllByUserUserIdAndStatus(userId,status);
+
         List<CRUDShipmentResponse> responses = new ArrayList<>();
-        int total = 0;
+
+
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -279,13 +283,55 @@ public class ShipmentService {
                     customer.getEmail()
             );
             responses.add(response);
-            total++;
         }
         return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
                 page,
                 shippments.getTotalPages(),
                 limit,
-                total,
+                shippments1.size(),
+                responses
+        ));
+    }
+
+    public ResponseEntity<?> getListAllShipmentByShipper(String pageFromParam, String limitFromParam, int userId)
+    {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Shippment> shippments = shipmentRepository.findAllByUserUserId(userId,pageable);
+        List<Shippment> shippments1 = shipmentRepository.findAllByUserUserId(userId);
+
+        List<CRUDShipmentResponse> responses = new ArrayList<>();
+
+
+        for(Shippment shippment : shippments)
+        {
+            Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+            Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+            User customer = userRepository.findByUserId(orders.getUser().getUserId());
+            CRUDShipmentResponse response = new CRUDShipmentResponse(
+                    shippment.getShipmentId(),
+                    shippment.getDateCreated(),
+                    shippment.getDateDeleted(),
+                    shippment.getDateDelivered(),
+                    shippment.getDateShip(),
+                    shippment.getIsDeleted(),
+                    shippment.getStatus(),
+                    shippment.getPayment().getPaymentId(),
+                    shippment.getUser().getUserId(),
+                    customer.getFullName(),
+                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                    customer.getPhoneNumber(),
+                    customer.getEmail()
+            );
+            responses.add(response);
+        }
+        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllScheduledShipmentsResponse(
+                page,
+                shippments.getTotalPages(),
+                limit,
+                shippments1.size(),
                 responses
         ));
     }
@@ -300,6 +346,7 @@ public class ShipmentService {
 
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAll(pageable);
+        List<Shippment> shippments1 = shipmentRepository.findAll();
 
         List<CRUDShipmentResponse> responses = new ArrayList<>();
         int total = 0;
@@ -348,7 +395,7 @@ public class ShipmentService {
 
             // Add response to list
             responses.add(response);
-            total++;
+
         }
 
         // Return response with shipment data
@@ -356,7 +403,7 @@ public class ShipmentService {
                 page,
                 shippments.getTotalPages(),
                 limit,
-                total,
+                shippments1.size(),
                 responses
         ));
     }
@@ -371,6 +418,8 @@ public class ShipmentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByStatus(status,pageable);
+        List<Shippment> shippments1 = shipmentRepository.findAllByStatus(status);
+
         List<CRUDShipmentResponse> responses = new ArrayList<>();
         int total = 0;
         for(Shippment shippment : shippments)
@@ -400,7 +449,7 @@ public class ShipmentService {
                 page,
                 shippments.getTotalPages(),
                 limit,
-                total,
+                shippments1.size(),
                 responses
         ));
     }
@@ -453,6 +502,36 @@ public class ShipmentService {
                  customer.getEmail()
          ));
     }
+
+    @Transactional
+    public ResponseEntity<?> getInfoShipmentByOrderId(int orderId)
+    {
+        Orders order = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
+        if(order == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Payment payment = paymentRepository.findByPaymentId(order.getPayment().getPaymentId());
+        User customer = order.getUser();
+        Shippment shipment = payment.getShipment();
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shipment.getShipmentId(),
+                shipment.getDateCreated(),
+                shipment.getDateDeleted(),
+                shipment.getDateDelivered(),
+                shipment.getDateShip(),
+                shipment.getIsDeleted(),
+                shipment.getStatus(),
+                shipment.getPayment().getPaymentId(),
+                shipment.getUser().getUserId(),
+                customer.getFullName(),
+                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail()
+        ));
+    }
+
+    @Transactional
     public ResponseEntity<?> getOneShipment(int shipmentId){
         Shippment shipment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
         if(shipment == null)
@@ -460,8 +539,11 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        // Lấy thông tin khách hàng
-        User customer = shipment.getUser();  // Giả sử User là Customer
+
+        User shipper = shipment.getUser();
+        Payment payment = paymentRepository.findByPaymentId(shipment.getPayment().getPaymentId());
+        Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+        User customer = orders.getUser();// Giả sử User là Customer
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
