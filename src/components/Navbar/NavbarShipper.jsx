@@ -199,7 +199,7 @@ const NavbarShipper = ({ currentPage }) => {
                         onClick={() => navigate('/shipper-contact')}
                         className={location.pathname === '/shipper-contact' ? 'shipper-active' : ''}
                     >
-                        LIÊN HỆ
+                        THỐNG KÊ
                     </li>
 
                     {/* Group icons in a single div for better spacing control */}

@@ -14,6 +14,7 @@ const Order = () => {
     const { state } = useLocation();
     const { orderData } = state || {};
     const {ensureCartExists} = useCart();
+    console.log('Dữ liệu nhận được từ state:', state);
 
     const [currentStep, setCurrentStep] = useState("confirmation");
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
@@ -500,7 +501,7 @@ const Order = () => {
             // Kiểm tra trạng thái của currentStep
             if (currentStep === 'confirmation') {
                 // Gọi API confirm-cancel nếu currentStep là confirmation
-                const response = await axios.post('http://localhost:1010/api/orders/confirm-cancel',
+                const response = await axios.put('http://localhost:1010/api/orders/cancel-order',
                     {
                         orderId: orderData.orderId,
                         userId: userId
@@ -510,7 +511,7 @@ const Order = () => {
                     });
     
                 // Kiểm tra phản hồi từ API
-                if (response.data.body === 'Order has been canceled') {
+                if (response.data === 'Order cancelled successfully') {
                     alert("Đơn hàng đã được hủy.");
                     await ensureCartExists(userId);
                     navigate('/menu');  // Điều hướng về trang menu sau khi hủy thành công

@@ -20,7 +20,7 @@
 
 .custom-chart-container {
     width: 100%; /* Chiều rộng của biểu đồ */
-    max-width: 900px; /* Chiều rộng tối đa của container biểu đồ */
+    max-width: 800px; /* Chiều rộng tối đa của container biểu đồ */
     border-radius: 8px; /* Bo góc cho biểu đồ */
     overflow: visible; /* Đảm bảo không ẩn các phần thừa */
     position: relative; /* Đặt vị trí tương đối để sử dụng z-index */

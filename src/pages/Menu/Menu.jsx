@@ -70,36 +70,6 @@ const Menu = () => {
 
     const userId = isLoggedIn ? getUserIdFromToken(getCookie('access_token')) : null; // Get userId from token if logged in
 
-    // Fetch favorited product IDs
-    useEffect(() => {
-        const fetchFavorites = async () => {
-            if (!userId) {
-                console.warn('No userId found. Skipping fetch.');
-                return; // Return if userId is null
-            }
-
-            try {
-                console.log(`Fetching favorites for userId: ${userId}`);
-                const response = await fetch(`http://localhost:1010/api/favorites/${userId}`);
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch favorites: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                const favoriteIds = data.favorites.map(favorite => favorite.proId);
-                setFavoritedProIds(favoriteIds);
-                console.log('Fetched favorites:', favoriteIds);
-            } catch (error) {
-                console.error('Error fetching favorites:', error);
-            }
-        };
-
-        if (isLoggedIn) {
-            fetchFavorites();
-        }
-    }, [userId, isLoggedIn]);
-
     // Fetch products and their prices and sizes from API
     useEffect(() => {
         const fetchProducts = async () => {
