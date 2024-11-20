@@ -36,6 +36,7 @@ import PaymentOnlineStatus from "./pages/Payment/PaymentOnlineStatus";
 import PaymentOnlineStatusVnpay from "./pages/Payment/PaymentOnlineStatusVNPay";
 import Orders from "./pages/Admin/Orders";
 import ShipmentDetail from "./pages/Shipper/ShipmentDetail";
+import MyOrder from "./pages/Order/MyOrder";
 
 import Cookies from 'js-cookie';
 
@@ -117,6 +118,7 @@ const App = () => {
             <Route path="/payment-online-status-momo" element={<PaymentOnlineStatusMomo />} />
             <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/my-orders" element={<MyOrder />} />
             <Route
               path="/shipment-detail/:shipmentId"
               element={isLoggedIn ? <ShipmentDetail /> : <Navigate to="/home" />}

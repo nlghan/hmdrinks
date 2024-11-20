@@ -5,6 +5,7 @@ import Header from '../../components/Header/Header';
 import FormAddPost from '../../components/Form/FormAddPost';
 import FormDetailsPost from '../../components/Form/FormDetailsPost';
 import FormUpdatePost from '../../components/Form/FormUpdatePost';
+import pLimit from 'p-limit';
 
 const News = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -133,95 +134,25 @@ const News = () => {
         setSelectedType(newType);
         fetchPostVoucher(currentPage, limit, newType);
     };
+    const fetchWithRetry = async (url, options, retries = 3, delay = 1000) => {
+        try {
+            return await axios.get(url, options);
+        } catch (error) {
+            if (retries > 0 && error.response?.status === 429) {
+                console.warn(`Retrying after ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return fetchWithRetry(url, options, retries - 1, delay * 2); // Tăng delay cho lần sau
+            }
+            throw error;
+        }
+    };
+    
 
 
 
     useEffect(() => {
         fetchPostVoucher(currentPage, limit);
     }, [currentPage]);
-
-    const fetchAllUsers = async () => {
-        try {
-            const token = getCookie('access_token');
-            if (!token) {
-                setError("Bạn cần đăng nhập để xem thông tin này.");
-                return;
-            }
-
-            const allUsers = [];
-            let page = 1;
-            const limit = 15;
-            let hasMoreUsers = true;
-
-            while (hasMoreUsers) {
-                const response = await axios.get(`http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const userData = response.data.detailUserResponseList;
-
-                if (userData && userData.length > 0) {
-                    allUsers.push(...userData);
-
-                    if (userData.length < limit) {
-                        hasMoreUsers = false;
-                    }
-                } else {
-                    hasMoreUsers = false;
-                }
-
-                page++;
-            }
-
-            setUsers(allUsers);
-
-            const userIds = allUsers.map(user => user.userId);
-            if (userIds.length > 0) {
-                await Promise.all(userIds.map(userId => fetchUserVouchers(userId)));
-            }
-
-        } catch (error) {
-            console.error("Error fetching all users:", error);
-            setError("Không thể lấy danh sách người dùng.");
-        }
-    };
-
-    const fetchUserVouchers = async (userId) => {
-        try {
-            const token = getCookie('access_token');
-            if (!token) {
-                setError("Bạn cần đăng nhập để xem thông tin này.");
-                return;
-            }
-
-            const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${userId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.data?.getVoucherResponseList?.length === 0) {
-                return;
-            }
-
-            setUserVouchers(prevVouchers => [
-                ...prevVouchers,
-                ...response.data.getVoucherResponseList
-            ]);
-
-        } catch (error) {
-            console.error(`Error fetching vouchers for userId ${userId}:`, error);
-            if (error.response) {
-                console.error("Error response:", error.response);
-            }
-        }
-    };
-
-    useEffect(() => {
-        fetchAllUsers();
-    }, []);
 
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPages) {  // Corrected to use totalPages

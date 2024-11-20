@@ -6,7 +6,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useAuth } from '../../context/AuthProvider.jsx';
 import { useCart } from '../../context/CartContext.jsx';
-import {useFavorite} from '../../context/FavoriteContext.jsx'
+import { useFavorite } from '../../context/FavoriteContext.jsx'
 
 const Navbar = ({ currentPage }) => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Navbar = ({ currentPage }) => {
 
 
   const { cartItems } = useCart();
-  const {favoriteCount, clearFavorites} = useFavorite();
+  const { favoriteCount, clearFavorites } = useFavorite();
   const totalProducts = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const favCount = favoriteCount
   // Hide breadcrumb if on homepage, product detail page, or root URL
@@ -26,6 +26,17 @@ const Navbar = ({ currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // State to determine if the screen is small
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Adjust threshold as needed
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDropdownVisible(false);
+  };
+
+
 
   const handleLogin = () => {
     navigate('/login');
@@ -121,9 +132,9 @@ const Navbar = ({ currentPage }) => {
   useEffect(() => {
     const isProductDetailPage = location.pathname.startsWith('/product/');
     setShowBreadcrumb(
-      location.pathname !== '/home' && 
-      location.pathname !== '/' && 
-      location.pathname !== '' && 
+      location.pathname !== '/home' &&
+      location.pathname !== '/' &&
+      location.pathname !== '' &&
       location.pathname !== '/change' && // Add this condition
       !isProductDetailPage
     );
@@ -176,7 +187,7 @@ const Navbar = ({ currentPage }) => {
           >
             LIÊN HỆ
           </li>
-          
+
           {/* Group icons in a single div for better spacing control */}
           {isLoggedIn && (
             <div className="icon-group-nav">
@@ -190,21 +201,33 @@ const Navbar = ({ currentPage }) => {
                 {favCount > 0 && <span className="icon-badge-nav">{favCount}</span>}
                 {isSmallScreen && <span> Yêu Thích</span>}
               </li>
-              <li onClick={handleUserIconClick}>
+              {/* User Icon with Dropdown */}
+              <li className="user-menu">
                 <i className="ti-user"></i>
                 {isSmallScreen && <span> Thông Tin</span>}
+                <div className="dropdown-menu">
+                  <div onClick={() => navigate('/info')} className="dropdown-item">
+                    Thông Tin cá nhân
+                  </div>
+                  <div className="dropdown-divider"></div> {/* Dòng phân cách */}
+                  <div onClick={() => navigate('/my-orders')} className="dropdown-item">
+                    Đơn hàng
+                  </div>
+                </div>
               </li>
+
+
             </div>
           )}
           <li>
             {isLoggedIn ? (
-              <button className='signup' style={{marginRight:'80px'}} onClick={handleLogout}>Đăng Xuất</button>
+              <button className='signup' style={{ marginRight: '80px' }} onClick={handleLogout}>Đăng Xuất</button>
             ) : (
               <button className='login1' onClick={handleLogin}>Đăng Nhập</button>
             )}
           </li>
           {!isLoggedIn && (
-            <li style={{marginRight:'10px'}}>
+            <li style={{ marginRight: '10px' }}>
               <button className='signup' onClick={handleRegister}>Đăng Ký</button>
             </li>
           )}

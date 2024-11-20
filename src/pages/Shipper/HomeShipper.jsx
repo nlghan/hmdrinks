@@ -11,7 +11,7 @@ const HomeShipper = () => {
     const [data, setData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
-    const [limit] = useState(10); // Items per page
+    const [limit] = useState(5); // Items per page
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
