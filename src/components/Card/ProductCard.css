@@ -122,7 +122,49 @@
     color: red;
     transition: color 0.3s ease;
 }
+.product-card-login-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.671);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
+.product-card-login-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.product-card-login-modal-content p {
+    margin-bottom: 20px;
+}
+
+.product-card-login-modal-content button,
+.product-card-login-modal-content a {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff6f61;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.product-card-login-modal-content a {
+    text-decoration: none;
+}
+
+.product-card-login-modal-content button:hover,
+.product-card-login-modal-content a:hover {
+    background-color: #ff4f41;
+}
 /* Animation styles */
 .product-card-loading-animation, .product-card-success-animation, .product-card-error-animation {
     position: fixed;
@@ -144,7 +186,7 @@
     border-radius: 8px;
     text-align: center;
     animation: modalSlideIn 0.5s ease-out;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.671);
     backdrop-filter: blur(5px);
     pointer-events: auto;
 }

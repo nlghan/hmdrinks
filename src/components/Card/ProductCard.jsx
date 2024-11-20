@@ -14,6 +14,7 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     const [message, setMessage] = useState(''); // Để hiển thị message động
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false); // Add state for login prompt
 
     // Check if product is in favorites
     useEffect(() => {
@@ -49,6 +50,10 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
     // Handle click on the "Đặt mua" button
     const handleAddToCartClick = async (event) => {
         event.stopPropagation();
+        if (!isLoggedIn) { // Check if user is logged in
+            setShowLoginPrompt(true); // Show login prompt if not logged in
+            return; // Exit the function
+        }
         setIsLoading(true);
         try {
             await onAddToCart();
@@ -138,6 +143,16 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
                         </div>
                         <h3>Thêm vào giỏ hàng thất bại!</h3>
                         <p>{message}</p>
+                    </div>
+                </div>
+            )}
+
+            {showLoginPrompt && ( // Add login prompt modal
+                <div className="product-card-login-modal">
+                    <div className="product-card-login-modal-content">
+                        <p>Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.</p>
+                        <a href="/login">Đăng nhập</a>
+                        <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>                       
                     </div>
                 </div>
             )}

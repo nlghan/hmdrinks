@@ -1,58 +1,112 @@
 import React, { useEffect, useState } from 'react';
 import './Analytics.css';
-import { assets } from '../../assets/assets';
-import Cookies from 'js-cookie'; 
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import GaugeCard from '../../components/Card/GaugeCardAna';
 import Header from '../../components/Header/Header';
-import GaugeCard from '../../components/Card/GaugeCardRes';
-import HorizontalBars from '../../components/Charts/HorizontalBars';
 import CustomChart from '../../components/Charts/CustomChart';
+import HorizontalBars from '../../components/Charts/HorizontalBars';
+import CustomPieChart from '../../components/Charts/PieChart'; 
+import axios from 'axios';
 
 const Analytics = () => {
-    const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false); 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [waitingCount, setWaitingCount] = useState(0);
+    const [shippingCount, setShippingCount] = useState(0);
+    const [successCount, setSuccessCount] = useState(0);
+    const [cancelledCount, setCancelledCount] = useState(0);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [percentages, setPercentages] = useState([0, 0, 0, 0]); // [waiting, shipping, success, cancelled]
 
-    useEffect(() => {
-        const loggedIn = sessionStorage.getItem("isLoggedIn");
-        setIsLoggedIn(loggedIn === "true");
-    }, []);
-
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
     };
 
-    const sampleData = [
-        { product: 'Sinh tố dâu', userFav: 5 },
-        { product: 'Nước ép cam', userFav: 20 },
-        { product: 'Cà phê sữa', userFav: 30 },
-        { product: 'Bạc xĩu', userFav: 50 },
-        { product: 'Trà sữa khoai môn', userFav: 15 },
-        { product: 'Sinh tố kiwi', userFav: 5 },
-        { product: 'Nước ép táo', userFav: 20 },
+    const fetchShipmentCounts = async () => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                console.error("Không tìm thấy token xác thực.");
+                return;
+            }
 
-    ];
+            const statuses = ['WAITING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
+            const counts = await Promise.all(statuses.map(async (status) => {
+                const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+                    params: {
+                        page: 1,
+                        limit: 100,
+                        status: status,
+                    },
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                return response.data.total; // Giả sử API trả về tổng số lượng trong trường `total`
+            }));
+
+            setWaitingCount(counts[0]);
+            setShippingCount(counts[1]);
+            setSuccessCount(counts[2]);
+            setCancelledCount(counts[3]);
+
+            const total = counts.reduce((acc, count) => acc + count, 0);
+            const newPercentages = counts.map(count => (total > 0 ? (count / total) * 100 : 0));
+            setPercentages(newPercentages);
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchShipmentCounts(); // Gọi hàm khi component mount
+    }, []);
 
     return (
         <div className="analytics">
-            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Analytics" />
-            <div className={`analytics-row ${isMenuOpen ? 'dimmed' : ''}`}>
-                <GaugeCard 
-                    percentage={75}
-                    width='350px'
+            <Header isMenuOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} title="Analytics" />
+            <div className="analytics-row1">
+                <GaugeCard
+                    percentage={percentages[0]} // Phần trăm cho trạng thái WAITING
+                    width='280px'
                     height='180px'
-                    number={350}
-                    description="This is a sample description"
-                    color='#efa0ed'
-                    backgroundColor='#f9f9f9'
+                    data="⏳ĐANG CHỜ"
+                    description="Các đơn hàng đang chờ"
+                    color="#FFA07A" // Pastel Orange
+                    backgroundColor="#FFF5E6" // Light Pastel Orange
                 />
-                <HorizontalBars 
-                    width={600}
-                    height={400}
-                    data={sampleData}
+                <GaugeCard
+                    percentage={percentages[1]} // Phần trăm cho trạng thái SHIPPING
+                    width='280px'
+                    height='180px'
+                    data="🚚 ĐANG GIAO"
+                    description="Các đơn hàng đang giao"
+                    color="#87CEFA" // Pastel Blue
+                    backgroundColor="#E6F7FF" // Light Pastel Blue
                 />
+                <GaugeCard
+                    percentage={percentages[2]} // Phần trăm cho trạng thái SUCCESS
+                    width='280px'
+                    height='180px'
+                    data="✅ ĐÃ GIAO"
+                    description="Các đơn hàng thành công"
+                    color="#90EE90" // Pastel Green
+                    backgroundColor="#F0FFF0" // Light Pastel Green
+                />
+                <GaugeCard
+                    percentage={percentages[3]} // Phần trăm cho trạng thái CANCELLED
+                    width='280px'
+                    height='180px'
+                    data="❌ HỦY ĐƠN"
+                    description="Các đơn hàng đã hủy"
+                    color="#FFB6C1" // Pastel Pink
+                    backgroundColor="#FFF0F5" // Light Pastel Pink
+                />
+                <CustomPieChart />
+            </div>
+            <div className="analytics-row">
                 <CustomChart />
+                <HorizontalBars width={600} height={500} />
             </div>
         </div>
     );

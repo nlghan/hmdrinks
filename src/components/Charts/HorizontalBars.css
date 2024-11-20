@@ -9,6 +9,7 @@
     position: relative; /* Đặt vị trí tương đối cho container */
     padding: 20px; /* Thêm padding để chứa nội dung */
 }
+ 
 
 .horizontal-chart-title {
     font-size: 1.5rem; /* Kích thước chữ cho tiêu đề */
