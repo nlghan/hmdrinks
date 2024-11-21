@@ -18,7 +18,7 @@
 
 .analytics-row {
     display: flex;
-    justify-content: space-between;
+    justify-content:flex-start;
     z-index: 1;
     margin-left: -20px;
 }
@@ -28,6 +28,7 @@
     display: flex;
     justify-content:flex-start;
     margin-bottom: -25px;
-    gap:10px;
+    padding-right: 30px;
+    gap:30px;
 }
 

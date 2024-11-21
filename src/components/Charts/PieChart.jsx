@@ -1,24 +1,19 @@
 import * as React from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
-import './CustomChart.css';
+import './PieChart.css';
 import axios from 'axios';
 
-// Hàm định dạng giá trị
-const valueFormatter = (value) => {
-    // Kiểm tra xem giá trị có phải là số không
-    if (typeof value === 'number') {
-        return `${value.toFixed(2)}%`; // Định dạng giá trị với 2 chữ số thập phân
-    }
-    return '0%'; // Trả về 0% nếu không phải là số
-}
+const valueFormatter = (value) => `${Number(value)}%`;
+
 
 export default function CustomPieChart() {
-    const [percentages, setPercentages] = React.useState([0, 0, 0, 0]); // [waiting, shipping, success, cancelled]
+    const [percentages, setPercentages] = React.useState([0, 0, 0, 0]);
 
     const getCookie = (name) => {
         const value1 = `; ${document.cookie}`;
         const parts = value1.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
+
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
     };
 
     const fetchShipmentCounts = async () => {
@@ -41,28 +36,30 @@ export default function CustomPieChart() {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-                return response.data.total; // Giả sử API trả về tổng số lượng trong trường `total`
+                return response.data.total || 0; // Giả sử API trả về tổng số lượng trong trường `total`
             }));
 
             const total = counts.reduce((acc, count) => acc + count, 0);
             const newPercentages = counts.map(count => (total > 0 ? (count / total) * 100 : 0));
             setPercentages(newPercentages);
-            console.log(typeof percentages[0]);
         } catch (error) {
             console.error('Lỗi khi gọi API:', error);
         }
     };
 
     React.useEffect(() => {
-        fetchShipmentCounts(); // Gọi hàm khi component mount
+        fetchShipmentCounts();
     }, []);
 
-    // Dữ liệu mẫu cho biểu đồ hình tròn, sử dụng các giá trị phần trăm
+    if (percentages.every(value => value === 0)) {
+        return <div>Đang tải dữ liệu...</div>;
+    }
+
     const sampleData = [
-        { name: 'Đang chờ', value: percentages[0] },
-        { name: 'Đang giao', value: percentages[1] },
-        { name: 'Thành công', value: percentages[2] },
-        { name: 'Đã hủy', value: percentages[3] },
+        { name: 'Đang chờ', value: percentages[0] || 0 },
+        { name: 'Đang giao', value: percentages[1] || 0 },
+        { name: 'Thành công', value: percentages[2] || 0 },
+        { name: 'Đã hủy', value: percentages[3] || 0 },
     ];
 
     return (
@@ -74,13 +71,13 @@ export default function CustomPieChart() {
                 <PieChart
                     series={[
                         {
-                            data: sampleData, // Sử dụng dữ liệu mẫu với các giá trị phần trăm
+                            data: sampleData,
                             highlightScope: { fade: 'global', highlight: 'item' },
                             faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-                            valueFormatter,
+                            
                         },
                     ]}
-                    height={200}
+                    height={250}
                 />
             </div>
         </div>

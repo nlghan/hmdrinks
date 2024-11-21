@@ -7,7 +7,8 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 12px; /* Bo góc cho biểu đồ */
     position: relative; /* Đặt vị trí tương đối cho container */
-    padding: 20px; /* Thêm padding để chứa nội dung */
+    padding: 20px;
+    margin-top: 50px; /* Thêm padding để chứa nội dung */
 }
  
 
