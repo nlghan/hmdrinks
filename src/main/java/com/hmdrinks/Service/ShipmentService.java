@@ -216,6 +216,7 @@ public class ShipmentService {
     }
 
 
+    @Transactional
     public ResponseEntity<?> successShipment(int shipmentId,int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
@@ -229,6 +230,14 @@ public class ShipmentService {
         }
         shippment.setStatus(Status_Shipment.SUCCESS);
         shipmentRepository.save(shippment);
+
+        Payment payment1 = shippment.getPayment();
+        if(payment1.getPaymentMethod() == Payment_Method.CASH)
+        {
+            payment1.setStatus(Status_Payment.COMPLETED);
+            paymentRepository.save(payment1);
+        }
+
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());

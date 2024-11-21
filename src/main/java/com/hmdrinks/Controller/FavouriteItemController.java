@@ -36,6 +36,11 @@ public class FavouriteItemController {
         return favouriteItemService.insertFavouriteItem(req);
     }
 
+    @GetMapping(value = "/list")
+    public ResponseEntity<?> ListFavourite(){
+        return favouriteItemService.listAllTotalFavouriteByProId();
+    }
+
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<?> deleteOneItem(@RequestBody DeleteOneFavouriteItemReq req, HttpServletRequest httpRequest){
 
