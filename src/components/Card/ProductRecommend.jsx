@@ -27,9 +27,15 @@ const ProductRecommend = ({ product, onClick }) => {
         navigate(`/product/${product.proId}`, { state: { product } });
     };
 
+    console.log("Product Image Link:", product.productImageResponseList[0]?.linkImage); // Log linkImage
+
     return (
         <div className="recommend-product-recommend" onClick={() => handleProductRecommendClick(product)}>
-            <img src={product.productImageResponseList[0]?.linkImage} alt={product.proName} className="recommend-product-image" />
+            <img
+                src={product.productImageResponseList[0]?.linkImage}
+                alt={product.proName}
+                className="recommend-product-image"
+            />
             <h3>{product.proName}</h3>
             <p className="recommend-product-description">{product.description}</p>
             {renderStars(product.rate)}
