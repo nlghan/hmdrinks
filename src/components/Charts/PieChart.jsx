@@ -56,10 +56,10 @@ export default function CustomPieChart() {
     }
 
     const sampleData = [
-        { name: 'Đang chờ', value: percentages[0] || 0 },
-        { name: 'Đang giao', value: percentages[1] || 0 },
-        { name: 'Thành công', value: percentages[2] || 0 },
-        { name: 'Đã hủy', value: percentages[3] || 0 },
+        { name: 'Đang chờ', value: percentages[0] || 0, label: 'Đang chờ', color: '#f76c34'},
+        { name: 'Đang giao', value: percentages[1] || 0, label: 'Đang giao' , color: '#3ab2fc'},
+        { name: 'Thành công', value: percentages[2] || 0, label: 'Thành công' , color: '#29ab29'},
+        { name: 'Đã hủy', value: percentages[3] || 0, label: 'Đã hủy' , color: '#c24255'},
     ];
 
     return (

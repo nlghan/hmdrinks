@@ -275,7 +275,7 @@ const Contact = () => {
                   required
                 ></textarea>
               </div>
-              <button type="submit" className="contact-submit-btn1" ref={el => formGroupRefs.current[4] = el}>Gửi Ngay</button>
+              <button type="submit" className="contact-submit-btn1" ref={el => formGroupRefs.current[4] = el} >Gửi Ngay</button>
 
               
             </form>

@@ -237,6 +237,8 @@ const News = () => {
             }
         } catch (error) {
             console.error("Error fetching all users:", error);
+        }
+    };
 
     const fetchWithRetry = async (url, options, retries = 3, delay = 1000) => {
         try {
