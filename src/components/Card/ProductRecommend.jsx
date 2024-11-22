@@ -27,15 +27,20 @@ const ProductRecommend = ({ product, onClick }) => {
         navigate(`/product/${product.proId}`, { state: { product } });
     };
 
-    console.log("Product Image Link:", product.productImageResponseList[0]?.linkImage); // Log linkImage
-
     return (
         <div className="recommend-product-recommend" onClick={() => handleProductRecommendClick(product)}>
-            <img
-                src={product.productImageResponseList[0]?.linkImage}
-                alt={product.proName}
-                className="recommend-product-image"
-            />
+            {product.productImageResponseList.length > 0 && (
+                <div id='img1-container'>
+                    {product.productImageResponseList.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image.linkImage} // Lấy linkImage từ productImageResponseList
+                            alt={product.proName}
+                            className="product-image"
+                        />
+                    ))}
+                </div>
+            )}
             <h3>{product.proName}</h3>
             <p className="recommend-product-description">{product.description}</p>
             {renderStars(product.rate)}

@@ -1,0 +1,58 @@
+.linechart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the chart and title */
+  margin: 20px; /* Add some margin around the container */
+}
+
+.linechart-title {
+  font-size: 24px; /* Set the font size for the title */
+  font-weight: bold; /* Make the title bold */
+  margin-bottom: 10px; /* Space between title and chart */
+  color: #333; /* Set a color for the title */
+}
+.MuiAreaElement-root {
+    stroke: none; /* Bỏ viền */
+    fill: #e89c73; /* Màu nền cho khu vực */
+}
+
+/* Thay đổi màu sắc cho đường line */
+.css-1la267r-MuiLineElement-root {
+    stroke: #ff5733; /* Màu đường line */
+    stroke-width: 2; /* Độ dày của đường line */
+}
+
+/* Thay đổi màu sắc cho các điểm dữ liệu */
+.css-1la267r-MuiPointElement-root {
+    fill: #ffcc00; /* Màu cho các điểm dữ liệu */
+    stroke: #000; /* Màu viền cho các điểm dữ liệu */
+    stroke-width: 1; /* Độ dày viền cho các điểm dữ liệu */
+}
+
+/* Màu nền cho khu vực của biểu đồ */
+.css-1la267r-MuiAreaElement-root {
+    stroke: none; /* Bỏ viền */
+    fill: #02d5d1; /* Màu nền cho khu vực */
+    -webkit-transition: opacity 0.2s ease-in, fill 0.2s ease-in; /* Hiệu ứng chuyển đổi */
+    transition: opacity 0.2s ease-in, fill 0.2s ease-in; /* Hiệu ứng chuyển đổi */
+    opacity: 1; /* Độ mờ */
+}
+
+/* Màu cho đường line */
+.MuiLineElement-root {
+    stroke: #ff5733; /* Màu đường line */
+    stroke-width: 2; /* Độ dày của đường line */
+}
+
+/* Màu cho các điểm dữ liệu */
+.css-1la267r-MuiPointElement-root {
+    fill: #a1d8e0; /* Màu cho các điểm dữ liệu */
+    stroke: #000; /* Màu viền cho các điểm dữ liệu */
+    stroke-width: 1; /* Độ dày viền cho các điểm dữ liệu */
+}
+
+/* Màu nền cho khu vực khác (nếu cần) */
+.MuiAreaElement-root {
+    stroke: none; /* Bỏ viền */
+    fill: #bbe1ff; /* Màu nền cho khu vực khác */
+}

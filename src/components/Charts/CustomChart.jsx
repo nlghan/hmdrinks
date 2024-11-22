@@ -56,22 +56,6 @@ export default function CustomChart() {
   const [selectedYear, setSelectedYear] = React.useState(new Date().getFullYear());
   const [data, setData] = React.useState(dataset('Tháng 1', selectedYear, [], []));
   const [successfulShipments, setSuccessfulShipments] = React.useState([]);
-  
-  const getUserIdFromToken = (token) => {
-    try {
-      // Tách payload từ token
-      const payload = token.split('.')[1];
-      // Giải mã payload từ base64
-      const decodedPayload = JSON.parse(atob(payload));
-
-      // Ép kiểu UserId thành int (số nguyên)
-      return parseInt(decodedPayload.UserId, 10); // 10 là hệ cơ số thập phân
-    } catch (error) {
-      console.error("Cannot decode token:", error);
-      return null;
-    }
-  };
-
 
   // Get Cookie by name
   const getCookie = (name) => {
@@ -87,7 +71,7 @@ export default function CustomChart() {
         return;
       }
 
-      // Kiểm tra xem month có phải là một trong những khóa trong monthData không
+      // Check if month is valid
       if (!monthData[month]) {
         console.error("Tháng không hợp lệ:", month);
         return;
@@ -117,42 +101,18 @@ export default function CustomChart() {
 
         totalPages = response.data.totalPages || 1;
 
-        shipments.forEach((shipment) => {
+        for (const shipment of shipments) {
           const date = new Date(shipment.dateCreated);
           if (date.getMonth() === new Date(`${month} 1, ${year}`).getMonth() && date.getFullYear() === year) {
             shipmentCounts[date.getDate() - 1] += 1;
+
+            // Fetch payment details for each shipment
+            const paymentId = shipment.paymentId; // Assuming paymentId is available in shipment
+            if (paymentId) {
+              await fetchPaymentDetails(paymentId, date.getDate() - 1, paymentAmounts);
+            }
           }
-        });
-
-        currentPage++;
-      }
-
-      // Fetch payments
-      currentPage = 1; // Reset currentPage for payments
-      totalPages = 1; // Reset totalPages for payments
-
-      while (currentPage <= totalPages) {
-        const paymentResponse = await axios.get('http://localhost:1010/api/payment/listAll', {
-          params: {
-            page: currentPage,
-            limit: 100,
-          },
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        console.log('Dữ liệu payment:', paymentResponse.data);
-        const payments = paymentResponse.data.listPayments;
-
-        totalPages = paymentResponse.data.totalPage || 1;
-
-        payments.forEach((payment) => {
-          const paymentDate = new Date(payment.dateCreated);
-          if (paymentDate.getMonth() === new Date(`${month} 1, ${year}`).getMonth() && paymentDate.getFullYear() === year) {
-            paymentAmounts[paymentDate.getDate() - 1] += payment.amount;
-          }
-        });
+        }
 
         currentPage++;
       }
@@ -161,6 +121,27 @@ export default function CustomChart() {
       setData(dataset(month, year, shipmentCounts, paymentAmounts));
     } catch (error) {
       console.error('Lỗi khi gọi API:', error);
+    }
+  };
+
+  // Function to fetch payment details
+  const fetchPaymentDetails = async (paymentId, dayIndex, paymentAmounts) => {
+    try {
+      const token = getCookie('access_token');
+      const response = await axios.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const paymentAmount = response.data.amount; // Assuming the response contains the amount
+        console.log('payment', paymentAmount);
+        paymentAmounts[dayIndex] += paymentAmount; // Accumulate the payment amount for the corresponding day
+        console.log('Updated paymentAmounts:', paymentAmounts);
+      }
+    } catch (error) {
+      console.error(`Lỗi khi gọi API cho paymentId ${paymentId}:`, error);
     }
   };
 

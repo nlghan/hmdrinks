@@ -36,3 +36,7 @@
     position: relative; /* Đặt vị trí tương đối cho BarChart */
     z-index: 20; /* Đặt z-index cao hơn để nổi lên trên cùng */
 }
+/* Add this rule to adjust the position of the legend */
+.MuiChartsLegend-root {
+    transform: translateY(-18px);
+}
