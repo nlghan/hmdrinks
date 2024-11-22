@@ -220,6 +220,7 @@ public class VoucherService {
                 voucher.getPost().getPostId()
         ));
     }
+
     public ResponseEntity<?> listAllVoucher()
     {
         List<Voucher> voucherList = voucherRepository.findAll();
@@ -267,6 +268,8 @@ public class VoucherService {
                 voucher.getPost().getPostId()
         ));
     }
+
+
 
     public ResponseEntity<?> enableVoucher(int voucherId)
     {

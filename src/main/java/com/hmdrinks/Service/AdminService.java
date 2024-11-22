@@ -14,6 +14,7 @@ import com.hmdrinks.Request.FilterProductBox;
 import com.hmdrinks.Request.UpdateAccountUserReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -561,16 +562,18 @@ public class AdminService {
         ));
     }
 
+    @Transactional
     public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByType(typePost,pageable);
-        List<CRUDPostResponse> responses = new ArrayList<>();
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            responses.add(new CRUDPostResponse(
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -580,7 +583,17 @@ public class AdminService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate()
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
             ));
             total++;
         }
@@ -593,16 +606,18 @@ public class AdminService {
         );
     }
 
+    @Transactional
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAll(pageable);
-        List<CRUDPostResponse> responses = new ArrayList<>();
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            responses.add(new CRUDPostResponse(
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -612,7 +627,17 @@ public class AdminService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate()
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
             ));
             total++;
         }

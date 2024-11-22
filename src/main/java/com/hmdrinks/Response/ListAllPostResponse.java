@@ -16,5 +16,5 @@ public class ListAllPostResponse {
     private long totalPages;
     private int limit;
     private int total;
-    List<CRUDPostResponse> listPosts;
+    List<CRUDPostAndVoucherResponse> listPosts;
 }

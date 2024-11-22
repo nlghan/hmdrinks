@@ -63,9 +63,16 @@ public class OrdersController {
         return  ordersService.getInformationPayment(orderId);
     }
 
+
+
     @GetMapping("/pdf/invoice")
     public ResponseEntity<?> infoPayment1(@RequestParam int orderId) throws IOException {
         return  generateInvoiceService.createInvoice(orderId);
+    }
+
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<?> historyOrder(@PathVariable int userId) {
+        return  ordersService.listHistoryOrder(userId);
     }
 
     @GetMapping("/view/{userId}")
