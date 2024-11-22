@@ -185,6 +185,7 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> activate_Admin(int shipmentId, Status_Shipment statusShipment)
     {
         Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
@@ -194,6 +195,15 @@ public class ShipmentService {
         }
         shippment.setStatus(statusShipment);
         shipmentRepository.save(shippment);
+        if(statusShipment == Status_Shipment.SUCCESS)
+        {
+            Payment payment = shippment.getPayment();
+            if(payment.getPaymentMethod() == Payment_Method.CASH)
+            {
+                payment.setStatus(Status_Payment.COMPLETED);
+                paymentRepository.save(payment);
+            }
+        }
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
@@ -216,6 +226,7 @@ public class ShipmentService {
     }
 
 
+    @Transactional
     public ResponseEntity<?> successShipment(int shipmentId,int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
@@ -229,6 +240,14 @@ public class ShipmentService {
         }
         shippment.setStatus(Status_Shipment.SUCCESS);
         shipmentRepository.save(shippment);
+
+        Payment payment1 = shippment.getPayment();
+        if(payment1.getPaymentMethod() == Payment_Method.CASH)
+        {
+            payment1.setStatus(Status_Payment.COMPLETED);
+            paymentRepository.save(payment1);
+        }
+
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
