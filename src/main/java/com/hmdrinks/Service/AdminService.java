@@ -161,7 +161,8 @@ public class AdminService {
         }
 
         userRepository.save(existingUser);
-        String fullLocation = existingUser.getStreet() + "," + existingUser.getWard() + existingUser.getDistrict() + ","+ existingUser.getCity();
+        String fullLocation = existingUser.getStreet() + "," + existingUser.getWard() +
+                existingUser.getDistrict() + ","+ existingUser.getCity();
         // Return updated user information as response
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDAccountUserResponse(
                 existingUser.getUserId(),
