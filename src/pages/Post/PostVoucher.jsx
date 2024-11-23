@@ -110,7 +110,7 @@ const PostVoucher = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={'Chi tiết bài viết'} />
             <div
                 className="post-voucher-container"
                 style={{

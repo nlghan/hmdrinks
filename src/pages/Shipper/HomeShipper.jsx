@@ -14,137 +14,81 @@ const HomeShipper = () => {
     const [limit] = useState(5); // Items per page
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('SHIPPING');
+    const [filteredData, setFilteredData] = useState([]);
     const navigate = useNavigate();
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
+        const parts = value.split(`; ${name}=`); 
         return parts.length === 2 ? parts.pop().split(';').shift() : null;
     };
 
     const getUserIdFromToken = (token) => {
         try {
-            // Decode payload from token
             const payload = token.split('.')[1];
             const decodedPayload = JSON.parse(atob(payload));
-            return parseInt(decodedPayload.UserId, 10); // Convert UserId to integer
+            return parseInt(decodedPayload.UserId, 10);
         } catch (error) {
             console.error("Cannot decode token:", error);
             return null;
         }
     };
 
-    const fetchData = async (page) => {
+    const fetchData = async (page, status = selectedStatus) => {
         setLoading(true);
         setError(null);
-
+    
         const token = getCookie('access_token');
         if (!token) {
             setError('Vui lòng đăng nhập lại.');
             setLoading(false);
             return;
         }
-
+    
         const userId = getUserIdFromToken(token);
         if (!userId) {
             setError('Không thể xác định UserId.');
             setLoading(false);
             return;
         }
-
+    
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/shipment/view/list-All`,
+                `http://localhost:1010/api/shipment/shipper/listShippment`,
                 {
-                    params: { page, limit },
+                    params: { page, limit, userId, status }, // Add status to params
                     headers: {
                         Accept: '*/*',
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-
+    
             const { listShipment, totalPage } = response.data;
-            console.log("API response data:", response.data);
-
-            // Filter shipments by userId (shipperId)
-            const filteredShipments = listShipment.filter(
-                (shipment) => shipment.shipperId === userId
-            );
-            console.log("Filtered Shipments:", filteredShipments);
-
-            setData(filteredShipments || []);
+            setData(listShipment || []);
             setTotalPage(totalPage || 1);
             setCurrentPage(page);
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching data:', err);
             setError('Không thể tải dữ liệu.');
             setLoading(false);
         }
     };
-
-    const handleStatusChange = async (shipmentId, newStatus) => {
-        const token = getCookie('access_token');
-        if (!token) {
-            setError('Vui lòng đăng nhập lại.');
-            return;
-        }
-
-        // Nếu trạng thái được chọn là "SUCCESS", gọi API
-        if (newStatus === 'SUCCESS') {
-            const userId = getUserIdFromToken(token);
-            if (!userId) {
-                setError('Không thể xác định UserId.');
-                return;
-            }
-
-            try {
-                const response = await axios.post(
-                    'http://localhost:1010/api/shipment/activate/success',
-                    {
-                        userId,
-                        shipmentId, // Đảm bảo shipmentId được truyền vào
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                console.log('API response:', response.data);
-                // Sau khi cập nhật, refresh lại dữ liệu
-                fetchData(currentPage);
-            } catch (error) {
-                console.error('Error calling success API:', error);
-                setError('Không thể cập nhật trạng thái thành công.');
-            }
-        } else {
-            // Xử lý các trạng thái khác như "SHIPPING" hay "CANCELLED" nếu cần
-            try {
-                const response = await axios.put(
-                    `${import.meta.env.VITE_API_BASE_URL}/shipment/update-status/${shipmentId}`,
-                    { status: newStatus },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                console.log('Status updated:', response.data);
-                // Refresh the data after status change
-                fetchData(currentPage);
-            } catch (error) {
-                console.error('Error updating status:', error);
-                setError('Không thể cập nhật trạng thái.');
-            }
-        }
+    
+    const handleStatusChange = (status) => {
+        setSelectedStatus(status);
+        setCurrentPage(1); // Reset to page 1 on status change
+        fetchData(1, status); // Fetch data with the new status
     };
 
     useEffect(() => {
         fetchData(currentPage);
     }, [currentPage]);
+
+    useEffect(() => {
+        setFilteredData(data.filter((item) => item.status === selectedStatus));
+    }, [data, selectedStatus]);
 
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPage) {
@@ -174,6 +118,27 @@ const HomeShipper = () => {
         <>
             <NavbarShipper currentPage="Trang Chủ" />
             <div className="shipper-home-container">
+                <div className="side-menu-shipper">
+                    <button
+                        className={`side-menu-shipper ${selectedStatus === 'SHIPPING' ? 'active' : ''}`}
+                        onClick={() => handleStatusChange('SHIPPING')}
+                    >
+                        Đơn hàng cần giao
+                    </button>
+                    <button
+                        className={`side-menu-shipper ${selectedStatus === 'SUCCESS' ? 'active' : ''}`}
+                        onClick={() => handleStatusChange('SUCCESS')}
+                    >
+                        Đơn hàng đã hoàn thành
+                    </button>
+                    <button
+                        className={`side-menu-shipper ${selectedStatus === 'CANCELLED' ? 'active' : ''}`}
+                        onClick={() => handleStatusChange('CANCELLED')}
+                    >
+                        Đơn hàng đã hủy
+                    </button>
+                </div>
+
                 <div className="shipper-home-content">
                     {loading ? (
                         <LoadingAnimation />
@@ -183,45 +148,45 @@ const HomeShipper = () => {
                         <p>Không có đơn hàng nào để hiển thị.</p>
                     ) : (
                         <ul className="shipment-list">
-                            {data.map((shipment) => (
+                            <h2>DANH SÁCH ĐƠN HÀNG</h2>
+                            {filteredData.map((shipment) => (
                                 <li key={shipment.shipmentId} className="shipment-item">
-                                <div
-                                    className="shipment-header"
-                                    style={{
-                                        background: 
-                                            shipment.status === 'SUCCESS' ? '#6fb380' : 
-                                            shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' : 
-                                            shipment.status === 'CANCELLED' ? 'red' : '#FFA983', // Màu nền tùy thuộc vào trạng thái
-                                        border: 
-                                            shipment.status === 'SUCCESS' ? '2px solid #4c8b5b' : 
-                                            shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' : 
-                                            shipment.status === 'CANCELLED' ? '2px solid red' : 'none', // Border tùy thuộc vào trạng thái
-                                    }}
-                                >
-                                    <span className="shipment-id">
-                                        Mã đơn giao: {shipment?.shipmentId || "N/A"}
-                                    </span>
-                            
-                                    <button
-                                        className="btn-view-details-ship"
-                                        onClick={() =>
-                                            navigate(`/shipment-detail/${shipment.shipmentId}`)
-                                        }
+                                    <div
+                                        className="shipment-header"
+                                        style={{
+                                            background:
+                                                shipment.status === 'SUCCESS' ? '#6fb380' :
+                                                    shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
+                                                        shipment.status === 'WAITING' ? 'pink' :
+                                                            shipment.status === 'CANCELLED' ? 'red' : '#FFA983',
+                                            border:
+                                                shipment.status === 'SUCCESS' ? '2px solid #4c8b5b' :
+                                                    shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' :
+                                                        shipment.status === 'CANCELLED' ? '2px solid red' : 'none',
+                                        }}
                                     >
-                                        Chi tiết
-                                    </button>
-                                </div>
-                                <div className="shipment-body">
-                                    <p><strong>Customer:</strong> {shipment.customerName}</p>
-                                    <p><strong>Address:</strong> {shipment.address}</p>
-                                    <p><strong>Phone:</strong> {shipment.phoneNumber}</p>
-                                    <p><strong>Status:</strong> {shipment.status}</p>
-                                    <p><strong>Created At:</strong> {shipment.dateCreated}</p>
-                                </div>
-                                
-                            </li>
-                            
-                            
+                                        <span className="shipment-id">
+                                            Mã đơn giao: {shipment?.shipmentId || "N/A"}
+                                        </span>
+
+                                        <button
+                                            className="btn-view-details-ship"
+                                            onClick={() =>
+                                                navigate(`/shipment-detail/${shipment.shipmentId}`)
+                                            }
+                                        >
+                                            Chi tiết
+                                        </button>
+                                    </div>
+                                    <div className="shipment-body">
+                                        <p><strong>Customer:</strong> {shipment.customerName}</p>
+                                        <p><strong>Address:</strong> {shipment.address}</p>
+                                        <p><strong>Phone:</strong> {shipment.phoneNumber}</p>
+                                        <p><strong>Status:</strong> {shipment.status}</p>
+                                        <p><strong>Created At:</strong> {shipment.dateCreated}</p>
+                                    </div>
+
+                                </li>
                             ))}
                         </ul>
                     )}

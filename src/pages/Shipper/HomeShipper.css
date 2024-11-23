@@ -89,14 +89,16 @@
 }
 
 .shipment-item {
-    border: 2px solid #d9534f; /* Đường viền dày hơn và có màu đậm hơn */
+    border: 2px solid #d9534f;
+    /* Đường viền dày hơn và có màu đậm hơn */
     border-radius: 8px;
     margin-bottom: 16px;
     background-color: #fff;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Hiệu ứng đổ bóng */
 }
 
 
@@ -108,7 +110,7 @@
     font-weight: bold;
 }
 
-.shipment-id{
+.shipment-id {
     display: flex;
     margin-left: 15px;
     border-radius: 50px;
@@ -146,13 +148,60 @@
     text-align: center;
 }
 
-.btn-view-details-ship{
+.btn-view-details-ship {
     background: transparent;
 }
 
 .btn-view-details:hover,
 .btn-deliver:hover {
     background-color: #e36a5a;
+}
+.side-menu-shipper {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    font-family: 'Inter';
+}
+
+.side-menu-shipper button {
+    border-radius: 50px;
+    background: antiquewhite;
+    transition: color 0.4s ease, background-color 0.4s ease;
+    position: relative;
+}
+
+.side-menu-shipper button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f9d3d3;  /* Màu nền khi active hoặc hover */
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+}
+
+.side-menu-shipper button:hover,
+.side-menu-shipper button:focus,
+.side-menu-shipper button:focus-visible {
+    color: black;
+    background-color: #f8a5a5;  /* Thay đổi màu nền khi hover hoặc focus */
+}
+
+.side-menu-shipper button:focus::before,
+.side-menu-shipper button:focus-visible::before {
+    transform: scaleX(1);  /* Làm đầy màu khi focus */
 }
 
 
@@ -161,6 +210,7 @@
         opacity: 0;
         transform: translateY(50px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
@@ -191,6 +241,7 @@
     .shipper-post-grid {
         grid-template-columns: 1fr;
     }
+
     .shipper-soda-ad {
         display: flex;
         flex-direction: column;
@@ -200,6 +251,7 @@
         margin: 0 15px;
         background-color: rgba(255, 250, 250, 1);
     }
+
     .shipper-soda-ad-button {
         display: inline-block;
         padding: 10px 20px;
@@ -275,6 +327,7 @@
     background-color: #e2e6ea;
 }
 
-.btn-pre, .btn-next {
+.btn-pre,
+.btn-next {
     font-weight: bold;
 }

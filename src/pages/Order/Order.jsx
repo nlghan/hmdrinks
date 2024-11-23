@@ -552,7 +552,7 @@ const Order = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar currentPage={'Thanh toán'}/>
             <div className="order-background-container">
                 <div className="order-container">
                     <div className="content">

@@ -57,6 +57,7 @@ const Product = () => {
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
     const LIMIT = 4; // Số lượng sản phẩm mỗi trang
+    const [total, setTotal] = useState(); // Tổng số trang
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -255,6 +256,7 @@ const Product = () => {
                 setActiveProducts("delete: " + activeIds);
 
                 setTotalPages(response.data.totalPage||response.data.body.totalPage || 1);
+                setTotal(response.data.toal)
             } else {
                 setProducts([]);
                 console.log("No products found in parsed product data");  // Log nếu không có sản phẩm trong dữ liệu đã phân tích
@@ -515,7 +517,7 @@ const Product = () => {
                     <div className='prodcut-table-header'>
                         <div>
                             <h3 className="product-title-table">
-                                {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : 'Tất Cả Sản Phẩm'}
+                                {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : `Tất Cả Sản Phẩm (${total})`}
                             </h3>
 
                         </div>

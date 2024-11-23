@@ -24,6 +24,7 @@ function Response() {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [isResponseOpen, setIsResponseOpen] = useState(false);
     const [selectedResponseForUpdate, setSelectedResponseForUpdate] = useState(null);
+    const [total, setTotal] = useState(); // Tổng số trang
 
     const getUserIdFromToken = (token) => {
         try {
@@ -77,6 +78,7 @@ function Response() {
             setCurrentPage(data.currentPage);
             setTotalPage(data.totalPage);
             setLimit(data.limit);
+            setTotal(data.total)
 
         } catch (error) {
             console.error('Error fetching responses:', error);
@@ -134,6 +136,7 @@ function Response() {
             setApprovedCount(completed);
             setRejectedCount(rejected);
             setTotalResponses(total);
+            
 
         } catch (error) {
             console.error('Error fetching total counts:', error);
@@ -255,7 +258,7 @@ function Response() {
                 <div className="response-main-section">
                     <div className="response-box">
                         <div className="header-response-box">
-                            <h2>Danh Sách Phản Hồi</h2>
+                            <h2>Danh Sách Phản Hồi ({total})</h2>
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm phản hồi..."

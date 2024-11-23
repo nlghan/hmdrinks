@@ -45,6 +45,7 @@ const User = () => {
     const [adminPercentage, setAdminPercentage] = useState(0);
     const [customerPercentage, setCustomerPercentage] = useState(0);
     const [shipperPercentage, setShipperPercentage] = useState(0);
+    const [total, setTotal] = useState(); // Tổng số trang
 
     const getUserIdFromToken = (token) => {
         try {
@@ -102,6 +103,7 @@ const User = () => {
             console.log('Response data:', response.data);
 
             const data = response.data;
+            setTotal(data.total)
             const userData = data.detailUserResponseList;
 
             // Check if the userData is empty
@@ -254,7 +256,9 @@ const User = () => {
                             : user
                     )
                 );
+                fetchUsers(currentPage, limit, 'all'); // Đảm bảo role là tham số phù hợp
                 console.log(`User with ID ${userId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`);
+                // fetchUsers(currentPage,limit, role = 'all')
             } else {
                 setError("Không thể thay đổi trạng thái người dùng. Vui lòng thử lại.");
             }
@@ -352,7 +356,7 @@ const User = () => {
                 <div className="user-main-section">
                     <div className="user-box">
                         <div className="header-user-box">
-                            <h2>Danh Sách Người Dùng</h2>
+                            <h2>Danh Sách Người Dùng ({total})</h2>
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm người dùng..."

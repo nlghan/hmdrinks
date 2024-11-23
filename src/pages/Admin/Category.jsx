@@ -32,6 +32,7 @@ const Category = () => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(1); // Tổng số trang
     const [isCreating, setIsCreating] = useState(false); // Trạng thái khi tạo mới danh mục
+    const [total, setTotal] = useState(); // Tổng số trang
 
 
     // Cơ chế debounce cho searchTerm
@@ -89,6 +90,7 @@ const Category = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            setTotal(response.data.total)
 
             // Kiểm tra dữ liệu trả về
             if (response.data && response.data.categoryResponseList) {
@@ -207,6 +209,7 @@ const Category = () => {
                 console.log(
                     `Category with ID ${cateId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
                 );
+                fetchCategories(currentPage);
             } else {
                 setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
             }
@@ -266,24 +269,6 @@ const Category = () => {
             }
         } else {
             alert("Vui lòng nhập tên danh mục và chọn hình ảnh.");
-        }
-    };
-
-    const handleDeleteCategory = async (cateId) => {
-        const token = getCookie('access_token');
-        try {
-            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/cate/delete/${cateId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            setSuccessMessage("Xóa danh mục thành công!");
-            setTimeout(() => setSuccessMessage(''), 2000);
-            // Tải lại danh sách danh mục
-            fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
-        } catch (error) {
-            console.error("Lỗi khi xóa danh mục:", error);
-            alert("Không thể xóa danh mục. Vui lòng thử lại.");
         }
     };
 
@@ -475,7 +460,7 @@ const Category = () => {
                 <div className="main-section-cate">
                     <div className="list-cate-box">
                         <div className="list-header">
-                            <h2>Danh mục các loại đồ uống</h2>
+                            <h2>Danh mục các loại đồ uống ({total})</h2>
                             <div className="search-sort-container">
                                 <Autocomplete
                                     freeSolo
