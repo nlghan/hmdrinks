@@ -65,6 +65,8 @@ public class ContactService {
             message.setSubject("Feedback Received Confirmation");
             message.setText(text);
             javaMailSender1.send(message);
+            System.out.println("Sending email to: " + to);  // Log email được gửi đi
+
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDContactResponse(

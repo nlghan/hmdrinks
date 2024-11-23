@@ -75,11 +75,18 @@ public class ProductController {
         return reviewService.getAllReview(page,limit,proId);
     }
 
+
     @GetMapping("/list-image/{proId}")
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
         return productService.getAllProductImages(proId);
     }
-
+    @GetMapping(value = "/list-with-avg-rating")
+    public ResponseEntity<?> listProductsWithAverageRating(
+            @RequestParam(name = "page") String pageFromParam,
+            @RequestParam(name = "limit") String limitFromParam
+    ) {
+        return productService.listProductsWithAverageRating(pageFromParam, limitFromParam);
+    }
     @PostMapping("/filter-product")
     public ResponseEntity<?> filterProduct(
            @RequestBody FilterProductBox req

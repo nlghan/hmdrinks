@@ -580,4 +580,64 @@ public class ProductService {
                 product.getDateUpdated()
         ));
     }
+    public ResponseEntity<?> listProductsWithAverageRating(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        Page<Product> productList = productRepository.findByIsDeletedFalse(pageable);
+        List<ProductWithAvgRatingResponse> productWithAvgRatingResponses = new ArrayList<>();
+        int total = 0;
+
+        for (Product product : productList) {
+            // Fetch all reviews for this product
+            List<Review> reviews = reviewRepository.findByProduct_ProIdAndIsDeletedFalse(product.getProId());
+            double avgRating = 0.0;
+
+            if (!reviews.isEmpty()) {
+                // Calculate average rating
+                avgRating = reviews.stream()
+                        .mapToInt(Review::getRatingStar)
+                        .average()
+                        .orElse(0.0);
+            }
+
+            // Process product images
+            List<ProductImageResponse> productImageResponses = new ArrayList<>();
+            String currentProImg = product.getListProImg();
+            if (currentProImg != null && !currentProImg.trim().isEmpty()) {
+                String[] imageEntries = currentProImg.split(", ");
+                for (String imageEntry : imageEntries) {
+                    String[] parts = imageEntry.split(": ");
+                    int stt = Integer.parseInt(parts[0]);
+                    String url = parts[1];
+                    productImageResponses.add(new ProductImageResponse(stt, url));
+                }
+            }
+
+            // Add product and its avg rating to response list
+            productWithAvgRatingResponses.add(new ProductWithAvgRatingResponse(
+                    product.getProId(),
+                    product.getCategory().getCateId(),
+                    product.getProName(),
+                    productImageResponses,
+                    product.getDescription(),
+                    avgRating,
+                    product.getIsDeleted(),
+                    product.getDateDeleted(),
+                    product.getDateCreated(),
+                    product.getDateUpdated()
+            ));
+            total++;
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListProductWithAvgRatingResponse(
+                page,
+                productList.getTotalPages(),
+                limit,
+                total,
+                productWithAvgRatingResponses
+        ));
+    }
 }
