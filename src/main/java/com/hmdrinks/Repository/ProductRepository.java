@@ -28,6 +28,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Page<Product> findAll(Pageable pageable);
     List<Product> findAll();
+    List<Product> findAllByIsDeletedFalse();
 
     Page<Product> findByProNameContaining(String proName, Pageable pageable);
 

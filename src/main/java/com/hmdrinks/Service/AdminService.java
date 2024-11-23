@@ -449,6 +449,7 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
+        List<Product> productList1 = productRepository.findAllByIsDeletedFalse();
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         int total = 0;
         for (Product product1 : productList) {
@@ -478,7 +479,7 @@ public class AdminService {
             ));
             total++;
         }
-        return new ListProductResponse(page, productList.getTotalPages(), limit,total, crudProductResponseList);
+        return new ListProductResponse(page, productList.getTotalPages(), limit,productList1.size(), crudProductResponseList);
     }
 
     public CRUDProductResponse getOneProduct(Integer id) {

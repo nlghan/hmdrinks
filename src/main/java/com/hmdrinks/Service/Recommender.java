@@ -8,6 +8,7 @@ import com.hmdrinks.Response.ListRecommendResponse;
 import com.hmdrinks.Response.ProductImageResponse;
 import com.hmdrinks.Service.utils.Utils;
 import com.hmdrinks.Service.utils.ValueComparator;
+import jakarta.transaction.Transactional;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONArray;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class Recommender {
 
     private static final int NUM_NEIGHBOURHOODS = 10;
     private static final int NUM_RECOMMENDATIONS = 20;
-    private static final float MIN_VALUE_RECOMMENDATION = 2;
+    private static final float MIN_VALUE_RECOMMENDATION = 0;
 
     @Autowired
     private UserRepository userRepository;
@@ -210,6 +211,7 @@ public class Recommender {
 
     }
 
+    @Transactional
     public ResponseEntity<?> recommendedBooks(Long userId, UserRepository userRepository, ProductRepository productRepository) {
 
         Map<Long, Double> averageRating = new HashMap<>();
@@ -318,6 +320,7 @@ public class Recommender {
             List<Orders> orders = orderRepository.findAllByUserUserId(Math.toIntExact(userId));
             for(Orders order : orders) {
                 OrderItem orderItem = order.getOrderItem();
+                System.out.println(orderItem.getOrderItemId());
                 Cart cart = orderItem.getCart();
                 List<CartItem> cartItem = cartItemRepository.findByCart_CartId(cart.getCartId());
                 for(CartItem cartItem1 : cartItem) {

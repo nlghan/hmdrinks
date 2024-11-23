@@ -47,6 +47,7 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/fav-item/list").permitAll()
+                        .requestMatchers("/api/product/recommended/**").permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
                         .requestMatchers("/api/v1/auth/social-login/google").permitAll()
                         .requestMatchers("/api/orders/pdf/**").permitAll()
