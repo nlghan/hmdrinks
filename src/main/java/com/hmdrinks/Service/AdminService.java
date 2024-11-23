@@ -614,6 +614,8 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAll(pageable);
+        List<Post> posts1 = postRepository.findAllByIsDeletedFalse();
+
         List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
@@ -646,7 +648,7 @@ public class AdminService {
                 page,
                 posts.getTotalPages(),
                 limit,
-                total,
+                posts1.size(),
                 responses
         );
     }
@@ -658,6 +660,7 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
+        List<Category> categoryList1 = categoryRepository.findAllByIsDeletedFalse();
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         int total = 0;
         for(Category category: categoryList){
@@ -672,6 +675,6 @@ public class AdminService {
             ));
             total++;
         }
-        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
     }
 }
