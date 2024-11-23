@@ -10,8 +10,6 @@ import com.hmdrinks.Request.InitPaymentRequest;
 import com.hmdrinks.Response.CRUDPaymentResponse;
 import com.hmdrinks.Response.CreatePaymentResponse;
 import com.hmdrinks.Response.ListAllPaymentResponse;
-import com.hmdrinks.SupportFunction.DistanceAndDuration;
-import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.hibernate.query.Order;
@@ -35,7 +33,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,8 +75,6 @@ public class PaymentService {
     private ShipmentRepository shipmentRepository;
     @Autowired
     private VNPayService vnPayService;
-    @Autowired
-    private SupportFunction supportFunction;
 
     private static Long generateRandomOrderCode() {
         Random random = new Random();
@@ -87,39 +82,12 @@ public class PaymentService {
         return Long.valueOf(randomNumber);
     }
 
-
-    public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
-        int hours = 0;
-        int minutes = 0;
-
-        // Phân tích chuỗi "3 giờ 4 phút"
-        if (duration.contains("giờ")) {
-            String[] parts = duration.split("giờ");
-            hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
-            if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút
-            }
-        } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim());
-        }
-
-        return currentTime.plusHours(hours).plusMinutes(minutes);
-    }
-
     @Transactional
-    public  void assignShipments(int orderId) {
+    public  void assignShipments() {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
                 .collect(Collectors.toList());
-        Orders orders = orderRepository.findByOrderId(orderId);
-        String place_id = supportFunction.getLocation(orders.getAddress());
-        double[] destinations= supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075,106.77190192800003};  // Số 1-3 Võ Văn Ngân,Linh Chiểu, Thủ Đức, Tp HCM
-        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
-        String minute = distanceAndDuration.getDuration();
-        LocalDateTime currentTime = LocalDateTime.now(); // Thời gian hiện tại
-        LocalDateTime updatedTime = addDurationToCurrentTime(minute, currentTime);
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
         for (Shippment shipment : pendingShipments) {
@@ -127,16 +95,14 @@ public class PaymentService {
             User selectedShipper = shippers.stream()
                     .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
                     .orElse(null);
+
             if (selectedShipper != null) {
                 shipment.setUser(selectedShipper);
-                shipment.setStatus(Status_Shipment.SHIPPING);
-                shipment.setDateDelivered(updatedTime);
+                shipment.setStatus(Status_Shipment.WAITING); // Đổi trạng thái đơn hàng
                 shipmentRepository.save(shipment);
-
             }
         }
     }
-
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
@@ -259,7 +225,6 @@ public class PaymentService {
                 payment.setDateCreated(LocalDateTime.now());
                 payment.setOrderIdPayment(orderId);
                 payment.setIsDeleted(false);
-                payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -364,7 +329,6 @@ public class PaymentService {
                 payment.setDateCreated(LocalDateTime.now());
                 payment.setOrderIdPayment("PayOS" + orderCode);
                 payment.setIsDeleted(false);
-                payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -434,7 +398,6 @@ public class PaymentService {
         payment.setDateCreated(LocalDateTime.now());
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
-        payment.setIsRefund(false);
         paymentRepository.save(payment);
         System.out.println("");
         String order_id = generateUniqueNumericString(5);
@@ -497,7 +460,6 @@ public class PaymentService {
         payment.setDateCreated(LocalDateTime.now());
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
-        payment.setIsRefund(false);
         paymentRepository.save(payment);
         Map<String, Object> response = zaloPayService.createPayment(totalAmountLong);
         String orderUrl = (String) response.get("order_url");
@@ -518,7 +480,6 @@ public class PaymentService {
         ), HttpStatus.OK);
     }
 
-    @Transactional
     public ResponseEntity<Map<String, Object>> callBack(String resultCode, String orderId) {
         Payment payment = paymentRepository.findByOrderIdPayment(orderId);
         if (payment == null) {
@@ -559,7 +520,7 @@ public class PaymentService {
             shippment.setDateDelivered(LocalDateTime.now());
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
-            assignShipments(shippment.getPayment().getOrder().getOrderId());
+            assignShipments();
 
             response.put("status", HttpStatus.OK.value());
             response.put("message", "Payment completed successfully");
@@ -627,8 +588,7 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getOrder().getOrderId()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -651,8 +611,7 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getOrder().getOrderId()
         ));
     }
 
@@ -689,7 +648,6 @@ public class PaymentService {
         payment1.setDateCreated(LocalDateTime.now());
         payment1.setIsDeleted(false);
         payment1.setOrder(order);
-        payment1.setIsRefund(false);
         paymentRepository.save(payment1);
 
         Shippment shippment = new Shippment();
@@ -698,19 +656,7 @@ public class PaymentService {
         shippment.setDateCreated(LocalDateTime.now());
         shippment.setDateDelivered(LocalDateTime.now());
         shippment.setStatus(Status_Shipment.WAITING);
-
         shipmentRepository.save(shippment);
-        Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
-        List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-
-        for (CartItem cartItem : cartItems) {
-            ProductVariants productVariants = cartItem.getProductVariants();
-            if (productVariants.getStock() > cartItem.getQuantity()) {
-                productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
-                productVariantsRepository.save(productVariants);
-            }
-        }
-        assignShipments(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
@@ -719,8 +665,7 @@ public class PaymentService {
                 payment1.getIsDeleted(),
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
-                payment1.getOrder().getOrderId(),
-                payment1.getIsRefund()
+                payment1.getOrder().getOrderId()
         ));
     }
 
@@ -730,7 +675,6 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
-        List<Payment> payments1 = paymentRepository.findAllByIsDeletedFalse();
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -743,8 +687,7 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getOrder().getOrderId()
                     )
             );
             total++;
@@ -753,7 +696,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                payments1.size(),
+                total,
                 responses
         ));
     }
@@ -764,7 +707,6 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
-        List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -777,8 +719,7 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getOrder().getOrderId()
                     )
             );
             total++;
@@ -787,7 +728,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                payments1.size(),
+                total  ,
                 responses
         ));
     }
@@ -798,7 +739,6 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
-        List<Payment> payments1 = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -811,8 +751,7 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getOrder().getOrderId()
                     )
             );
             total++;
@@ -821,7 +760,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                payments1.size(),
+                total,
                 responses
         ));
     }
@@ -840,12 +779,10 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getOrder().getOrderId()
         ));
     }
 
-    @Transactional
     public ResponseEntity<?> handleCallBackPayOS(int orderCode) throws Exception {
         PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
         List<Payment> payments = paymentRepository.findAll();
@@ -886,20 +823,7 @@ public class PaymentService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
-
-                Orders orders = payment.getOrder();
-                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
-                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-
-                for (CartItem cartItem : cartItems) {
-                    ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
-                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
-                        productVariantsRepository.save(productVariants);
-                    }
-
-                }
-                assignShipments(shippment.getPayment().getOrder().getOrderId());
+                assignShipments();
             }
             default -> {
                 payment.setStatus(Status_Payment.PENDING);
@@ -914,8 +838,7 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getOrder().getOrderId()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -937,67 +860,4 @@ public class PaymentService {
             return null;
         }
     }
-
-    @Transactional
-    public  ResponseEntity<?> listAllPaymentRefund(String pageFromParam, String limitFromParam){
-       int page = Integer.parseInt(pageFromParam);
-       int limit = Integer.parseInt(limitFromParam);
-       if (limit >= 100) limit = 100;
-       Pageable pageable = PageRequest.of(page - 1, limit);
-       Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND, pageable);
-       List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND);
-       List<CRUDPaymentResponse> responses = new ArrayList<>();
-       int total = 0;
-       for (Payment payment : payments) {
-           responses.add(
-                   new CRUDPaymentResponse(
-                           payment.getPaymentId(),
-                           payment.getAmount(),
-                           payment.getDateCreated(),
-                           payment.getDateDeleted(),
-                           payment.getIsDeleted(),
-                           payment.getPaymentMethod(),
-                           payment.getStatus(),
-                           payment.getOrder().getOrderId(),
-                           payment.getIsRefund()
-                   )
-           );
-           total++;
-       }
-       return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
-               page,
-               payments.getTotalPages(),
-               limit,
-               payments1.size(),
-               responses
-       ));
-   }
-
-    @Transactional
-    public ResponseEntity<?> activateRefund(int paymentId)
-    {
-       Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
-       if(payment == null)
-       {
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
-       }
-       Shippment shippment = payment.getShipment();
-
-       if(shippment.getStatus() == Status_Shipment.WAITING ||shippment.getStatus() == Status_Shipment.SHIPPING)
-       {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with shipment");
-       }
-       if(payment.getPaymentMethod() == Payment_Method.CASH)
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with payment method cash");
-        }
-       if(payment.getIsRefund())
-       {
-           return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund exists");
-       }
-       payment.setIsRefund(true);
-       paymentRepository.save(payment);
-       return ResponseEntity.status(HttpStatus.OK).body("Refund activated");
-   }
-
 }

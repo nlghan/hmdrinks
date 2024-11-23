@@ -14,7 +14,6 @@ import com.hmdrinks.Request.FilterProductBox;
 import com.hmdrinks.Request.UpdateAccountUserReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.SupportFunction;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -449,7 +448,6 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
-        List<Product> productList1 = productRepository.findAllByIsDeletedFalse();
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         int total = 0;
         for (Product product1 : productList) {
@@ -479,7 +477,7 @@ public class AdminService {
             ));
             total++;
         }
-        return new ListProductResponse(page, productList.getTotalPages(), limit,productList1.size(), crudProductResponseList);
+        return new ListProductResponse(page, productList.getTotalPages(), limit,total, crudProductResponseList);
     }
 
     public CRUDProductResponse getOneProduct(Integer id) {
@@ -564,18 +562,16 @@ public class AdminService {
         ));
     }
 
-    @Transactional
     public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByType(typePost,pageable);
-        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
+        List<CRUDPostResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            Voucher voucher = post.getVoucher();
-            responses.add(new CRUDPostAndVoucherResponse(
+            responses.add(new CRUDPostResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -585,17 +581,7 @@ public class AdminService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate(),
-                    new CRUDVoucherResponse(
-                            voucher.getVoucherId(),
-                            voucher.getKey(),
-                            voucher.getNumber(),
-                            voucher.getStartDate(),
-                            voucher.getEndDate(),
-                            voucher.getDiscount(),
-                            voucher.getStatus(),
-                            voucher.getPost().getPostId()
-                    )
+                    post.getDateCreate()
             ));
             total++;
         }
@@ -608,20 +594,16 @@ public class AdminService {
         );
     }
 
-    @Transactional
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAll(pageable);
-        List<Post> posts1 = postRepository.findAllByIsDeletedFalse();
-
-        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
+        List<CRUDPostResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            Voucher voucher = post.getVoucher();
-            responses.add(new CRUDPostAndVoucherResponse(
+            responses.add(new CRUDPostResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -631,17 +613,7 @@ public class AdminService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate(),
-                    new CRUDVoucherResponse(
-                            voucher.getVoucherId(),
-                            voucher.getKey(),
-                            voucher.getNumber(),
-                            voucher.getStartDate(),
-                            voucher.getEndDate(),
-                            voucher.getDiscount(),
-                            voucher.getStatus(),
-                            voucher.getPost().getPostId()
-                    )
+                    post.getDateCreate()
             ));
             total++;
         }
@@ -649,7 +621,7 @@ public class AdminService {
                 page,
                 posts.getTotalPages(),
                 limit,
-                posts1.size(),
+                total,
                 responses
         );
     }
@@ -661,7 +633,6 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
-        List<Category> categoryList1 = categoryRepository.findAllByIsDeletedFalse();
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         int total = 0;
         for(Category category: categoryList){
@@ -676,6 +647,6 @@ public class AdminService {
             ));
             total++;
         }
-        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
     }
 }

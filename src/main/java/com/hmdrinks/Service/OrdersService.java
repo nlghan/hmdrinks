@@ -8,7 +8,6 @@ import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
-import com.hmdrinks.SupportFunction.DistanceAndDuration;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -135,10 +134,8 @@ public class OrdersService {
 
         String place_id = supportFunction.getLocation(address);
         double[] destinations= supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075,106.77190192800003};
-        // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
-        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
-        double distance = distanceAndDuration.getDistance();
+        double[] origins = {10.850575879000075,106.77190192800003}; // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
+        double distance =supportFunction.getShortestDistance(origins, destinations);
         if(distance > 20){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded, please update address");
         }
@@ -312,8 +309,7 @@ public class OrdersService {
                         payment.getIsDeleted(),
                         payment.getPaymentMethod(),
                         payment.getStatus(),
-                        payment.getOrder().getOrderId(),
-                        payment.getIsRefund()
+                        payment.getOrder().getOrderId()
                 )
         ));
     }
@@ -482,71 +478,5 @@ public class OrdersService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListItemOrderResponse(orderId,itemOrderResponses.size(),itemOrderResponses));
     }
-
-    @Transactional
-    public ResponseEntity<?> listHistoryOrder(int userId){
-        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
-        if(user == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        List<Orders> orders = orderRepository.findAllByUserUserId(userId);
-        List<HistoryOrderResponse> historyOrderResponses = new ArrayList<>();
-        Voucher voucher = null;
-        for(Orders order: orders)
-        {
-            if(order.getStatus() == Status_Order.CONFIRMED)
-            {
-                Payment payment = order.getPayment();
-                if(payment != null)
-                {
-                    Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
-                    if(shipment != null && shipment.getStatus() == Status_Shipment.SUCCESS)
-                    {
-                        CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
-                                order.getOrderId(),
-                                order.getAddress(),
-                                order.getDeliveryFee(),
-                                order.getDateCreated(),
-                                order.getDateDeleted(),
-                                order.getDateUpdated(),
-                                order.getDeliveryDate(),
-                                order.getDiscountPrice(),
-                                order.getIsDeleted(),
-                                order.getNote(),
-                                order.getOrderDate(),
-                                order.getPhoneNumber(),
-                                order.getStatus(),
-                                order.getTotalPrice(),
-                                order.getUser().getUserId(),
-                                voucher != null ? voucher.getVoucherId() : null
-                        );
-                        User customer = order.getUser();
-                        User shipper = shipment.getUser();
-                        CRUDShipmentResponse crudShipmentResponse = new CRUDShipmentResponse(
-                                shipment.getShipmentId(),
-                                shipper.getFullName(),
-                                shipment.getDateCreated(),
-                                shipment.getDateDeleted(),
-                                shipment.getDateDelivered(),
-                                shipment.getDateShip(),
-                                shipment.getIsDeleted(),
-                                shipment.getStatus(),
-                                shipment.getPayment().getPaymentId(),
-                                shipment.getUser().getUserId(),
-                                customer.getFullName(),
-                                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
-                                customer.getPhoneNumber(),
-                                customer.getEmail()
-                        );
-                        historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse,crudShipmentResponse));
-                    }
-                }
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllHistoryOrderResponse(userId,historyOrderResponses.size(),historyOrderResponses));
-    }
-
 
 }

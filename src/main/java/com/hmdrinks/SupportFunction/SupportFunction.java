@@ -174,69 +174,8 @@ public class SupportFunction {
         return null;
     }
 
-
-
-//    public static double getShortestDistance(double[] origins, double[] destinations) {
-//        double shortestDistanceValue = Double.MAX_VALUE;
-//        try {
-//            String apiKey = "VudYm4ZnWzUU2Rv5HmxxV2IwrK834KcKmuUQMkGG";
-//            String originsParam = origins[0] + "," + origins[1];
-//            String destinationsParam = destinations[0] + "," + destinations[1];
-//
-//            String urlString = "https://rsapi.goong.io/DistanceMatrix?origins=" + originsParam +
-//                    "&destinations=" + destinationsParam +
-//                    "&vehicle=car&api_key=" + apiKey;
-//            URL url = new URL(urlString);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setRequestMethod("GET");
-//            conn.setRequestProperty("Accept", "application/json");
-//
-//            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//            StringBuilder response = new StringBuilder();
-//            String output;
-//            while ((output = br.readLine()) != null) {
-//                response.append(output);
-//            }
-//            conn.disconnect();
-//
-//            JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
-//            JsonArray rows = jsonResponse.getAsJsonArray("rows");
-//
-//            if (rows.size() > 0) {
-//                JsonArray elements = rows.get(0).getAsJsonObject().getAsJsonArray("elements");
-//
-//                for (JsonElement element : elements) {
-//                    JsonObject elementObj = element.getAsJsonObject();
-//                    if (elementObj.get("status").getAsString().equals("OK")) {
-//                        String distanceText = elementObj.getAsJsonObject("distance").get("text").getAsString();
-//                        String minute=  elementObj.getAsJsonObject("duration").get("text").getAsString();
-//                        double distanceValue;
-//
-//                        if (distanceText.contains("km")) {
-//                            distanceValue = Double.parseDouble(distanceText.replace(" km", "").trim());
-//                        } else if (distanceText.contains("m")) {
-//                            distanceValue = Double.parseDouble(distanceText.replace(" m", "").trim()) / 1000; // Chuyển đổi từ m sang km
-//                        } else {
-//                            continue;
-//                        }
-//                        if (distanceValue < shortestDistanceValue) {
-//                            shortestDistanceValue = distanceValue;
-//                        }
-//                    }
-//                }
-//            } else {
-//                System.out.println("Không có kết quả nào được trả về.");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return shortestDistanceValue != Double.MAX_VALUE ? shortestDistanceValue : -1;
-//    }
-
-    public DistanceAndDuration getShortestDistance(double[] origins, double[] destinations) {
+    public static double getShortestDistance(double[] origins, double[] destinations) {
         double shortestDistanceValue = Double.MAX_VALUE;
-        String shortestDuration = null;
         try {
             String apiKey = "VudYm4ZnWzUU2Rv5HmxxV2IwrK834KcKmuUQMkGG";
             String originsParam = origins[0] + "," + origins[1];
@@ -244,7 +183,7 @@ public class SupportFunction {
 
             String urlString = "https://rsapi.goong.io/DistanceMatrix?origins=" + originsParam +
                     "&destinations=" + destinationsParam +
-                    "&vehicle=bike&api_key=" + apiKey;
+                    "&vehicle=car&api_key=" + apiKey;
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -268,7 +207,6 @@ public class SupportFunction {
                     JsonObject elementObj = element.getAsJsonObject();
                     if (elementObj.get("status").getAsString().equals("OK")) {
                         String distanceText = elementObj.getAsJsonObject("distance").get("text").getAsString();
-                        String durationText = elementObj.getAsJsonObject("duration").get("text").getAsString();
                         double distanceValue;
 
                         if (distanceText.contains("km")) {
@@ -280,7 +218,6 @@ public class SupportFunction {
                         }
                         if (distanceValue < shortestDistanceValue) {
                             shortestDistanceValue = distanceValue;
-                            shortestDuration = durationText;
                         }
                     }
                 }
@@ -291,11 +228,6 @@ public class SupportFunction {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (shortestDistanceValue != Double.MAX_VALUE && shortestDuration != null) {
-            return new DistanceAndDuration(shortestDistanceValue, shortestDuration);
-        } else {
-            return null; // Nếu không có kết quả hợp lệ
-        }
+        return shortestDistanceValue != Double.MAX_VALUE ? shortestDistanceValue : -1;
     }
-
 }

@@ -85,10 +85,8 @@ public class ShipmentService {
        {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Not Found");
        }
-        User shipper = shippment.getUser();
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
-               shipper.getFullName(),
                shippment.getDateCreated(),
                shippment.getDateDeleted(),
                shippment.getDateDelivered(),
@@ -136,10 +134,8 @@ public class ShipmentService {
             }
         }
         User customer = userRepository.findByUserIdAndIsDeletedFalse(orders.getUser().getUserId());
-        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -155,10 +151,9 @@ public class ShipmentService {
         ));
     }
 
-    @Transactional
-    public ResponseEntity<?> cancelShipment(int shipmentId)
+    public ResponseEntity<?> cancelShipment(int shipmentId,int userId)
     {
-        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
+        Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
         if(shippment == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
@@ -167,69 +162,14 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
-
-
-
-
-        if(LocalDateTime.now().isAfter(shippment.getDateDelivered()))
-        {
-                    shippment.setStatus(Status_Shipment.CANCELLED);
-                    shipmentRepository.save(shippment);
-                    Payment payment = shippment.getPayment();
-                    Orders orders = payment.getOrder();
-
-                    if(payment.getPaymentMethod() == Payment_Method.CASH)
-                    {
-                        payment.setStatus(Status_Payment.FAILED);
-                        paymentRepository.save(payment);
-                        orders.setStatus(Status_Order.CANCELLED);
-                        orderRepository.save(orders);
-                    }
-                    if(payment.getPaymentMethod() == Payment_Method.CREDIT)
-                    {
-                        payment.setStatus(Status_Payment.REFUND);
-                        payment.setIsRefund(false);
-                        paymentRepository.save(payment);
-                        paymentRepository.save(payment);
-                        orders.setStatus(Status_Order.CANCELLED);
-                    }
-                    Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
-                    List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-
-                    for (CartItem cartItem : cartItems) {
-                      ProductVariants productVariants = cartItem.getProductVariants();
-                      productVariants.setStock(productVariants.getStock() + cartItem.getQuantity());
-                      productVariantsRepository.save(productVariants);
-
-            }
-
-               return ResponseEntity.ok().build();
-        }
-
         shippment.setStatus(Status_Shipment.CANCELLED);
         shipmentRepository.save(shippment);
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
-        if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
-        {
-            payment.setStatus(Status_Payment.REFUND);
-            paymentRepository.save(payment);
-            Orders orders = payment.getOrder();
-            orders.setStatus(Status_Order.CANCELLED);
-            orderRepository.save(orders);
-        }
-        else{
-
-            Orders orders = payment.getOrder();
-            orders.setStatus(Status_Order.CANCELLED);
-            orderRepository.save(orders);
-        }
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
-        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -268,26 +208,8 @@ public class ShipmentService {
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
-
-        if(statusShipment == Status_Shipment.CANCELLED) {
-            Cart cart = orders.getOrderItem().getCart();
-            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-
-            for (CartItem cartItem : cartItems) {
-                ProductVariants productVariants = cartItem.getProductVariants();
-                productVariants.setStock(productVariants.getStock() + cartItem.getQuantity());
-                productVariantsRepository.save(productVariants);
-            }
-            if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
-            {
-                payment.setStatus(Status_Payment.REFUND);
-                paymentRepository.save(payment);
-            }
-        }
-        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -317,7 +239,6 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
         shippment.setStatus(Status_Shipment.SUCCESS);
-        shippment.setDateShip(LocalDateTime.now());
         shipmentRepository.save(shippment);
 
         Payment payment1 = shippment.getPayment();
@@ -331,10 +252,8 @@ public class ShipmentService {
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
-        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -350,7 +269,6 @@ public class ShipmentService {
         ));
     }
 
-    @Transactional
     public ResponseEntity<?> getListShipmentStatusByShipper(String pageFromParam, String limitFromParam, int userId, Status_Shipment status)
     {
         int page = Integer.parseInt(pageFromParam);
@@ -368,10 +286,8 @@ public class ShipmentService {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
-            User shipper = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -413,10 +329,8 @@ public class ShipmentService {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
-            User shipper = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -482,10 +396,8 @@ public class ShipmentService {
             String customerEmail = (customer != null) ? customer.getEmail() : "Unknown Email";
 
             // Create response object
-            User shipper1 = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper1.getFullName(),
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -516,7 +428,7 @@ public class ShipmentService {
     }
 
 
-    @Transactional
+
     public ResponseEntity<?> getListAllShipmentByStatus(String pageFromParam, String limitFromParam,Status_Shipment status)
     {
         User user1 = null;
@@ -534,10 +446,8 @@ public class ShipmentService {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
-            User shipper = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -567,6 +477,7 @@ public class ShipmentService {
         LocalDateTime dateShipped = updateRequest.getDateShipped();
         LocalDateTime dateDelivered = updateRequest.getDateDelivered();
 
+        // Kiểm tra nếu dateShipped và dateDelivered đều sau dateCreated
         boolean isDateShippedValid = dateShipped != null && dateShipped.isAfter(dateCreated);
         boolean isDateDeliveredValid = dateDelivered != null && dateDelivered.isAfter(dateCreated);
 
@@ -574,7 +485,6 @@ public class ShipmentService {
     }
 
 
-    @Transactional
     public ResponseEntity<?> updateTimeShipment(UpdateTimeShipmentReq req)
     {
          User user1 = null;
@@ -595,10 +505,8 @@ public class ShipmentService {
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
-        User shipper = shippment.getUser();
          return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                  shippment.getShipmentId(),
-                 shipper.getFullName(),
                  shippment.getDateCreated(),
                  shippment.getDateDeleted(),
                  shippment.getDateDelivered(),
@@ -624,12 +532,9 @@ public class ShipmentService {
         }
         Payment payment = paymentRepository.findByPaymentId(order.getPayment().getPaymentId());
         User customer = order.getUser();
-
         Shippment shipment = payment.getShipment();
-        User shipper = shipment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
-                shipper.getFullName(),
                 shipment.getDateCreated(),
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
@@ -643,39 +548,6 @@ public class ShipmentService {
                 customer.getPhoneNumber(),
                 customer.getEmail()
         ));
-    }
-
-    @Transactional
-    public ResponseEntity<?> checkTimeDelivery(){
-        List<Shippment> shippmentList = shipmentRepository.findAll();
-        for(Shippment shippment : shippmentList)
-        {
-            if(shippment.getStatus() == Status_Shipment.SHIPPING)
-            {
-                if(LocalDateTime.now().isAfter(shippment.getDateDelivered())) {
-                    shippment.setStatus(Status_Shipment.CANCELLED);
-                    shipmentRepository.save(shippment);
-                    Payment payment = shippment.getPayment();
-                    Orders orders = payment.getOrder();
-                    if(payment.getPaymentMethod() == Payment_Method.CASH)
-                    {
-                        payment.setStatus(Status_Payment.FAILED);
-                        paymentRepository.save(payment);
-                        orders.setStatus(Status_Order.CANCELLED);
-                        orderRepository.save(orders);
-                    }
-                    if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
-                    {
-                        payment.setStatus(Status_Payment.REFUND);
-                        payment.setIsRefund(false);
-                        paymentRepository.save(payment);
-                        paymentRepository.save(payment);
-                        orders.setStatus(Status_Order.CANCELLED);
-                    }
-                }
-            }
-        }
-        return ResponseEntity.ok().build();
     }
 
     @Transactional
@@ -694,7 +566,6 @@ public class ShipmentService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
-                shipper.getFullName(),
                 shipment.getDateCreated(),
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
