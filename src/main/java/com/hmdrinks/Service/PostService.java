@@ -167,6 +167,49 @@ public class PostService {
         );
     }
 
+    public ListAllPostResponse getAllPostByDESC(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAllByIsDeletedFalseOrderByPostIdDesc(pageable);
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
+        int total = 0;
+        for(Post post : posts) {
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
+            ));
+            total++;
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                total,
+                responses
+        );
+    }
+
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);

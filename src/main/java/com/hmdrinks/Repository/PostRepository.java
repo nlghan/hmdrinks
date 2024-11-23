@@ -16,6 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Page<Post> findAll(Pageable pageable);
     Page<Post> findAllByIsDeletedFalse(Pageable pageable);
 
+    Page<Post> findAllByIsDeletedFalseOrderByPostIdDesc(Pageable pageable);
+
     List<Post> findByUserUserIdAndIsDeletedFalse(Integer userId);
     Page<Post> findAllByType(Type_Post typePost,Pageable pageable);
     Page<Post> findAllByTypeAndIsDeletedFalse(Type_Post typePost,Pageable pageable);

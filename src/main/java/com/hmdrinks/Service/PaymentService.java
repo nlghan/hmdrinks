@@ -98,7 +98,7 @@ public class PaymentService {
 
             if (selectedShipper != null) {
                 shipment.setUser(selectedShipper);
-                shipment.setStatus(Status_Shipment.WAITING); // Đổi trạng thái đơn hàng
+                shipment.setStatus(Status_Shipment.SHIPPING);
                 shipmentRepository.save(shipment);
             }
         }
