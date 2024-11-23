@@ -135,11 +135,8 @@ public class PaymentService {
 
             }
         }
-
-
-
-
     }
+
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
@@ -703,6 +700,16 @@ public class PaymentService {
         shippment.setStatus(Status_Shipment.WAITING);
 
         shipmentRepository.save(shippment);
+        Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+        List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+        for (CartItem cartItem : cartItems) {
+            ProductVariants productVariants = cartItem.getProductVariants();
+            if (productVariants.getStock() > cartItem.getQuantity()) {
+                productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                productVariantsRepository.save(productVariants);
+            }
+        }
         assignShipments(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
@@ -879,6 +886,19 @@ public class PaymentService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
+
+                Orders orders = payment.getOrder();
+                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+                for (CartItem cartItem : cartItems) {
+                    ProductVariants productVariants = cartItem.getProductVariants();
+                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                        productVariantsRepository.save(productVariants);
+                    }
+
+                }
                 assignShipments(shippment.getPayment().getOrder().getOrderId());
             }
             default -> {
