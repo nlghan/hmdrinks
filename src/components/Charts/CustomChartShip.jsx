@@ -12,7 +12,7 @@ import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
-import './CustomChart.css';
+import './CustomChartShip.css';
 import axios from 'axios';
 
 const monthData = {
@@ -57,6 +57,16 @@ export default function CustomChart() {
   const [data, setData] = React.useState(dataset('Tháng 1', selectedYear, [], []));
   const [successfulShipments, setSuccessfulShipments] = React.useState([]);
 
+  const getUserIdFromToken = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payload));
+      return decodedPayload.UserId;
+    } catch (error) {
+      console.error("Cannot decode token:", error);
+      return null;
+    }
+  };
   // Get Cookie by name
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -70,6 +80,7 @@ export default function CustomChart() {
         console.error("Không tìm thấy token xác thực.");
         return;
       }
+      const userId = getUserIdFromToken(token);
 
       // Check if month is valid
       if (!monthData[month]) {
@@ -85,18 +96,19 @@ export default function CustomChart() {
 
       // Fetch shipments
       while (currentPage <= totalPages) {
-        const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+        const response = await axios.get('http://localhost:1010/api/shipment/shipper/listShippment', {
           params: {
             page: currentPage,
             limit: 100,
             status: 'SUCCESS',
+            userId: userId,
           },
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
 
-        console.log('Dữ liệu shipment:', response.data);
+        console.log('Dữ liệu shipment trang shipper:', response.data);
         const shipments = response.data.listShipment;
 
         totalPages = response.data.totalPages || 1;
@@ -136,7 +148,7 @@ export default function CustomChart() {
 
       if (response.status === 200) {
         const paymentAmount = response.data.amount; // Assuming the response contains the amount
-        console.log('payment:', paymentAmount);
+        console.log('payment cho trang shipper:', paymentAmount);
         paymentAmounts[dayIndex] += paymentAmount; // Accumulate the payment amount for the corresponding day
         console.log('Updated paymentAmounts:', paymentAmounts);
       }
@@ -162,9 +174,9 @@ export default function CustomChart() {
   };
 
   return (
-    <Stack className="custom-chart" sx={{ width: '100%' }}>
-      <div className="custom-chart-title">
-        Biểu đồ doanh thu các ngày trong tháng
+    <Stack className="custom-chart-ship" sx={{ width: '100%' }}>
+      <div className="custom-chart-ship-title">
+        Biểu đồ đơn hàng trong tháng
         <Select
           value={selectedMonth}
           onChange={handleMonthChange}
@@ -214,7 +226,7 @@ export default function CustomChart() {
           labelPlacement="end"
         />
       </Stack>
-      <Box className="custom-chart-container" sx={{ width: '950px' }} >
+      <Box className="custom-chart-ship-container" sx={{ width: '1400px' }} >
         <ResponsiveChartContainer
           series={series}
           xAxis={[{
@@ -239,7 +251,7 @@ export default function CustomChart() {
             },
           ]}
           dataset={data}
-          height={400}
+          height={500}
         >
 
           <ChartsGrid horizontal />

@@ -5,7 +5,7 @@ import NavbarShipper from '../../components/Navbar/NavbarShipper';
 import Footer from '../../components/Footer/Footer';
 import GaugeCard from '../../components/Card/GaugeCardShip';
 import axios from 'axios';
-import CustomChart from '../../components/Charts/CustomChart';
+import CustomChart from '../../components/Charts/CustomChartShip';
 
 const AnalyticsShipper = () => {
   const [percentages, setPercentages] = useState([0, 0, 0, 0]);
@@ -41,19 +41,18 @@ const AnalyticsShipper = () => {
       const userId = getUserIdFromToken(token);
       const statuses = ['WAITING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
       const counts = await Promise.all(statuses.map(async (status) => {
-        const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+        const response = await axios.get('http://localhost:1010/api/shipment/shipper/listShippment', {
           params: {
             page: 1,
             limit: 100,
             status: status,
+            userId: userId,
           },
           headers: {
             'Authorization': `Bearer ${token}`,
           },
         });
         console.log('kq', response);
-        // const filteredShipments = response.data.listShipment.filter(shipment => shipment.shipperId === userId);
-        // return filteredShipments.length;
         return response.data.total;
       }));
 
