@@ -92,19 +92,24 @@ public class PaymentService {
         int hours = 0;
         int minutes = 0;
 
-        // Phân tích chuỗi "3 giờ 4 phút"
         if (duration.contains("giờ")) {
             String[] parts = duration.split("giờ");
             hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
             if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút và cộng thêm 10
             }
         } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim());
+            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 10; // Lấy số phút và cộng thêm 10
+        }
+
+        if (minutes >= 60) {
+            hours += minutes / 60; // Cộng thêm số giờ
+            minutes = minutes % 60; // Lấy số phút còn lại
         }
 
         return currentTime.plusHours(hours).plusMinutes(minutes);
     }
+
 
     @Transactional
     public  void assignShipments(int orderId) {

@@ -69,7 +69,7 @@ public class AuthenticationService {
             LocalDate currentDate1 = LocalDate.now();
             User user1 = new User();
             user1.setType(TypeLogin.BASIC);
-            user1.setEmail("None");
+            user1.setEmail(userCreateReq.getEmail());
             user1.setRole(Role.CUSTOMER);
             user1.setIsDeleted(false);
             user1.setUserName(userCreateReq.getUserName());
