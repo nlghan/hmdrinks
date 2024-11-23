@@ -93,7 +93,7 @@ public class ShipmentController {
 
     @GetMapping("/view/order/{orderId}")
     public ResponseEntity<?> getOneShipmentByOrderId(@PathVariable int orderId) {
-        return shipmentService.getOneShipment(orderId);
+        return shipmentService.getInfoShipmentByOrderId(orderId);
     }
 
 }
