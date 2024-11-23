@@ -34,6 +34,8 @@ const News = () => {
     const [voucher, setVoucher] = useState(null);
     const [post, setPost] = useState(null);
     const [isUserVouchersLoading, setIsUserVouchersLoading] = useState(false);
+    const [total, setTotal] = useState(); // Tổng số trang
+    const [totalV, setTotalV] = useState(); // Tổng số trang
 
     const getUserIdFromToken = (token) => {
         try {
@@ -120,6 +122,7 @@ const News = () => {
 
             setPosts(postsWithVouchers);
             setTotalPages(dataPosts.totalPages);
+            setTotal(dataPosts.total)
 
         } catch (error) {
             console.error('Error fetching posts or vouchers:', error);
@@ -554,6 +557,7 @@ const News = () => {
                 if (response.data && response.data.body) {
                     const fetchedVouchers = response.data.body.voucherResponseList || [];
                     setAllVouchers(fetchedVouchers);
+                    setTotalV(response.data.body.total)
                 }
             } catch (error) {
                 console.error("Error fetching vouchers:", error);
@@ -577,7 +581,7 @@ const News = () => {
                     <>
                         <div className="post-table">
                             <div className="header-post-table">
-                                <h2>Danh sách bài đăng</h2>
+                                <h2>Danh sách bài đăng ({total})</h2>
                                 <input
                                     type="text"
                                     placeholder="Tìm kiếm bài đăng..."
@@ -754,7 +758,7 @@ const News = () => {
 
                     <div className="user-voucher-table">
                         <div className="header-post-table">
-                            <h2>Danh sách voucher</h2>
+                            <h2>Danh sách voucher ({totalV})</h2>
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm voucher..."

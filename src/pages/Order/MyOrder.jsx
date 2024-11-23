@@ -4,14 +4,20 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
 const MyOrder = () => {
     const [selectedTab, setSelectedTab] = useState('delivering');
     const [cancelledOrders, setCancelledOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [currentDeliveringPage, setCurrentDeliveringPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
 
     const navigate = useNavigate(); // Hook dùng để chuyển hướng
+    const location = useLocation();
+
 
     const handleCheckout = async (order) => {
         const token = getCookie('access_token');
@@ -81,7 +87,7 @@ const MyOrder = () => {
         const userId = getUserIdFromToken(token);
         try {
             const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=CANCELLED`,
+                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=100&status=CANCELLED`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -161,7 +167,7 @@ const MyOrder = () => {
 
 
     const [confirmedOrders, setConfirmedOrders] = useState([]);
-    const fetchConfirmedOrders = async () => {
+    const fetchConfirmedOrders = async (page, limit) => {
         setLoading(true);
         setError('');
         const token = getCookie('access_token');
@@ -172,7 +178,7 @@ const MyOrder = () => {
         try {
             // Gọi API để lấy danh sách đơn hàng CONFIRMED
             const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=CONFIRMED`,
+                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=100&status=CONFIRMED`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -197,7 +203,7 @@ const MyOrder = () => {
                     const shipmentData = shipmentResponse.data;
 
                     // Nếu trạng thái là SHIPPING, thêm đơn hàng vào danh sách đang giao
-                    if (shipmentData.status === 'SHIPPING') {
+                    if (shipmentData.status === 'SHIPPING' || shipmentData.status === 'WAITING' ) {
                         shippingOrders.push(order);
                     }
                 } catch (shipmentError) {
@@ -207,6 +213,7 @@ const MyOrder = () => {
 
             // Cập nhật danh sách đơn hàng đang giao
             setConfirmedOrders(shippingOrders);
+            setTotalPages(Math.ceil(shippingOrders.length / limit));
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đã xác nhận.');
             console.error('Lỗi khi lấy danh sách đơn hàng CONFIRMED:', err);
@@ -215,20 +222,25 @@ const MyOrder = () => {
         }
     };
 
+
     useEffect(() => {
         if (selectedTab === 'cancelled') {
             fetchCancelledOrders();
         } else if (selectedTab === 'pending') {
             fetchWaitingOrders();
-        } else if (selectedTab === 'delivering') {
-            fetchConfirmedOrders();
-        } else if (selectedTab === 'history') {
+        }
+        else if (selectedTab === 'history') {
             fetchHistoryOrders();
         }
     }, [selectedTab]);
 
+    useEffect(() => {
+        if (selectedTab === 'delivering') {
+            fetchConfirmedOrders(currentDeliveringPage, itemsPerPage);
+        }
+    }, [selectedTab, currentDeliveringPage, itemsPerPage]); // Thay đổi trang, tab hoặc số lượng item thì gọi lại API
 
-    const [currentDeliveringPage, setCurrentDeliveringPage] = useState(1);
+
     const [currentCancelledPage, setCurrentCancelledPage] = useState(1);
     const [currentPendingPage, setCurrentPendingPage] = useState(1);
 
@@ -239,70 +251,72 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-        let confirmedOrders = [];
-        let historyOrdersList = [];
-
+    
         try {
-            // Gọi API để lấy danh sách đơn hàng CONFIRMED
+            // Gọi API để lấy danh sách lịch sử đơn hàng
             const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=CONFIRMED`,
+                `http://localhost:1010/api/orders/history/${userId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-
-            confirmedOrders = response.data.listOrders || [];
-
-            // Lặp qua từng đơn hàng để kiểm tra trạng thái SUCCESS
-            for (const order of confirmedOrders) {
-                try {
-                    const shipmentResponse = await axios.get(
-                        `http://localhost:1010/api/shipment/view/order/${order.orderId}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
-
-                    const shipmentData = shipmentResponse.data;
-
-                    if (shipmentData.status === 'SUCCESS') {
-                        historyOrdersList.push(order);
-                    }
-                } catch (shipmentError) {
-                    console.error(`Lỗi khi kiểm tra trạng thái đơn hàng ${order.orderId}:`, shipmentError);
-                }
-            }
-
-            setHistoryOrders(historyOrdersList);
+    
+            const { list = [] } = response.data;
+    
+            // Chuẩn bị danh sách dữ liệu kết hợp giữa order và shipment
+            const orders = list.map((item) => ({
+                orderId: item.order.orderId,
+                address: item.order.address,
+                deliveryFee: item.order.deliveryFee,
+                totalPrice: item.order.totalPrice,
+                status: item.order.status,
+                dateCreated: item.order.dateCreated,
+                dateDelivered: item.order.dateDelivered,
+                shipment: {
+                    shipmentId: item.shipment.shipmentId,
+                    customerName: item.shipment.customerName,
+                    phoneNumber: item.shipment.phoneNumber,
+                    email: item.shipment.email,
+                    status: item.shipment.status,
+                    dateDeliver: item.shipment.dateDeliver,
+                    dateShipped: item.shipment.dateShipped,
+                },
+            }));
+    
+            // Lưu danh sách đơn hàng vào state
+            setHistoryOrders(orders);
+            console.log('Lịch sử đặt hàng:', orders);
         } catch (err) {
             setError('Không thể tải danh sách lịch sử đơn hàng.');
-            console.error('Lỗi khi lấy danh sách đơn hàng CONFIRMED:', err);
+            console.error('Lỗi khi gọi API lịch sử đơn hàng:', err);
         } finally {
             setLoading(false);
         }
     };
-
+    
 
     const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
 
     const handleHistoryPageChange = (pageNumber) => {
         setCurrentHistoryPage(pageNumber);
+        window.scrollTo(0, 0);
     };
 
     const handleDeliveringPageChange = (pageNumber) => {
         setCurrentDeliveringPage(pageNumber);
+        window.scrollTo(0, 0);
     };
 
     const handleCancelledPageChange = (pageNumber) => {
         setCurrentCancelledPage(pageNumber);
+        window.scrollTo(0, 0);
     };
 
     const handlePendingPageChange = (pageNumber) => {
         setCurrentPendingPage(pageNumber);
+        window.scrollTo(0, 0);
     };
 
     const renderContent = () => {
@@ -339,7 +353,7 @@ const MyOrder = () => {
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
                                                 <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
-                                               
+
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                 <button
@@ -350,9 +364,9 @@ const MyOrder = () => {
                                                         borderRadius: '4px',
                                                         color: '#000',
                                                     }}
-                                                
+
                                                 >
-                                                   ĐANG GIAO HÀNG
+                                                    ĐANG GIAO HÀNG
                                                 </button>
                                             </div>
                                         </li>
@@ -360,7 +374,7 @@ const MyOrder = () => {
                                 </ul>
                                 {/* Pagination */}
                                 <div className="menu-category-pagination" style={{ width: '100%' }}>
-                                    {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
+                                    {Array.from({ length: totalPages }, (_, index) => (
                                         <span
                                             key={index + 1}
                                             className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
@@ -370,6 +384,7 @@ const MyOrder = () => {
                                         </span>
                                     ))}
                                 </div>
+
                             </>
                         )}
                     </div>
@@ -487,11 +502,13 @@ const MyOrder = () => {
                                                 <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {order.dateDelivered}</p>
+                                                <p><strong>Ngày nhận hàng:</strong> {order.shipment?.dateShipped}</p>
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
+
                                 {/* Pagination */}
                                 <div className="menu-category-pagination" style={{ width: '100%' }}>
                                     {Array.from({ length: Math.ceil(historyOrders.length / itemsPerPage) }, (_, index) => (

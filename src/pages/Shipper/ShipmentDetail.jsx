@@ -16,8 +16,25 @@ const ShipmentDetail = () => {
     const [order, setOrder] = useState(null);
 
     const navigate = useNavigate();
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        return parts.length === 2 ? parts.pop().split(';').shift() : null;
+    };
 
-    useEffect(() => {
+    const getUserIdFromToken = (token) => {
+        try {
+            // Decode payload from token
+            const payload = token.split('.')[1];
+            const decodedPayload = JSON.parse(atob(payload));
+            return parseInt(decodedPayload.UserId, 10); // Convert UserId to integer
+        } catch (error) {
+            console.error("Cannot decode token:", error);
+            return null;
+        }
+    };
+
+   
         const fetchShipmentDetail = async () => {
             setLoading(true);
             setError(null);
@@ -74,8 +91,9 @@ const ShipmentDetail = () => {
             }
         };
 
-        fetchShipmentDetail();
-    }, [shipmentId]);
+        useEffect(() => {
+            fetchShipmentDetail();
+        }, [shipmentId]);
 
     if (loading) {
         return <LoadingAnimation />;
@@ -85,7 +103,63 @@ const ShipmentDetail = () => {
         return <ErrorMessage message={error} />;
     }
 
+    const handleStatusChange = async (shipmentId, newStatus) => {
+        const token = getCookie('access_token');
+        if (!token) {
+            setError('Vui lòng đăng nhập lại.');
+            return;
+        }
 
+        // Nếu trạng thái được chọn là "SUCCESS", gọi API
+        if (newStatus === 'SUCCESS') {
+            const userId = getUserIdFromToken(token);
+            if (!userId) {
+                setError('Không thể xác định UserId.');
+                return;
+            }
+
+            try {
+                const response = await axios.post(
+                    'http://localhost:1010/api/shipment/activate/success',
+                    {
+                        userId,
+                        shipmentId, // Đảm bảo shipmentId được truyền vào
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log('API response:', response.data);
+                // Sau khi cập nhật, refresh lại dữ liệu
+                fetchShipmentDetail();
+            } catch (error) {
+                console.error('Error calling success API:', error);
+                setError('Không thể cập nhật trạng thái thành công.');
+            }
+        } else {
+            // Xử lý các trạng thái khác như "SHIPPING" hay "CANCELLED" nếu cần
+            try {
+                const response = await axios.put(
+                    `${import.meta.env.VITE_API_BASE_URL}/shipment/update-status/${shipmentId}`,
+                    { status: newStatus },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                console.log('Status updated:', response.data);
+                // Refresh the data after status change
+                fetchData(currentPage);
+            } catch (error) {
+                console.error('Error updating status:', error);
+                setError('Không thể cập nhật trạng thái.');
+            }
+        }
+    };
 
 
 
@@ -126,18 +200,45 @@ const ShipmentDetail = () => {
                                     </li>
                                 ))}
                             </ul>
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <select
+                                        className="btn-deliver"
+                                        value={shipment.status}  // Đảm bảo trạng thái hiện tại được chọn
+                                        onChange={(e) => {
+                                            const selectedStatus = e.target.value;
+                                            handleStatusChange(shipment.shipmentId, selectedStatus); // Gọi hàm xử lý khi chọn trạng thái
+                                        }}
+                                        disabled={shipment.status === 'SUCCESS'} // Vô hiệu hóa nếu trạng thái là SUCCESS
+                                        style={{
+                                            width: '100%',
+                                            backgroundColor:
+                                                shipment.status === 'SUCCESS' ? '#6fb380' :
+                                                    shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
+                                                        shipment.status === 'CANCELLED' ? 'red' : 'pink', // Màu nền tùy thuộc vào trạng thái
+                                            color: 'white',  // Đảm bảo chữ màu trắng
+                                            border:
+                                                shipment.status === 'SUCCESS' ? '2px solid #4c8b5b' :
+                                                    shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' :
+                                                        shipment.status === 'CANCELLED' ? '2px solid red' : 'none', // Border tùy thuộc vào trạng thái
+                                        }}
+                                    >
+                                        <option value="CANCELLED">Đã hủy</option>
+                                        <option value="SHIPPING">Đang giao</option>
+                                        <option value="SUCCESS">Hoàn thành</option>
+                                        <option value="WAITING">Đang chờ</option>
+                                    </select>
+
+                                </div>
+                            </div>
+
                         </div>
 
                         <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
                             <button className="btn-back" onClick={() => navigate(-1)}>
                                 Quay lại
                             </button>
-                            <button
-                                className="btn-complete"
-                                onClick={() => console.log(`Hoàn thành đơn hàng: ${shipmentId}`)}
-                            >
-                                Hoàn thành
-                            </button>
+
                         </div>
                     </>
                 )}
