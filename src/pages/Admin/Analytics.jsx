@@ -41,6 +41,7 @@ const Analytics = () => {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
+                console.log('kq', response);
                 return response.data.total; // Giả sử API trả về tổng số lượng trong trường `total`
             }));
 

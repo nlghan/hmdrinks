@@ -1,5 +1,6 @@
 .custom-chart {
     display: flex;
+    z-index: -1;
     flex-direction: column;
     align-items: center; /* Căn giữa các thành phần */
     margin: 20px; /* Khoảng cách xung quanh biểu đồ */
@@ -8,8 +9,6 @@
     border-radius: 12px; /* Bo góc cho biểu đồ */
     position: relative; /* Đặt vị trí tương đối cho container */
     padding: 20px; /* Thêm padding để chứa nội dung */
-    max-width: 1100px; /* Giới hạn chiều rộng tối đa cho CustomChart */
-    width: 100%; /* Đảm bảo chiều rộng là 100% của container cha */
 }
 
 .custom-chart-title {
@@ -20,10 +19,18 @@
 
 .custom-chart-container {
     width: 100%; /* Chiều rộng của biểu đồ */
-    max-width: 800px; /* Chiều rộng tối đa của container biểu đồ */
     border-radius: 8px; /* Bo góc cho biểu đồ */
     overflow: visible; /* Đảm bảo không ẩn các phần thừa */
     position: relative; /* Đặt vị trí tương đối để sử dụng z-index */
     z-index: 1; /* Đặt z-index cho container */
     background-color: rgba(255, 255, 255, 0); /* Màu nền trong suốt */
 } 
+&MuiChartsAxis-label {
+    transform: translateX(10px);
+}
+&css-ltfg7h {
+    width: 950px;
+}
+&css-1evyvmv-MuiChartsSurface-root {
+    margin-right: 60px;
+}

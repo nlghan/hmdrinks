@@ -1,37 +1,38 @@
-.dash-gauge-card {
+.ship-gauge-card {
     display: flex;
     align-items: center;
-    justify-content:flex-start;
-    width: 450px;
+    justify-content: space-between;
+    width: 350px;
     height: 180px;
     background-color: #f9f9f9; /* Light background for the card */
-    border-radius: 15px;
+    border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 5px;
     margin-top: 20px;
 }
 
-.dash-gauge-container {
+.ship-gauge-container {
+    flex: 1; /* Allow the gauge to take available space */
     display: flex;
-    align-items:center;
-    justify-content:center;
-    margin-right: 30px;
+    align-items: center;
+    justify-content: center;
+    margin-left: -60px;
 }
 
-.dash-gauge-info {
+.ship-gauge-info {
     flex: 1; /* Allow the info section to take available space */
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: -20px;
+    margin-left: -40px;
 }
 
-.dash-gauge-info h4 {
+.ship-gauge-info h4 {
     margin: 0;
     font-size: 25px; /* Adjust font size for data */
 }
 
-.dash-gauge-info p {
+.ship-gauge-info p {
     margin: 0;
     color: #2b2a2a; /* Gray color for description */
 }

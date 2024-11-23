@@ -37,84 +37,7 @@
 
 .stats-section {
   display: flex;
-  gap: 20px;
-}
-
-.stat-box1 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 350px;
-  height: 100px;
-  background-color: #efa0ed;
-  border-radius: 10px;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.percentage-circle {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: conic-gradient(rgb(255, 255, 255) 70%, #efa0ed 0%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 40px;
-  left: 15px;
-}
-
-.inner-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #efa0ed;
-  position: absolute;
-  z-index: 1;
-}
-
-.inner-circle2 {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #f48d8d;
-  position: absolute;
-  z-index: 1;
-}
-
-.inner-circle3 {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #eaca71;
-  position: absolute;
-  z-index: 1;
-}
-
-.percentage-circle span {
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  z-index: 1;
-}
-
-.percentage-circle2 span {
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  z-index: 1;
-}
-
-.percentage-circle3 span {
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  z-index: 1;
+  gap: 40px;
 }
 
 .text1 {
@@ -148,64 +71,6 @@
   color: #ffffff;
 }
 
-.stat-box2 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 350px;
-  height: 100px;
-  background-color: #f48d8d;
-  border-radius: 10px;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stat-box3 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 350px;
-  height: 100px;
-  background-color: #eaca71;
-  border-radius: 10px;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.percentage-circle2 {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: conic-gradient(rgb(255, 255, 255) 80%, #f48d8d 0%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 40px;
-  left: 15px;
-}
-
-.percentage-circle3 {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: conic-gradient(rgb(255, 255, 255) 60%, #eaca71 0%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 40px;
-  left: 15px;
-}
-
 .stat-box .icon {
   font-size: 24px;
 }
@@ -214,42 +79,41 @@
   margin: 5px 0;
 }
 
-.orders-box {
+.orders-box-dash {
   flex: 1;
   margin-top: 30px;
-  background-color: #ffffff;
+  background-color: #fffffff7;
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.orders-box h2 {
+.orders-box-dash h2 {
   margin-bottom: 10px;
 }
 
-.orders-box table {
+.orders-box-dash table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
-.orders-box table th,
-.orders-box table td {
-  border: 1px solid #ffffff;
-  padding: 8px;
+.orders-box-dash table th,
+.orders-box-dash table td {
+  padding: 12px;
   text-align: left;
-  border: none;
+  transition: background-color 0.3s;
 }
 
-.orders-box table th {
-  background-color: #ffffff;
+.orders-box-dash table th {
+  background-color: #fffffff0;
+  font-weight: bold;
 }
 
-.orders-box table td {
-  padding: 8px;
-  text-align: left;
-  border: none;
+.orders-box-dash table tr:hover td {
+  background-color: #e9f5ff;
 }
-
 
 .status-approved {
   color: green;
@@ -387,5 +251,45 @@
   z-index: 1000; /* Ensure it appears above other elements */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
   transition: transform 0.3s ease; /* Smooth transition */
+}
+
+.dash-status-waiting {
+    color: #000000; /* Màu chữ cho Đang chờ */
+    background-color: #f8e3ce; /* Nền nhạt cho Đang chờ */
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block; /* Giữ nền chỉ vừa với nội dung */
+    width: 110px; /* Đặt chiều rộng cố định */
+    text-align: center; /* Căn giữa chữ */
+}
+
+.dash-status-shipping {
+    color: #000000; /* Màu chữ cho Đang giao */
+    background-color: #c1e0f7; /* Nền nhạt cho Đang giao */
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block; /* Giữ nền chỉ vừa với nội dung */
+    width: 110px; /* Đặt chiều rộng cố định */
+    text-align: center; /* Căn giữa chữ */
+}
+
+.dash-status-success {
+    color: #000000; /* Màu chữ cho Thành công */
+    background-color: #d4edda; /* Nền nhạt cho Thành công */
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block; /* Giữ nền chỉ vừa với nội dung */
+    width: 110px; /* Đặt chiều rộng cố định */
+    text-align: center; /* Căn giữa chữ */
+}
+
+.dash-status-cancelled {
+    color: #000000; /* Màu chữ cho Thất bại */
+    background-color: #f8d7da; /* Nền nhạt cho Thất bại */
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block; /* Giữ nền chỉ vừa với nội dung */
+    width: 110px; /* Đặt chiều rộng cố định */
+    text-align: center; /* Căn giữa chữ */
 }
 
