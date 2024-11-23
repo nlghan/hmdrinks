@@ -29,6 +29,8 @@ public class AdminController {
     private ReviewService reviewService;
     @Autowired
     private UserVoucherService userVoucherService;
+    @Autowired
+    private  PaymentService paymentService;
 
     @GetMapping("/list-image/{proId}")
     public ResponseEntity<?> getListImage(@PathVariable Integer proId){
@@ -143,6 +145,19 @@ public class AdminController {
     @PostMapping("/shipment/activate")
     public ResponseEntity<?> activeShipment(@RequestBody AdminActivateShipmentReq req) {
         return shipmentService.activate_Admin(req.getShipmentId(), req.getStatus());
+    }
+
+    @GetMapping("/list-payment-refund")
+    public ResponseEntity<?> handleListPayment(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit) {
+        return  paymentService.listAllPaymentRefund(page, limit);
+    }
+
+    @PutMapping("/activate/refund")
+    public ResponseEntity<?> handleRefund(
+            @RequestBody IdReq idReq) {
+        return  paymentService.activateRefund(idReq.getId());
     }
 
 }

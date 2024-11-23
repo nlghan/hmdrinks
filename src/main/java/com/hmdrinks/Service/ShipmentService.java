@@ -151,9 +151,10 @@ public class ShipmentService {
         ));
     }
 
-    public ResponseEntity<?> cancelShipment(int shipmentId,int userId)
+    @Transactional
+    public ResponseEntity<?> cancelShipment(int shipmentId)
     {
-        Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
+        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
         if(shippment == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
@@ -162,10 +163,51 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
+
+        if(LocalDateTime.now().isAfter(shippment.getDateDelivered()))
+        {
+
+                    shippment.setStatus(Status_Shipment.CANCELLED);
+                    shipmentRepository.save(shippment);
+                    Payment payment = shippment.getPayment();
+                    Orders orders = payment.getOrder();
+                    if(payment.getPaymentMethod() == Payment_Method.CASH)
+                    {
+                        payment.setStatus(Status_Payment.FAILED);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                        orderRepository.save(orders);
+                    }
+                    if(payment.getPaymentMethod() == Payment_Method.CREDIT)
+                    {
+                        payment.setStatus(Status_Payment.REFUND);
+                        payment.setIsRefund(false);
+                        paymentRepository.save(payment);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                    }
+
+               return ResponseEntity.ok().build();
+        }
+
         shippment.setStatus(Status_Shipment.CANCELLED);
         shipmentRepository.save(shippment);
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
+        if(payment.getPaymentMethod() == Payment_Method.CREDIT)
+        {
+            payment.setStatus(Status_Payment.REFUND);
+            paymentRepository.save(payment);
+            Orders orders = payment.getOrder();
+            orders.setStatus(Status_Order.CANCELLED);
+            orderRepository.save(orders);
+        }
+        else{
+
+            Orders orders = payment.getOrder();
+            orders.setStatus(Status_Order.CANCELLED);
+            orderRepository.save(orders);
+        }
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
@@ -478,7 +520,6 @@ public class ShipmentService {
         LocalDateTime dateShipped = updateRequest.getDateShipped();
         LocalDateTime dateDelivered = updateRequest.getDateDelivered();
 
-        // Kiểm tra nếu dateShipped và dateDelivered đều sau dateCreated
         boolean isDateShippedValid = dateShipped != null && dateShipped.isAfter(dateCreated);
         boolean isDateDeliveredValid = dateDelivered != null && dateDelivered.isAfter(dateCreated);
 
@@ -573,6 +614,7 @@ public class ShipmentService {
                     if(payment.getPaymentMethod() == Payment_Method.CREDIT)
                     {
                         payment.setStatus(Status_Payment.REFUND);
+                        payment.setIsRefund(false);
                         paymentRepository.save(payment);
                         paymentRepository.save(payment);
                         orders.setStatus(Status_Order.CANCELLED);

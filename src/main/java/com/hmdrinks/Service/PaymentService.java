@@ -262,6 +262,7 @@ public class PaymentService {
                 payment.setDateCreated(LocalDateTime.now());
                 payment.setOrderIdPayment(orderId);
                 payment.setIsDeleted(false);
+                payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -366,6 +367,7 @@ public class PaymentService {
                 payment.setDateCreated(LocalDateTime.now());
                 payment.setOrderIdPayment("PayOS" + orderCode);
                 payment.setIsDeleted(false);
+                payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -435,6 +437,7 @@ public class PaymentService {
         payment.setDateCreated(LocalDateTime.now());
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
+        payment.setIsRefund(false);
         paymentRepository.save(payment);
         System.out.println("");
         String order_id = generateUniqueNumericString(5);
@@ -497,6 +500,7 @@ public class PaymentService {
         payment.setDateCreated(LocalDateTime.now());
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
+        payment.setIsRefund(false);
         paymentRepository.save(payment);
         Map<String, Object> response = zaloPayService.createPayment(totalAmountLong);
         String orderUrl = (String) response.get("order_url");
@@ -626,7 +630,8 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId()
+                payment.getOrder().getOrderId(),
+                payment.getIsRefund()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -649,7 +654,8 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId()
+                payment.getOrder().getOrderId(),
+                payment.getIsRefund()
         ));
     }
 
@@ -686,6 +692,7 @@ public class PaymentService {
         payment1.setDateCreated(LocalDateTime.now());
         payment1.setIsDeleted(false);
         payment1.setOrder(order);
+        payment1.setIsRefund(false);
         paymentRepository.save(payment1);
 
         Shippment shippment = new Shippment();
@@ -694,6 +701,7 @@ public class PaymentService {
         shippment.setDateCreated(LocalDateTime.now());
         shippment.setDateDelivered(LocalDateTime.now());
         shippment.setStatus(Status_Shipment.WAITING);
+
         shipmentRepository.save(shippment);
         assignShipments(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
@@ -704,7 +712,8 @@ public class PaymentService {
                 payment1.getIsDeleted(),
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
-                payment1.getOrder().getOrderId()
+                payment1.getOrder().getOrderId(),
+                payment.getIsRefund()
         ));
     }
 
@@ -714,6 +723,7 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
+        List<Payment> payments1 = paymentRepository.findAllByIsDeletedFalse();
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -726,7 +736,8 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId()
+                            payment.getOrder().getOrderId(),
+                            payment.getIsRefund()
                     )
             );
             total++;
@@ -735,7 +746,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                total,
+                payments1.size(),
                 responses
         ));
     }
@@ -746,6 +757,7 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
+        List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -758,7 +770,8 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId()
+                            payment.getOrder().getOrderId(),
+                            payment.getIsRefund()
                     )
             );
             total++;
@@ -767,7 +780,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                total  ,
+                payments1.size(),
                 responses
         ));
     }
@@ -778,6 +791,7 @@ public class PaymentService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
+        List<Payment> payments1 = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
         int total = 0;
         for (Payment payment : payments) {
@@ -790,7 +804,8 @@ public class PaymentService {
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
-                            payment.getOrder().getOrderId()
+                            payment.getOrder().getOrderId(),
+                            payment.getIsRefund()
                     )
             );
             total++;
@@ -799,7 +814,7 @@ public class PaymentService {
                 page,
                 payments.getTotalPages(),
                 limit,
-                total,
+                payments1.size(),
                 responses
         ));
     }
@@ -818,7 +833,8 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId()
+                payment.getOrder().getOrderId(),
+                payment.getIsRefund()
         ));
     }
 
@@ -878,7 +894,8 @@ public class PaymentService {
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
-                payment.getOrder().getOrderId()
+                payment.getOrder().getOrderId(),
+                payment.getIsRefund()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -900,4 +917,67 @@ public class PaymentService {
             return null;
         }
     }
+
+    @Transactional
+    public  ResponseEntity<?> listAllPaymentRefund(String pageFromParam, String limitFromParam){
+       int page = Integer.parseInt(pageFromParam);
+       int limit = Integer.parseInt(limitFromParam);
+       if (limit >= 100) limit = 100;
+       Pageable pageable = PageRequest.of(page - 1, limit);
+       Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND, pageable);
+       List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND);
+       List<CRUDPaymentResponse> responses = new ArrayList<>();
+       int total = 0;
+       for (Payment payment : payments) {
+           responses.add(
+                   new CRUDPaymentResponse(
+                           payment.getPaymentId(),
+                           payment.getAmount(),
+                           payment.getDateCreated(),
+                           payment.getDateDeleted(),
+                           payment.getIsDeleted(),
+                           payment.getPaymentMethod(),
+                           payment.getStatus(),
+                           payment.getOrder().getOrderId(),
+                           payment.getIsRefund()
+                   )
+           );
+           total++;
+       }
+       return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
+               page,
+               payments.getTotalPages(),
+               limit,
+               payments1.size(),
+               responses
+       ));
+   }
+
+    @Transactional
+    public ResponseEntity<?> activateRefund(int paymentId)
+    {
+       Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
+       if(payment == null)
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+       }
+       Shippment shippment = payment.getShipment();
+
+       if(shippment.getStatus() == Status_Shipment.WAITING ||shippment.getStatus() == Status_Shipment.SHIPPING)
+       {
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with shipment");
+       }
+       if(payment.getPaymentMethod() == Payment_Method.CASH)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with payment method cash");
+        }
+       if(payment.getIsRefund())
+       {
+           return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund exists");
+       }
+       payment.setIsRefund(true);
+       paymentRepository.save(payment);
+       return ResponseEntity.status(HttpStatus.OK).body("Refund activated");
+   }
+
 }

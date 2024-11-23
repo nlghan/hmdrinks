@@ -39,7 +39,7 @@ public class ShipmentController {
 
     @PostMapping("/activate/cancel")
     public ResponseEntity<?> activeCancel(@RequestBody AllocationShipmentReq req) {
-        return shipmentService.successShipment(req.getShipmentId(),req.getUserId());
+        return shipmentService.cancelShipment(req.getShipmentId());
     }
 
     @GetMapping("/shipper/listShippment")
@@ -66,7 +66,6 @@ public class ShipmentController {
     {
         return shipmentService.checkTimeDelivery();
     }
-
 
     @GetMapping("/view/list-All")
     public ResponseEntity<?> getListShipment(@RequestParam(name = "page") String page,
@@ -100,6 +99,5 @@ public class ShipmentController {
     public ResponseEntity<?> getOneShipmentByOrderId(@PathVariable int orderId) {
         return shipmentService.getInfoShipmentByOrderId(orderId);
     }
-
 
 }

@@ -720,7 +720,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                1
+                1,
+                true
         );
 
         CRUDPaymentResponse response2 = new CRUDPaymentResponse(
@@ -731,7 +732,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                2
+                2,
+                true
         );
         ListAllPaymentResponse listAllOrdersResponse = new ListAllPaymentResponse(
                 1,
@@ -763,7 +765,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                1
+                1,
+                true
         );
 
         CRUDPaymentResponse response2 = new CRUDPaymentResponse(
@@ -774,7 +777,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                2
+                2,
+                false
         );
         ListAllPaymentResponse listAllOrdersResponse = new ListAllPaymentResponse(
                 1,
@@ -806,7 +810,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                1
+                1,
+                true
         );
 
         CRUDPaymentResponse response2 = new CRUDPaymentResponse(
@@ -817,7 +822,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                2
+                2,
+                false
         );
         ListAllPaymentResponse listAllOrdersResponse = new ListAllPaymentResponse(
                 1,
@@ -850,7 +856,8 @@ class PaymentControllerTest {
                 false,
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
-                1
+                1,
+                true
         );
         when(paymentService.checkStatusPayment(anyInt())).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response1));
 

@@ -466,7 +466,8 @@ class OrderControllerTest {
                         false,
                         Payment_Method.CREDIT,
                         Status_Payment.PENDING,
-                        1
+                        1,
+                        false
                 )
         );
         int orderId = 1;

@@ -312,7 +312,8 @@ public class OrdersService {
                         payment.getIsDeleted(),
                         payment.getPaymentMethod(),
                         payment.getStatus(),
-                        payment.getOrder().getOrderId()
+                        payment.getOrder().getOrderId(),
+                        payment.getIsRefund()
                 )
         ));
     }
