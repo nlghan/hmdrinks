@@ -196,8 +196,8 @@ const NavbarShipper = ({ currentPage }) => {
                         GIỚI THIỆU
                     </li>
                     <li
-                        onClick={() => navigate('/shipper-contact')}
-                        className={location.pathname === '/shipper-contact' ? 'shipper-active' : ''}
+                        onClick={() => navigate('/shipper-analytics')}
+                        className={location.pathname === '/shipper-analytics' ? 'shipper-active' : ''}
                     >
                         THỐNG KÊ
                     </li>

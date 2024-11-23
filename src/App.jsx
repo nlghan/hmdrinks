@@ -7,7 +7,7 @@ import Register from './pages/Register/Register';
 import Home from './pages/Home/Home';
 import ShipperHome from './pages/Shipper/HomeShipper';
 import AboutShipper from './pages/Shipper/AboutShipper';
-import ContactShipper from './pages/Shipper/ContactShipper';
+import AnalyticsShipper from './pages/Shipper/AnalyticsShipper';
 import InfoShipper from './pages/Shipper/InfoShipper';
 import Dashboard from './pages/Admin/Dashboard';
 import Analytics from './pages/Admin/Analytics';
@@ -96,7 +96,7 @@ const App = () => {
             <Route path="/shipper-about" element={<AboutShipper />} />
             {/* <Route path="/shipper-menu" element={<ShipperMenuPage />} />
             <Route path="/shipper-post" element={<ShipperPostPage />} /> */}
-            <Route path="/shipper-contact" element={<ContactShipper />} />
+            <Route path="/shipper-analytics" element={<AnalyticsShipper />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
             <Route path="/send-mail" element={<SendMail />} />

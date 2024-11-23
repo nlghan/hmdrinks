@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
-import './GaugeCardDash.css';
+import './GaugeCardShip.css';
 
-const GaugeCard = ({ percentage, data, description, number1, color, colorline, backgroundColor, number, height, width }) => {
+const GaugeCard = ({ percentage, data, description, number1, color, backgroundColor, number, height, width }) => {
   const [value, setValue] = useState(0);
   const [displayNumber, setDisplayNumber] = useState(0);
 
@@ -47,14 +47,14 @@ const GaugeCard = ({ percentage, data, description, number1, color, colorline, b
   }, [percentage]);
 
   const settings = {
-    width: 100,
-    height: 100,
+    width: 95,
+    height: 95,
     value: value,
   };
 
   return (
-    <div className="dash-gauge-card" style={{ backgroundColor, height, width }}>
-      <div className="dash-gauge-container">
+    <div className="ship-gauge-card" style={{ backgroundColor, height, width }}>
+      <div className="ship-gauge-container">
         <Gauge
           {...settings}
           cornerRadius="50%"
@@ -67,12 +67,12 @@ const GaugeCard = ({ percentage, data, description, number1, color, colorline, b
               transition: 'fill 0.3s ease-in-out',
             },
             [`& .${gaugeClasses.referenceArc}`]: {
-              fill: colorline,
+              fill: backgroundColor,
             },
           })}
         />
       </div>
-      <div className="dash-gauge-info">
+      <div className="ship-gauge-info">
         {number !== undefined ? (
           <h4>{displayNumber} VND</h4>
         ) : (

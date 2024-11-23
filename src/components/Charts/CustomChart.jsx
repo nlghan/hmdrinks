@@ -214,7 +214,7 @@ export default function CustomChart() {
           labelPlacement="end"
         />
       </Stack>
-      <Box className="custom-chart-container" sx={{ width: '850px' }}>
+      <Box className="custom-chart-container" sx={{ width: '950px' }} >
         <ResponsiveChartContainer
           series={series}
           xAxis={[{
@@ -225,20 +225,36 @@ export default function CustomChart() {
           }]}
           yAxis={[
             { id: 'leftAxis', reverse: reverseLeft },
-            { id: 'rightAxis', reverse: reverseRight },
+            {
+              id: 'rightAxis',
+              reverse: reverseRight,
+              tickFormatter: (value) => {
+                if (value >= 1000000) {
+                  return `${(value / 1000000).toFixed(1)}M`;
+                } else if (value >= 1000) {
+                  return `${(value / 1000).toFixed(1)}K`;
+                }
+                return value;
+              }
+            },
           ]}
           dataset={data}
           height={400}
         >
+
           <ChartsGrid horizontal />
           <BarPlot />
           <LinePlot />
           <MarkPlot />
           <ChartsXAxis />
-          <ChartsYAxis axisId="leftAxis" label="Tổng số đơn hàng bán ra" />
-          <ChartsYAxis axisId="rightAxis" position="right" label="Tổng doanh thu (VND)" />
+          <ChartsYAxis axisId="leftAxis" />
+          <ChartsYAxis axisId="rightAxis" position="right" />
           <ChartsTooltip />
         </ResponsiveChartContainer>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-20px' }}>
+          <h6 style={{ margin: 0 }}>Tổng đơn hàng </h6>
+          <h6 style={{ margin: 0 }}>Tổng giá trị (VND)</h6>
+        </div>
       </Box>
     </Stack>
   );

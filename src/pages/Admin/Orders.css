@@ -19,7 +19,6 @@
     z-index: 1;
     margin-left: 10px;
     height: 100%;
-    
 }
 
 .orders-box {
@@ -29,8 +28,44 @@
     transition: all 0.3s ease-in-out; /* Smooth transition */
     position: relative;
     width: 99%;
-    
+    margin-top: 0px;
+    margin-left: -8px;
 }
+.orders-box {
+    flex: 1;
+    margin-top: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .orders-box h2 {
+    margin-bottom: 10px;
+  }
+  
+  .orders-box table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .orders-box table th,
+  .orders-box table td {
+    border: 1px solid #ffffff;
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
+  
+  .orders-box table th {
+    background-color: #ffffff;
+  }
+  
+  .orders-box table td {
+    padding: 8px;
+    text-align: left;
+    border: none;
+  }
 
 .table-orders {
     width: 99%;

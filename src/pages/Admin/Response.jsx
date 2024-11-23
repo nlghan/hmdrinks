@@ -149,7 +149,7 @@ function Response() {
     // Tính toán phần trăm cho từng trạng thái
     const pendingPercentage = totalResponses ? ((pendingCount / totalResponses) * 100).toFixed(0) : 0;
     const approvedPercentage = totalResponses ? ((approvedCount / totalResponses) * 100).toFixed(0) : 0;
-    const rejectedPercentage = totalResponses ? ((rejectedCount / totalResponses) * 100).toFixed(0) : 0;
+
 
     // Lọc responses dựa trên searchTerm và selectedType
     const filteredResponses = responses.filter(response => {
