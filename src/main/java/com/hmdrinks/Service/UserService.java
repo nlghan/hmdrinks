@@ -82,7 +82,6 @@ public class UserService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findAll(pageable);
-        List<User> userList1 = userRepository.findAllByIsDeletedFalse();
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
         int total = 0;
         for (User user : userList) {
@@ -106,7 +105,7 @@ public class UserService {
                 ));
             total++;
             }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,userList1.size(), detailUserResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,total, detailUserResponseList));
     }
 
     public ResponseEntity<?> getListAllUserByRole(String pageFromParam, String limitFromParam,Role role) {
