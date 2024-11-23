@@ -134,7 +134,7 @@ public class ZaloPayService {
         order.put("amount", total);
         order.put("description", "HMDrinks - Payment for the order #" + transId);
         order.put("bank_code", "");
-        order.put("callback_url", "https://mammal-light-manually.ngrok-free.app/payment-online-status/");
+        order.put("callback_url", "https://782e-42-116-39-0.ngrok-free.app/payment-online-status/");
         order.put("embed_data", "{\"redirecturl\":\"http://localhost:5173/payment-online-status\"}");
         order.put("item", "[]");
 

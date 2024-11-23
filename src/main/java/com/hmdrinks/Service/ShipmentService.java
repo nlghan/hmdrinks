@@ -623,9 +623,12 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         }
         Payment payment = paymentRepository.findByPaymentId(order.getPayment().getPaymentId());
-        User customer = order.getUser();
+        if(payment != null)
+        {
 
-        Shippment shipment = payment.getShipment();
+        }
+        User customer = payment.getOrder().getUser();
+        Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
         User shipper = shipment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
