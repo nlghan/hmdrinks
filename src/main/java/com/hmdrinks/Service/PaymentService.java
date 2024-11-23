@@ -720,7 +720,7 @@ public class PaymentService {
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
                 payment1.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment1.getIsRefund()
         ));
     }
 
