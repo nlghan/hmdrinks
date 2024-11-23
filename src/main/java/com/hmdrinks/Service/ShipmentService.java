@@ -239,6 +239,7 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
         shippment.setStatus(Status_Shipment.SUCCESS);
+        shippment.setDateShip(LocalDateTime.now());
         shipmentRepository.save(shippment);
 
         Payment payment1 = shippment.getPayment();

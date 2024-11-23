@@ -5,6 +5,7 @@ import com.hmdrinks.Controller.CartController;
 import com.hmdrinks.Controller.PostController;
 import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Enum.Status_Cart;
+import com.hmdrinks.Enum.Status_Voucher;
 import com.hmdrinks.Enum.Type_Post;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.CRUDPostReq;
@@ -281,7 +282,7 @@ class PostControllerTest {
 
     @Test
     void listPostByTye_Success() throws Exception {
-        CRUDPostResponse response1 = new CRUDPostResponse(
+        CRUDPostAndVoucherResponse response1 = new CRUDPostAndVoucherResponse(
                 1,
                 Type_Post.EVENT,
                 "string",
@@ -291,9 +292,19 @@ class PostControllerTest {
                 3,
                 false,
                 null,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new CRUDVoucherResponse(
+                        1,
+                        "Voucher123",
+                        50,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        10000.0,
+                        Status_Voucher.ACTIVE,
+                        1
+                )
         );
-        CRUDPostResponse response2 = new CRUDPostResponse(
+        CRUDPostAndVoucherResponse response2 = new CRUDPostAndVoucherResponse(
                 2,
                 Type_Post.EVENT,
                 "string123",
@@ -303,7 +314,17 @@ class PostControllerTest {
                 5,
                 false,
                 null,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new CRUDVoucherResponse(
+                        2,
+                        "Voucher123a",
+                        500,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        10000.0,
+                        Status_Voucher.ACTIVE,
+                        2
+                )
         );
 
         ListAllPostResponse listAllPostResponse = new ListAllPostResponse(
@@ -329,7 +350,7 @@ class PostControllerTest {
 
     @Test
     void listPost_Success() throws Exception {
-        CRUDPostResponse response1 = new CRUDPostResponse(
+        CRUDPostAndVoucherResponse response1 = new CRUDPostAndVoucherResponse(
                 1,
                 Type_Post.EVENT,
                 "string",
@@ -339,9 +360,19 @@ class PostControllerTest {
                 3,
                 false,
                 null,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new CRUDVoucherResponse(
+                        1,
+                        "Voucher123",
+                        50,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        10000.0,
+                        Status_Voucher.ACTIVE,
+                        1
+                )
         );
-        CRUDPostResponse response2 = new CRUDPostResponse(
+        CRUDPostAndVoucherResponse response2 = new CRUDPostAndVoucherResponse(
                 2,
                 Type_Post.EVENT,
                 "string123",
@@ -351,7 +382,17 @@ class PostControllerTest {
                 5,
                 false,
                 null,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new CRUDVoucherResponse(
+                        2,
+                        "Voucher123a",
+                        500,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        10000.0,
+                        Status_Voucher.ACTIVE,
+                        2
+                )
         );
 
         ListAllPostResponse listAllPostResponse = new ListAllPostResponse(

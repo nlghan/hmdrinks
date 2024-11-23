@@ -657,6 +657,7 @@ public class PaymentService {
         shippment.setDateDelivered(LocalDateTime.now());
         shippment.setStatus(Status_Shipment.WAITING);
         shipmentRepository.save(shippment);
+        assignShipments();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
