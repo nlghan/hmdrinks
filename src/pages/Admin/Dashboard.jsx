@@ -1,86 +1,108 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import { assets } from '../../assets/assets';
-import Cookies from 'js-cookie'; 
+import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
-
-
+import LineChart from '../../components/Charts/LineChart';
+import GaugeCard from '../../components/Card/GaugeCardDash';
 
 const Dashboard = () => {
     const navigate = useNavigate();
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false); 
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [users, setUsers] = useState([]);
+    const [error, setError] = useState("");
+
     useEffect(() => {
         const loggedIn = sessionStorage.getItem("isLoggedIn");
         setIsLoggedIn(loggedIn === "true");
-      }, []);
-    
+    }, []);
+
+    const fetchUsers = async (page = 1, limit = 100, role = 'CUSTOMER') => {
+        try {
+            const token = Cookies.get('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                return;
+            }
+
+            const url = `http://localhost:1010/api/admin/listUser-role?page=${page}&limit=${limit}&role=${role}`;
+            const response = await axios.get(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const sortedUsers = response.data.detailUserResponseList || [];
+            sortedUsers.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+            setUsers(sortedUsers.slice(0, 5));
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            setError("Không thể lấy thông tin người dùng.");
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-    
+
+    const timeAgo = (date) => {
+        const now = new Date();
+        const seconds = Math.floor((now - new Date(date)) / 1000);
+
+        let interval = Math.floor(seconds / 31536000);
+        if (interval > 1) return `${interval} năm trước`;
+        interval = Math.floor(seconds / 2592000);
+        if (interval > 1) return `${interval} tháng trước`;
+        interval = Math.floor(seconds / 86400);
+        if (interval > 1) return `${interval} ngày trước`;
+        return "Vừa tạo hôm nay";
+    };
+
     return (
         <div className="dashboard">
-           
-           <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Dashboard" />
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Dashboard" />
             <div className={`dashboard-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="main-section">
-                  <div className="stats-section">
-                        <div className="stat-box1">
-                            <div className="percentage-circle">
-                                <div className="inner-circle"></div>
-                                <span>70%</span>
-                            </div>
-                            <div className="icon">📊</div>
-                            <div className="text1">
-                                <h3>Sales</h3>
-                            </div>
-                            <div className="count">
-                                <h4>$200,000</h4>
-                            </div>
-                            <div className="details">
-                                <h5>Last 24 Hours</h5>
-                            </div>
-                        </div>
-                        <div className="stat-box2">
-                            <div className="percentage-circle2">
-                                <div className="inner-circle2"></div>
-                                <span>80%</span>
-                            </div>
-                            <div className="icon">💰</div>
-                            <div className="text1">
-                                <h3>Revenue</h3>
-                            </div>
-                            <div className="count">
-                                <h4>$200,000</h4>
-                            </div>
-                            <div className="details">
-                                <h5>Last 24 Hours</h5>
-                            </div>
-                        </div>
-                        <div className="stat-box3">
-                            <div className="percentage-circle3">
-                                <div className="inner-circle3"></div>
-                                <span>60%</span>
-                            </div>
-                            <div className="icon">💸</div>
-                            <div className="text1">
-                                <h3>Expenses</h3>
-                            </div>
-                            <div className="count">
-                                <h4>$200,000</h4>
-                            </div>
-                            <div className="details">
-                                <h5>Last 24 Hours</h5>
-                            </div>
-                        </div>
+                    <div className="stats-section">
+                        <GaugeCard
+                            percentage={50} // Phần trăm cho trạng thái WAITING
+                            width='350px'
+                            height='180px'
+                            data="⏳ĐANG CHỜ"
+                            description="Các đơn hàng đang chờ"
+                            color="#FFA07A" // Pastel Orange
+                            backgroundColor="#FFF5E6" // Light Pastel Orange
+                        />
+                        <GaugeCard
+                            percentage={65} // Phần trăm cho trạng thái SHIPPING
+                            width='350px'
+                            height='180px'
+                            data="🚚 ĐANG GIAO"
+                            description="Các đơn hàng đang giao"
+                            color="#87CEFA" // Pastel Blue
+                            backgroundColor="#E6F7FF" // Light Pastel Blue
+                        />
+                        <GaugeCard
+                            percentage={79} // Phần trăm cho trạng thái SUCCESS
+                            width='350px'
+                            height='180px'
+                            data="✅ ĐÃ GIAO"
+                            description="Các đơn hàng thành công"
+                            color="#90EE90" // Pastel Green
+                            backgroundColor="#F0FFF0" // Light Pastel Green
+                        />
                     </div>
 
                     <div className="orders-box">
-                        <h2>Recent Orders</h2>
+                        <h2>Đơn Hàng Gần Đây</h2>
                         <table>
                             <thead>
                                 <tr>
@@ -127,29 +149,21 @@ const Dashboard = () => {
 
                 <div className="side-section">
                     <div className="updates-box">
-                        <h2>Recent Updates</h2>
+                        <h2>Cập nhật gần đây</h2>
                         <ul>
-                            <li>
-                                <img src="path/to/imageA.jpg" alt="User A" className="update-image" />
-                                <span>User A updated profile</span>
-                                <span>1 min ago</span>
-                            </li>
-                            <li>
-                                <img src="path/to/imageB.jpg" alt="User B" className="update-image" />
-                                <span>User B updated payment method</span>
-                                <span>1 min ago</span>
-                            </li>
-                            <li>
-                                <img src="path/to/imageC.jpg" alt="User C" className="update-image" />
-                                <span>User C updated shipping address</span>
-                                <span>1 min ago</span>
-                            </li>
+                            {users.map(user => (
+                                <li key={user.userId}>
+                                    <img src={user.avatar && user.avatar.trim() !== "" ? user.avatar : assets.avtrang} alt={user.userName} className="update-image-dash" />
+                                    <span>{user.userName} đã đăng ký tài khoản</span>
+                                    <span>{timeAgo(user.dateCreated)}</span>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     <div className="review-chart">
-                        <h2>Custom Review</h2>
-                        <div className="chart-placeholder">Chart goes here</div>
+                        <h2>Đánh giá tổng quan từ khách hàng</h2>
+                        <LineChart />
                     </div>
                 </div>
             </div>

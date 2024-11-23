@@ -15,123 +15,34 @@ const HorizontalBars = ({ width, height }) => {
   };
   const fetchFavorites = async () => {
     try {
-      const token = getCookie('access_token'); // Assuming you have a function to get the cookie
+      const token = getCookie('access_token');
       if (!token) {
         setError("Bạn cần đăng nhập để xem thông tin này.");
         return;
       }
 
-      const firstPageUrl = `http://localhost:1010/api/admin/listUser?page=1&limit=100`; // Adjust limit as needed
-      const firstPageResponse = await axios.get(firstPageUrl, {
+      // New API call to fetch total favorite counts
+      const response = await axios.get(`http://localhost:1010/api/fav-item/list`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      const totalPages = firstPageResponse.data.totalPage;
-      let allUsers = [];
+      const totalCountFavorites = response.data.totalCountFavoriteList;
 
-      // Fetch all users
-      for (let page = 1; page <= totalPages; page++) {
-        const url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=100`;
-        const response = await axios.get(url, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        allUsers = allUsers.concat(response.data.detailUserResponseList || []);
-      }
+      // Sort by totalCount in descending order and limit to top 10
+      const sortedFavorites = totalCountFavorites
+        .sort((a, b) => b.totalCount - a.totalCount)
+        .slice(0, 10);
 
-      // Fetch favorites for each user
-      const favoritesPromises = allUsers.map(async (user) => {
-        try {
-          const favResponse = await axios.get(`http://localhost:1010/api/fav/list-fav/${user.userId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          console.log(`Favorites for user ${user.userId}:`, favResponse.data); // Log dữ liệu yêu thích cho từng người dùng
-          return { userId: user.userId, favId: favResponse.data.favId || 0 }; // Lưu userId và favId
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            console.warn(`No favorites found for user ${user.userId}, skipping...`); // Log cảnh báo nếu không tìm thấy
-          } else {
-            console.error(`Error fetching favorites for user ${user.userId}:`, error); // Log lỗi khác
-          }
-          return null; // Trả về null nếu có lỗi
-        }
-      });
-
-      const favoritesData = await Promise.all(favoritesPromises);
-      const validFavorites = favoritesData.filter(fav => fav !== null); // Lọc ra các kết quả hợp lệ
-
-      // Gọi API để lấy danh sách các mục yêu thích cho từng favId
-      const itemsPromises = validFavorites.map(async (fav) => {
-        const itemsResponse = await axios.get(`http://localhost:1010/api/fav/list-favItem/${fav.favId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        console.log(`Items for favorite ID ${fav.favId}:`, itemsResponse.data); // Log dữ liệu các mục yêu thích
-
-        // Lưu các favItemId tương ứng với từng proId
-        const productCounts = {};
-        itemsResponse.data.favouriteItemResponseList.forEach(item => {
-          const { favItemId, proId } = item;
-          if (!productCounts[proId]) {
-            productCounts[proId] = { count: 0, favItemId: favItemId };
-          }
-          productCounts[proId].count += 1; // Tăng số lượng cho proId
-        });
-
-        return { userId: fav.userId, productCounts }; // Lưu userId và danh sách số lượng sản phẩm
-      });
-
-      const itemsData = await Promise.all(itemsPromises);
-      console.log('All items fetched:', itemsData); // Log tất cả các mục đã được lấy
-
-      // Gọi API để lấy proName cho từng proId
-      const productPromises = itemsData.flatMap(async (data) => {
-        const productNames = {};
-        for (const proId in data.productCounts) {
-          const productResponse = await axios.get(`http://localhost:1010/api/product/view/${proId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (productResponse.status === 200) {
-            const proName = productResponse.data.proName;
-            productNames[proId] = { proName, count: data.productCounts[proId].count }; // Lưu proName và số lượng
-          }
-        }
-        return { userId: data.userId, productNames }; // Lưu userId và danh sách proName
-      });
-
-      const finalProductData = await Promise.all(productPromises);
-      console.log('Final product data:', finalProductData); // Log dữ liệu sản phẩm cuối cùng
-
-      // Xử lý finalProductData để cập nhật data1
-      const aggregatedData = {};
-
-      finalProductData.forEach(userData => {
-        const { productNames } = userData;
-        for (const proId in productNames) {
-          const { proName, count } = productNames[proId];
-          if (!aggregatedData[proName]) {
-            aggregatedData[proName] = { userFav: 0 };
-          }
-          aggregatedData[proName].userFav += count; // Cộng dồn số lượng yêu thích
-        }
-      });
-
-      // Chuyển đổi aggregatedData thành mảng cho data1
-      const newData1 = Object.keys(aggregatedData).map(proName => ({
-        product: proName,
-        userFav: aggregatedData[proName].userFav,
+      // Prepare data1 with proName and totalCount
+      const newData1 = sortedFavorites.map(item => ({
+        product: item.proName,
+        userFav: item.totalCount,
       }));
 
-      console.log('Aggregated data for chart:', newData1); // Log dữ liệu đã được tổng hợp
-      setData1(newData1); // Set the aggregated data for the chart
+      console.log('Aggregated data for chart:', newData1);
+      setData1(newData1);
 
     } catch (error) {
       console.error('Error fetching favorites:', error);

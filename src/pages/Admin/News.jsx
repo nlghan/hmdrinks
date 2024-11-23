@@ -33,6 +33,7 @@ const News = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [voucher, setVoucher] = useState(null);
     const [post, setPost] = useState(null);
+    const [isUserVouchersLoading, setIsUserVouchersLoading] = useState(false);
 
     const getUserIdFromToken = (token) => {
         try {
@@ -316,7 +317,8 @@ const News = () => {
             // Fetch lại danh sách posts
             await fetchPostVoucher(currentPage, limit);
 
-            // Fetch lại danh sách vouchers
+            // Fetch lại danh sách vouchers only when adding a post
+            setIsUserVouchersLoading(true); // Set loading for user vouchers
             const token = getCookie('access_token');
             const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -329,11 +331,13 @@ const News = () => {
         } catch (error) {
             console.error("Error refreshing data after post addition:", error);
             setError("Không thể cập nhật dữ liệu sau khi thêm bài đăng");
+        } finally {
+            setIsUserVouchersLoading(false); // Reset loading state
         }
     };
 
     const handleUpdatePost = async (updatedPost) => {
-        console.log("Updating post with data:", updatedPost); // Log dữ liệu vào console
+        console.log("Updating post with data:", updatedPost);
 
         // Ensure updatedPost is defined and has the required properties
         if (!updatedPost || !updatedPost.postId) {
@@ -355,34 +359,26 @@ const News = () => {
         setPostData(updatedPost);
 
         // Fetch lại danh sách bài viết sau khi cập nhật
-        fetchPostVoucher(currentPage, limit);
+        await fetchPostVoucher(currentPage, limit);
+
+        // Fetch lại danh sách vouchers only when updating a post
+        setIsUserVouchersLoading(true); // Set loading for user vouchers
+        const token = getCookie('access_token');
+        const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.data && response.data.body) {
+            const fetchedVouchers = response.data.body.voucherResponseList || [];
+            setAllVouchers(fetchedVouchers);
+        }
+        setIsUserVouchersLoading(false); // Reset loading state
     };
 
 
-    const handleViewPostDetails = async (postId) => {
+    const handleViewPostDetails = (postId) => {
         setSelectedPostId(postId);
         setIsLoading(true);
-        try {
-            const token = getCookie('access_token');
-            // Fetch voucher details cho post được chọn
-            const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${postId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.data && response.data.getVoucherResponseList) {
-                // Lấy voucher đầu tiên từ danh sách (nếu có)
-                const voucherData = response.data.getVoucherResponseList[0];
-                setVoucher(voucherData);
-            } else {
-                setVoucher(null);
-            }
-        } catch (error) {
-            console.error("Error fetching voucher details:", error);
-            setError("Không thể tải thông tin voucher");
-            setVoucher(null);
-        } finally {
-            setIsLoading(false);
-        }
     };
 
     const handleUpdatePostClick = (post) => {
@@ -488,6 +484,7 @@ const News = () => {
         const fetchPostDetails = async () => {
             if (!selectedPostId) return; // Thêm điều kiện kiểm tra
 
+            setIsLoading(true); // Set loading to true when fetching starts
             const token = getCookie('access_token');
             try {
                 const response = await axios.get(`http://localhost:1010/api/post/view/${selectedPostId}`, {
@@ -521,7 +518,7 @@ const News = () => {
                 console.error("Error fetching data:", err);
                 setError(err.message);
             } finally {
-                setLoading(false);
+                setIsLoading(false); // Set loading to false when fetching is done
             }
         };
 
@@ -616,8 +613,6 @@ const News = () => {
                                     />
                                 </div>
                             )}
-
-
 
                             {selectedPostId && (
                                 <div className="form-details-post-overlay">
@@ -769,7 +764,7 @@ const News = () => {
                             />
                         </div>
                         <div className="table-wrapper">
-                            {isLoading ? (
+                            {isUserVouchersLoading ? (
                                 <div className="loading-message">Đang tải dữ liệu...</div>
                             ) : error ? (
                                 <div className="error-message">{error}</div>
