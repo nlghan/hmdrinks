@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CRUDPaymentResponse {
+public class CRUDPaymentRefundResponse {
     private int paymentId;
     private double amount;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -28,5 +28,4 @@ public class CRUDPaymentResponse {
     private Payment_Method paymentMethod;
     private Status_Payment statusPayment;
     private int orderId;
-    private boolean isRefunded;
 }

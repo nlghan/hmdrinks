@@ -11,9 +11,7 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Repository.VoucherRepository;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Response.CRUDPostResponse;
-import com.hmdrinks.Response.ListAllPostByUserIdResponse;
-import com.hmdrinks.Response.ListAllPostResponse;
+import com.hmdrinks.Response.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -124,16 +122,19 @@ public class PostService {
     }
 
 
+    @Transactional
     public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam,Type_Post typePost) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByTypeAndIsDeletedFalse(typePost,pageable);
-        List<CRUDPostResponse> responses = new ArrayList<>();
+
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            responses.add(new CRUDPostResponse(
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -143,7 +144,60 @@ public class PostService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate()
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
+            ));
+            total++;
+        }
+        return new ListAllPostResponse(
+                page,
+                posts.getTotalPages(),
+                limit,
+                total,
+                responses
+        );
+    }
+
+    public ListAllPostResponse getAllPostByDESC(String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Post> posts = postRepository.findAllByIsDeletedFalseOrderByPostIdDesc(pageable);
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
+        int total = 0;
+        for(Post post : posts) {
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
+                    post.getPostId(),
+                    post.getType(),
+                    post.getBannerUrl(),
+                    post.getDescription(),
+                    post.getTitle(),
+                    post.getShortDes(),
+                    post.getUser().getUserId(),
+                    post.getIsDeleted(),
+                    post.getDateDeleted(),
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
             ));
             total++;
         }
@@ -162,10 +216,11 @@ public class PostService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
-        List<CRUDPostResponse> responses = new ArrayList<>();
+        List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
-            responses.add(new CRUDPostResponse(
+            Voucher voucher = post.getVoucher();
+            responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
                     post.getBannerUrl(),
@@ -175,7 +230,17 @@ public class PostService {
                     post.getUser().getUserId(),
                     post.getIsDeleted(),
                     post.getDateDeleted(),
-                    post.getDateCreate()
+                    post.getDateCreate(),
+                    new CRUDVoucherResponse(
+                            voucher.getVoucherId(),
+                            voucher.getKey(),
+                            voucher.getNumber(),
+                            voucher.getStartDate(),
+                            voucher.getEndDate(),
+                            voucher.getDiscount(),
+                            voucher.getStatus(),
+                            voucher.getPost().getPostId()
+                    )
             ));
             total++;
         }

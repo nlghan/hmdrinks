@@ -24,8 +24,12 @@ import java.util.Optional;
     User findByEmailAndIsDeletedFalse(String email);
 
     Page<User> findAll(Pageable pageable);
+    List<User> findAllByIsDeletedFalse();
+
     @Query("SELECT u FROM User u WHERE u.role = :role")
     Page<User> findAllByRole(@Param("role") Role role, Pageable pageable);
+
+
 
 
     @Query("SELECT u FROM User u WHERE u.role = :role")

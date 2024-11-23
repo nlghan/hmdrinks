@@ -47,6 +47,12 @@ public class PostController {
         return  ResponseEntity.ok(postService.getAllPost(page,limit));
     }
 
+    @GetMapping(value = "/view/all/desc")
+    public ResponseEntity<ListAllPostResponse> getAllPostsDESC(@RequestParam(name = "page") String page,
+                                                           @RequestParam(name = "limit") String limit){
+        return  ResponseEntity.ok(postService.getAllPostByDESC(page,limit));
+    }
+
     @GetMapping(value = "/view/type/all")
     public ResponseEntity<ListAllPostResponse> getAllPostsByTye(@RequestParam(name = "page") String page,
                                                                 @RequestParam(name = "limit") String limit,
