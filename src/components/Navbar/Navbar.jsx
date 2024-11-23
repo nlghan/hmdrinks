@@ -207,11 +207,11 @@ const Navbar = ({ currentPage }) => {
                 {isSmallScreen && <span> Thông Tin</span>}
                 <div className="dropdown-menu">
                   <div onClick={() => navigate('/info')} className="dropdown-item">
-                    Thông Tin cá nhân
+                    Thông tin cá nhân
                   </div>
                   <div className="dropdown-divider"></div> {/* Dòng phân cách */}
                   <div onClick={() => navigate('/my-orders')} className="dropdown-item">
-                    Đơn hàng
+                    Đơn hàng của tôi
                   </div>
                 </div>
               </li>

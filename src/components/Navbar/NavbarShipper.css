@@ -23,17 +23,18 @@
 }
 
 .shipper-navbar-menu {
-    display: flex;
-    list-style: none;
-    gap: 40px;  /* Tăng khoảng cách giữa các mục */
-    font-size: 20px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    margin-bottom: 0px;
-    align-items: center;
-    flex-grow: 1;
-    margin-left: 10%;
+    display: flex
+    ;
+        list-style: none;
+        gap: 60px;
+        font-size: 20px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0px;
+        align-items: center;
+        flex-grow: 1;
+        margin-left: 15%;
 }
 
 .shipper-navbar-menu li {

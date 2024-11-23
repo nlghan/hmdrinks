@@ -187,13 +187,7 @@ const NavbarShipper = ({ currentPage }) => {
                         }}
                         className={location.pathname === '/shipper-home' ? 'shipper-active' : ''}
                     >
-                        TRANG CHỦ
-                    </li>
-                    <li
-                        onClick={() => navigate('/shipper-about')}
-                        className={location.pathname === '/shipper-about' ? 'shipper-active' : ''}
-                    >
-                        GIỚI THIỆU
+                        ĐƠN HÀNG
                     </li>
                     <li
                         onClick={() => navigate('/shipper-analytics')}
