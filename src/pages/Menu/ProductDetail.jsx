@@ -407,43 +407,45 @@ const ProductDetail = () => {
                     console.log(`Fetching recommended products for userId: ${userId}`);
                     const response = await axios.get(`http://localhost:1010/api/product/recommended/${userId}`);
                     console.log('API Response:', response.data); // Log the entire response
-
+    
                     if (response.data && response.data.listRecommend) {
                         const currentProductName = product.proName; // Get the current product's name
+    
+                        // Đảo ngược danh sách `listRecommend`
+                        const reversedList = [...response.data.listRecommend].reverse();
+    
                         const uniqueRecommendedProducts = [];
                         const seenProductNames = new Set(); // To track unique product names
-
-                        // Iterate through the recommended products
-                        for (const recommendation of response.data.listRecommend) {
-                            // Check if the product name is not the same as the current product and not already seen
+    
+                        // Lặp qua danh sách đã đảo ngược để lọc sản phẩm
+                        for (const recommendation of reversedList) {
                             if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
                                 uniqueRecommendedProducts.push(recommendation); // Add to unique products
                                 seenProductNames.add(recommendation.proName); // Mark this product name as seen
                             }
-
-                            // Stop if we have collected 3 unique products
+    
+                            // Dừng lại khi đã có đủ 3 sản phẩm
                             if (uniqueRecommendedProducts.length === 3) {
                                 break; // Exit the loop if we have 3 unique products
                             }
                         }
-
-                        // If we have less than 3 unique products, continue checking the rest of the recommendations
+    
+                        // Đảm bảo danh sách có đủ 3 sản phẩm
                         if (uniqueRecommendedProducts.length < 3) {
-                            for (const recommendation of response.data.listRecommend) {
-                                // Continue checking for more unique products
+                            for (const recommendation of reversedList) {
                                 if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
                                     uniqueRecommendedProducts.push(recommendation); // Add to unique products
                                     seenProductNames.add(recommendation.proName); // Mark this product name as seen
                                 }
-
+    
                                 // Stop if we have collected 3 unique products
                                 if (uniqueRecommendedProducts.length === 3) {
                                     break; // Exit the loop if we have 3 unique products
                                 }
                             }
                         }
-
-                        // Set the recommended products state
+    
+                        // Cập nhật state với danh sách sản phẩm đề xuất
                         setRecommendedProducts(uniqueRecommendedProducts);
                     } else {
                         console.warn('Unexpected response structure:', response.data);

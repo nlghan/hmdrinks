@@ -1,17 +1,17 @@
 import React from 'react';
-import './ProductRecommend.css'; // Create a CSS file for styling
+import './ProductRecommend.css'; // Tạo CSS riêng cho giao diện
 import { useNavigate } from 'react-router-dom';
 
-const ProductRecommend = ({ product, onClick }) => {
+const ProductRecommend = ({ product }) => {
     const navigate = useNavigate();
 
-    // Format price to have dots as thousands separators
+    // Format giá với dấu chấm ngăn cách hàng nghìn
     const formattedPrice = new Intl.NumberFormat('vi-VN', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-    }).format(parseFloat(product.price));
+    }).format(parseFloat(product.price || 0));
 
-    // Render star rating
+    // Render số sao đánh giá
     const renderStars = (rate) => {
         return (
             <div className="recommend-star-rating">
@@ -22,10 +22,11 @@ const ProductRecommend = ({ product, onClick }) => {
         );
     };
 
-    const handleProductRecommendClick = (product) => {
+    const handleProductRecommendClick = () => {
         console.log("Navigating to product with ID:", product.proId); // Debugging line
         navigate(`/product/${product.proId}`, { state: { product } });
     };
+
 
     return (
         <div className="recommend-product-recommend" onClick={() => handleProductRecommendClick(product)}>
@@ -41,6 +42,7 @@ const ProductRecommend = ({ product, onClick }) => {
                     ))}
                 </div>
             )}
+
             <h3>{product.proName}</h3>
             <p className="recommend-product-description">{product.description}</p>
             {renderStars(product.rate)}

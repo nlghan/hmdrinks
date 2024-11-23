@@ -218,31 +218,7 @@ const HomeShipper = () => {
                                     <p><strong>Status:</strong> {shipment.status}</p>
                                     <p><strong>Created At:</strong> {shipment.dateCreated}</p>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                    <select
-                                        className="btn-deliver"
-                                        value={shipment.status}  // Đảm bảo trạng thái hiện tại được chọn
-                                        onChange={(e) => {
-                                            const selectedStatus = e.target.value;
-                                            handleStatusChange(shipment.shipmentId, selectedStatus); // Gọi hàm xử lý khi chọn trạng thái
-                                        }}
-                                        style={{
-                                            backgroundColor: 
-                                                shipment.status === 'SUCCESS' ? '#6fb380' :
-                                                shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
-                                                shipment.status === 'CANCELLED' ? 'red' : 'initial', // Màu nền tùy thuộc vào trạng thái
-                                            color: 'white',  // Đảm bảo chữ màu trắng
-                                            border: 
-                                                shipment.status === 'SUCCESS' ? '2px solid #4c8b5b' :
-                                                shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' :
-                                                shipment.status === 'CANCELLED' ? '2px solid red' : 'none', // Border tùy thuộc vào trạng thái
-                                        }}
-                                    >
-                                        <option value="CANCELLED">Đã hủy</option>
-                                        <option value="SHIPPING">Đang giao</option>
-                                        <option value="SUCCESS">Hoàn thành</option>
-                                    </select>
-                                </div>
+                                
                             </li>
                             
                             
