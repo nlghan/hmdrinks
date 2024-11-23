@@ -522,8 +522,10 @@ public class OrdersService {
                                 voucher != null ? voucher.getVoucherId() : null
                         );
                         User customer = order.getUser();
+                        User shipper = shipment.getUser();
                         CRUDShipmentResponse crudShipmentResponse = new CRUDShipmentResponse(
                                 shipment.getShipmentId(),
+                                shipper.getFullName(),
                                 shipment.getDateCreated(),
                                 shipment.getDateDeleted(),
                                 shipment.getDateDelivered(),
