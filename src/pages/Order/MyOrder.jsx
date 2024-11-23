@@ -166,7 +166,11 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
+        let confirmedOrders = [];
+        let shippingOrders = [];
+
         try {
+            // Gọi API để lấy danh sách đơn hàng CONFIRMED
             const response = await axios.get(
                 `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=CONFIRMED`,
                 {
@@ -175,50 +179,140 @@ const MyOrder = () => {
                     },
                 }
             );
-            setConfirmedOrders(response.data.listOrders);
+
+            confirmedOrders = response.data.listOrders || [];
+
+            // Lặp qua từng đơn hàng để kiểm tra trạng thái SHIPPING
+            for (const order of confirmedOrders) {
+                try {
+                    const shipmentResponse = await axios.get(
+                        `http://localhost:1010/api/shipment/view/order/${order.orderId}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    const shipmentData = shipmentResponse.data;
+
+                    // Nếu trạng thái là SHIPPING, thêm đơn hàng vào danh sách đang giao
+                    if (shipmentData.status === 'SHIPPING') {
+                        shippingOrders.push(order);
+                    }
+                } catch (shipmentError) {
+                    console.error(`Lỗi khi kiểm tra trạng thái đơn hàng ${order.orderId}:`, shipmentError);
+                }
+            }
+
+            // Cập nhật danh sách đơn hàng đang giao
+            setConfirmedOrders(shippingOrders);
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đã xác nhận.');
+            console.error('Lỗi khi lấy danh sách đơn hàng CONFIRMED:', err);
         } finally {
             setLoading(false);
         }
     };
-
 
     useEffect(() => {
         if (selectedTab === 'cancelled') {
             fetchCancelledOrders();
         } else if (selectedTab === 'pending') {
             fetchWaitingOrders();
-        } else if (selectedTab == 'delivering') {
+        } else if (selectedTab === 'delivering') {
             fetchConfirmedOrders();
-
+        } else if (selectedTab === 'history') {
+            fetchHistoryOrders();
         }
     }, [selectedTab]);
+
 
     const [currentDeliveringPage, setCurrentDeliveringPage] = useState(1);
     const [currentCancelledPage, setCurrentCancelledPage] = useState(1);
     const [currentPendingPage, setCurrentPendingPage] = useState(1);
 
+    const [historyOrders, setHistoryOrders] = useState([]);
+
+    const fetchHistoryOrders = async () => {
+        setLoading(true);
+        setError('');
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+        let confirmedOrders = [];
+        let historyOrdersList = [];
+
+        try {
+            // Gọi API để lấy danh sách đơn hàng CONFIRMED
+            const response = await axios.get(
+                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=CONFIRMED`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            confirmedOrders = response.data.listOrders || [];
+
+            // Lặp qua từng đơn hàng để kiểm tra trạng thái SUCCESS
+            for (const order of confirmedOrders) {
+                try {
+                    const shipmentResponse = await axios.get(
+                        `http://localhost:1010/api/shipment/view/order/${order.orderId}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
+
+                    const shipmentData = shipmentResponse.data;
+
+                    if (shipmentData.status === 'SUCCESS') {
+                        historyOrdersList.push(order);
+                    }
+                } catch (shipmentError) {
+                    console.error(`Lỗi khi kiểm tra trạng thái đơn hàng ${order.orderId}:`, shipmentError);
+                }
+            }
+
+            setHistoryOrders(historyOrdersList);
+        } catch (err) {
+            setError('Không thể tải danh sách lịch sử đơn hàng.');
+            console.error('Lỗi khi lấy danh sách đơn hàng CONFIRMED:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
+
+    const handleHistoryPageChange = (pageNumber) => {
+        setCurrentHistoryPage(pageNumber);
+    };
+
     const handleDeliveringPageChange = (pageNumber) => {
         setCurrentDeliveringPage(pageNumber);
     };
-    
+
     const handleCancelledPageChange = (pageNumber) => {
         setCurrentCancelledPage(pageNumber);
     };
-    
+
     const handlePendingPageChange = (pageNumber) => {
         setCurrentPendingPage(pageNumber);
     };
-    
+
     const renderContent = () => {
         const itemsPerPage = 5;  // Số lượng đơn hàng hiển thị mỗi trang
-    
+
         const paginate = (orders, currentPage) => {
             const startIndex = (currentPage - 1) * itemsPerPage;
             return orders.slice(startIndex, startIndex + itemsPerPage);
         };
-    
+
         switch (selectedTab) {
             case 'delivering':
                 return (
@@ -232,7 +326,12 @@ const MyOrder = () => {
                                 <ul className="my-orders-list">
                                     {paginate(confirmedOrders, currentDeliveringPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
-                                            <div className="my-orders-item-header"><p><strong>Mã đơn hàng:</strong> {order.orderId}</p></div>
+                                            <div
+                                                className="my-orders-item-header"
+                                                style={{ background: '#7cc58d' }}
+                                            >
+                                                <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                            </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
                                                 <p><strong>Số điện thoại:</strong> {order.phone}</p>
@@ -240,13 +339,27 @@ const MyOrder = () => {
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
                                                 <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                               
                                             </div>
-                                            
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="shipping-status-button"
+                                                    style={{
+                                                        background: 'aliceblue',
+                                                        padding: '10px',
+                                                        borderRadius: '4px',
+                                                        color: '#000',
+                                                    }}
+                                                
+                                                >
+                                                   ĐANG GIAO HÀNG
+                                                </button>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
                                 {/* Pagination */}
-                                <div className="menu-category-pagination" style={{width:'100%'}}>
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
                                     {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
                                         <span
                                             key={index + 1}
@@ -261,6 +374,7 @@ const MyOrder = () => {
                         )}
                     </div>
                 );
+
             case 'cancelled':
                 return (
                     <div>
@@ -273,7 +387,7 @@ const MyOrder = () => {
                                 <ul className="my-orders-list">
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
-                                            <div className="my-orders-item-header"><p><strong>Mã đơn hàng:</strong> {order.orderId}</p></div>
+                                            <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p></div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ: </strong> {order.address}</p>
                                                 <p><strong>Số điện thoại: </strong> {order.phone}</p>
@@ -286,7 +400,7 @@ const MyOrder = () => {
                                     ))}
                                 </ul>
                                 {/* Pagination */}
-                                <div className="menu-category-pagination" style={{width:'100%'}}>
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
                                     {Array.from({ length: Math.ceil(cancelledOrders.length / itemsPerPage) }, (_, index) => (
                                         <span
                                             key={index + 1}
@@ -326,9 +440,9 @@ const MyOrder = () => {
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                 <button
-                                                    className="checkout-button"
+                                                    className="checkout-button-order"
                                                     onClick={() => handleCheckout(order)}
-                                                    style={{ background: 'orange' }}
+                                                    style={{ background: '##ffa07a' }}
                                                 >
                                                     Thanh toán <i className="ti-arrow-right" style={{ fontSize: '12px' }} />
                                                 </button>
@@ -337,7 +451,7 @@ const MyOrder = () => {
                                     ))}
                                 </ul>
                                 {/* Pagination */}
-                                <div className="menu-category-pagination" style={{width:'100%'}}>
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
                                     {Array.from({ length: Math.ceil(waitingOrders.length / itemsPerPage) }, (_, index) => (
                                         <span
                                             key={index + 1}
@@ -352,10 +466,53 @@ const MyOrder = () => {
                         )}
                     </div>
                 );
+            case 'history':
+                return (
+                    <div>
+                        {loading ? (
+                            <div>Đang tải...</div>
+                        ) : error ? (
+                            <div>{error}</div>
+                        ) : (
+                            <>
+                                <ul className="my-orders-list">
+                                    {paginate(historyOrders, currentHistoryPage).map((order) => (
+                                        <li key={order.orderId} className="my-orders-item">
+                                            <div className="my-orders-item-header" style={{ background: '#a0ccdb' }}>
+                                                <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                            </div>
+                                            <div className="my-orders-item-content">
+                                                <p><strong>Địa chỉ:</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại:</strong> {order.phone}</p>
+                                                <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
+                                                <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
+                                                <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {/* Pagination */}
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
+                                    {Array.from({ length: Math.ceil(historyOrders.length / itemsPerPage) }, (_, index) => (
+                                        <span
+                                            key={index + 1}
+                                            className={`pagination-cate-dot ${currentHistoryPage === index + 1 ? 'active' : ''}`}
+                                            onClick={() => handleHistoryPageChange(index + 1)}
+                                        >
+                                            •
+                                        </span>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                );
+
             default:
                 return null;
         }
-    };    
+    };
 
     return (
         <>
@@ -380,6 +537,13 @@ const MyOrder = () => {
                     >
                         Đơn hàng chờ thanh toán
                     </div>
+                    <div
+                        className={`my-orders-menu-item ${selectedTab === 'history' ? 'my-orders-active' : ''}`}
+                        onClick={() => setSelectedTab('history')}
+                    >
+                        Lịch sử đặt hàng
+                    </div>
+
                 </div>
                 <div className="my-orders-content">
                     {renderContent()}

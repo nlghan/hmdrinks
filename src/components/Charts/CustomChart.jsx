@@ -233,7 +233,7 @@ export default function CustomChart() {
           labelPlacement="end"
         />
       </Stack>
-      <Box className="custom-chart-container" sx={{ width: '100%' }}>
+      <Box className="custom-chart-container" sx={{ width: '850px' }}>
         <ResponsiveChartContainer
           series={series}
           xAxis={[{

@@ -617,7 +617,7 @@ const Info = () => {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Thành phố:</label>
+                                    <label>Tỉnh:</label>
                                     <select
                                         className="form-control"
                                         value={formData.city}
@@ -637,7 +637,7 @@ const Info = () => {
 
                                 <div style={{ display: 'flex', gap: '15px' }}>
                                     <div className="form-group">
-                                        <label>District</label>
+                                        <label>Quận/Huyện</label>
                                         <select
                                             className="form-control"
                                             value={districtId}
