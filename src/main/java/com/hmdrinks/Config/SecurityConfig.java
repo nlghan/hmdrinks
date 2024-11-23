@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/shipment/allocate").hasAuthority("ADMIN")
                         .requestMatchers("/api/shipment/activate/**").hasAnyAuthority("SHIPPER","ADMIN")
                         .requestMatchers("/api/shipment/shipper/**").hasAnyAuthority("SHIPPER","ADMIN")
+                        .requestMatchers("/api/shipment/check-time").hasAnyAuthority("ADMIN","SHIPPER","CUSTOMER")
                         .requestMatchers("/api/shipment/view/**").hasAnyAuthority("ADMIN","SHIPPER","CUSTOMER")
                         .requestMatchers("/api/payment/listAll","/api/payment/listAll-method","/api/payment/listAll-status").hasAuthority("ADMIN")
                         .requestMatchers("/api/payment/create/cash","/api/payment/create/credit").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")

@@ -61,6 +61,11 @@ public class ShipmentController {
     }
 
 
+    @GetMapping("/check-time")
+    public ResponseEntity<?> getListShipment()
+    {
+        return shipmentService.checkTimeDelivery();
+    }
 
 
     @GetMapping("/view/list-All")
@@ -95,5 +100,6 @@ public class ShipmentController {
     public ResponseEntity<?> getOneShipmentByOrderId(@PathVariable int orderId) {
         return shipmentService.getInfoShipmentByOrderId(orderId);
     }
+
 
 }

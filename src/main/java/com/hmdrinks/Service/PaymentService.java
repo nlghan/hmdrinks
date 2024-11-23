@@ -10,6 +10,8 @@ import com.hmdrinks.Request.InitPaymentRequest;
 import com.hmdrinks.Response.CRUDPaymentResponse;
 import com.hmdrinks.Response.CreatePaymentResponse;
 import com.hmdrinks.Response.ListAllPaymentResponse;
+import com.hmdrinks.SupportFunction.DistanceAndDuration;
+import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
 import org.apache.hadoop.shaded.com.nimbusds.jose.shaded.json.JSONObject;
 import org.hibernate.query.Order;
@@ -33,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,6 +78,8 @@ public class PaymentService {
     private ShipmentRepository shipmentRepository;
     @Autowired
     private VNPayService vnPayService;
+    @Autowired
+    private SupportFunction supportFunction;
 
     private static Long generateRandomOrderCode() {
         Random random = new Random();
@@ -82,12 +87,39 @@ public class PaymentService {
         return Long.valueOf(randomNumber);
     }
 
+
+    public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
+        int hours = 0;
+        int minutes = 0;
+
+        // Phân tích chuỗi "3 giờ 4 phút"
+        if (duration.contains("giờ")) {
+            String[] parts = duration.split("giờ");
+            hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
+            if (parts.length > 1 && parts[1].contains("phút")) {
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút
+            }
+        } else if (duration.contains("phút")) {
+            minutes = Integer.parseInt(duration.replace("phút", "").trim());
+        }
+
+        return currentTime.plusHours(hours).plusMinutes(minutes);
+    }
+
     @Transactional
-    public  void assignShipments() {
+    public  void assignShipments(int orderId) {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
                 .collect(Collectors.toList());
+        Orders orders = orderRepository.findByOrderId(orderId);
+        String place_id = supportFunction.getLocation(orders.getAddress());
+        double[] destinations= supportFunction.getCoordinates(place_id);
+        double[] origins = {10.850575879000075,106.77190192800003};  // Số 1-3 Võ Văn Ngân,Linh Chiểu, Thủ Đức, Tp HCM
+        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
+        String minute = distanceAndDuration.getDuration();
+        LocalDateTime currentTime = LocalDateTime.now(); // Thời gian hiện tại
+        LocalDateTime updatedTime = addDurationToCurrentTime(minute, currentTime);
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
         for (Shippment shipment : pendingShipments) {
@@ -95,13 +127,18 @@ public class PaymentService {
             User selectedShipper = shippers.stream()
                     .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
                     .orElse(null);
-
             if (selectedShipper != null) {
                 shipment.setUser(selectedShipper);
                 shipment.setStatus(Status_Shipment.SHIPPING);
+                shipment.setDateDelivered(updatedTime);
                 shipmentRepository.save(shipment);
+
             }
         }
+
+
+
+
     }
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
@@ -480,6 +517,7 @@ public class PaymentService {
         ), HttpStatus.OK);
     }
 
+    @Transactional
     public ResponseEntity<Map<String, Object>> callBack(String resultCode, String orderId) {
         Payment payment = paymentRepository.findByOrderIdPayment(orderId);
         if (payment == null) {
@@ -520,7 +558,7 @@ public class PaymentService {
             shippment.setDateDelivered(LocalDateTime.now());
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
-            assignShipments();
+            assignShipments(shippment.getPayment().getOrder().getOrderId());
 
             response.put("status", HttpStatus.OK.value());
             response.put("message", "Payment completed successfully");
@@ -657,7 +695,7 @@ public class PaymentService {
         shippment.setDateDelivered(LocalDateTime.now());
         shippment.setStatus(Status_Shipment.WAITING);
         shipmentRepository.save(shippment);
-        assignShipments();
+        assignShipments(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
@@ -784,6 +822,7 @@ public class PaymentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> handleCallBackPayOS(int orderCode) throws Exception {
         PayOS payOS = new PayOS(clientId, apiKey, checksumKey);
         List<Payment> payments = paymentRepository.findAll();
@@ -824,7 +863,7 @@ public class PaymentService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
-                assignShipments();
+                assignShipments(shippment.getPayment().getOrder().getOrderId());
             }
             default -> {
                 payment.setStatus(Status_Payment.PENDING);

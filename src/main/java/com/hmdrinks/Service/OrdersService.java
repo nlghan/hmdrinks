@@ -8,6 +8,7 @@ import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
+import com.hmdrinks.SupportFunction.DistanceAndDuration;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -134,8 +135,10 @@ public class OrdersService {
 
         String place_id = supportFunction.getLocation(address);
         double[] destinations= supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075,106.77190192800003}; // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
-        double distance =supportFunction.getShortestDistance(origins, destinations);
+        double[] origins = {10.850575879000075,106.77190192800003};
+        // Số 1-3 Võ Văn Ngân, Thủ Đức, Tp HCM
+        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
+        double distance = distanceAndDuration.getDistance();
         if(distance > 20){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Distance exceeded, please update address");
         }

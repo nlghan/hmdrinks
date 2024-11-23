@@ -552,6 +552,39 @@ public class ShipmentService {
     }
 
     @Transactional
+    public ResponseEntity<?> checkTimeDelivery(){
+        List<Shippment> shippmentList = shipmentRepository.findAll();
+        for(Shippment shippment : shippmentList)
+        {
+            if(shippment.getStatus() == Status_Shipment.SHIPPING)
+            {
+                if(LocalDateTime.now().isAfter(shippment.getDateDelivered())) {
+                    shippment.setStatus(Status_Shipment.CANCELLED);
+                    shipmentRepository.save(shippment);
+                    Payment payment = shippment.getPayment();
+                    Orders orders = payment.getOrder();
+                    if(payment.getPaymentMethod() == Payment_Method.CASH)
+                    {
+                        payment.setStatus(Status_Payment.FAILED);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                        orderRepository.save(orders);
+                    }
+                    if(payment.getPaymentMethod() == Payment_Method.CREDIT)
+                    {
+                        payment.setStatus(Status_Payment.REFUND);
+                        paymentRepository.save(payment);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                    }
+
+                }
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
     public ResponseEntity<?> getOneShipment(int shipmentId){
         Shippment shipment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
         if(shipment == null)
