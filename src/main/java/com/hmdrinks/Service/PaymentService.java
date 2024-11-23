@@ -87,7 +87,6 @@ public class PaymentService {
         return Long.valueOf(randomNumber);
     }
 
-
     public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
         int hours = 0;
         int minutes = 0;

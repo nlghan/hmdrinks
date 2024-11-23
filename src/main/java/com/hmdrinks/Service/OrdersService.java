@@ -548,5 +548,70 @@ public class OrdersService {
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllHistoryOrderResponse(userId,historyOrderResponses.size(),historyOrderResponses));
     }
 
+    @Transactional
+    public ResponseEntity<?> listOrderConfirmed(int userId){
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
+        if(user == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        List<Orders> orders = orderRepository.findAllByUserUserIdAndStatus(userId,Status_Order.CONFIRMED);
+        List<HistoryOrderResponse> historyOrderResponses = new ArrayList<>();
+        Voucher voucher = null;
+        for(Orders order: orders)
+        {
+            if(order.getStatus() == Status_Order.CONFIRMED)
+            {
+                Payment payment = order.getPayment();
+                if(payment != null)
+                {
+                    Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
+                    if(shipment != null && shipment.getStatus() == Status_Shipment.SUCCESS)
+                    {
+                        CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                                order.getOrderId(),
+                                order.getAddress(),
+                                order.getDeliveryFee(),
+                                order.getDateCreated(),
+                                order.getDateDeleted(),
+                                order.getDateUpdated(),
+                                order.getDeliveryDate(),
+                                order.getDiscountPrice(),
+                                order.getIsDeleted(),
+                                order.getNote(),
+                                order.getOrderDate(),
+                                order.getPhoneNumber(),
+                                order.getStatus(),
+                                order.getTotalPrice(),
+                                order.getUser().getUserId(),
+                                voucher != null ? voucher.getVoucherId() : null
+                        );
+                        User customer = order.getUser();
+                        User shipper = shipment.getUser();
+                        CRUDShipmentResponse crudShipmentResponse = new CRUDShipmentResponse(
+                                shipment.getShipmentId(),
+                                shipper.getFullName(),
+                                shipment.getDateCreated(),
+                                shipment.getDateDeleted(),
+                                shipment.getDateDelivered(),
+                                shipment.getDateShip(),
+                                shipment.getIsDeleted(),
+                                shipment.getStatus(),
+                                shipment.getPayment().getPaymentId(),
+                                shipment.getUser().getUserId(),
+                                customer.getFullName(),
+                                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                                customer.getPhoneNumber(),
+                                customer.getEmail()
+                        );
+                        historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse,crudShipmentResponse));
+                    }
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllHistoryOrderResponse(userId,historyOrderResponses.size(),historyOrderResponses));
+    }
+
 
 }
