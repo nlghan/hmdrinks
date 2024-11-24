@@ -15,12 +15,47 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState(""); // Added error state
+    const [passwordError, setPasswordError] = useState("");
 
     const handleLogin = () => {
         navigate('/login');
     };
 
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
+    const validateFullName = (name) => {
+        // Không cho phép tên chứa số
+        const fullNameRegex = /^[^\d]*$/;
+        return fullNameRegex.test(name);
+    };
+    
+    const validateUserName = (username) => {
+        // Không cho phép chứa các ký hiệu &, =, _, ', -, +, ,, <, >, hoặc nhiều dấu chấm liên tiếp
+        // Không cho phép khoảng trắng
+        // Cho phép bắt đầu/kết thúc với ký tự không phải chữ số nhưng không phải dấu chấm
+        const userNameRegex = /^(?!.*\.\.)(?!.*\s)(?!.*[&=_'\-+,<>])(?!\.)[A-Za-z0-9.]+(?<!\.)$/;
+        return userNameRegex.test(username);
+    };
+    
+
     const handleRegister = async () => {
+        if (!validateFullName(fullName)) {
+            setError("Họ và tên không được chứa chữ số.");
+            return;
+        }
+    
+        if (!validateUserName(userName)) {
+            setError("Tên tài khoản không hợp lệ. Vui lòng nhập tên tài khoản không chứa ký hiệu đặc biệt (&, =, _, ', -, +, ,, <, >), không chứa khoảng trắng và không có nhiều dấu chấm liên tiếp.");
+            return;
+        }
+    
+        if (!validatePassword(password)) {
+            setError('Mật khẩu không hợp lệ, vui lòng nhập mật khẩu gồm 8 chữ số trở lên, gồm ký tự đặc biệt, chữ thường, chữ hoa và số!');
+            return;
+        }
+        setPasswordError("");
         const data = {
             fullName,
             userName,
@@ -48,17 +83,16 @@ const Register = () => {
             // Điều hướng đến trang home sau một khoảng thời gian
             setTimeout(() => {
                 navigate('/login');
-            }, 2000); // Thời gian đợi 2 giây trước khi điều hướng
+            }, 2000); 
         } catch (error) {
             console.error('Lỗi đăng ký:', error);
-            // Kiểm tra lỗi cụ thể
             if (error.response) {
                 const { status, data } = error.response;
                 if (status === 409) {
                     console.log(data)
-                    setError("Tài khoản đã tồn tại"); // Set error message
-                    setMessage(""); // Clear any previous messages
-                } 
+                    setError("Tài khoản đã tồn tại"); 
+                    setMessage(""); 
+                }
             }
         }
     };
@@ -70,8 +104,9 @@ const Register = () => {
     // Handler for input change
     const handleInputChange = (setter) => (event) => {
         setter(event.target.value);
-        setError(""); // Clear error message on input change
-        setMessage(""); // Optionally clear message if you want
+        setError(""); 
+        setMessage(""); 
+        if (setter === setPassword) setPasswordError("");
     };
 
     return (
@@ -88,13 +123,13 @@ const Register = () => {
 
                     {/* Display error if it exists */}
                     {message && <p className="message">{message}</p>}
-                    {error && <p className="message">{error}</p>}
+                    {error && <p className="error-message">{error}</p>}
 
                     <div className="register-input-group">
                         <input
                             type="text"
                             placeholder="Họ và tên"
-                            className="register-input"
+                            className={`register-input ${error && !validateFullName(fullName) ? 'input-error' : ''}`}
                             value={fullName}
                             onChange={handleInputChange(setFullName)} // Use the new handler
                             style={{
@@ -110,7 +145,7 @@ const Register = () => {
                         <input
                             type="text"
                             placeholder="Tên tài khoản"
-                            className={`input ${error ? 'input-error' : ''}`}
+                            className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
                             onChange={handleInputChange(setUserName)} // Use the new handler
                             style={{
@@ -126,7 +161,7 @@ const Register = () => {
                         <input
                             type="password"
                             placeholder="Mật khẩu"
-                            className="input"
+                            className={`input ${passwordError ? 'input-error' : ''}`}
                             value={password}
                             onChange={handleInputChange(setPassword)} // Use the new handler
                         />
