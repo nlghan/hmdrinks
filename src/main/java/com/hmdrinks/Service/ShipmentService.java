@@ -396,6 +396,7 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> getListAllShipmentByShipper(String pageFromParam, String limitFromParam, int userId)
     {
         int page = Integer.parseInt(pageFromParam);
@@ -441,6 +442,7 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> getListAllShipment(String pageFromParam, String limitFromParam)
     {
         User user1 = null;
