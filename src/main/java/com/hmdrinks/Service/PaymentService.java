@@ -58,6 +58,7 @@ public class PaymentService {
     private final int orderExpireTime = 15;
     private final String lang = "vi";
     private String orderInfo = "Payment Order";
+
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
@@ -95,15 +96,15 @@ public class PaymentService {
             String[] parts = duration.split("giờ");
             hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
             if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút và cộng thêm 10
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10;
             }
         } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 10; // Lấy số phút và cộng thêm 10
+            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 10;
         }
 
         if (minutes >= 60) {
-            hours += minutes / 60; // Cộng thêm số giờ
-            minutes = minutes % 60; // Lấy số phút còn lại
+            hours += minutes / 60;
+            minutes = minutes % 60;
         }
 
         return currentTime.plusHours(hours).plusMinutes(minutes);
@@ -172,7 +173,7 @@ public class PaymentService {
             Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
             if (order.getDiscountPrice() > 0) {
-                orderInfo = "Giam gia: " + order.getDiscountPrice() + " VND";
+                orderInfo = "Giảm giá: " + order.getDiscountPrice() + " VND";
             }
             String rawSignature = String.format(
                     "accessKey=%s&amount=%s&extraData=&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
@@ -354,7 +355,7 @@ public class PaymentService {
                     .buyerEmail(user.getEmail())
                     .buyerName(user.getPhoneNumber())
                     .buyerName(user.getFullName())
-                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60)) // 20 phut
+                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60))
                     .items(items).build();
 
             CheckoutResponseData result = payOS.createPaymentLink(paymentData);
@@ -428,7 +429,6 @@ public class PaymentService {
         User user = userRepository.findByUserId(order.getUser().getUserId());
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
         Long totalAmountLong = totalAmount.longValue();
-        String amount = totalAmountLong.toString();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
         payment.setPaymentMethod(Payment_Method.CREDIT);
@@ -440,7 +440,6 @@ public class PaymentService {
         payment.setIsDeleted(false);
         payment.setIsRefund(false);
         paymentRepository.save(payment);
-        System.out.println("");
         String order_id = generateUniqueNumericString(5);
         var initPaymentRequest = InitPaymentRequest.builder()
                 .userId(Long.valueOf(String.valueOf(user.getUserId())))
@@ -488,10 +487,8 @@ public class PaymentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId1);
-        User user = userRepository.findByUserId(order.getUser().getUserId());
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
         Long totalAmountLong = totalAmount.longValue();
-        String amount = totalAmountLong.toString();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
         payment.setPaymentMethod(Payment_Method.CREDIT);
@@ -736,7 +733,6 @@ public class PaymentService {
         Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
         List<Payment> payments1 = paymentRepository.findAllByIsDeletedFalse();
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -751,7 +747,6 @@ public class PaymentService {
                             payment.getIsRefund()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -770,7 +765,6 @@ public class PaymentService {
         Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
         List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -785,7 +779,6 @@ public class PaymentService {
                             payment.getIsRefund()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -804,7 +797,6 @@ public class PaymentService {
         Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
         List<Payment> payments1 = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -819,7 +811,6 @@ public class PaymentService {
                             payment.getIsRefund()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -951,7 +942,6 @@ public class PaymentService {
        Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND, pageable);
        List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND);
        List<CRUDPaymentResponse> responses = new ArrayList<>();
-       int total = 0;
        for (Payment payment : payments) {
            responses.add(
                    new CRUDPaymentResponse(
@@ -966,7 +956,6 @@ public class PaymentService {
                            payment.getIsRefund()
                    )
            );
-           total++;
        }
        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                page,

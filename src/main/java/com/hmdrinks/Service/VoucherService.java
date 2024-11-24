@@ -106,7 +106,7 @@ public class VoucherService {
                 return ResponseEntity.status(HttpStatus.valueOf(400))
                         .body("Start date must be greater than or equal to current date");
             }
-            if (req.getEndDate().isBefore(createPost) || req.getEndDate().isBefore(currentDate)) {
+            if (req.getEndDate().isBefore(currentDate)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("End date must be greater than start date and current date");
             }
@@ -239,7 +239,7 @@ public class VoucherService {
             ));
             total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(total,crudVoucherResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherResponse(voucherList.size(), crudVoucherResponses));
     }
 
     public ResponseEntity<?> disableVoucher(int voucherId)
@@ -268,8 +268,6 @@ public class VoucherService {
                 voucher.getPost().getPostId()
         ));
     }
-
-
 
     public ResponseEntity<?> enableVoucher(int voucherId)
     {

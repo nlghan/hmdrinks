@@ -118,6 +118,7 @@ public class CategoryService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAllByIsDeletedFalse(pageable);
+        List<Category> categoryList1 = categoryRepository.findAllByIsDeletedFalse();
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         int total = 0;
         for(Category category: categoryList){
@@ -132,7 +133,7 @@ public class CategoryService {
             ));
             total++;
         }
-        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,total,crudCategoryResponseList);
+        return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
     }
 
     public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
@@ -147,6 +148,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not found");
         }
         Page<Product> productList = productRepository.findByCategory_CateIdAndIsDeletedFalse(id,pageable);
+        List<Product> productList1 = productRepository.findByCategory_CateIdAndIsDeletedFalse(id);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         int total =0;
         for(Product product1: productList)
@@ -182,7 +184,7 @@ public class CategoryService {
                 page,
                 productList.getTotalPages(),
                 limit,
-                total,
+                productList1.size(),
                 crudProductResponseList
         ));
 
@@ -193,6 +195,7 @@ public class CategoryService {
         if (limit > 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findByCateNameContaining(keyword,pageable);
+        List<Category> categoryList1 = categoryRepository.findByCateNameContaining(keyword);
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
@@ -205,7 +208,7 @@ public class CategoryService {
                     category.getDateDeleted()
             ));
         }
-        return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,crudCategoryResponseList);
+        return new TotalSearchCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
     }
 
     @Transactional

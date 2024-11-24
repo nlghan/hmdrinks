@@ -63,8 +63,6 @@ public class OrdersController {
         return  ordersService.getInformationPayment(orderId);
     }
 
-
-
     @GetMapping("/pdf/invoice")
     public ResponseEntity<?> infoPayment1(@RequestParam int orderId) throws IOException {
         return  generateInvoiceService.createInvoice(orderId);
@@ -79,8 +77,6 @@ public class OrdersController {
     public ResponseEntity<?> historyOrder1(@PathVariable int userId) {
         return  ordersService.listOrderConfirmed(userId);
     }
-
-
 
     @GetMapping("/view/{userId}")
     public ResponseEntity<?> getAllPaymentByUserId(@RequestParam(name = "page") String page,

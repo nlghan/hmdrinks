@@ -2,6 +2,7 @@ package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.Post;
 import com.hmdrinks.Entity.PriceHistory;
+import com.hmdrinks.Entity.ProductVariants;
 import com.hmdrinks.Entity.User;
 import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Type_Post;
@@ -32,22 +33,25 @@ public class PriceHistoryService {
     private ProductVariantsRepository productVariantsRepository;
 
     public ResponseEntity<?> getListAllHistoryPriceByProductVarId(String pageFromParam, String limitFromParam, int productVarId) {
+        ProductVariants productVariants = productVariantsRepository.findByVarId(productVarId);
+        if(productVariants == null){
+            return new ResponseEntity<>("No Product Variant found", HttpStatus.NOT_FOUND);
+        }
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<PriceHistory> priceHistories = priceHistoryRepository.findByProductVariant_VarId(productVarId, pageable);
+        List<PriceHistory> priceHistories1 = priceHistoryRepository.findByProductVariant_VarId(productVarId);
         List<PriceHistoryResponse> priceHistoryResponses = new ArrayList<>();
-        int total = 0;
         for(PriceHistory priceHistory : priceHistories) {
             priceHistoryResponses.add(new PriceHistoryResponse(
                          priceHistory.getHistoryId(),
                          priceHistory.getProductVariant().getVarId(),
                          priceHistory.getDateChanged(),
-                          priceHistory.getOldPrice(),
-                    priceHistory.getNewPrice()
+                         priceHistory.getOldPrice(),
+                         priceHistory.getNewPrice()
             ));
-            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -55,7 +59,7 @@ public class PriceHistoryService {
                         page,
                         priceHistories.getTotalPages(),
                         limit,
-                        total,
+                        priceHistories1.size(),
                         priceHistoryResponses
                 )
         );
@@ -67,8 +71,8 @@ public class PriceHistoryService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<PriceHistory> priceHistories = priceHistoryRepository.findAll(pageable);
+        List<PriceHistory> priceHistories1 = priceHistoryRepository.findAll();
         List<PriceHistoryResponse> priceHistoryResponses = new ArrayList<>();
-        int total = 0;
         for(PriceHistory priceHistory : priceHistories) {
             priceHistoryResponses.add(new PriceHistoryResponse(
                     priceHistory.getHistoryId(),
@@ -77,7 +81,6 @@ public class PriceHistoryService {
                     priceHistory.getOldPrice(),
                     priceHistory.getNewPrice()
             ));
-            total++;
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -85,7 +88,7 @@ public class PriceHistoryService {
                         page,
                         priceHistories.getTotalPages(),
                         limit,
-                        total,
+                        priceHistories1.size(),
                         priceHistoryResponses
                 )
         );

@@ -551,30 +551,25 @@ public class OrdersService {
 
     @Transactional
     public ResponseEntity<?> listOrderConfirmed(int userId) {
-        // Kiểm tra xem user có tồn tại không
         User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
-        // Lấy danh sách orders với trạng thái CONFIRMED
         List<Orders> orders = orderRepository.findAllByUserUserIdAndStatus(userId, Status_Order.CONFIRMED);
         List<HistoryOrderResponse> historyOrderResponses = new ArrayList<>();
 
-        // Duyệt qua từng order để xử lý
         for (Orders order : orders) {
             Payment payment = order.getPayment();
             if (payment == null) {
-                continue; // Bỏ qua nếu không có payment
+                continue;
             }
 
-            // Lấy shipment liên quan đến payment
             Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
             if (shipment == null || shipment.getStatus() != Status_Shipment.SHIPPING) {
-                continue; // Bỏ qua nếu shipment không tồn tại hoặc không thành công
+                continue;
             }
 
-            // Tạo CreateOrdersResponse
             CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
                     order.getOrderId(),
                     order.getAddress(),
@@ -591,14 +586,13 @@ public class OrdersService {
                     order.getStatus(),
                     order.getTotalPrice(),
                     order.getUser().getUserId(),
-                    null // Voucher luôn null vì không được gán giá trị
+                    null
             );
 
-            // Lấy thông tin shipper và customer
+
             User shipper = shipment.getUser();
             User customer = order.getUser();
 
-            // Tạo CRUDShipmentResponse
             CRUDShipmentResponse crudShipmentResponse = new CRUDShipmentResponse(
                     shipment.getShipmentId(),
                     shipper != null ? shipper.getFullName() : null,
@@ -616,11 +610,9 @@ public class OrdersService {
                     customer.getEmail()
             );
 
-            // Thêm vào danh sách kết quả
             historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse, crudShipmentResponse));
         }
 
-        // Trả về danh sách kết quả
         return ResponseEntity.status(HttpStatus.OK).body(historyOrderResponses);
     }
 

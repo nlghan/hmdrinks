@@ -65,7 +65,7 @@ public class ContactService {
             message.setSubject("Feedback Received Confirmation");
             message.setText(text);
             javaMailSender1.send(message);
-            System.out.println("Sending email to: " + to);  // Log email được gửi đi
+            System.out.println("Sending email to: " + to);
 
         }
 
@@ -131,8 +131,6 @@ public class ContactService {
 
     }
 
-
-
     public ResponseEntity<?> responseContact(AcceptContactReq req){
         Contact contact = contactRepository.findByContactId(req.getContactId());
         if (contact == null) {
@@ -168,8 +166,8 @@ public class ContactService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAll(pageable);
+        List<Contact> contacts1 = contactRepository.findAll();
         List<CRUDContactResponse> responses = new ArrayList<>();
-        int total = 0;
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
@@ -181,13 +179,12 @@ public class ContactService {
                     contact.getUpdateDate(),
                     contact.getDateDeleted()
             ));
-            total++;
         }
         return new ListAllContactResponse(
                 page,
                 contacts.getTotalPages(),
                 limit,
-                total,
+                contacts1.size(),
                 responses
         );
     }
@@ -199,6 +196,7 @@ public class ContactService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.WAITING, pageable);
+        List<Contact> contacts1 = contactRepository.findAllByStatus(Status_Contact.WAITING);
         List<CRUDContactResponse> responses = new ArrayList<>();
         int total = 0;
         for(Contact contact : contacts) {
@@ -218,7 +216,7 @@ public class ContactService {
                 page,
                 contacts.getTotalPages(),
                 limit,
-                total,
+                contacts1.size(),
                 responses
         );
     }
@@ -230,6 +228,7 @@ public class ContactService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Contact> contacts = contactRepository.findAllByStatus(Status_Contact.COMPLETED, pageable);
+        List<Contact> contacts1 = contactRepository.findAllByStatus(Status_Contact.COMPLETED);
         List<CRUDContactResponse> responses = new ArrayList<>();
         int total = 0;
         for(Contact contact : contacts) {
@@ -249,7 +248,7 @@ public class ContactService {
                 page,
                 contacts.getTotalPages(),
                 limit,
-                total,
+                contacts1.size(),
                 responses
         );
     }

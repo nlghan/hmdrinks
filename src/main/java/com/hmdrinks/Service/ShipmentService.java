@@ -85,7 +85,7 @@ public class ShipmentService {
        {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Not Found");
        }
-        User shipper = shippment.getUser();
+       User shipper = shippment.getUser();
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
                shipper.getFullName(),
@@ -167,8 +167,6 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
-
-
 
 
         if(LocalDateTime.now().isAfter(shippment.getDateDelivered()))
@@ -281,9 +279,18 @@ public class ShipmentService {
             if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
             {
                 payment.setStatus(Status_Payment.REFUND);
+                payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
+            if (payment.getPaymentMethod() == Payment_Method.CASH
+            ) {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            orders.setStatus(Status_Order.CANCELLED);
+            orderRepository.save(orders);
         }
+
         User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
@@ -326,7 +333,6 @@ public class ShipmentService {
             payment1.setStatus(Status_Payment.COMPLETED);
             paymentRepository.save(payment1);
         }
-
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
@@ -456,7 +462,6 @@ public class ShipmentService {
         List<Shippment> shippments1 = shipmentRepository.findAll();
 
         List<CRUDShipmentResponse> responses = new ArrayList<>();
-        int total = 0;
 
         for (Shippment shippment : shippments) {
             // Retrieve shipper (user associated with shipment)
@@ -502,7 +507,7 @@ public class ShipmentService {
                     customerEmail
             );
 
-            // Add response to list
+
             responses.add(response);
 
         }
@@ -695,7 +700,7 @@ public class ShipmentService {
         User shipper = shipment.getUser();
         Payment payment = paymentRepository.findByPaymentId(shipment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
-        User customer = orders.getUser();// Giả sử User là Customer
+        User customer = orders.getUser();
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),

@@ -449,13 +449,11 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
-        List<Product> productList1 = productRepository.findAllByIsDeletedFalse();
+        List<Product> productList1 = productRepository.findAll();
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
-        int total = 0;
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
-            //String currentProImg = product1.getListProImg();
             if(currentProImg != null && !currentProImg.trim().isEmpty())
             {
                 String[] imageEntries1 = currentProImg.split(", ");
@@ -477,7 +475,6 @@ public class AdminService {
                     product1.getDateCreated(),
                     product1.getDateUpdated()
             ));
-            total++;
         }
         return new ListProductResponse(page, productList.getTotalPages(), limit,productList1.size(), crudProductResponseList);
     }
@@ -524,6 +521,7 @@ public class AdminService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("cateId not exists");
         }
         Page<Product> productList = productRepository.findByCategory_CateId(id,pageable);
+        List<Product> productList1 = productRepository.findByCategory_CateId(id);
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         int total =0 ;
         for(Product product1: productList)
@@ -559,7 +557,7 @@ public class AdminService {
                 page,
                 productList.getTotalPages(),
                 limit,
-                total,
+                productList1.size(),
                 crudProductResponseList
         ));
     }
@@ -571,8 +569,8 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByType(typePost,pageable);
+        List<Post> posts1 = postRepository.findAllByType(typePost);
         List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
-        int total = 0;
         for(Post post : posts) {
             Voucher voucher = post.getVoucher();
             responses.add(new CRUDPostAndVoucherResponse(
@@ -597,13 +595,12 @@ public class AdminService {
                             voucher.getPost().getPostId()
                     )
             ));
-            total++;
         }
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
-                total,
+                posts1.size(),
                 responses
         );
     }
@@ -661,9 +658,8 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
-        List<Category> categoryList1 = categoryRepository.findAllByIsDeletedFalse();
+        List<Category> categoryList1 = categoryRepository.findAll();
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
-        int total = 0;
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
                     category.getCateId(),
@@ -674,7 +670,6 @@ public class AdminService {
                     category.getDateUpdated(),
                     category.getDateDeleted()
             ));
-            total++;
         }
         return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
     }

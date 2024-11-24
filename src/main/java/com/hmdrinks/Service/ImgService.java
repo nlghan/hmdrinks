@@ -191,7 +191,7 @@ public class ImgService {
             ImgResponse imgResponse = new ImgResponse();
             imgResponse.setUrl(product.getListProImg());
 
-            return imgResponse; // Trả về ImgResponse thay vì ResponseEntity
+            return imgResponse;
 
         } catch (Exception e) {
             throw new IOException("Could not upload image: " + e.getMessage());

@@ -104,33 +104,29 @@ public class AuthenticationService {
             var user = userRepository.findByUserNameAndIsDeletedFalse(request.getUserName())
                     .orElseThrow(() -> new UsernameNotFoundException("Not found user name"));
 
-            // Xác thực người dùng
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword())
             );
 
-            // Lấy hoặc tạo mới Token
             Token token = tokenRepository.findByUserUserId(user.getUserId());
             if (token == null) {
                 token = new Token();
                 token.setUser(user);
             }
 
-            // Tạo chi tiết người dùng
+
             MyUserDetails myUserDetails = myUserDetailsService.createMyUserDetails(user);
             Date currentDate = new Date();
 
-            // Tạo token và refresh token
             var jwtToken = jwtService.generateToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
             var refreshToken = jwtService.generateRefreshToken(myUserDetails, String.valueOf(user.getUserId()), user.getRole().toString());
 
-            // Thiết lập token
+
             token.setAccessToken(jwtToken);
             token.setRefreshToken(refreshToken);
             token.setExpire(currentDate);
             tokenRepository.save(token);
 
-            // Trả về phản hồi thành công
             return ResponseEntity.status(HttpStatus.OK_200).body(AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .refreshToken(refreshToken)

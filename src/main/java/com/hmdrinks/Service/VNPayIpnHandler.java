@@ -33,8 +33,6 @@ public class VNPayIpnHandler {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private PaymentService paymentService;
-    @Autowired
     private UserRepository userRepository;
     @Autowired
     private SupportFunction supportFunction;
@@ -131,6 +129,7 @@ public class VNPayIpnHandler {
                     }
 
                 }
+
                 assignShipments(orders.getOrderId());
 
             }

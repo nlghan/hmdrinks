@@ -123,17 +123,31 @@ public class PostService {
 
 
     @Transactional
-    public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam,Type_Post typePost) {
+    public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Post> posts = postRepository.findAllByTypeAndIsDeletedFalse(typePost,pageable);
-
+        Page<Post> posts = postRepository.findAllByTypeAndIsDeletedFalse(typePost, pageable);
+        List<Post> posts1 = postRepository.findAllByTypeAndIsDeletedFalse(typePost);
         List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
-        int total = 0;
-        for(Post post : posts) {
+        long total = posts.getTotalElements(); // Lấy tổng số bài viết
+
+        for (Post post : posts) {
             Voucher voucher = post.getVoucher();
+
+            // Kiểm tra nếu có voucher thì trả về thông tin voucher, nếu không có thì voucher là null
+            CRUDVoucherResponse voucherResponse = (voucher != null) ? new CRUDVoucherResponse(
+                    voucher.getVoucherId(),
+                    voucher.getKey(),
+                    voucher.getNumber(),
+                    voucher.getStartDate(),
+                    voucher.getEndDate(),
+                    voucher.getDiscount(),
+                    voucher.getStatus(),
+                    voucher.getPost().getPostId()
+            ) : null;
+
             responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
@@ -145,38 +159,44 @@ public class PostService {
                     post.getIsDeleted(),
                     post.getDateDeleted(),
                     post.getDateCreate(),
-                    new CRUDVoucherResponse(
-                            voucher.getVoucherId(),
-                            voucher.getKey(),
-                            voucher.getNumber(),
-                            voucher.getStartDate(),
-                            voucher.getEndDate(),
-                            voucher.getDiscount(),
-                            voucher.getStatus(),
-                            voucher.getPost().getPostId()
-                    )
+                    voucherResponse
             ));
-            total++;
         }
+
         return new ListAllPostResponse(
                 page,
                 posts.getTotalPages(),
                 limit,
-                total,
+                posts1.size(), // Tổng số bài viết
                 responses
         );
     }
 
+
+    @Transactional
     public ListAllPostResponse getAllPostByDESC(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByIsDeletedFalseOrderByPostIdDesc(pageable);
+        List<Post> posts1 = postRepository.findAllByIsDeletedFalseOrderByPostIdDesc();
         List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
             Voucher voucher = post.getVoucher();
+
+            // Kiểm tra nếu có voucher thì trả về thông tin voucher, nếu không có thì voucher là null
+            CRUDVoucherResponse voucherResponse = (voucher != null) ? new CRUDVoucherResponse(
+                    voucher.getVoucherId(),
+                    voucher.getKey(),
+                    voucher.getNumber(),
+                    voucher.getStartDate(),
+                    voucher.getEndDate(),
+                    voucher.getDiscount(),
+                    voucher.getStatus(),
+                    voucher.getPost().getPostId()
+            ) : null;
             responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
@@ -188,16 +208,7 @@ public class PostService {
                     post.getIsDeleted(),
                     post.getDateDeleted(),
                     post.getDateCreate(),
-                    new CRUDVoucherResponse(
-                            voucher.getVoucherId(),
-                            voucher.getKey(),
-                            voucher.getNumber(),
-                            voucher.getStartDate(),
-                            voucher.getEndDate(),
-                            voucher.getDiscount(),
-                            voucher.getStatus(),
-                            voucher.getPost().getPostId()
-                    )
+                    voucherResponse
             ));
             total++;
         }
@@ -205,21 +216,34 @@ public class PostService {
                 page,
                 posts.getTotalPages(),
                 limit,
-                total,
+                posts1.size(),
                 responses
         );
     }
 
+    @Transactional
     public ListAllPostResponse getAllPost(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Post> posts = postRepository.findAllByIsDeletedFalse(pageable);
+        List<Post> posts1 = postRepository.findAllByIsDeletedFalse();
         List<CRUDPostAndVoucherResponse> responses = new ArrayList<>();
         int total = 0;
         for(Post post : posts) {
             Voucher voucher = post.getVoucher();
+
+            CRUDVoucherResponse voucherResponse = (voucher != null) ? new CRUDVoucherResponse(
+                    voucher.getVoucherId(),
+                    voucher.getKey(),
+                    voucher.getNumber(),
+                    voucher.getStartDate(),
+                    voucher.getEndDate(),
+                    voucher.getDiscount(),
+                    voucher.getStatus(),
+                    voucher.getPost().getPostId()
+            ) : null;
             responses.add(new CRUDPostAndVoucherResponse(
                     post.getPostId(),
                     post.getType(),
@@ -231,16 +255,7 @@ public class PostService {
                     post.getIsDeleted(),
                     post.getDateDeleted(),
                     post.getDateCreate(),
-                    new CRUDVoucherResponse(
-                            voucher.getVoucherId(),
-                            voucher.getKey(),
-                            voucher.getNumber(),
-                            voucher.getStartDate(),
-                            voucher.getEndDate(),
-                            voucher.getDiscount(),
-                            voucher.getStatus(),
-                            voucher.getPost().getPostId()
-                    )
+                    voucherResponse
             ));
             total++;
         }
@@ -248,7 +263,7 @@ public class PostService {
                 page,
                 posts.getTotalPages(),
                 limit,
-                total,
+                posts1.size(),
                 responses
         );
     }
@@ -260,7 +275,6 @@ public class PostService {
         }
         List<Post> posts = postRepository.findByUserUserIdAndIsDeletedFalse(userId);
         List<CRUDPostResponse> responses = new ArrayList<>();
-        int total = 0;
         for(Post post : posts) {
             responses.add(new CRUDPostResponse(
                     post.getPostId(),
@@ -274,9 +288,8 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate()
             ));
-            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPostByUserIdResponse(userId,total, responses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllPostByUserIdResponse(userId,posts.size(), responses));
     }
 
     @Transactional
