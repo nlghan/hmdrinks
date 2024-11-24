@@ -164,20 +164,32 @@ public class GenerateInvoiceService {
 // Thêm bảng vào tài liệu
         document.add(companyInfoTable);
 
+        PdfFont robotoFont = PdfFontFactory.createFont(
+                "D:/HK1_nam_4/CNPMM/Cuoi_Ky/Roboto/Roboto-Bold.ttf",
+                PdfEncodings.IDENTITY_H,
+                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+        );
 
 
         // Tạo bảng chính với hai cột
         Table mainTable = new Table(twoColumnWidth);
-        mainTable.setFixedLayout(); // Đảm bảo bảng chiếm toàn bộ chiều rộng của trang
+        mainTable.setFixedLayout();
+        mainTable.setBorder(Border.NO_BORDER); // Đảm bảo không có viền
 
-// Thêm tiêu đề "Hóa đơn thanh toán cửa hàng HMDrinks"
-        mainTable.addCell(new Cell().add(new Paragraph("Hóa đơn thanh toán cửa hàng HMDrinks")
-                .setFontSize(24f)  // Tăng kích thước font cho tiêu đề
-                .setFont(vietnameseFont)
-                .setFontColor(new DeviceRgb(247, 77, 77)) // Màu xanh cho tiêu đề
-                .setTextAlignment(TextAlignment.CENTER) // Căn giữa tiêu đề
-                .setBorder(Border.NO_BORDER))  // Không có viền cho tiêu đề
+// Thêm tiêu đề vào bảng chính
+
+
+        mainTable.addCell(
+                new Cell()
+                        .add(new Paragraph("Hóa đơn HMDrinks")
+                                .setFontSize(30f)
+                                .setFont(robotoFont) // Font Roboto
+                                .setFontColor(new DeviceRgb(247, 77, 77))
+                                .setTextAlignment(TextAlignment.LEFT))
+                        .setBorder(Border.NO_BORDER)
+                        .setPadding(0)
         );
+
 
 // Tạo bảng con với 2 cột cho thông tin hóa đơn
         Table nestedTable = new Table(new float[]{115f, 115f});
@@ -212,10 +224,28 @@ public class GenerateInvoiceService {
 // Thêm đoạn trống giữa các bảng
         document.add(emptyParagraph);
 
+        PdfFont pacificoFont = PdfFontFactory.createFont(
+                "D:/HK1_nam_4/CNPMM/Cuoi_Ky/Pacifico/Pacifico-Regular.ttf",
+                PdfEncodings.IDENTITY_H,
+                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+        );
+
 
         Table billingShippingTable = new Table(twoColumnWidth);
-        billingShippingTable.addCell(createBillingAndShippingCell("Thông tin thanh toán"));
-        billingShippingTable.addCell(createBillingAndShippingCell("Thông tin giao hàng"));
+        billingShippingTable.addCell(
+                createBillingAndShippingCell("Thông tin thanh toán")
+                        .setFont(pacificoFont)
+                        .setFontSize(17f)
+                        .setFontColor(new DeviceRgb(0, 147, 135)) // Đặt màu chữ
+        );
+
+        billingShippingTable.addCell(
+                createBillingAndShippingCell("Thông tin giao hàng")
+                        .setFont(pacificoFont)
+                        .setFontSize(17f)
+                        .setFontColor(new DeviceRgb(0, 147, 135)) // Đặt màu chữ
+        );
+
         document.add(billingShippingTable);
 
         Table detailsTable = new Table(twoColumnWidth);
@@ -277,7 +307,7 @@ public class GenerateInvoiceService {
         Border productBorder1 = new SolidBorder(new DeviceRgb(255, 127, 127), 1f);
         document.add(tableDivider1.setBorder(productBorder1));
 
-        Paragraph productTitle1 = new Paragraph("Sản phẩm").setBold().setFont(vietnameseFont);
+        Paragraph productTitle1 = new Paragraph("Sản phẩm").setBold().setFont(pacificoFont).setFontSize(17f) .setFontColor(new DeviceRgb(0, 147, 135)) ;// Đặt màu chữ;
         document.add(productTitle1);
 
 // Bảng tiêu đề sản phẩm
@@ -341,10 +371,11 @@ public class GenerateInvoiceService {
         // Tiêu đề tổng kết thanh toán
         Paragraph totalTitle = new Paragraph("Thanh toán")
                 .setBold()
-                .setFont(vietnameseFont)
-                .setFontSize(14f)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMarginBottom(10f);
+                .setFont(pacificoFont)
+                .setFontSize(20f)
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setMarginBottom(10f)
+                .setFontColor(new DeviceRgb(0, 147, 135)); // Đặt màu chữ;
         document.add(totalTitle);
 
 // Tổng kết thanh toán (không dùng bảng)
