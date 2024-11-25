@@ -267,7 +267,12 @@ const ProductDetail = () => {
         }
     };
 
-
+    // Hàm để xử lý khi người dùng bấm vào input review
+    const handleInputFocus = () => {
+        if (newReview.ratingStart === 0) { // Nếu số sao hiện tại chưa được thiết lập
+            setNewReview({ ...newReview, ratingStart: 5 });
+        }
+    };
 
     const handleStarClick = (rating) => {
         setNewReview({ ...newReview, ratingStart: rating, proId: product.proId }); // Gán proId vào newReview
@@ -407,29 +412,29 @@ const ProductDetail = () => {
                     console.log(`Fetching recommended products for userId: ${userId}`);
                     const response = await axios.get(`http://localhost:1010/api/product/recommended/${userId}`);
                     console.log('API Response:', response.data); // Log the entire response
-    
+
                     if (response.data && response.data.listRecommend) {
                         const currentProductName = product.proName; // Get the current product's name
-    
+
                         // Đảo ngược danh sách `listRecommend`
                         const reversedList = [...response.data.listRecommend].reverse();
-    
+
                         const uniqueRecommendedProducts = [];
                         const seenProductNames = new Set(); // To track unique product names
-    
+
                         // Lặp qua danh sách đã đảo ngược để lọc sản phẩm
                         for (const recommendation of reversedList) {
                             if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
                                 uniqueRecommendedProducts.push(recommendation); // Add to unique products
                                 seenProductNames.add(recommendation.proName); // Mark this product name as seen
                             }
-    
+
                             // Dừng lại khi đã có đủ 3 sản phẩm
                             if (uniqueRecommendedProducts.length === 3) {
                                 break; // Exit the loop if we have 3 unique products
                             }
                         }
-    
+
                         // Đảm bảo danh sách có đủ 3 sản phẩm
                         if (uniqueRecommendedProducts.length < 3) {
                             for (const recommendation of reversedList) {
@@ -437,14 +442,14 @@ const ProductDetail = () => {
                                     uniqueRecommendedProducts.push(recommendation); // Add to unique products
                                     seenProductNames.add(recommendation.proName); // Mark this product name as seen
                                 }
-    
+
                                 // Stop if we have collected 3 unique products
                                 if (uniqueRecommendedProducts.length === 3) {
                                     break; // Exit the loop if we have 3 unique products
                                 }
                             }
                         }
-    
+
                         // Cập nhật state với danh sách sản phẩm đề xuất
                         setRecommendedProducts(uniqueRecommendedProducts);
                     } else {
@@ -487,10 +492,10 @@ const ProductDetail = () => {
                                         />
                                         <div className="navigation-buttons">
                                             <button className="arrow-button" onClick={handlePreviousImage}>
-                                                <i className='ti-arrow-circle-left'/>
+                                                <i className='ti-arrow-circle-left' />
                                             </button>
                                             <button className="arrow-button" onClick={handleNextImage}>
-                                            <i className='ti-arrow-circle-right'/>
+                                                <i className='ti-arrow-circle-right' />
                                             </button>
                                         </div>
                                     </div>
@@ -553,7 +558,7 @@ const ProductDetail = () => {
                             <div className="login-modal-content">
                                 <p>Bạn cần đăng nhập để có thể mua hàng.</p>
                                 <a href="/login">Đăng nhập</a>
-                                <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>        
+                                <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
                             </div>
                         </div>
                     )}
@@ -584,7 +589,7 @@ const ProductDetail = () => {
                             <div className="product-description-container fade-in">
                                 {/* <h2>Mô tả</h2> */}
                                 <p className='des-product' >
-                                    <div style={{marginTop:'20px'}}>{product.description}</div>
+                                    <div style={{ marginTop: '20px' }}>{product.description}</div>
                                 </p>
                             </div>
                         )}
@@ -708,6 +713,7 @@ const ProductDetail = () => {
                                             type="text"
                                             placeholder="Hãy cho chúng tôi biết cảm nhận của bạn về sản phẩm"
                                             value={newReview.content}
+                                            onFocus={handleInputFocus}
                                             onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
                                             id="input-text-review"
                                         />

@@ -95,7 +95,6 @@
 
 .error-message {
     color: red; 
-    margin: 10px 0; 
 }
 .btn-google i {
     margin-right: 10px; 
@@ -155,7 +154,7 @@
 }
 
 .message {
-    color: red;
+    color: rgb(45, 202, 55);
     margin-bottom: 10px;
     width: 100%;
     text-align: left;

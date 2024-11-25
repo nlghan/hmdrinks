@@ -12,6 +12,11 @@ import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
+import RobotoFont from '../../assets/font/themify-icons/fonts/Roboto-Regular.ttf';
+import Button from '@mui/material/Button';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import './CustomChart.css';
 import axios from 'axios';
 
@@ -144,6 +149,55 @@ export default function CustomChart() {
       console.error(`Lỗi khi gọi API cho paymentId ${paymentId}:`, error);
     }
   };
+  const handleExportPDF = async () => {
+    const chartElement = document.querySelector('.custom-chart-container');
+    if (!chartElement) return;
+
+    try {
+      // Chụp ảnh biểu đồ
+      const canvas = await html2canvas(chartElement);
+      const imgData = canvas.toDataURL('image/png');
+
+      // Tạo file PDF
+      const pdf = new jsPDF();
+      pdf.setFont('Roboto', 'normal');
+      pdf.setFontSize(16);
+      pdf.text('Báo cáo thống kê doanh thu', 10, 10);
+      pdf.setFontSize(12);
+      pdf.text(`Tháng: ${selectedMonth}`, 10, 20);
+      pdf.text(`Năm: ${selectedYear}`, 10, 30);
+
+      // Thêm biểu đồ vào PDF
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 10, 40, imgWidth, imgHeight);
+
+      // Tạo danh sách ngày trong tháng
+      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+      const dates = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}/${selectedMonth}/${selectedYear}`);
+
+      // Kết hợp với dữ liệu `paymentAmounts`
+      const tableData = dates.map((date, index) => {
+        const row = [
+          index + 1, // Số thứ tự
+          date, // Ngày/Tháng/Năm
+          paymentAmounts[index] ? `${paymentAmounts[index]} VND` : 'Chưa có dữ liệu', // Giá trị đơn hàng
+        ];
+        console.log(`Row for date ${date}:`, row);
+        return row;
+      });
+      
+      console.log('Table Data:', tableData);
+    
+      // Thêm dữ liệu chi tiết vào PDF
+      pdf.addPage();
+      pdf.text('Dữ liệu chi tiết:', 10, 10);
+      // Lưu file PDF
+      pdf.save(`Bao_cao_${selectedMonth}_${selectedYear}.pdf`);
+    } catch (error) {
+      console.error('Lỗi khi xuất file PDF:', error);
+    }
+  };
 
   React.useEffect(() => {
     fetchShipments(selectedMonth, selectedYear);
@@ -187,6 +241,14 @@ export default function CustomChart() {
             </MenuItem>
           ))}
         </Select>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginLeft: 2 }}
+          onClick={handleExportPDF}
+        >
+          Xuất file
+        </Button>
       </div>
       <Stack direction="row">
         <FormControlLabel

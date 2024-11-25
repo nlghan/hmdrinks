@@ -39,6 +39,19 @@ const Login = () => {
 
     const handleLogin = async () => {
         const data = { userName, password };
+        const maxAttempts = 5; // Số lần nhập sai tối đa
+        const lockoutTime = 5 * 60 * 1000; // Thời gian khóa tính bằng ms (5 phút)
+
+        // Lấy thông tin lần nhập sai từ localStorage
+        const loginAttempts = JSON.parse(localStorage.getItem('loginAttempts')) || {};
+        const userAttempts = loginAttempts[userName] || { count: 0, lockedUntil: null };
+
+        // Kiểm tra nếu người dùng đang bị khóa
+        if (userAttempts.lockedUntil && new Date() < new Date(userAttempts.lockedUntil)) {
+            setMessage("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 5 phút.");
+            setError("Tài khoản bị khóa tạm thời.");
+            return;
+        }
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/authenticate`, data, {
@@ -47,6 +60,9 @@ const Login = () => {
 
             console.log('Đăng nhập thành công:', response.data);
 
+            // Xóa thông tin số lần sai nếu đăng nhập thành công
+            delete loginAttempts[userName];
+            localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
             // Save tokens to cookies
             if (response.data.access_token) {
                 Cookies.set('access_token', response.data.access_token, { expires: 7 });
@@ -91,19 +107,27 @@ const Login = () => {
                 const { status, data } = error.response;
                 if (status === 404) {
                     setMessage("Không tìm thấy tên đăng nhập.");
-                    setError("Tên đăng nhập không tồn tại."); // Set error state here
+                    setError("Tên đăng nhập không tồn tại.");
                 } else if (status === 401 && data === "Invalid username or password") {
-                    setMessage("Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.");
-                    setError("Sai tên đăng nhập hoặc mật khẩu."); // Set error state here
+                    // Xử lý số lần nhập sai
+                    userAttempts.count += 1;
+                    if (userAttempts.count >= maxAttempts) {
+                        userAttempts.lockedUntil = new Date(new Date().getTime() + lockoutTime); // Khóa trong 5 phút
+                        setError("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 5 phút.");
+                    } else {
+                        setError(`Sai tên đăng nhập hoặc mật khẩu. Bạn còn ${maxAttempts - userAttempts.count} lần thử.`);
+                    }
+                    loginAttempts[userName] = userAttempts;
+                    localStorage.setItem('loginAttempts', JSON.stringify(loginAttempts));
                 } else if (status === 500) {
                     setMessage("Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau.");
-                    setError("Lỗi máy chủ."); // Set error state here
+                    setError("Lỗi máy chủ.");
                 }
             } else {
                 setMessage("Không thể kết nối với máy chủ. Vui lòng thử lại sau.");
-                setError("Lỗi kết nối."); // Set error state here
+                setError("Lỗi kết nối.");
             }
-            
+
         }
     };
 
@@ -142,7 +166,7 @@ const Login = () => {
                     <h2 id="h2-login">Đăng Nhập</h2>
                     {(!message && !error) && <p className="small-text">Nhập thông tin cá nhân bên dưới</p>}
 
-                    {error && <p className="message">{error}</p>}
+                    {error && <p className="error-message-login">{error}</p>}
                     <div className="input-group">
                         <input
                             list="usernames"
