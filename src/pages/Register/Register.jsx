@@ -4,18 +4,19 @@ import './Register.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Cookies from 'js-cookie'; // Nhập thư viện js-cookie
 
 const Register = () => {
     const navigate = useNavigate();
 
-    // State để lưu thông tin đăng ký
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
+    const [email, setEmail] = useState(""); // State cho email
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+
     const [error, setError] = useState(""); // Added error state
     const [passwordError, setPasswordError] = useState("");
+
 
     const handleLogin = () => {
         navigate('/login');
@@ -59,31 +60,24 @@ const Register = () => {
         const data = {
             fullName,
             userName,
-            password
+            password,
+            email, // Gửi email trong request
         };
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
                 headers: {
-                    'Content-Type': 'application/json' // Đảm bảo rằng content type là JSON
+                    'Content-Type': 'application/json'
                 }
             });
 
             console.log('Đăng ký thành công:', response.data);
-            setMessage('Đăng ký thành công')
-
-            // // Lưu token vào cookie nếu có trong phản hồi
-            // if (response.data.access_token) {
-            //     Cookies.set('access_token', response.data.access_token, { expires: 7 }); // Hết hạn sau 7 ngày
-            // }
-            // if (response.data.refresh_token) {
-            //     Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
-            // }
-
-            // Điều hướng đến trang home sau một khoảng thời gian
+            setMessage('Đăng ký thành công');
             setTimeout(() => {
                 navigate('/login');
+
             }, 2000); 
+
         } catch (error) {
             console.error('Lỗi đăng ký:', error);
             if (error.response) {
@@ -92,18 +86,20 @@ const Register = () => {
                     console.log(data)
                     setError("Tài khoản đã tồn tại"); 
                     setMessage(""); 
+
+
                 }
             }
         }
     };
 
     const handleBack = () => {
-        navigate('/home'); // Điều hướng đến trang Register
+        navigate('/home');
     };
 
-    // Handler for input change
     const handleInputChange = (setter) => (event) => {
         setter(event.target.value);
+
         setError(""); 
         setMessage(""); 
         if (setter === setPassword) setPasswordError("");
@@ -118,10 +114,7 @@ const Register = () => {
                 </div>
                 <div className="register-form">
                     <h2>Tạo tài khoản mới</h2>
-                    {/* Conditional rendering for prompt message */}
                     {!message && !error && <p className="small-text">Nhập thông tin cá nhân bên dưới</p>}
-
-                    {/* Display error if it exists */}
                     {message && <p className="message">{message}</p>}
                     {error && <p className="error-message">{error}</p>}
 
@@ -131,7 +124,7 @@ const Register = () => {
                             placeholder="Họ và tên"
                             className={`register-input ${error && !validateFullName(fullName) ? 'input-error' : ''}`}
                             value={fullName}
-                            onChange={handleInputChange(setFullName)} // Use the new handler
+                            onChange={handleInputChange(setFullName)}
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -145,9 +138,26 @@ const Register = () => {
                         <input
                             type="text"
                             placeholder="Tên tài khoản"
+
                             className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
-                            onChange={handleInputChange(setUserName)} // Use the new handler
+                            onChange={handleInputChange(setUserName)}
+                            style={{
+                                width: '80%',
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            className="register-input"
+                            value={email} // Giá trị email
+                            onChange={handleInputChange(setEmail)} // Cập nhật state email
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -162,8 +172,20 @@ const Register = () => {
                             type="password"
                             placeholder="Mật khẩu"
                             className={`input ${passwordError ? 'input-error' : ''}`}
+
+                            className="register-input"
+
                             value={password}
-                            onChange={handleInputChange(setPassword)} // Use the new handler
+                            onChange={handleInputChange(setPassword)}
+                            style={{
+                                width: '80%',
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
                         />
                     </div>
                     <div className="button-group-register">

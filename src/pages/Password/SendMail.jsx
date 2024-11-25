@@ -114,7 +114,7 @@ const SendMail = () => {
                                     className="otp-change"
                                 />
                             )}
-                            <button className="btn-send" style={{height:'55px'}} type="submit">{isOtpSent ? "XÁC THỰC" : "GỬI"}</button>
+                            <button className="btn-send" style={{height:'55px', borderTopLeftRadius:'0px', borderBottomLeftRadius:'0px'}} type="submit">{isOtpSent ? "CHECK" : "GỬI"}</button>
                         </div>
                     </form>
                     {message && <p className="send-mail-message">{message}</p>}

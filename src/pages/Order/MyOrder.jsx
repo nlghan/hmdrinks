@@ -167,60 +167,60 @@ const MyOrder = () => {
 
 
     const [confirmedOrders, setConfirmedOrders] = useState([]);
-    const fetchConfirmedOrders = async (page, limit) => {
+    const fetchConfirmedOrders = async () => {
         setLoading(true);
         setError('');
-        const token = getCookie('access_token');
-        const userId = getUserIdFromToken(token);
-        let confirmedOrders = [];
-        let shippingOrders = [];
-
+        const token = getCookie('access_token'); // Lấy token từ cookie
+        const userId = getUserIdFromToken(token); // Lấy userId từ token
+    
         try {
-            // Gọi API để lấy danh sách đơn hàng CONFIRMED
+            // Gọi API để lấy danh sách đơn hàng đã xác nhận
             const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=100&status=CONFIRMED`,
+                `http://localhost:1010/api/orders/view/confirmed/${userId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-
-            confirmedOrders = response.data.listOrders || [];
-
-            // Lặp qua từng đơn hàng để kiểm tra trạng thái SHIPPING
-            for (const order of confirmedOrders) {
-                try {
-                    const shipmentResponse = await axios.get(
-                        `http://localhost:1010/api/shipment/view/order/${order.orderId}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
-
-                    const shipmentData = shipmentResponse.data;
-
-                    // Nếu trạng thái là SHIPPING, thêm đơn hàng vào danh sách đang giao
-                    if (shipmentData.status === 'SHIPPING' || shipmentData.status === 'WAITING' ) {
-                        shippingOrders.push(order);
-                    }
-                } catch (shipmentError) {
-                    console.error(`Lỗi khi kiểm tra trạng thái đơn hàng ${order.orderId}:`, shipmentError);
-                }
-            }
-
-            // Cập nhật danh sách đơn hàng đang giao
-            setConfirmedOrders(shippingOrders);
-            setTotalPages(Math.ceil(shippingOrders.length / limit));
+    
+            const { data: list = [] } = response;
+    
+            // Chuẩn bị danh sách dữ liệu kết hợp giữa order và shipment
+            const orders = list.map((item) => ({
+                orderId: item.order.orderId,
+                address: item.order.address,
+                deliveryFee: item.order.deliveryFee,
+                totalPrice: item.order.totalPrice,
+                status: item.order.status,
+                dateCreated: item.order.dateCreated,
+                dateDelivered: item.order.dateDelivered,
+                discountPrice: item.order.discountPrice,
+                note: item.order.note,
+                phone: item.order.phone,
+                shipment: {
+                    shipmentId: item.shipment.shipmentId,
+                    customerName: item.shipment.customerName,
+                    phoneNumber: item.shipment.phoneNumber,
+                    email: item.shipment.email,
+                    status: item.shipment.status,
+                    dateDeliver: item.shipment.dateDeliver,
+                    dateShipped: item.shipment.dateShipped,
+                    shipperName: item.shipment.nameShipper,
+                },
+            }));
+    
+            // Lưu danh sách đơn hàng vào state
+            setConfirmedOrders(orders);
+            console.log('Danh sách đơn hàng đã xác nhận:', orders);
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đã xác nhận.');
-            console.error('Lỗi khi lấy danh sách đơn hàng CONFIRMED:', err);
+            console.error('Lỗi khi gọi API:', err);
         } finally {
             setLoading(false);
         }
     };
+    
 
 
     useEffect(() => {
@@ -228,17 +228,13 @@ const MyOrder = () => {
             fetchCancelledOrders();
         } else if (selectedTab === 'pending') {
             fetchWaitingOrders();
+        } else if (selectedTab === 'delivering') {
+            fetchConfirmedOrders();
         }
         else if (selectedTab === 'history') {
             fetchHistoryOrders();
         }
     }, [selectedTab]);
-
-    useEffect(() => {
-        if (selectedTab === 'delivering') {
-            fetchConfirmedOrders(currentDeliveringPage, itemsPerPage);
-        }
-    }, [selectedTab, currentDeliveringPage, itemsPerPage]); // Thay đổi trang, tab hoặc số lượng item thì gọi lại API
 
 
     const [currentCancelledPage, setCurrentCancelledPage] = useState(1);
@@ -270,6 +266,7 @@ const MyOrder = () => {
                 orderId: item.order.orderId,
                 address: item.order.address,
                 deliveryFee: item.order.deliveryFee,
+                discountPrice: item.order.discountPrice,
                 totalPrice: item.order.totalPrice,
                 status: item.order.status,
                 dateCreated: item.order.dateCreated,
@@ -282,6 +279,7 @@ const MyOrder = () => {
                     status: item.shipment.status,
                     dateDeliver: item.shipment.dateDeliver,
                     dateShipped: item.shipment.dateShipped,
+                    shipperName: item.shipment.nameShipper
                 },
             }));
     
@@ -319,6 +317,33 @@ const MyOrder = () => {
         window.scrollTo(0, 0);
     };
 
+    const handlePrint = async (orderId) => {
+        const token = getCookie('access_token');
+        try {
+            const response = await fetch(`http://localhost:1010/api/orders/pdf/invoice?orderId=${orderId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+    
+            // Kiểm tra nếu response trả về thành công
+            if (response.ok) {
+                const blob = await response.blob(); // Lấy dữ liệu dưới dạng blob (tệp PDF)
+                const link = document.createElement('a'); // Tạo một liên kết ảo
+                link.href = URL.createObjectURL(blob); // Tạo URL tạm thời cho tệp blob
+                link.download = `Invoice_${orderId}.pdf`; // Đặt tên tệp PDF
+                link.click(); // Mô phỏng nhấp vào liên kết để tải tệp xuống
+            } else {
+                console.error('Có lỗi khi tải hóa đơn.');
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối hoặc tải hóa đơn:', error);
+        }
+    };
+    
+
     const renderContent = () => {
         const itemsPerPage = 5;  // Số lượng đơn hàng hiển thị mỗi trang
 
@@ -352,7 +377,8 @@ const MyOrder = () => {
                                                 <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {order.dateCreated}</p>
+                                                <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
 
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -374,7 +400,7 @@ const MyOrder = () => {
                                 </ul>
                                 {/* Pagination */}
                                 <div className="menu-category-pagination" style={{ width: '100%' }}>
-                                    {Array.from({ length: totalPages }, (_, index) => (
+                                {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
                                         <span
                                             key={index + 1}
                                             className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
@@ -498,12 +524,23 @@ const MyOrder = () => {
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
-                                                <p><strong>Số điện thoại:</strong> {order.phone}</p>
+                                                <p><strong>Số điện thoại:</strong> {order.shipment?.phoneNumber}</p>
                                                 <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
                                                 <p><strong>Ngày đặt hàng:</strong> {order.dateDelivered}</p>
                                                 <p><strong>Ngày nhận hàng:</strong> {order.shipment?.dateShipped}</p>
+                                                <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
+                                                
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="checkout-button-order"
+                                                    onClick={() => handlePrint(order.orderId)}
+                                                    style={{ background: '#45b6cc' }}
+                                                >
+                                                    Xuất hóa đơn <i className="ti-printer" style={{ fontSize: '15px' }} />
+                                                </button>
                                             </div>
                                         </li>
                                     ))}

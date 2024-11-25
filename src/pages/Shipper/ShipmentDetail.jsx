@@ -226,7 +226,7 @@ const ShipmentDetail = () => {
                                         <option value="CANCELLED">Đã hủy</option>
                                         <option value="SHIPPING">Đang giao</option>
                                         <option value="SUCCESS">Hoàn thành</option>
-                                        <option value="WAITING">Đang chờ</option>
+                           
                                     </select>
 
                                 </div>
