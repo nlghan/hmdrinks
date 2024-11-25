@@ -80,6 +80,7 @@ const HomeShipper = () => {
         setSelectedStatus(status);
         setCurrentPage(1); // Reset to page 1 on status change
         fetchData(1, status); // Fetch data with the new status
+        window.scrollTo(0, 0); 
     };
 
     useEffect(() => {
@@ -94,6 +95,7 @@ const HomeShipper = () => {
         if (newPage > 0 && newPage <= totalPage) {
             setCurrentPage(newPage);
         }
+        window.scrollTo(0, 0); 
     };
 
     const getPaginationNumbers = () => {

@@ -1,14 +1,15 @@
 .custom-chart-ship {
-    display: flex;
-    z-index: -1;
-    flex-direction: column;
-    align-items: center; /* Căn giữa các thành phần */
-    margin: 20px; /* Khoảng cách xung quanh biểu đồ */
-    background-color: rgba(255, 255, 255, 0.90);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px; /* Bo góc cho biểu đồ */
-    position: relative; /* Đặt vị trí tương đối cho container */
-    padding: 20px; /* Thêm padding để chứa nội dung */
+    display: flex
+    ;
+        z-index: -1;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+        background-color: rgba(255, 255, 255, 0.90);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        position: relative;
+        padding: 20px 0;
 }
 
 .custom-chart-ship-title {

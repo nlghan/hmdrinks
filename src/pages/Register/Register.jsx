@@ -4,16 +4,16 @@ import './Register.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Cookies from 'js-cookie'; // Nhập thư viện js-cookie
 
 const Register = () => {
     const navigate = useNavigate();
 
-    // State để lưu thông tin đăng ký
     const [fullName, setFullName] = useState("");
     const [userName, setUserName] = useState("");
+    const [email, setEmail] = useState(""); // State cho email
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+
     const [error, setError] = useState(""); // Added error state
     const [passwordError, setPasswordError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -60,28 +60,19 @@ const Register = () => {
         const data = {
             fullName,
             userName,
-            password
+            password,
+            email, // Gửi email trong request
         };
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
                 headers: {
-                    'Content-Type': 'application/json' // Đảm bảo rằng content type là JSON
+                    'Content-Type': 'application/json'
                 }
             });
 
             console.log('Đăng ký thành công:', response.data);
-            setMessage('Đăng ký thành công')
-
-            // // Lưu token vào cookie nếu có trong phản hồi
-            // if (response.data.access_token) {
-            //     Cookies.set('access_token', response.data.access_token, { expires: 7 }); // Hết hạn sau 7 ngày
-            // }
-            // if (response.data.refresh_token) {
-            //     Cookies.set('refresh_token', response.data.refresh_token, { expires: 7 });
-            // }
-
-            // Điều hướng đến trang home sau một khoảng thời gian
+            setMessage('Đăng ký thành công');
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
@@ -127,10 +118,7 @@ const Register = () => {
                 </div>
                 <div className="register-form">
                     <h2>Tạo tài khoản mới</h2>
-                    {/* Conditional rendering for prompt message */}
                     {!message && !error && <p className="small-text">Nhập thông tin cá nhân bên dưới</p>}
-
-                    {/* Display error if it exists */}
                     {message && <p className="message">{message}</p>}
                     {error && <p className="error-message">{error}</p>}
 
@@ -155,6 +143,7 @@ const Register = () => {
                         <input
                             type="text"
                             placeholder="Tên tài khoản"
+
                             className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
                             onChange={handleInputChange(setUserName)}
