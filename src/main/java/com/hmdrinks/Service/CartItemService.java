@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.sql.DriverManager.println;
+
 @Service
 public class CartItemService {
     @Autowired
@@ -136,17 +138,22 @@ public class CartItemService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
         }
-        if(req.getQuantity() < 0){
+        if(req.getQuantity() <= 0)
+        {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
         }
-        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getProduct().getProId());
-        Integer Present_Quantity = cartItem.getQuantity() + 1 ;
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
+        int Present_Quantity = cartItem.getQuantity() + 1 ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
+        System.out.println(productVariants.getStock());
 
         if((req.getQuantity() + 1 ) > productVariants.getStock())
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
         }
         cartItem.setQuantity((Present_Quantity));
+        cartItem.setTotalPrice((Present_TotalPrice));
+
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
         if(cart == null)
@@ -165,8 +172,9 @@ public class CartItemService {
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
         return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
-                Present_Quantity
-        ) );
+                Present_Quantity,
+                Present_TotalPrice
+        ));
     }
 
     public ResponseEntity<?> decreaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
@@ -182,6 +190,7 @@ public class CartItemService {
         }
         ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
         int Present_Quantity = cartItem.getQuantity() - 1 ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
         System.out.println(productVariants.getStock());
 
         if((req.getQuantity() - 1 ) > productVariants.getStock())
@@ -189,6 +198,8 @@ public class CartItemService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
         }
         cartItem.setQuantity((Present_Quantity));
+        cartItem.setTotalPrice((Present_TotalPrice));
+
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
         if(cart == null)
@@ -207,7 +218,8 @@ public class CartItemService {
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
         return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
-                Present_Quantity
+                Present_Quantity,
+                Present_TotalPrice
         ));
     }
 

@@ -298,7 +298,7 @@ class CartItemControllerTest {
         ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
         when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         IncreaseDecreaseItemQuantityResponse response = new IncreaseDecreaseItemQuantityResponse(
-                6
+                6,25000
         );
         when(cartItemService.increaseCartItemQuantity(any(IncreaseDecreaseItemQuantityReq.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
         String requestBody = objectMapper.writeValueAsString(req);
@@ -437,7 +437,7 @@ class CartItemControllerTest {
         ResponseEntity<?> mockAuthResponse = ResponseEntity.ok().build();
         when(supportFunction.checkUserAuthorization(any(HttpServletRequest.class), anyInt())).thenReturn((ResponseEntity) mockAuthResponse);
         IncreaseDecreaseItemQuantityResponse response = new IncreaseDecreaseItemQuantityResponse(
-                4
+                4, 25000
         );
         when(cartItemService.decreaseCartItemQuantity(any(IncreaseDecreaseItemQuantityReq.class))).thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
         String requestBody = objectMapper.writeValueAsString(req);
