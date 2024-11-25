@@ -571,6 +571,7 @@ const Order = () => {
 
                         {/* Invoice and Customer Information */}
                         {/* Content for Confirmation Step */}
+                        
                         {currentStep === "confirmation" && (
                             <div className="info-order-sections">
                                 <div className="info-section">

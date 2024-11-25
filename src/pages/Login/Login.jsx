@@ -37,6 +37,25 @@ const Login = () => {
         }
     };
 
+    const handleLoginGG = async () => {   
+        try {
+          // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
+          const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+            headers: { 'accept': '*/*' }
+          });
+      
+          // Kiểm tra nếu API trả về URL cho Google login
+          if (response.data) {
+            // Điều hướng đến Google login (redirect URL)
+            window.location.href = response.data;
+          } else {
+            console.error('Không nhận được URL đăng nhập từ API');
+          }
+        } catch (error) {
+          console.error('Lỗi khi gửi yêu cầu Google login:', error);
+        }
+      };
+
     const handleLogin = async () => {
         const data = { userName, password };
         const maxAttempts = 5; // Số lần nhập sai tối đa
@@ -194,8 +213,8 @@ const Login = () => {
                         <button className="btn-login" onClick={handleLogin}>Đăng Nhập</button>
                         <span className="forgot-pass-link" onClick={handleForget}>Quên mật khẩu</span>
                     </div>
-                    <button className="btn-google">
-                        <img src={assets.gg} alt='' className="google-icon" />Đăng Nhập bằng Google
+                    <button className="btn-google" onClick={handleLoginGG}>
+                        <img src={assets.gg} alt='' className="google-icon"  />Đăng Nhập bằng Google
                     </button>
                     <p className="register-text">Bạn chưa có tài khoản? <span className="register-link" onClick={handleRegister}>Đăng ký</span></p>
                 </div>

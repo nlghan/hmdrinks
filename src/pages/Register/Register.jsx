@@ -39,6 +39,25 @@ const Register = () => {
         const userNameRegex = /^(?!.*\.\.)(?!.*\s)(?!.*[&=_'\-+,<>])(?!\.)[A-Za-z0-9.]+(?<!\.)$/;
         return userNameRegex.test(username);
     };
+
+    const handleLoginGG = async () => {   
+        try {
+          // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
+          const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+            headers: { 'accept': '*/*' }
+          });
+      
+          // Kiểm tra nếu API trả về URL cho Google login
+          if (response.data) {
+            // Điều hướng đến Google login (redirect URL)
+            window.location.href = response.data;
+          } else {
+            console.error('Không nhận được URL đăng nhập từ API');
+          }
+        } catch (error) {
+          console.error('Lỗi khi gửi yêu cầu Google login:', error);
+        }
+      };
     
 
     const handleRegister = async () => {
@@ -173,8 +192,6 @@ const Register = () => {
                             placeholder="Mật khẩu"
                             className={`input ${passwordError ? 'input-error' : ''}`}
 
-                            className="register-input"
-
                             value={password}
                             onChange={handleInputChange(setPassword)}
                             style={{
@@ -191,7 +208,7 @@ const Register = () => {
                     <div className="button-group-register">
                         <button className="btn-register" onClick={handleRegister}>Tạo tài khoản</button>
                     </div>
-                    <button className="btn-google">
+                    <button className="btn-google" onClick={handleLoginGG} >
                         <img src={assets.gg} alt='' className="google-icon" />Đăng Nhập bằng Google
                     </button>
                     <p className="login-text">Bạn đã có tài khoản? <span className="login-link" onClick={handleLogin}>Đăng nhập</span></p>
