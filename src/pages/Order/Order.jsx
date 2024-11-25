@@ -13,7 +13,7 @@ import { useCart } from '../../context/CartContext';
 const Order = () => {
     const { state } = useLocation();
     const { orderData } = state || {};
-    const {ensureCartExists} = useCart();
+    const { ensureCartExists } = useCart();
     console.log('Dữ liệu nhận được từ state:', state);
 
     const [currentStep, setCurrentStep] = useState("confirmation");
@@ -38,6 +38,11 @@ const Order = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [orderDetails, setOrderDetails] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [showErroApi, setShowErroApi] = useState(false);
+    const [showErroConfirm, setShowErroConfirm] = useState(false);
     const navigate = useNavigate();
 
     // Get UserId from token
@@ -110,11 +115,17 @@ const Order = () => {
                     // Nếu có lỗi, hiển thị thông báo lỗi
                     const errorData = await response.json();
                     console.error('Xác nhận đơn hàng thất bại:', errorData);
-                    alert('Xác nhận đơn hàng thất bại');
+                    setShowErroConfirm(true);
+                    setTimeout(() => {
+                        setShowErroConfirm(false);
+                    }, 2000);
                 }
             } catch (error) {
                 console.error('Có lỗi khi gọi API:', error);
-                alert('Có lỗi khi gọi API. Vui lòng thử lại!');
+                setShowErroApi(true);
+                setTimeout(() => {
+                    setShowErroApi(false);
+                }, 2000);
             } finally {
                 setLoading(false); // Kết thúc quá trình tải dữ liệu
             }
@@ -193,10 +204,10 @@ const Order = () => {
             console.error("Không tìm thấy token");
             return;
         }
-    
+
         const userId = getUserIdFromToken(token);  // Assuming this function is defined
         const orderId = orderData.orderId;         // Assuming orderData contains the orderId
-    
+
         try {
             // Send a POST request to the payment creation API
             const response = await axios.post(
@@ -212,12 +223,12 @@ const Order = () => {
                     }
                 }
             );
-    
+
             // Check the API response
             if (response.data.statusPayment === 'PENDING') {
                 console.log("Thanh toán đã được tạo, trạng thái: PENDING");
                 const link = response.data.linkPayment;
-    
+
                 // Redirect to the link received from the response
                 window.location.href = link;
             } else {
@@ -238,10 +249,10 @@ const Order = () => {
             console.error("Không tìm thấy token");
             return;
         }
-    
+
         const userId = getUserIdFromToken(token);  // Assuming this function is defined
         const orderId = orderData.orderId;         // Assuming orderData contains the orderId
-    
+
         try {
             // Send a POST request to the payment creation API
             const response = await axios.post(
@@ -257,12 +268,12 @@ const Order = () => {
                     }
                 }
             );
-    
+
             // Check the API response
             if (response.data.statusPayment === 'PENDING') {
                 console.log("Thanh toán đã được tạo, trạng thái: PENDING");
                 const link = response.data.linkPayment;
-    
+
                 // Redirect to the link received from the response
                 window.location.href = link;
             } else {
@@ -283,10 +294,10 @@ const Order = () => {
             console.error("Không tìm thấy token");
             return;
         }
-    
+
         const userId = getUserIdFromToken(token);  // Assuming this function is defined
         const orderId = orderData.orderId;         // Assuming orderData contains the orderId
-    
+
         try {
             // Send a POST request to the payment creation API
             const response = await axios.post(
@@ -302,12 +313,12 @@ const Order = () => {
                     }
                 }
             );
-    
+
             // Check the API response
             if (response.data.statusPayment === 'PENDING') {
                 console.log("Thanh toán đã được tạo, trạng thái: PENDING");
                 const link = response.data.linkPayment;
-    
+
                 // Redirect to the link received from the response
                 window.location.href = link;
             } else {
@@ -319,7 +330,7 @@ const Order = () => {
             navigate('/payment-status', { state: { status: 'failure' } });
         }
     };
-    
+
 
     // Handle VNPay Payment
     const handleVnPay = async () => {
@@ -330,10 +341,10 @@ const Order = () => {
             console.error("Không tìm thấy token");
             return;
         }
-    
+
         const userId = getUserIdFromToken(token);  // Assuming this function is defined
         const orderId = orderData.orderId;         // Assuming orderData contains the orderId
-    
+
         try {
             // Send a POST request to the payment creation API
             const response = await axios.post(
@@ -350,12 +361,12 @@ const Order = () => {
                     }
                 }
             );
-    
+
             // Check the API response
             if (response.data.statusPayment === 'PENDING') {
                 console.log("Thanh toán đã được tạo, trạng thái: PENDING");
                 const link = response.data.linkPayment;
-    
+
                 // Redirect to the link received from the response
                 window.location.href = link;
             } else {
@@ -494,10 +505,10 @@ const Order = () => {
             setError("Bạn cần đăng nhập để hủy đơn hàng.");
             return;
         }
-    
+
         try {
             const userId = getUserIdFromToken(token);
-    
+
             // Kiểm tra trạng thái của currentStep
             if (currentStep === 'confirmation') {
                 // Gọi API confirm-cancel nếu currentStep là confirmation
@@ -509,14 +520,21 @@ const Order = () => {
                     {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-    
+
                 // Kiểm tra phản hồi từ API
                 if (response.data === 'Order cancelled successfully') {
-                    alert("Đơn hàng đã được hủy.");
-                    await ensureCartExists(userId);
-                    navigate('/menu');  // Điều hướng về trang menu sau khi hủy thành công
+                    console.log("Vào api cancel");
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                        navigate('/menu');
+                    }, 2000);
+
                 } else {
-                    setError("Không thể hủy đơn hàng.");
+                    setShowError(true);
+                    setTimeout(() => {
+                        setShowError(false);
+                    }, 2000);
                 }
             } else if (currentStep === 'payment') {
                 // Gọi API cancel-order nếu currentStep là payment
@@ -528,14 +546,22 @@ const Order = () => {
                     {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-    
+
                 // Kiểm tra phản hồi từ API
                 if (response.data === 'Order cancelled successfully') {
-                    alert("Đơn hàng đã được hủy.");
                     await ensureCartExists(userId);
-                    navigate('/menu');  // Điều hướng về trang menu sau khi hủy thành công
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                        navigate('/menu');
+                    }, 2000);
+
+                    // Điều hướng về trang menu sau khi hủy thành công
                 } else {
-                    setError("Không thể hủy đơn hàng.");
+                    setShowError(true);
+                    setTimeout(() => {
+                        setShowError(false);
+                    }, 2000);
                 }
             } else {
                 setError("Không thể hủy đơn hàng trong trạng thái này.");
@@ -544,7 +570,7 @@ const Order = () => {
             console.error("Error canceling order:", error);
             setError("Không thể hủy đơn hàng.");
         }
-    };      
+    };
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -552,7 +578,7 @@ const Order = () => {
 
     return (
         <>
-            <Navbar currentPage={'Thanh toán'}/>
+            <Navbar currentPage={'Thanh toán'} />
             <div className="order-background-container">
                 <div className="order-container">
                     <div className="content">
@@ -684,7 +710,69 @@ const Order = () => {
                                                 </select>
                                             </div>
                                         </div>
+                                        {isLoading && (
+                                            <div className="loading-animation">
+                                                <div className="loading-modal">
+                                                    <div className="loading-spinner">
+                                                        <div className="spinner"></div>
+                                                    </div>
+                                                    <h3>Đang xử lý...</h3>
+                                                    <p>Vui lòng đợi trong giây lát</p>
+                                                </div>
+                                            </div>
+                                        )}
 
+
+
+                                        {showError && (
+                                            <div className="error-animation">
+                                                <div className="error-modal">
+                                                    <div className="error-icon">
+                                                        <div className="error-icon-circle">
+                                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <h3>Đơn hàng không thể hủy!</h3>
+                                                    <p>Không hủy được đơn hàng!.</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {showErroConfirm && (
+                                            <div className="error-animation">
+                                                <div className="error-modal">
+                                                    <div className="error-icon">
+                                                        <div className="error-icon-circle">
+                                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <h3>Đơn hàng không thể hủy!</h3>
+                                                    <p>Không hủy được đơn hàng!.</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {showErroApi && (
+                                            <div className="error-animation">
+                                                <div className="error-modal">
+                                                    <div className="error-icon">
+                                                        <div className="error-icon-circle">
+                                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <h3>Vui lòng thử lại!</h3>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="form-group" style={{ gap: '0px' }}>
                                             <label style={{ marginBottom: '0px' }}>Đường:</label>
                                             <input
@@ -772,6 +860,22 @@ const Order = () => {
                                 {currentStep === "confirmation" ? 'Xác nhận' : 'Thanh toán'}
                             </button>
                             <button className="back-button" onClick={handleCancelOrder}>Hủy</button>
+                            {showSuccess && (
+                                <div className="order-success-animation">
+                                    <div className="order-success-modal">
+                                        <div className="order-success-icon">
+                                            <div className="order-success-icon-circle">
+                                                <svg className="order-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                    <circle className="order-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                                    <path className="order-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <h3>Hủy đơn hàng thành công!</h3>
+                                        <p>Bạn đã hủy đơn hàng.</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

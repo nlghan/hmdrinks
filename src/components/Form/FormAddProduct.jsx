@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`); 
-    if (parts.length === 2) return parts.pop().split(';').shift(); 
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 };
 
-const FormAddProduct = ({ onClose}) => {
+const FormAddProduct = ({ onClose }) => {
     const [formData, setFormData] = useState({
         cateId: '',
         proName: '',
@@ -20,6 +20,8 @@ const FormAddProduct = ({ onClose}) => {
     const [categories, setCategories] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(false); // Loading state
     const [isCreating, setIsCreating] = useState(false); // Trạng thái khi tạo mới danh mục
@@ -103,6 +105,8 @@ const FormAddProduct = ({ onClose}) => {
             return;
         }
 
+        setIsSubmitting(true);
+
         try {
             setLoading(true);
             setIsCreating(true);  // Set loading to true when starting to submit
@@ -147,22 +151,23 @@ const FormAddProduct = ({ onClose}) => {
                     }
                 }
 
-                
+
                 setErrorMessage("");
-                
+
                 setTimeout(() => {
                     console.log("setTimeout triggered"); // Log 3
                     setSuccessMessage("Thêm sản phẩm thành công!");
-                    onClose();                   
+                    onClose();
                 }, 1000);
             }
         } catch (error) {
             console.error('Error:', error);
             if (error.response) {
                 setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi khi thêm sản phẩm.');
-            } 
+            }
         } finally {
             setLoading(false);
+            setIsSubmitting(false);
             setIsCreating(false);  // Set loading to false after the response is received
         }
     };
@@ -171,19 +176,19 @@ const FormAddProduct = ({ onClose}) => {
 
         <div className="add-product-overlay">
             {isCreating && (
-            <div className="loading-overlay active">
-                <div className="loading-spinner"></div>
-            </div>
-        )}
-            
+                <div className="loading-overlay active">
+                    <div className="loading-spinner"></div>
+                </div>
+            )}
+
             <div className="form-add-product-container" onClick={(e) => e.stopPropagation()}>
-                
+
                 <div className="form-add-product">
-                    
+
                     <h2>Thêm sản phẩm</h2>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
-                  
+
 
                     <div className="form-sections-add">
                         <div className="form-container-add">
@@ -252,7 +257,7 @@ const FormAddProduct = ({ onClose}) => {
                                 >
                                     +
                                 </button></span></h3>
-                                
+
                                 <div>
                                     {variants.map((variant, index) => (
                                         <div key={index} className={`variant-group ${index === 0 ? 'first-variant' : ''}`}>
@@ -314,7 +319,12 @@ const FormAddProduct = ({ onClose}) => {
                             <button type="button" id="add-submit-btn" onClick={handleSubmit} disabled={loading}>
                                 {loading ? 'Đang thêm...' : 'Thêm'}
                             </button>
-                            <button type="button" id="add-cancel-btn" onClick={onClose}>Hủy</button>
+                            <button type="button" id="add-pro-cancel-btn" style={{
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                opacity: loading ? 0.4 : 1,
+                            }} onClick={onClose} disabled={loading} >
+                                {loading ? 'Hủy' : 'Hủy'}
+                            </button>
                         </div>
                     </div>
                 </div>

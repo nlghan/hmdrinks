@@ -7,11 +7,13 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId,  selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout } = useCart();
+    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout } = useCart();
     const [vouchers, setVouchers] = useState([]);
-
+    const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    
+
 
     const handleNoteChange = (event) => {
         setNote(event.target.value); // Update note
@@ -158,14 +160,14 @@ const Cart = () => {
 
     console.log("cartID để order:", cartId)
 
-    
+
     const handleCheckoutClick = () => {
         handleCheckout();  // Call handleCheckout when user clicks "Checkout"
-
+        setIsLoading(true);
     };
 
-    
-    
+
+
 
 
 
@@ -189,17 +191,62 @@ const Cart = () => {
     const handBack = () => {
         navigate('/menu');
     };
-    
+
 
     return (
         <>
             <Navbar currentPage={'Giỏ hàng'} />
             <div className="cart-background-container">
-            {isCreating && (
-                <div className="loading-overlay active">
-                    <div className="loading-spinner"></div>
-                </div>
-            )}
+                {isCreating && (
+                    <div className="loading-overlay active">
+                        <div className="loading-spinner"></div>
+                    </div>
+                )}
+                {isLoading && (
+                    <div className="loading-animation">
+                        <div className="loading-modal">
+                            <div className="loading-spinner">
+                                <div className="spinner"></div>
+                            </div>
+                            <h3>Đang xử lý...</h3>
+                            <p>Vui lòng đợi trong giây lát</p>
+                        </div>
+                    </div>
+                )}
+
+                {showSuccess && (
+                    <div className="success-animation">
+                        <div className="success-modal">
+                            <div className="success-icon">
+                                <div className="success-icon-circle">
+                                    <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                        <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                        <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Nhận voucher thành công!</h3>
+                            <p>Chúc mừng bạn đã nhận được voucher.</p>
+                        </div>
+                    </div>
+                )}
+
+                {showError && (
+                    <div className="error-animation">
+                        <div className="error-modal">
+                            <div className="error-icon">
+                                <div className="error-icon-circle">
+                                    <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                        <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                        <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3>Bạn đã thu thập voucher rồi!</h3>
+                            <p>Một người dùng chỉ nhận voucher một lần.</p>
+                        </div>
+                    </div>
+                )}
                 <div className="cart-all-container">
                     <h1 className="cart-title">Giỏ hàng</h1>
                     <div className="cart-container">

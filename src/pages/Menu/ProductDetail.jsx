@@ -32,6 +32,8 @@ const ProductDetail = () => {
     const { isLoggedIn, logout } = useAuth();
     const [total, setTotal] = useState(0);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [recommendedProducts, setRecommendedProducts] = useState([]); // State to hold recommended products
 
     const getUserIdFromToken = (token) => {
@@ -192,7 +194,10 @@ const ProductDetail = () => {
         }
 
         if (quantity > stock) {
-            alert(`Quantity exceeds stock. Only ${stock} available.`);
+            setShowError(true);
+            setTimeout(() => {
+                setShowError(false);
+            }, 2000);
             return;
         }
 
@@ -204,6 +209,10 @@ const ProductDetail = () => {
             quantity: quantity,
             image: product.productImageResponseList[currentImageIndex].linkImage
         });
+        setShowSuccess(true);
+        setTimeout(() => {
+            setShowSuccess(false);
+        }, 2000);
 
     };
 
@@ -528,6 +537,7 @@ const ProductDetail = () => {
                                         <button
                                             key={size}
                                             className={selectedSize === size ? 'size-option active' : 'size-option'}
+                                            style={{ borderRadius: '6px'}}
                                             onClick={() => handleSizeChange(size)}
                                             disabled={!availableSizes.includes(size)} // Disable button if size is not available
                                         >
@@ -538,7 +548,7 @@ const ProductDetail = () => {
                             </div>
 
                             <div className="product-quantity">
-                                <span>Quantity:</span>
+                                <span>Số lượng sản phẩm:</span>
                                 <input
                                     type="number"
                                     value={quantity}
@@ -549,16 +559,48 @@ const ProductDetail = () => {
                                 />
                             </div>
 
-                            <button className="add-to-cart-button" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
-                            <button className="add-to-cart-button" style={{ marginBottom: '10px', backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>
+                            <button className="add-to-cart-button" style={{ borderRadius: '6px'}} onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
+                            <button className="add-to-cart-button" style={{ marginBottom: '10px', borderRadius: '6px',backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>
                         </div>
                     </div>
+                    {showSuccess && (
+                        <div className="success-animation">
+                            <div className="success-modal">
+                                {/* <div className="success-icon">
+                                    <div className="success-icon-circle">
+                                        <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                        </svg>
+                                    </div>
+                                </div> */}
+                                <h3>Thêm vào giỏ hàng thành công!</h3>
+                                <p>Đồ uống đã được thêm vào giỏ hàng của bạn.</p>
+                            </div>
+                        </div>
+                    )}
                     {showLoginPrompt && (
                         <div className="login-modal">
                             <div className="login-modal-content">
                                 <p>Bạn cần đăng nhập để có thể mua hàng.</p>
                                 <a href="/login">Đăng nhập</a>
                                 <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+                            </div>
+                        </div>
+                    )}
+                    {showError && (
+                        <div className="error-animation">
+                            <div className="error-modal">
+                                {/* <div className="error-icon">
+                                    <div className="error-icon-circle">
+                                        <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                        </svg>
+                                    </div>
+                                </div> */}
+                                <h3>Không thể thêm vào giỏ hàng!</h3>
+                                <p>Số lượng trong kho chỉ còn {stock} sản phẩm.</p>
                             </div>
                         </div>
                     )}
@@ -656,35 +698,18 @@ const ProductDetail = () => {
                                     )}
                                 </div>
 
-                                <div className="pagination-product-list-reviews">
-                                    <button
-                                        className="pagination-button"
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={currentPage === 1}
-                                    >
-                                        &lt;
-                                    </button>
-                                    {getPaginationNumbers().map((number, index) => (
-                                        <button
-                                            key={index}
-                                            className={`pagination-button ${number === currentPage ? 'active' : ''}`}
-                                            onClick={() => {
-                                                if (number !== '...') {
-                                                    handlePageChange(number);
-                                                }
-                                            }}
-                                            disabled={number === '...'}
-                                        >
-                                            {number}
-                                        </button>
+                                <div className="menu-product-pagination" style={{ marginBottom: '20px' }}>
+                                    {/* <span className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => handlePageChange(currentPage - 1)}>
+              <i className='ti-arrow-left' id='arrow' />
+            </span> */}
+                                    {Array.from({ length: totalPage }, (_, index) => (
+                                        <span key={index + 1} className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`} onClick={() => handlePageChange(index + 1)}>
+                                            •
+                                        </span>
                                     ))}
-                                    <button
-                                        className="pagination-button"
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={currentPage === totalPage}
-                                    >
-                                        &gt;
-                                    </button>
+                                    {/* <span className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`} onClick={() => handlePageChange(currentPage + 1)}>
+              <i className='ti-arrow-right' id='arrow' />
+            </span> */}
                                 </div>
                             </div>
                         )}

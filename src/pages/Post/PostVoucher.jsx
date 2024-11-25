@@ -72,13 +72,13 @@ const PostVoucher = () => {
         try {
             const userId = getUserIdFromToken(token);
             const payload = { userId, voucherId };
-            
+
             const response = await axios.post(
                 'http://localhost:1010/api/user-voucher/get-voucher',
                 payload,
                 { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
-            
+
             setIsLoading(false);
             setShowSuccess(true);
             setIsVoucherClaimed(true);
@@ -94,8 +94,8 @@ const PostVoucher = () => {
             }, 2000);
         }
     };
-    
-    
+
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -141,45 +141,60 @@ const PostVoucher = () => {
                             </div>
                         </div>
 
-                        {voucher && (
-                            <>
-                                <h3 className="post-title2">Thu thập voucher</h3>
-                                <div className="voucher-wrapper">
-                                    <div 
-                                        className="voucher-section"
-                                        style={{"--animation-duration": `${voucher.number * 4}s`}}
-                                    >
-                                        {[...Array(voucher.number)].map((_, index) => (
-                                            <div className="voucher-card" key={`original-${index}`}>
-                                                <div className="voucher-image">
-                                                    <img src={voucherImg} alt="voucher" />
-                                                </div>
-                                                <div className="voucher-content">
-                                                    <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                                                        {voucher.key}
-                                                    </span>
-                                                    <div className="voucher-details">
-                                                        <span className="voucher-discount">{voucher.discount.toLocaleString()} VND</span>
-                                                        <div className="voucher-dates">
-                                                            <span>Từ: {formatDate(voucher.startDate)}</span>
-                                                            <br />
-                                                            <span>Đến: {formatDate(voucher.endDate)}</span>
-                                                        </div>
+                        {voucher && (() => {
+                            const currentDate = new Date();
+                            const startDate = new Date(voucher.startDate);
+                            const endDate = new Date(voucher.endDate);
+
+                            if (currentDate < startDate) {
+                                return <h3 className="post-title2">Voucher chưa tới thời hạn thu thập</h3>;
+                            }
+
+                            if (currentDate > endDate) {
+                                return <h3 className="post-title2">Voucher đã quá thời hạn thu thập</h3>;
+                            }
+
+                            return (
+                                <>
+                                    <h3 className="post-title2">Thu thập voucher</h3>
+                                    <div className="voucher-wrapper">
+                                        <div
+                                            className="voucher-section"
+                                            style={{ "--animation-duration": `${voucher.number * 4}s` }}
+                                        >
+                                            {[...Array(voucher.number)].map((_, index) => (
+                                                <div className="voucher-card" key={`original-${index}`}>
+                                                    <div className="voucher-image">
+                                                        <img src={voucherImg} alt="voucher" />
                                                     </div>
-                                                    <button 
-                                                        className={`voucher-claim-btn ${isVoucherClaimed ? 'disabled' : ''}`}
-                                                        onClick={() => claimVoucher(voucher.voucherId)}
-                                                        disabled={isVoucherClaimed}
-                                                    >
-                                                        {isVoucherClaimed ? 'Đã nhận' : 'Nhận Ngay'}
-                                                    </button>
+                                                    <div className="voucher-content">
+                                                        <span className={`voucher-key ${voucher.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                                                            {voucher.key}
+                                                        </span>
+                                                        <div className="voucher-details">
+                                                            <span className="voucher-discount">{voucher.discount.toLocaleString()} VND</span>
+                                                            <div className="voucher-dates">
+                                                                <span>Từ: {formatDate(voucher.startDate)}</span>
+                                                                <br />
+                                                                <span>Đến: {formatDate(voucher.endDate)}</span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            className={`voucher-claim-btn ${isVoucherClaimed ? 'disabled' : ''}`}
+                                                            onClick={() => claimVoucher(voucher.voucherId)}
+                                                            disabled={isVoucherClaimed}
+                                                        >
+                                                            {isVoucherClaimed ? 'Đã nhận' : 'Nhận Ngay'}
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            </>
-                        )}
+                                </>
+                            );
+                        })()}
+
                     </div>
                 )}
             </div>
@@ -202,8 +217,8 @@ const PostVoucher = () => {
                         <div className="success-icon">
                             <div className="success-icon-circle">
                                 <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                                    <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                                    <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                    <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                                 </svg>
                             </div>
                         </div>
@@ -219,8 +234,8 @@ const PostVoucher = () => {
                         <div className="error-icon">
                             <div className="error-icon-circle">
                                 <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none"/>
-                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36"/>
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
                                 </svg>
                             </div>
                         </div>

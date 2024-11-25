@@ -127,7 +127,10 @@
     margin-right: 10px; 
     vertical-align: middle; 
 }
-
+.password-input-container-login {
+    position: relative;
+    width: 80%;
+}
 /* Login.css */
 
 /* Đặt mặc định opacity là 0 và không hiển thị */

@@ -27,6 +27,16 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [hoveredButton, setHoveredButton] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const handleMouseEnter = (button) => {
+        setHoveredButton(button);
+    };
+
+    const handleMouseLeave = () => {
+        setHoveredButton(null);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -69,17 +79,18 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                 console.error("Lỗi khi tải file Word:", error);
             }
         } else {
-            alert("Vui lòng chọn file .docx hợp lệ.");
+            setErrorMessage('Vui lòng chọn file .docx hợp lệ');
         }
     };
 
     const handleSubmit = async () => {
         const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, status, file, number } = formData;
-    
+
         try {
+            setLoading(true);
             const token = getCookie('access_token');
             const headers = { Authorization: `Bearer ${token}` };
-    
+
             setIsCreating(true);
             const postResponse = await axios.post(
                 'http://localhost:1010/api/post/create',
@@ -94,12 +105,12 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                 { headers }
             );
             const postId = postResponse.data.postId;
-    
+
             let imageUrl = null;
             if (file) {
                 const imageData = new FormData();
                 imageData.append('file', file);
-    
+
                 const imageResponse = await axios.post(
                     `http://localhost:1010/api/image/post/upload?postId=${postId}`,
                     imageData,
@@ -110,14 +121,14 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         }
                     }
                 );
-    
+
                 imageUrl = imageResponse.data.imageUrl;
                 setFormData(prevData => ({ ...prevData, url: imageUrl }));
             }
-    
+
             const formattedStartDate = formatDateTime(startDate);
             const formattedEndDate = formatDateTime(endDate);
-    
+
             await axios.post(
                 'http://localhost:1010/api/voucher/create',
                 {
@@ -131,7 +142,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                 },
                 { headers }
             );
-    
+
             setSuccessMessage('Tạo bài đăng và voucher thành công!');
             setErrorMessage('');
             setTimeout(() => {
@@ -142,20 +153,16 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
             setIsCreating(false);
             setErrorMessage('Đã xảy ra lỗi khi thêm bài đăng hoặc voucher.');
             setSuccessMessage('');
-        }finally{
+        } finally {
+            setLoading(false);
             setIsCreating(false);
         }
     };
-    
+
 
     return (
         <div className="form-add-post-container">
-            {isCreating && (
-                <div className="loading-overlay active">
-                    <div className="loading-spinner"></div>
-                </div>
-            )}
-            <div className="form-add-post-wrapper">          
+            <div className="form-add-post-wrapper">
                 <h2>Thêm Bài Đăng và Voucher</h2>
                 {errorMessage && <p className="form-add-post-error">{errorMessage}</p>}
                 {successMessage && <p className="form-add-post-success">{successMessage}</p>}
@@ -172,7 +179,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                             <label htmlFor="wordFile">Tải nội dung từ file Word</label>
                             <input type="file" id="wordFile" name="wordFile" accept=".docx" onChange={handleWordFileChange} />
                         </div>
-                        
+
                         <div className="form-add-post-group">
                             <label htmlFor="shortDescription">Mô tả ngắn</label>
                             <input type="text" id="shortDescription" name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} />
@@ -189,7 +196,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                             <label htmlFor="file">Ảnh minh họa</label>
                             <input type="file" id="file" name="file" accept="image/*" onChange={handleFileChange} />
                         </div>
-                        
+
                     </div>
 
                     <div className="form-add-post-column">
@@ -236,8 +243,32 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                     </div>
                 </form>
                 <div className="form-add-post-actions">
-                    <button type="button" onClick={handleSubmit} >Lưu</button>
-                    <button type="button" onClick={onClose}>Hủy</button>
+                    <button type="button" onClick={handleSubmit} disabled={loading} style={{
+                        backgroundColor: hoveredButton === 'save' ? '#45a049' : 'green',
+                        color: 'white',
+                        transition: 'background-color 0.3s',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        width: '150px'
+
+                    }}
+                        onMouseEnter={() => handleMouseEnter('save')}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        {loading ? 'Đang thêm...' : 'Thêm'}
+                    </button>
+                    <button type="button" onClick={onClose} disabled={loading} style={{
+                        backgroundColor: hoveredButton === 'cancel' ? '#d73939' : 'red',
+                        color: 'white',
+                        transition: 'background-color 0.3s',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.4 : 1,
+                        width: '150px'
+                    }}
+                        onMouseEnter={() => handleMouseEnter('cancel')}
+                        onMouseLeave={handleMouseLeave}
+                    >
+                        {loading ? 'Hủy' : 'Hủy'}
+                    </button>
                 </div>
             </div>
         </div>

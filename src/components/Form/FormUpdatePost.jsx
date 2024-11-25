@@ -30,6 +30,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
     const authToken = getCookie('access_token'); // Replace with your actual token retrieval logic
@@ -45,8 +46,8 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-     // Hàm để tải nội dung từ file Word và đặt vào description
-     const handleWordFileChange = async (event) => {
+    // Hàm để tải nội dung từ file Word và đặt vào description
+    const handleWordFileChange = async (event) => {
         const file = event.target.files[0];
         if (file && file.name.endsWith('.docx')) {
             try {
@@ -60,10 +61,9 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                 console.error("Lỗi khi tải file Word:", error);
             }
         } else {
-            alert("Vui lòng chọn file .docx hợp lệ.");
+            setErrorMessage('Vui lòng chọn file .docx hợp lệ');
         }
     };
-
 
     // Fetch post data based on the provided postId
     useEffect(() => {
@@ -163,16 +163,17 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const token = getCookie('access_token'); // Ensure the token is retrieved here if not already available
-    
+
         try {
+            setLoading(true);
             setIsCreating(true);
             let imageUrl = formData.imageUrl;
-    
+
             // Check if a new file is selected for upload
             if (formData.file) {
                 const formDataImage = new FormData();
                 formDataImage.append('file', formData.file);
-    
+
                 // Wait for the image upload to complete before proceeding
                 const imageUploadResponse = await axios.post(
                     `http://localhost:1010/api/image/post/upload?postId=${postId}`,
@@ -185,7 +186,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                         },
                     }
                 );
-    
+
                 if (imageUploadResponse.status === 200) {
                     imageUrl = imageUploadResponse.data.url; // Update the image URL if upload is successful
                 } else {
@@ -193,7 +194,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                     return;
                 }
             }
-    
+
             // Prepare updated post data
             const updatedPostData = {
                 postId,                // Post ID
@@ -204,7 +205,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                 typePost: formData.typePost,
                 url: imageUrl,         // Use the updated image URL
             };
-    
+
             // Check if the status of voucher is "inactive" or "EXPIRED"
             if (formData.status === "INACTIVE" || formData.status === "EXPIRED") {
                 // Disable voucher first by calling the API
@@ -219,13 +220,13 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                         },
                     }
                 );
-    
+
                 if (disableVoucherResponse.status !== 200) {
                     setErrorMessage('Có lỗi xảy ra khi vô hiệu hóa voucher');
                     return; // Exit the function if the voucher disable call fails
                 }
             }
-    
+
             // Update post information using the correct endpoint
             const postUpdateResponse = await axios.put(
                 'http://localhost:1010/api/post/update',
@@ -238,11 +239,11 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                     },
                 }
             );
-    
+
             if (postUpdateResponse.status === 200) {
                 setSuccessMessage('Bài đăng đã được cập nhật thành công!');
                 onSave(updatedPostData); // Call onSave with the updated post data
-    
+
                 // Prepare voucher update data from formData
                 const voucherUpdateData = {
                     voucherId: formData.voucherId, // Use voucherId from formData
@@ -254,9 +255,9 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                     status: formData.status,        // Use status from formData
                     postId: postId,                 // Use the same postId
                 };
-    
+
                 console.log('Data for voucher update:', voucherUpdateData);
-    
+
                 // Attempt to update the voucher
                 try {
                     const voucherUpdateResponse = await axios.put(
@@ -270,7 +271,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                             },
                         }
                     );
-    
+
                     if (voucherUpdateResponse.status === 200) {
                         setSuccessMessage('Voucher đã được cập nhật thành công!');
                         setTimeout(() => {
@@ -290,9 +291,9 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                 status: formData.status,
                                 postId: postId,
                             };
-    
+
                             console.log('Creating new voucher with data:', voucherCreateData);
-    
+
                             const voucherCreateResponse = await axios.post(
                                 'http://localhost:1010/api/voucher/create',
                                 voucherCreateData,
@@ -304,11 +305,11 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                     },
                                 }
                             );
-    
+
                             if (voucherCreateResponse.status === 200) {
                                 const newVoucherId = voucherCreateResponse.data.voucherId; // Capture the new voucher ID
                                 console.log('New voucher created successfully with ID:', newVoucherId);
-    
+
                                 // Update the voucher with the new voucherId
                                 const updateVoucherData = {
                                     voucherId: newVoucherId,
@@ -319,7 +320,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                     status: formData.status,
                                     postId: postId,
                                 };
-    
+
                                 const updateVoucherResponse = await axios.put(
                                     `http://localhost:1010/api/voucher/update/${newVoucherId}`,
                                     updateVoucherData,
@@ -330,7 +331,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                         },
                                     }
                                 );
-    
+
                                 if (updateVoucherResponse.status === 200) {
                                     setSuccessMessage('Voucher đã được cập nhật thành công!');
                                     setTimeout(() => {
@@ -360,10 +361,11 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
             // setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng hoặc voucher');
             console.error('Error updating post/voucher:', error);
         } finally {
+            setLoading(false);
             setIsCreating(false);
         }
     };
-    
+
 
     return (
         <div className="form-update-post-container">
@@ -399,10 +401,10 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                 onChange={handleInputChange}
                                 required
                             />
-                
+
                             <label htmlFor="wordFile">Tải nội dung từ file Word</label>
                             <input type="file" id="wordFile" name="wordFile" accept=".docx" onChange={handleWordFileChange} />
-                       
+
                         </div>
                         <div className="form-update-post-group">
                             <label htmlFor="shortDescription">Mô tả ngắn</label>
@@ -452,8 +454,21 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
 
                         <div className="form-update-post-actions">
-                            <button type="submit" className="form-update-post-submit">Cập nhật</button>
-                            <button type="button" className="form-update-post-cancel" onClick={onClose}>Hủy</button>
+                            <button type="submit" className="form-update-post-submit" disabled={loading} style={{
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                width: '150px'
+                            }}
+                            >
+                                {loading ? 'Đang cập nhật...' : 'Cập nhật'}</button>
+                            <button type="button" className="form-update-post-cancel" disabled={loading} onClick={onClose} style={{
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                width: '150px',
+                                position: 'relative',
+                                right:'-400px'
+
+                            }}
+                            >
+                                {loading ? 'Hủy' : 'Hủy'}</button>
                         </div>
                     </div>
 

@@ -12,6 +12,13 @@
     flex: 1;
     background-color: white;
 }
+input[type="password"]::-ms-reveal, 
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-clear-button, 
+input[type="password"]::-webkit-clear-button {
+    display: none;
+}
+
 
 .register-image {
     flex: 0 0 50%;
@@ -163,7 +170,54 @@
 .input-error {
     border-bottom: 1px solid red !important; 
 }
+.input {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-bottom: 1px solid #666;
+    outline: none;
+    margin: 5px 0;
+    font-size: 16px;
+}
+.password-input-container {
+    position: relative;
+    width: 80%;
+}
+.password-input {
+    width: 100%; /* Chiều rộng của input */
+    padding: 10px 0; /* Padding cho ô input */
+    border: none; /* Không border */
+    border-bottom: 1px solid #666; /* Border dưới cùng */
+    outline: none; /* Không có outline khi focus */
+    margin: 5px 0; /* Khoảng cách trên và dưới */
+    font-size: 16px; /* Kích thước chữ */
+    position: relative; /* Để icon hoặc các phần tử khác có thể căn chỉnh */
+}
 
+.password-input:focus {
+    border-bottom: 2px solid #4CAF50; /* Hiệu ứng khi focus */
+}
+
+.password-input.input-error {
+    border-bottom: 1px solid red; /* Đường viền đỏ khi có lỗi */
+}
+
+.ti-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.ti-eye.show {
+    color: #fb454b; /* Màu icon khi hiển thị mật khẩu */
+}
+
+.ti-eye.hide {
+    color: #8f8e8e; /* Màu icon khi ẩn mật khẩu */
+}
 /* Responsive Styles */
 @media (max-width: 1200px) {
     .register-container {

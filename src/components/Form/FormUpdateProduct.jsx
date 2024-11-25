@@ -41,6 +41,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploadMessage, setUploadMessage] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     // Function to get cookie by name
     const getCookie = (name) => {
@@ -227,7 +229,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             if (deleteResponse.status === 200) {
                 // Re-fetch the product images after deletion
                 await fetchProductDetails(); // Make sure this function is defined
-                alert("Hình ảnh đã được xóa thành công.");
+                setSuccessMessage('Hình ảnh đã được xóa thành công!');
                 setSelectedFiles([]);
             } else {
                 throw new Error("Xóa hình ảnh thất bại.");
@@ -277,7 +279,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             if (deleteResponse.status === 200) {
                 // Re-fetch the product images after deleting all
                 await fetchProductDetails();
-                alert('Tất cả hình ảnh đã được xóa thành công.');
+                setSuccessMessage('Tất cả hình ảnh đã được xóa thành công.');
                 setSelectedFiles([]);
             } else {
                 throw new Error('Xóa tất cả hình ảnh thất bại.');
@@ -305,22 +307,22 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             console.log("Vui lòng chọn ít nhất một hình ảnh.");
             return;
         }
-    
+
         // Tạo FormData và thêm các tệp hình ảnh
         const imageFormData = new FormData();
         selectedFiles.forEach(file => {
             imageFormData.append('files', file);
         });
-    
+
         const token = getCookie('access_token');
         if (!token) {
             setUploadMessage("Bạn cần đăng nhập để thực hiện thao tác này.");
             console.log("Chưa đăng nhập.");
             return;
         }
-    
+
         setIsUploading(true);
-    
+
         try {
             // Gửi yêu cầu tải lên hình ảnh
             const uploadResponse = await axios.post(
@@ -333,13 +335,13 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                     },
                 }
             );
-    
+
             // Kiểm tra và cập nhật trạng thái sản phẩm hình ảnh
             if (uploadResponse.data && uploadResponse.data.productImageResponseList) {
                 setProductImages(uploadResponse.data.productImageResponseList); // Cập nhật hình ảnh ngay sau khi tải lên thành công
                 setUploadMessage("Hình ảnh đã được tải lên thành công.");
                 console.log("Hình ảnh đã được tải lên thành công.");
-    
+
                 // Fetch lại hình ảnh mới nhất từ API
                 await fetchProductDetails();
             } else {
@@ -348,24 +350,24 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 setSelectedFiles([]); // Đảm bảo reset selectedFiles
                 console.log("Hình ảnh đã được tải lên thành công.");
             }
-    
+
             // Reset selected files sau khi tải lên thành công
             setSelectedFiles([]); // Đảm bảo reset selectedFiles
         } catch (err) {
             console.error("Error uploading images:", err);
             setUploadMessage("Có lỗi xảy ra khi tải lên hình ảnh. Vui lòng thử lại sau.");
         } finally {
-            setSelectedFiles([]); 
+            setSelectedFiles([]);
             setIsUploading(false);
         }
     };
-    
-    
+
+
     // Sử dụng useEffect để log giá trị uploadMessage khi nó thay đổi
     useEffect(() => {
         console.log("uploadMessage đã thay đổi: ", uploadMessage);
     }, [uploadMessage]); // Gọi effect khi uploadMessage thay đổi
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -496,7 +498,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
             // Notify parent component
             onUpdate();
-            alert("Cập nhật sản phẩm thành công!");
+            setSuccessMessage('Cập nhật sản phẩm thành công!');
             onClose();
         } catch (err) {
             console.error("Error updating product or variants:", err);
@@ -514,6 +516,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                     <div className="loading-spinner"></div>
                 </div>
             )}
+            {errorMessage && <p className="form-add-post-error">{errorMessage}</p>}
+            {successMessage && <p className="form-add-post-success">{successMessage}</p>}
             <form onSubmit={handleSubmit} style={{
                 background: "white",
                 width: "100%",
@@ -527,8 +531,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 marginTop: '5px',
                 marginBottom: '20px',
                 overflowY: "auto", // Allow scrolling when content exceeds maxHeight
-                paddingTop:'10px'
-                
+                paddingTop: '10px'
+
             }}>
                 <div style={{
                     display: "flex"
@@ -577,7 +581,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                             <img
                                                 src={image.linkImage || image.url} // Kiểm tra lại key nếu cần
                                                 alt={`Product ${index}`}
-                                              
+
                                             />
                                             <button
                                                 type="button"
@@ -604,42 +608,42 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             />
 
                             {/* Hiển thị thông báo upload */}
-                            <div style={{display:'flex', justifyContent:'space-around'}}>
-                            <button
-                                type="button"
-                                onClick={handleFileUpload}
-                                style={{ backgroundColor: '#4095e8', position: 'relative', borderRadius:'20px' }}
-                                disabled={isUploading} // Disable button khi đang tải lên
-                            >
-                                {isUploading ? (
-                                    <>
-                                        <span className="loading-spinner-button">
-                                            <svg width="20" height="20" viewBox="0 0 50 50" className="spin" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="25" cy="25" r="20" stroke="gray" strokeWidth="5" fill="none" />
-                                                <circle cx="25" cy="25" r="20" stroke="blue" strokeWidth="5" fill="none" strokeDasharray="125.6" strokeDashoffset="0" strokeLinecap="round">
-                                                    <animate attributeName="stroke-dashoffset" values="0;251.2" dur="1s" keyTimes="0;1" repeatCount="indefinite" />
-                                                </circle>
-                                            </svg>
-                                        </span>
-                                        Đang tải lên...
-                                    </>
-                                ) : (
-                                    'Tải lên hình ảnh'
-                                )}
-                            </button>
+                            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                                <button
+                                    type="button"
+                                    onClick={handleFileUpload}
+                                    style={{ backgroundColor: '#4095e8', position: 'relative', borderRadius: '20px' }}
+                                    disabled={isUploading} // Disable button khi đang tải lên
+                                >
+                                    {isUploading ? (
+                                        <>
+                                            <span className="loading-spinner-button">
+                                                <svg width="20" height="20" viewBox="0 0 50 50" className="spin" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="25" cy="25" r="20" stroke="gray" strokeWidth="5" fill="none" />
+                                                    <circle cx="25" cy="25" r="20" stroke="blue" strokeWidth="5" fill="none" strokeDasharray="125.6" strokeDashoffset="0" strokeLinecap="round">
+                                                        <animate attributeName="stroke-dashoffset" values="0;251.2" dur="1s" keyTimes="0;1" repeatCount="indefinite" />
+                                                    </circle>
+                                                </svg>
+                                            </span>
+                                            Đang tải lên...
+                                        </>
+                                    ) : (
+                                        'Tải lên hình ảnh'
+                                    )}
+                                </button>
 
-                            <button
-                                type="button"
-                                onClick={handleDeleteAllImages}
-                                disabled={deletingAllImages}
-                                style={{borderRadius:'20px'}}
-                            >
-                                {deletingAllImages ? 'Đang xóa tất cả...' : 'Xóa tất cả hình ảnh'}
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteAllImages}
+                                    disabled={deletingAllImages}
+                                    style={{ borderRadius: '20px' }}
+                                >
+                                    {deletingAllImages ? 'Đang xóa tất cả...' : 'Xóa tất cả hình ảnh'}
+                                </button>
                             </div>
 
 
-                            
+
                         </div>
 
                     </div>
@@ -689,7 +693,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                 id="description"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                style={{height:"100px"}}
+                                style={{ height: "100px" }}
                             ></textarea>
                         </div>
                     </div>
