@@ -125,11 +125,11 @@ const PostVoucher = () => {
                     <div className="post-content-wrapper">
                         <div className="post-banner zoom-in1">
                             <div className="post-details fade-in">
-                                <h3 className="post-title">{post.title}</h3>
+                                <h3 className="post-title" style= {{color: 'black'}}>{post.title}</h3>
                                 <p className="post-date">{post.date_create}</p>
-                                <p className="post-short-desc">{post.shortDescription}</p>
+                                <p className="post-short-desc" style= {{color: 'black'}} >{post.shortDescription}</p>
                                 <div className="post-description-section slide-in-left">
-                                    <p>{post.description}</p>
+                                    <p style= {{color: 'black'}}>{post.description}</p>
                                 </div>
                             </div>
                             <div className="post-image-wrapper">
