@@ -256,7 +256,7 @@ const Product = () => {
                 setActiveProducts("delete: " + activeIds);
 
                 setTotalPages(response.data.totalPage||response.data.body.totalPage || 1);
-                setTotal(response.data.toal)
+                setTotal(response.data.total)
             } else {
                 setProducts([]);
                 console.log("No products found in parsed product data");  // Log nếu không có sản phẩm trong dữ liệu đã phân tích
@@ -427,6 +427,7 @@ const Product = () => {
                 console.log(
                     `Product with ID ${productId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
                 );
+                fetchProducts();
             } else {
                 setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
             }
