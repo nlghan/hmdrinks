@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/payment/callback").permitAll()
                         .requestMatchers("/api/v1/auth/social-login/google").permitAll()
                         .requestMatchers("/api/orders/pdf/**").permitAll()
+                        .requestMatchers("/api/orders/view/fetchOrdersAwaiting","/api/orders/view/order-cancel/payment-not","/api/orders/view/order-cancel/payment-not").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/payment/zalo/callback").permitAll()
                         .requestMatchers("/api/product/recommended/**").permitAll()
                         .requestMatchers("/api/payment/vnpay_ipn").permitAll()

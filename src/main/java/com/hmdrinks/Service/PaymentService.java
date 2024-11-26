@@ -170,6 +170,33 @@ public class PaymentService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
             }
             Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+            if(totalAmount <= 0.0)
+            {
+                    Payment payment = new Payment();
+                    payment.setPaymentMethod(Payment_Method.CREDIT);
+                    payment.setStatus(Status_Payment.COMPLETED);
+                    payment.setOrder(order);
+                    payment.setAmount(0.0);
+                    payment.setDateCreated(LocalDateTime.now());
+                    payment.setOrderIdPayment(orderId);
+                    payment.setIsDeleted(false);
+                    payment.setIsRefund(false);
+                    paymentRepository.save(payment);
+                    assignShipments(orderId1);
+
+                return new ResponseEntity<>(new CreatePaymentResponse(
+                        payment.getPaymentId(),
+                        payment.getAmount(),
+                        payment.getDateCreated(),
+                        payment.getDateDeleted(),
+                        payment.getIsDeleted(),
+                        payment.getPaymentMethod(),
+                        payment.getStatus(),
+                        payment.getOrder().getOrderId(),
+                        ""
+                ), HttpStatus.OK);
+
+            }
             Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
             if (order.getDiscountPrice() > 0) {
@@ -314,6 +341,33 @@ public class PaymentService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
             }
             Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+            if(totalAmount <= 0.0)
+            {
+                Payment payment = new Payment();
+                payment.setPaymentMethod(Payment_Method.CREDIT);
+                payment.setStatus(Status_Payment.COMPLETED);
+                payment.setOrder(order);
+                payment.setAmount(0.0);
+                payment.setDateCreated(LocalDateTime.now());
+                payment.setOrderIdPayment("None");
+                payment.setIsDeleted(false);
+                payment.setIsRefund(false);
+                paymentRepository.save(payment);
+                assignShipments(orderId1);
+
+                return new ResponseEntity<>(new CreatePaymentResponse(
+                        payment.getPaymentId(),
+                        payment.getAmount(),
+                        payment.getDateCreated(),
+                        payment.getDateDeleted(),
+                        payment.getIsDeleted(),
+                        payment.getPaymentMethod(),
+                        payment.getStatus(),
+                        payment.getOrder().getOrderId(),
+                        ""
+                ), HttpStatus.OK);
+
+            }
             int totalAmountLong = (int) totalAmount.longValue();
             OrderItem orderItem = order.getOrderItem();
             List<CartItem> cartItems = cartItemRepository.findByCart_CartId(orderItem.getCart().getCartId());
@@ -428,6 +482,33 @@ public class PaymentService {
         Orders order = orderRepository.findByOrderId(orderId1);
         User user = userRepository.findByUserId(order.getUser().getUserId());
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+        if(totalAmount <= 0.0)
+        {
+            Payment payment = new Payment();
+            payment.setPaymentMethod(Payment_Method.CREDIT);
+            payment.setStatus(Status_Payment.COMPLETED);
+            payment.setOrder(order);
+            payment.setAmount(0.0);
+            payment.setDateCreated(LocalDateTime.now());
+            payment.setOrderIdPayment("None");
+            payment.setIsDeleted(false);
+            payment.setIsRefund(false);
+            paymentRepository.save(payment);
+            assignShipments(orderId1);
+
+            return new ResponseEntity<>(new CreatePaymentResponse(
+                    payment.getPaymentId(),
+                    payment.getAmount(),
+                    payment.getDateCreated(),
+                    payment.getDateDeleted(),
+                    payment.getIsDeleted(),
+                    payment.getPaymentMethod(),
+                    payment.getStatus(),
+                    payment.getOrder().getOrderId(),
+                    ""
+            ), HttpStatus.OK);
+
+        }
         Long totalAmountLong = totalAmount.longValue();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
@@ -488,6 +569,33 @@ public class PaymentService {
         }
         Orders order = orderRepository.findByOrderId(orderId1);
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
+        if(totalAmount <= 0.0)
+        {
+            Payment payment = new Payment();
+            payment.setPaymentMethod(Payment_Method.CREDIT);
+            payment.setStatus(Status_Payment.COMPLETED);
+            payment.setOrder(order);
+            payment.setAmount(0.0);
+            payment.setDateCreated(LocalDateTime.now());
+            payment.setOrderIdPayment("None");
+            payment.setIsDeleted(false);
+            payment.setIsRefund(false);
+            paymentRepository.save(payment);
+            assignShipments(orderId1);
+
+            return new ResponseEntity<>(new CreatePaymentResponse(
+                    payment.getPaymentId(),
+                    payment.getAmount(),
+                    payment.getDateCreated(),
+                    payment.getDateDeleted(),
+                    payment.getIsDeleted(),
+                    payment.getPaymentMethod(),
+                    payment.getStatus(),
+                    payment.getOrder().getOrderId(),
+                    ""
+            ), HttpStatus.OK);
+
+        }
         Long totalAmountLong = totalAmount.longValue();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
@@ -683,6 +791,33 @@ public class PaymentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is deleted");
         }
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice()+ order.getDeliveryFee();
+        if(totalAmount <= 0.0)
+        {
+            Payment payments = new Payment();
+            payments.setPaymentMethod(Payment_Method.CREDIT);
+            payments.setStatus(Status_Payment.COMPLETED);
+            payments.setOrder(order);
+            payments.setAmount(0.0);
+            payments.setDateCreated(LocalDateTime.now());
+            payments.setOrderIdPayment("None");
+            payments.setIsDeleted(false);
+            payments.setIsRefund(false);
+            paymentRepository.save(payments);
+            assignShipments(orderId);
+
+            return new ResponseEntity<>(new CreatePaymentResponse(
+                    payments.getPaymentId(),
+                    payments.getAmount(),
+                    payments.getDateCreated(),
+                    payments.getDateDeleted(),
+                    payments.getIsDeleted(),
+                    payments.getPaymentMethod(),
+                    payments.getStatus(),
+                    payments.getOrder().getOrderId(),
+                    ""
+            ), HttpStatus.OK);
+
+        }
         Payment payment1 = new Payment();
         payment1.setAmount(totalAmount);
         payment1.setPaymentMethod(Payment_Method.CASH);
