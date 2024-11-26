@@ -177,6 +177,52 @@ public class CartItemService {
         ));
     }
 
+    public ResponseEntity<?> updateCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
+    {
+        CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
+        if(cartItem == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
+        }
+        if(req.getQuantity() <= 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
+        }
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
+        int Present_Quantity = req.getQuantity();  ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
+        System.out.println(productVariants.getStock());
+
+        if((req.getQuantity() ) > productVariants.getStock())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
+        }
+        cartItem.setQuantity((Present_Quantity));
+        cartItem.setTotalPrice((Present_TotalPrice));
+
+        cartItemRepository.save(cartItem);
+        Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
+        if(cart == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
+        }
+        List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
+        Double Price = 0.0;
+        Integer Quantity=0;
+        for(CartItem cartItem2: cartItemList)
+        {
+            Price = Price + Double.valueOf(cartItem2.getTotalPrice());
+            Quantity = Quantity + cartItem2.getQuantity();
+        }
+        cart.setTotalProduct(Quantity);
+        cart.setTotalPrice(Price);
+        cartRepository.save(cart);
+        return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
+                Present_Quantity,
+                Present_TotalPrice
+        ));
+    }
+
     public ResponseEntity<?> decreaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
     {
         CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());

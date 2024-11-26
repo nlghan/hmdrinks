@@ -56,6 +56,16 @@ public class CartItemController {
         return cartItemService.decreaseCartItemQuantity(req);
     }
 
+    @PutMapping(value = "/update")
+    public ResponseEntity<?> updateItemQuantityResponseResponseEntity(@RequestBody IncreaseDecreaseItemQuantityReq req,HttpServletRequest httpRequest){
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+        return cartItemService.updateCartItemQuantity(req);
+    }
+
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<?> deleteOneItem(@RequestBody DeleteOneCartItemReq req, HttpServletRequest httpRequest){
 

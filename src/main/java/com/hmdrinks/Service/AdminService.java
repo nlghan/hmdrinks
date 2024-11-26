@@ -449,7 +449,7 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findAll(pageable);
-        List<Product> productList1 = productRepository.findAll();
+        List<Product> productList1 = productRepository.findAllByIsDeletedFalse();
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
@@ -658,7 +658,7 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Category> categoryList = categoryRepository.findAll(pageable);
-        List<Category> categoryList1 = categoryRepository.findAll();
+        List<Category> categoryList1 = categoryRepository.findAllByIsDeletedFalse();
         List<CRUDCategoryResponse> crudCategoryResponseList = new ArrayList<>();
         for(Category category: categoryList){
             crudCategoryResponseList.add(new CRUDCategoryResponse(
