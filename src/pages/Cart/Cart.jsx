@@ -7,12 +7,14 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout } = useCart();
+    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout, totalOfCart } = useCart();
+
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+
 
 
     const handleNoteChange = (event) => {
@@ -55,10 +57,17 @@ const Cart = () => {
     };
 
     // Calculate subtotal, discount, shipping, and total
-    const subtotal = cartItems.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0);
+    // Tính subtotal, discount, shipping, và total
+    const subtotal = cartItems.reduce((acc, item) => acc + item.totalPrice, 0);
     const [discount, setDiscount] = useState(0);
-    const shipping = 0; // Assume free shipping for now
-    const total = subtotal - discount + shipping;
+    const shipping = 0; // Giả sử miễn phí vận chuyển
+    let total = subtotal - discount + shipping;
+
+    // Kiểm tra nếu tổng cộng nhỏ hơn hoặc bằng 0 thì gán nó thành 0
+    if (total < 0) {
+        total = 0;
+    }
+
 
     // Fetch user's vouchers on component load
     useEffect(() => {
@@ -202,6 +211,7 @@ const Cart = () => {
                         <div className="loading-spinner"></div>
                     </div>
                 )}
+
                 {isLoading && (
                     <div className="loading-animation">
                         <div className="loading-modal">
@@ -247,6 +257,8 @@ const Cart = () => {
                         </div>
                     </div>
                 )}
+
+
                 <div className="cart-all-container">
                     <h1 className="cart-title">Giỏ hàng</h1>
                     <div className="cart-container">
@@ -256,7 +268,7 @@ const Cart = () => {
                             <>
                                 <section className="cart-details">
                                     <div className="delete-all-button" onClick={handleClearSelectedItems}>
-                                        {selectedItem ? `Xóa sản phẩm` : `Xóa tất cả (${cartItems.length} sản phẩm)`}
+                                        {selectedItem ? `Xóa sản phẩm` : `Xóa tất cả (${totalOfCart} sản phẩm)`}
                                     </div>
                                     <table className="cart-table">
                                         <thead>
@@ -271,7 +283,7 @@ const Cart = () => {
                                         </thead>
                                         <tbody>
                                             {groupedItems.map((group, index) => {
-                                                const totalPrice = group.items.reduce((total, item) => total + item.totalPrice * item.quantity, 0);
+                                                const totalPrice = group.items.reduce((total, item) => total + item.totalPrice, 0);
                                                 return (
                                                     <React.Fragment key={index}>
                                                         {group.items.map((item, subIndex) => (
@@ -287,7 +299,7 @@ const Cart = () => {
                                                                         <td rowSpan={group.items.length}>{item.name}</td>
                                                                     </>
                                                                 )}
-                                                                <td>{formatCurrency(item.totalPrice)}</td>
+                                                                <td>{formatCurrency(item.price)}</td>
                                                                 <td className={selectedItem === item.cartItemId ? 'selected-size' : ''}>
                                                                     {item.size}
                                                                 </td>
@@ -360,6 +372,7 @@ const Cart = () => {
                                         <span>Tổng cộng: </span>
                                         <span>{formatCurrency(total)}</span>
                                     </div>
+
                                     <button className="checkout-button" onClick={handleCheckoutClick}>
                                         Thanh toán <i className='ti-arrow-right' style={{ fontSize: '12px' }} />
                                     </button>

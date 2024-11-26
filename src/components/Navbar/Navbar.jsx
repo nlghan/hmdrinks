@@ -25,7 +25,7 @@ const Navbar = ({ currentPage }) => {
   // State to manage the visibility of the navbar menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // State to determine if the screen is small
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Adjust threshold as needed
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1400); // Adjust threshold as needed
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const handleMouseEnter = () => {
@@ -35,8 +35,6 @@ const Navbar = ({ currentPage }) => {
   const handleMouseLeave = () => {
     setIsDropdownVisible(false);
   };
-
-
 
   const handleLogin = () => {
     navigate('/login');

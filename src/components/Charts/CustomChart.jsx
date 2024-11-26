@@ -14,11 +14,16 @@ import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
 import RobotoFont from '../../assets/font/themify-icons/fonts/Roboto-Regular.ttf';
 import Button from '@mui/material/Button';
+// import html2canvas from 'html2canvas';
+import { PDFDocument } from 'pdf-lib';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './CustomChart.css';
+import domtoimage from 'dom-to-image';
+import jsPDF from 'jspdf';
 import axios from 'axios';
+import robotoRegular from '../../assets/font/Roboto-Regular-normal';
+import robotoBold from '../../assets/font/Roboto-Bold-bold'
 
 const monthData = {
   'Tháng 1': 31,
@@ -149,55 +154,125 @@ export default function CustomChart() {
       console.error(`Lỗi khi gọi API cho paymentId ${paymentId}:`, error);
     }
   };
+
   const handleExportPDF = async () => {
     const chartElement = document.querySelector('.custom-chart-container');
-    if (!chartElement) return;
-
+    if (!chartElement) {
+      console.error('chartElement không tồn tại.');
+      return;
+    }
+  
     try {
-      // Chụp ảnh biểu đồ
-      const canvas = await html2canvas(chartElement);
-      const imgData = canvas.toDataURL('image/png');
-
+      const dataUrl = await domtoimage.toPng(chartElement);
+  
       // Tạo file PDF
       const pdf = new jsPDF();
-      pdf.setFont('Roboto', 'normal');
-      pdf.setFontSize(16);
-      pdf.text('Báo cáo thống kê doanh thu', 10, 10);
+  
+      // Sử dụng font đã được thêm qua sự kiện addFonts
+      pdf.setFont('Roboto-Bold', 'bold');
+  
+      // Tiêu đề chính
+      pdf.setFontSize(18);
+      pdf.setTextColor('#1d6587'); // Màu chữ xám đậm
+      pdf.text('Báo cáo thống kê doanh thu', 105, 20, { align: 'center' }); // Căn giữa
+  
+      // Thông tin tháng/năm
+      pdf.setFont('Roboto-Regular', 'normal');
       pdf.setFontSize(12);
-      pdf.text(`Tháng: ${selectedMonth}`, 10, 20);
-      pdf.text(`Năm: ${selectedYear}`, 10, 30);
-
-      // Thêm biểu đồ vào PDF
+      pdf.text(`Tháng: ${selectedMonth}`, 20, 30);
+      pdf.text(`Năm: ${selectedYear}`, 20, 40);
+  
+      // Kiểm tra kích thước ảnh
       const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 10, 40, imgWidth, imgHeight);
-
+      const imgHeight = (chartElement.offsetHeight * imgWidth) / chartElement.offsetWidth;
+  
+      // Thêm biểu đồ vào PDF
+      pdf.addImage(dataUrl, 'PNG', 10, 50, imgWidth, imgHeight);
+  
       // Tạo danh sách ngày trong tháng
-      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
-      const dates = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}/${selectedMonth}/${selectedYear}`);
-
-      // Kết hợp với dữ liệu `paymentAmounts`
-      const tableData = dates.map((date, index) => {
-        const row = [
-          index + 1, // Số thứ tự
-          date, // Ngày/Tháng/Năm
-          paymentAmounts[index] ? `${paymentAmounts[index]} VND` : 'Chưa có dữ liệu', // Giá trị đơn hàng
-        ];
-        console.log(`Row for date ${date}:`, row);
-        return row;
+      const daysInMonth = typeof monthData[selectedMonth] === 'function'
+        ? monthData[selectedMonth](selectedYear)
+        : monthData[selectedMonth];
+      const dates = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        const formattedDate = `${day < 10 ? '0' + day : day}/${selectedMonth < 10 ? '0' + selectedMonth : selectedMonth}/${selectedYear}`;
+        return formattedDate;
       });
-      
-      console.log('Table Data:', tableData);
-    
-      // Thêm dữ liệu chi tiết vào PDF
+  
+      // Tạo dữ liệu bảng
+      const tableData = dates.map((date, index) => [
+        index + 1, // Số thứ tự
+        date, // Ngày/Tháng/Năm
+        successfulShipments[index] || 0, // Số lượng đơn hàng
+        data[index]?.precip ? `${data[index].precip} VND` : '', // Giá trị đơn hàng
+      ]);
+  
+      // Thêm trang mới
       pdf.addPage();
-      pdf.text('Dữ liệu chi tiết:', 10, 10);
+      pdf.setFont('Roboto-Bold', 'bold');
+      pdf.setFontSize(18);
+      pdf.setTextColor('#1d6587'); // Màu chữ xám đậm
+      pdf.text('Dữ liệu chi tiết', 105, 20, { align: 'center' });
+  
+      // Tùy chỉnh bảng
+      pdf.autoTable({
+        head: [['STT', 'Ngày', 'Số đơn hàng', 'Doanh thu']],
+        body: tableData,
+        startY: 30,
+        theme: 'striped', // Chủ đề: kẻ sọc
+        styles: {
+          font: 'Roboto-Regular', // Font trong bảng
+          fontSize: 10, // Cỡ chữ trong bảng
+          textColor: '#333333', // Màu chữ trong bảng
+          halign: 'center', // Căn giữa nội dung
+          valign: 'middle', // Căn giữa dọc
+          lineColor: [44, 62, 80], // Màu đường viền
+          lineWidth: 0.1, // Độ dày đường viền
+        },
+        headStyles: {
+          fillColor: [230, 247, 255], // Màu xanh nhạt cho nền tiêu đề
+          textColor: '#333333', // Màu chữ đậm
+          fontSize: 11, // Kích thước font trong đầu bảng
+          fontStyle: 'bold', // Kiểu chữ đậm cho tiêu đề
+          halign: 'center', // Căn giữa tiêu đề bảng
+        },
+        bodyStyles: {
+          fillColor: [255, 255, 255], // Nền trắng cho các ô dữ liệu
+          textColor: '#333333', // Màu chữ trong bảng
+          halign: 'center', // Căn giữa dữ liệu trong bảng
+        },
+        alternateRowStyles: {
+          fillColor: [230, 247, 255], // Màu xanh nhạt cho các dòng kẻ sọc
+        },
+      });
+  
+      // Thêm ngày giờ hiện tại vào cuối trang
+      const currentDate = new Date();
+      const formattedDate = currentDate.toLocaleString('vi-VN', {
+        weekday: 'long', // Ngày trong tuần
+        year: 'numeric', // Năm
+        month: 'long', // Tháng
+        day: 'numeric', // Ngày
+        hour: 'numeric', // Giờ
+        minute: 'numeric', // Phút
+        second: 'numeric', // Giây
+      });
+  
+     
+      pdf.setFont('Roboto-Regular', 'normal');
+      pdf.setFontSize(10);
+      pdf.setTextColor('#555555'); // Màu xám nhẹ cho ngày giờ
+      pdf.text(`Xuất báo cáo: ${formattedDate}`, 105, pdf.internal.pageSize.height - 20, { align: 'center' });
+  
       // Lưu file PDF
       pdf.save(`Bao_cao_${selectedMonth}_${selectedYear}.pdf`);
     } catch (error) {
       console.error('Lỗi khi xuất file PDF:', error);
     }
   };
+  
+
+
 
   React.useEffect(() => {
     fetchShipments(selectedMonth, selectedYear);
@@ -242,13 +317,12 @@ export default function CustomChart() {
           ))}
         </Select>
         <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginLeft: 2 }}
+         sx={{ marginLeft: 2 }}
           onClick={handleExportPDF}
         >
-          Xuất file
+          Xuất PDF
         </Button>
+
       </div>
       <Stack direction="row">
         <FormControlLabel

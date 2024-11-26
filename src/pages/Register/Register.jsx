@@ -41,6 +41,26 @@ const Register = () => {
     };
 
 
+    const handleLoginGG = async () => {   
+        try {
+          // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
+          const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+            headers: { 'accept': '*/*' }
+          });
+      
+          // Kiểm tra nếu API trả về URL cho Google login
+          if (response.data) {
+            // Điều hướng đến Google login (redirect URL)
+            window.location.href = response.data;
+          } else {
+            console.error('Không nhận được URL đăng nhập từ API');
+          }
+        } catch (error) {
+          console.error('Lỗi khi gửi yêu cầu Google login:', error);
+        }
+      };
+    
+
     const handleRegister = async () => {
         if (!validateFullName(fullName)) {
             setError("Họ và tên không được chứa chữ số.");
@@ -182,11 +202,23 @@ const Register = () => {
                             ></i>
                         </div>
 
+                            value={password}
+                            onChange={handleInputChange(setPassword)}
+                            style={{
+                                width: '80%',
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
+                        />
                     </div>
                     <div className="button-group-register">
                         <button className="btn-register" onClick={handleRegister}>Tạo tài khoản</button>
                     </div>
-                    <button className="btn-google">
+                    <button className="btn-google" onClick={handleLoginGG} >
                         <img src={assets.gg} alt='' className="google-icon" />Đăng Nhập bằng Google
                     </button>
                     <p className="login-text">Bạn đã có tài khoản? <span className="login-link" onClick={handleLogin}>Đăng nhập</span></p>

@@ -108,10 +108,12 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    const [totalOfCart, setTotalOfCart] = useState(0)
+
     // Fetch cart items for a specific user by userId
     const fetchCartItemsByCartId = async (cartId) => {
         const token = getCookie('access_token');
-
+    
         try {
             // Fetch the cart items using the provided cartId
             const itemsResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
@@ -121,27 +123,41 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const itemsData = await itemsResponse.json();
-
+    
             if (itemsResponse.ok) {
-                // Enrich each item with product details
+                // Enrich each item with product details (including price)
                 const itemsWithDetails = await Promise.all(
                     itemsData.listCartItemResponses.map(async (item) => {
                         const productDetails = await fetchProductDetails(item.proId, item.size);
-                        return {
-                            cartItemId: item.cartItemId,
-                            productId: item.proId,
-                            size: item.size,
-                            quantity: item.quantity,
-                            totalPrice: item.totalPrice,
-                            name: productDetails?.name || 'Unknown Product',
-                            image: productDetails?.image || '',
-                        };
+                        if (productDetails) {
+                            return {
+                                cartItemId: item.cartItemId,
+                                productId: item.proId,
+                                size: item.size,
+                                quantity: item.quantity,
+                                totalPrice: item.totalPrice,
+                                name: productDetails?.name || 'Unknown Product',
+                                image: productDetails?.image || '',
+                                price: productDetails?.price || 0, // Add price for the product variant
+                            };
+                        }
+                        return null; // If product details are not available, return null
                     })
                 );
-
-                setCartItems(itemsWithDetails); // Set enriched cart items state
+    
+                // Filter out any null results in case of failed product details fetch
+                const validItems = itemsWithDetails.filter(item => item !== null);
+    
+                // Calculate totalOfCart (sum of all quantities)
+                const totalOfCart = validItems.reduce((acc, item) => acc + item.quantity, 0);
+    
+                // Set the enriched cart items and totalOfCart state
+                setCartItems(validItems);
+                setTotalOfCart(totalOfCart); // Assuming you have a state or a way to store totalOfCart
+                console.log("tổng số lượng nè:",totalOfCart)
+    
             } else {
                 console.error('Failed to fetch cart items:', itemsData);
             }
@@ -149,6 +165,8 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart items:', error);
         }
     };
+    
+    
 
 
     // Fetch product details by product ID and size
@@ -156,7 +174,7 @@ export const CartProvider = ({ children }) => {
         const token = getCookie('access_token');
         let productDetails = null;
         let variantDetails = null;
-
+    
         try {
             // Fetch product details (name and image)
             const productResponse = await fetch(`http://localhost:1010/api/product/view/${productId}`, {
@@ -166,9 +184,9 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const productData = await productResponse.json();
-
+    
             if (productResponse.ok) {
                 productDetails = {
                     name: productData.proName,
@@ -178,7 +196,7 @@ export const CartProvider = ({ children }) => {
                 console.error('Failed to fetch product details:', productData);
                 return null; // Exit if product details couldn't be fetched
             }
-
+    
             // Fetch product variants to get the price for the specified size
             const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${productId}`, {
                 method: 'GET',
@@ -187,9 +205,9 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const variantData = await variantResponse.json();
-
+    
             if (variantResponse.ok) {
                 // Find the price for the specified size
                 variantDetails = variantData.responseList.find(item => item.size === size);
@@ -211,6 +229,7 @@ export const CartProvider = ({ children }) => {
             return null; // Exit in case of error
         }
     };
+    
 
 
     const addToCart = async (product) => {
@@ -280,6 +299,7 @@ export const CartProvider = ({ children }) => {
                         totalPrice: productDetails.price * product.quantity, // Calculate total price based on quantity
                     }];
                 });
+                fetchCartItemsByCartId(cartId)
             } else {
                 console.error('Failed to add item to cart:', data);
             }
@@ -465,6 +485,7 @@ export const CartProvider = ({ children }) => {
                         : item
                 )
             );
+            fetchCartItemsByCartId(cartId)
 
         } catch (error) {
             console.error('Error increasing item quantity:', error);
@@ -518,6 +539,7 @@ export const CartProvider = ({ children }) => {
                                 : item
                         )
                     );
+                    fetchCartItemsByCartId(cartId)
                 } else {
                     console.error('Failed to decrease item quantity:', data);
                 }
@@ -576,10 +598,28 @@ export const CartProvider = ({ children }) => {
     const handleAuthChange = async () => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
+    
         if (userId) {
             console.log('User logged in, fetching cart items for userId:', userId);
-            ensureCartExists(userId)
+    
+            // Đảm bảo giỏ hàng tồn tại
+            ensureCartExists(userId);
+    
+            // Lấy thời gian vận chuyển
+            try {
+                const response = await axios.get('http://localhost:1010/api/shipment/check-time', {
+                    headers: {
+                        'accept': '*/*',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+    
+                console.log('Shipment check-time response:', response.data);
+            } catch (error) {
+                console.error('Error fetching shipment check-time:', error);
+            }
+    
+            // Lấy các sản phẩm trong giỏ hàng
             await fetchCartItemsByCartId(cartId);
         } else {
             console.log('User logged out, clearing cart items');
@@ -674,7 +714,7 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, ensureCartExists,cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout }}>
+        <CartContext.Provider value={{ cartItems, ensureCartExists,cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout, totalOfCart }}>
             {children}
         </CartContext.Provider>
     );

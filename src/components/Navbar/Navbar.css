@@ -231,6 +231,12 @@
         align-items: center;
         
       }
+      .icon-group-nav {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0 !important;
+      }
 }
 
 @media (max-width: 800px) {
@@ -280,6 +286,12 @@
       .progress-navigation{
         padding-left: 20% ;
       
+      }
+      .icon-group-nav {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0 !important;
       }
 
     
