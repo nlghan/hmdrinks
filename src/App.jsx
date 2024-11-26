@@ -39,7 +39,7 @@ import Orders from "./pages/Admin/Orders";
 import ShipmentDetail from "./pages/Shipper/ShipmentDetail";
 import MyOrder from "./pages/Order/MyOrder";
 import { PaymentStatusProvider } from "./context/PaymentStatusContext";
-
+import MyOrderDetail from "./pages/Order/MyOrderDetail";
 import Cookies from 'js-cookie';
 
 // Thêm hàm helper để lấy role từ token
@@ -120,6 +120,10 @@ const App = () => {
               <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/my-orders" element={<MyOrder />} />
+              <Route
+                path="/my-order-detail/:shipmentId"
+                element={isLoggedIn ? <MyOrderDetail /> : <Navigate to="/home" />}
+              />
               <Route
                 path="/shipment-detail/:shipmentId"
                 element={isLoggedIn ? <ShipmentDetail /> : <Navigate to="/home" />}
