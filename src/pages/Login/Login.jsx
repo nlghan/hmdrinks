@@ -16,6 +16,8 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [passwordError, setPasswordError] = useState("");
 
     // State to store usernames for autocomplete
     const [savedUsernames, setSavedUsernames] = useState([]);
@@ -173,6 +175,9 @@ const Login = () => {
         setError(""); // Clear error message on input change
         setMessage(""); // Clear message on input change
     };
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword); // Đảo ngược giá trị của showPassword
+    };
 
     return (
         <div className="login-page">
@@ -193,21 +198,38 @@ const Login = () => {
                             className={`input ${error ? 'input-error' : ''}`} // Conditional class for error
                             value={userName}
                             onChange={handleInputChange(setUserName)}
+                            onKeyPress={handleKeyPress}
                         />
                         <datalist id="usernames">
                             {savedUsernames.map((username, index) => (
                                 <option key={index} value={username} />
                             ))}
                         </datalist>
-
-                        <input
-                            type="password"
-                            placeholder="Mật khẩu"
-                            className={`input ${error ? 'input-error' : ''}`} // Conditional class for error
-                            value={password}
-                            onChange={handleInputChange(setPassword)}
-                            onKeyPress={handleKeyPress}
-                        />
+                        <div className="password-input-container-login">
+                            <input
+                                type={showPassword ? 'text' : 'password'} // Kiểu của input thay đổi tùy vào trạng thái showPassword
+                                placeholder="Mật khẩu"
+                                className={`input ${passwordError ? 'input-error' : ''}`}
+                                value={password}
+                                onChange={handleInputChange(setPassword)}
+                                onKeyPress={handleKeyPress}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 0',
+                                    border: 'none',
+                                    borderBottom: '1px solid #666',
+                                    outline: 'none',
+                                    margin: '5px 0',
+                                    fontSize: '16px'
+                                }}
+                            />
+                            <i
+                                className={`ti-eye ${showPassword ? 'show' : 'hide'}`}
+                                onClick={togglePasswordVisibility}
+                            >
+                
+                            </i>
+                        </div>
                     </div>
                     <div className="button-group-login">
                         <button className="btn-login" onClick={handleLogin}>Đăng Nhập</button>

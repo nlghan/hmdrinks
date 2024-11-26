@@ -8,6 +8,7 @@ import naturalIcon from '../../assets/img/hab_left_icon_2.png';
 import freshIcon from '../../assets/img/docdao.png';
 import qualityIcon from '../../assets/img/chatluong.png';
 import productIcon from '../../assets/img/den.png';
+import axios from 'axios';
 import nv from '../../assets/img/nv.png'
 import gh from '../../assets/img/gh.png'
 import tt from '../../assets/img/tt.png'
@@ -31,6 +32,7 @@ const About = () => {
 
 
     useEffect(() => {
+        fetchResponses();
         const targetCounts = {
             sellers: 2050,
             monthlySales: 3300,
@@ -128,6 +130,50 @@ const About = () => {
             });
         };
     }, []);
+    const [responses, setResponses] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
+    const [totalRe, setTotalRe] = useState();
+    const [limit, setLimit] = useState(8);
+
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+    const fetchResponses = async () => {
+        try {
+            const token = getCookie('access_token');
+            if (!token) {
+                setError("Bạn cần đăng nhập để xem thông tin này.");
+                return;
+            }
+
+            const response = axios.get(`http://localhost:1010/api/contact/view/all?page=1&limit=100`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            console.log('Response data:', data.total);
+
+            setResponses(data.listContacts || []);
+            setCurrentPage(data.currentPage);
+            setTotalPage(data.totalPage);
+            setLimit(data.limit);
+            setTotalRe(data.total)
+
+        } catch (error) {
+            console.error('Error fetching responses:', error);
+        }
+    };
 
 
     return (
@@ -156,29 +202,26 @@ const About = () => {
                     </div>
                     <div className="about-stat-cards">
                         <div className="about-stat-card">
-                            <div className="about-stat-icon">🏬</div>
-                            <div className="about-stat-value">{(counts.sellers / 1000).toFixed(1)}k</div>
-                            <div className="about-stat-text">Sellers active on our site</div>
-                        </div>
-                        <div className="about-stat-card" style={{ backgroundColor: '#ff7f7f' }}>
-                            <div className="about-stat-icon">💰</div>
-                            <div className="about-stat-value">{(counts.monthlySales / 1000).toFixed(1)}k</div>
-                            <div className="about-stat-text">Monthly Product Sale</div>
+                            <div className="about-stat-icon">Phản hồi tích cực 💬</div>
+                            <div className="about-stat-text">Nhũng phản hồi tích cực từ khách hàng giúp chúng tôi cải thiện từng ngày.</div>
                         </div>
                         <div className="about-stat-card">
-                            <div className="about-stat-icon">🛍️</div>
-                            <div className="about-stat-value">{(counts.customers / 1000).toFixed(1)}k</div>
-                            <div className="about-stat-text">Customers active on our site</div>
+                            <div className="about-stat-icon">Bài đăng nổi bật 📢</div>
+                            <div className="about-stat-text">Khám phá hàng ngàn bài viết chia sẻ trải nghiệm nước uống từ cộng đồng.</div>
                         </div>
                         <div className="about-stat-card">
-                            <div className="about-stat-icon">📈</div>
-                            <div className="about-stat-value">{(counts.annualSales / 1000).toFixed(1)}k</div>
-                            <div className="about-stat-text">Annual gross sales on our site</div>
+                            <div className="about-stat-icon">Khách hàng tiềm năng 🧑‍🤝‍🧑</div>
+                            <div className="about-stat-text">Tham gia cùng cộng đồng khách hàng thân thiết để nhận ưu đãi đặc biệt.</div>
+                        </div>
+                        <div className="about-stat-card">
+                            <div className="about-stat-icon">Đánh giá chất lượng⭐</div>
+                            <div className="about-stat-text">Luôn đặt chất lượng đồ uống lên hàng đầu để làm hài lòng khách hàng.</div>
                         </div>
                     </div>
+
                 </section>
                 <section className="introduce-section">
-                    <h2 className="introduce-title hidden" ref={introduceTitleRef}>Tất cả những gì HMDRINKS làm để biến thức uống của bạn <span style={{color:'#009387'}}>thành trải nghiệm khó quên</span></h2>
+                    <h2 className="introduce-title hidden" ref={introduceTitleRef}>Tất cả những gì HMDRINKS làm để biến thức uống của bạn <span style={{ color: '#009387' }}>thành trải nghiệm khó quên</span></h2>
                     <div className="introduce-content">
                         <div className="introduce-column">
                             <div className="introduce-item-left" ref={el => introduceLeftRefs.current[0] = el}>

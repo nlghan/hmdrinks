@@ -49,8 +49,7 @@ const MyOrder = () => {
                 state: { orderData }
             });
         } catch (error) {
-            console.error('Không thể lấy thông tin chi tiết đơn hàng:', error);
-            alert('Đã xảy ra lỗi khi lấy thông tin đơn hàng. Vui lòng thử lại!');
+            console.error('Không thể lấy thông tin chi tiết đơn hàng:', error);            
         }
     };
 

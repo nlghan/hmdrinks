@@ -20,15 +20,20 @@ const FormAddUser = ({ onClose, onSubmit }) => {
     });
 
     const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); 
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-    
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        return passwordRegex.test(password);
+    };
 
-   
     const isValidEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
@@ -56,10 +61,12 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             return;
         }
 
-        if (password.length < 8) {
-            setErrorMessage("Mật khẩu phải chứa ít nhất 8 ký tự.");
+        if (!validatePassword(password)) {
+            setErrorMessage('Mật khẩu không hợp lệ, vui lòng nhập mật khẩu gồm 8 chữ số trở lên, gồm ký tự đặc biệt, chữ thường, chữ hoa và số!');
             return;
         }
+
+        setIsSubmitting(true);
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/create-account`, formData, {
@@ -69,8 +76,8 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             });
 
             if (response.data) {
-                setSuccessMessage("Thêm người dùng thành công!"); 
-                setErrorMessage(""); 
+                setSuccessMessage("Thêm người dùng thành công!");
+                setErrorMessage("");
                 console.log('User created successfully:', response.data);
                 onSubmit(formData); // Pass form data back to parent component
                 setTimeout(() => {
@@ -87,7 +94,14 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             } else {
                 setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
             }
+        } finally {
+            // Kết thúc xử lý
+            setIsSubmitting(false);
         }
+
+    };
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword); // Đảo ngược giá trị của showPassword
     };
 
     return (
@@ -95,8 +109,8 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             <div className="form-add-user">
                 <h2>Thêm người dùng</h2>
                 {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-                {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>} 
-                <form onSubmit={(e) => e.preventDefault()}> 
+                {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+                <form onSubmit={(e) => e.preventDefault()}>
                     <div className="form-group">
                         <label htmlFor="fullName">Họ và tên</label>
                         <input
@@ -132,14 +146,24 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Mật khẩu</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            required
-                        />
+                        <div style={{
+                            width: '100%',
+                            position: 'relative',
+
+                        }}>
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                            />
+                            <i
+                                className={`ti-eye ${showPassword ? 'show' : 'hide'}`}
+                                onClick={togglePasswordVisibility}
+                            ></i>
+                        </div>
                     </div>
                     <div className="form-group">
                         <label htmlFor="role">Vai trò</label>
@@ -154,7 +178,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                             <option value="ADMIN">Admin</option>
                         </select>
                     </div>
-                   {/*<div className="form-group">
+                    {/*<div className="form-group">
                         <label htmlFor="phone">Số điện thoại</label>
                         <input
                             type="text"
@@ -166,8 +190,15 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                         />
                     </div>*/}
                     <div className="user-form-actions">
-                        <button type="button" id="submit-btn" onClick={handleSubmit}>Thêm</button>
-                        <button type="button" id="cancel-btn" onClick={onClose}>Hủy</button>
+                        <button type="button" id="submit-btn"
+                            style={{
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                opacity: isSubmitting ? 0.4 : 1,
+                            }} onClick={handleSubmit} disabled={isSubmitting} >Thêm</button>
+                        <button type="button" id="cancel-btn" style={{
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            opacity: isSubmitting ? 0.4 : 1,
+                        }} onClick={onClose} disabled={isSubmitting}>Hủy</button>
                     </div>
                 </form>
             </div>

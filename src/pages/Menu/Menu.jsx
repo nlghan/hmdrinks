@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
-import { useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -44,6 +44,7 @@ const Menu = () => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
         window.scrollTo(0, 0); // Scroll to the top of the page
@@ -194,7 +195,6 @@ const Menu = () => {
                     ? product.productImageResponseList[0].linkImage
                     : backgroundImage,
             });
-
         }
 
 
@@ -395,6 +395,7 @@ const Menu = () => {
                             )}
                         </div>
                     )}
+
 
                     {showLoginPrompt && (
                         <div className="login-modal">

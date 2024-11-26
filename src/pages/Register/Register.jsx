@@ -16,7 +16,7 @@ const Register = () => {
 
     const [error, setError] = useState(""); // Added error state
     const [passwordError, setPasswordError] = useState("");
-
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = () => {
         navigate('/login');
@@ -31,7 +31,7 @@ const Register = () => {
         const fullNameRegex = /^[^\d]*$/;
         return fullNameRegex.test(name);
     };
-    
+
     const validateUserName = (username) => {
         // Không cho phép chứa các ký hiệu &, =, _, ', -, +, ,, <, >, hoặc nhiều dấu chấm liên tiếp
         // Không cho phép khoảng trắng
@@ -39,6 +39,7 @@ const Register = () => {
         const userNameRegex = /^(?!.*\.\.)(?!.*\s)(?!.*[&=_'\-+,<>])(?!\.)[A-Za-z0-9.]+(?<!\.)$/;
         return userNameRegex.test(username);
     };
+
 
     const handleLoginGG = async () => {   
         try {
@@ -65,12 +66,12 @@ const Register = () => {
             setError("Họ và tên không được chứa chữ số.");
             return;
         }
-    
+
         if (!validateUserName(userName)) {
             setError("Tên tài khoản không hợp lệ. Vui lòng nhập tên tài khoản không chứa ký hiệu đặc biệt (&, =, _, ', -, +, ,, <, >), không chứa khoảng trắng và không có nhiều dấu chấm liên tiếp.");
             return;
         }
-    
+
         if (!validatePassword(password)) {
             setError('Mật khẩu không hợp lệ, vui lòng nhập mật khẩu gồm 8 chữ số trở lên, gồm ký tự đặc biệt, chữ thường, chữ hoa và số!');
             return;
@@ -94,34 +95,38 @@ const Register = () => {
             setMessage('Đăng ký thành công');
             setTimeout(() => {
                 navigate('/login');
-
-            }, 2000); 
-
+            }, 2000);
         } catch (error) {
             console.error('Lỗi đăng ký:', error);
             if (error.response) {
                 const { status, data } = error.response;
                 if (status === 409) {
                     console.log(data)
-                    setError("Tài khoản đã tồn tại"); 
-                    setMessage(""); 
-
-
+                    setError("Tài khoản đã tồn tại");
+                    setMessage("");
                 }
             }
         }
     };
 
     const handleBack = () => {
-        navigate('/home');
+        navigate('/home'); // Điều hướng đến trang Register
+    };
+    const handleKeyPress = (event) => {
+        if (event.key === "Enter") {
+            handleRegister();
+        }
     };
 
+    // Handler for input change
     const handleInputChange = (setter) => (event) => {
         setter(event.target.value);
-
-        setError(""); 
-        setMessage(""); 
+        setError("");
+        setMessage("");
         if (setter === setPassword) setPasswordError("");
+    };
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword); // Đảo ngược giá trị của showPassword
     };
 
     return (
@@ -144,6 +149,7 @@ const Register = () => {
                             className={`register-input ${error && !validateFullName(fullName) ? 'input-error' : ''}`}
                             value={fullName}
                             onChange={handleInputChange(setFullName)}
+                            onKeyPress={handleKeyPress}
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -161,6 +167,7 @@ const Register = () => {
                             className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
                             onChange={handleInputChange(setUserName)}
+                            onKeyPress={handleKeyPress}
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -171,26 +178,29 @@ const Register = () => {
                                 fontSize: '16px'
                             }}
                         />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            className="register-input"
-                            value={email} // Giá trị email
-                            onChange={handleInputChange(setEmail)} // Cập nhật state email
-                            style={{
-                                width: '80%',
-                                padding: '10px 0',
-                                border: 'none',
-                                borderBottom: '1px solid #666',
-                                outline: 'none',
-                                margin: '5px 0',
-                                fontSize: '16px'
-                            }}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Mật khẩu"
-                            className={`input ${passwordError ? 'input-error' : ''}`}
+                        <div className="password-input-container">
+                            <input
+                                type={showPassword ? 'text' : 'password'} // Kiểu của input thay đổi tùy vào trạng thái showPassword
+                                placeholder="Mật khẩu"
+                                className={`input ${passwordError ? 'input-error' : ''}`}
+                                value={password}
+                                onChange={handleInputChange(setPassword)}
+                                onKeyPress={handleKeyPress}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 0',
+                                    border: 'none',
+                                    borderBottom: '1px solid #666',
+                                    outline: 'none',
+                                    margin: '5px 0',
+                                    fontSize: '16px',
+                                }}
+                            />b
+                            <i
+                                className={`ti-eye ${showPassword ? 'show' : 'hide'}`}
+                                onClick={togglePasswordVisibility}
+                            ></i>
+                        </div>
 
                             value={password}
                             onChange={handleInputChange(setPassword)}

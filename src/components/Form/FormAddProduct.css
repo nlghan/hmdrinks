@@ -39,7 +39,6 @@
     border-radius: 20px;
     justify-content: center;
 }
-
 /* The form itself */
 .form-add-product {
     background: #fff;
@@ -118,7 +117,7 @@ textarea:focus {
 }
 
 /* Button styles */
-.add-pro-form-actions #add-cancel-btn {
+.add-pro-form-actions #add-pro-cancel-btn {
     padding: 12px 20px; /* More spacious buttons */
     margin-right: 10px;
     border: none;
@@ -137,12 +136,12 @@ textarea:focus {
 }
 
 /* Cancel button styles */
-#add-cancel-btn {
+#add-pro-cancel-btn {
     background-color: #dc3545;
     color: white;
 }
 
-#add-cancel-btn:hover {
+#add-pro-cancel-btn:hover {
     background-color: #bd535e;
    
 }

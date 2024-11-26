@@ -30,6 +30,9 @@ const Info = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewImage, setPreviewImage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [error, setError] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [provinceId, setProvinceId] = useState('');
@@ -359,10 +362,18 @@ const Info = () => {
                     }
                 });
                 setPreviewImage(response.data.url);
-                alert("Avatar updated successfully!");
+                setIsLoading(false);
+                setShowSuccess(true);
+                setTimeout(() => {
+                    setShowSuccess(false);
+                }, 2000);
             } catch (error) {
                 console.error("Update error:", error);
-                setError("Unable to update avatar.");
+                setIsLoading(false);
+                setShowError(true);
+                setTimeout(() => {
+                    setShowError(false);
+                }, 2000);
             } finally {
                 setIsUploading(false);
             }
@@ -373,11 +384,11 @@ const Info = () => {
         const errors = { email: '', phoneNumber: '', birthDay: '' };
         const phoneRegex = /^[0-9]{10}$/;
 
-        if (!formData.email.includes('@')) errors.email = 'Invalid email!';
-        if (!phoneRegex.test(formData.phoneNumber)) errors.phoneNumber = 'Phone number must be 10 digits!';
+        if (!formData.email.includes('@')) errors.email = 'Vui lòng nhập email hợp lệ!';
+        if (!phoneRegex.test(formData.phoneNumber)) errors.phoneNumber = 'Số điện thoại phải có đúng 10 số!';
 
         const birthDate = new Date(formData.birthDay);
-        if (birthDate > new Date()) errors.birthDay = 'Invalid birth date!';
+        if (birthDate > new Date()) errors.birthDay = 'Ngày sinh không hợp lệ!';
 
         setFormErrors(errors);
         return Object.values(errors).every(error => error === '');
@@ -425,7 +436,11 @@ const Info = () => {
                 }
             });
 
-            alert("Profile updated successfully!");
+            setIsLoading(false);
+            setShowSuccess(true);
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 2000);
         } catch (error) {
             console.error("Update error:", error);
             setError("Unable to update profile.");
@@ -436,7 +451,7 @@ const Info = () => {
         e.preventDefault(); // Ngăn chặn form submit mặc định
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/user-voucher/view-all/${userId}`, {
                 method: 'GET',
@@ -445,11 +460,11 @@ const Info = () => {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
                 const voucherList = data.getVoucherResponseList; // Lấy danh sách voucher từ phản hồi
-    
+
                 // Fetch key cho từng voucher trong danh sách
                 const updatedVoucherList = await Promise.all(
                     voucherList.map(async (voucher) => {
@@ -461,7 +476,7 @@ const Info = () => {
                                     'Authorization': `Bearer ${token}`,
                                 }
                             });
-    
+
                             if (voucherResponse.ok) {
                                 const voucherData = await voucherResponse.json();
                                 return { ...voucher, key: voucherData.body.key }; // Cập nhật key vào voucher
@@ -475,7 +490,7 @@ const Info = () => {
                         }
                     })
                 );
-    
+
                 // Cập nhật voucherList với key mới và hiển thị form
                 setVoucherList(updatedVoucherList);
                 setShowFormListVoucher(true); // Mở overlay khi nhận được dữ liệu
@@ -486,7 +501,7 @@ const Info = () => {
             console.error('Lỗi khi gọi API:', error);
         }
     };
-    
+
 
 
 
@@ -552,7 +567,51 @@ const Info = () => {
                             />
                         </div>
 
+                        {isLoading && (
+                            <div className="loading-animation">
+                                <div className="loading-modal">
+                                    <div className="loading-spinner">
+                                        <div className="spinner"></div>
+                                    </div>
+                                    <h3>Đang xử lý...</h3>
+                                    <p>Vui lòng đợi trong giây lát</p>
+                                </div>
+                            </div>
+                        )}
 
+                        {showSuccess && (
+                            <div className="success-animation">
+                                <div className="success-modal">
+                                    <div className="success-icon">
+                                        <div className="success-icon-circle">
+                                            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                                <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3>Cập nhật thành công!</h3>
+                                    <p>Thông tin của bạn đã được cập nhật</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {showError && (
+                            <div className="error-animation">
+                                <div className="error-modal">
+                                    <div className="error-icon">
+                                        <div className="error-icon-circle">
+                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3>Cập nhật không thành công!</h3>
+                                    <p>Vui lòng xem xét lại thông tin.</p>
+                                </div>
+                            </div>
+                        )}
                         <div className="form-grid">
                             <div className="form-column">
                                 <div className="form-group">
@@ -560,7 +619,8 @@ const Info = () => {
                                     <input
                                         className="form-control"
                                         type="email"
-                                        value={formData.email}
+                                        value
+                                        ={formData.email}
                                         disabled={!isEditing} // Disable based on editing mode
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
@@ -693,14 +753,14 @@ const Info = () => {
                         </div>
 
                         <div className="button-group">
-                            <button type="submit" className="btn" onClick={handleSubmit}  disabled={!isEditing}>Cập nhật</button>
+                            <button type="submit" className="btn" onClick={handleSubmit} disabled={!isEditing}>Cập nhật</button>
                             <button type="button" className="btn" id="btn-change" onClick={handleChangePass}>Đổi mật khẩu</button>
                             <button type="submit" className="btn" id="btn-view-voucher" onClick={handleViewVoucher}>Xem voucher</button>
 
                             {/* Hiển thị overlay nếu showFormListVoucher là true */}
                             {showFormListVoucher && (
                                 <div className="voucher-info-overlay">
-                                     <FormListVoucher vouchers={voucherList} onClose={() => setShowFormListVoucher(false)} />
+                                    <FormListVoucher vouchers={voucherList} onClose={() => setShowFormListVoucher(false)} />
                                 </div>
                             )}
                             <button type="button" className="btn" id="btn-back-info" onClick={handleBack}>Trở lại</button>
