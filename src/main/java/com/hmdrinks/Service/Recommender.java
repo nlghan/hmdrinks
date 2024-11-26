@@ -21,31 +21,16 @@ import java.util.*;
 @Component
 public class Recommender {
 
-    private static final int NUM_NEIGHBOURHOODS = 10;
-    private static final int NUM_RECOMMENDATIONS = 20;
-    private static final float MIN_VALUE_RECOMMENDATION = 2;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
+    private static final int NUM_NEIGHBOURHOODS = 15;
+    private static final int NUM_RECOMMENDATIONS = 30;
+    private static final float MIN_VALUE_RECOMMENDATION = 0;
 
     @Autowired
     private ReviewRepository reviewRepository;
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-    @Autowired
     private CartItemRepository cartItemRepository;
-    @Autowired
-    private CartRepository cartRepository;
-
-
-
 
     /**
      * Map with the user id as key and its ratings as value that is a map with book ASIN as key and its rating as value
@@ -272,7 +257,6 @@ public class Recommender {
         sortedRecommendations.putAll(recommendations);
 
         Iterator<Map.Entry<Long, Double>> sortedREntries = sortedRecommendations.entrySet().iterator();
-        JSONArray recommendedBooksArray = new JSONArray();
         List<CRUDProductRecommentResponse> crudProductResponses = new ArrayList<>();
         int i = 0;
         int total = 0;
@@ -312,9 +296,7 @@ public class Recommender {
         }
 
         if(crudProductResponses.isEmpty()) {
-            // Tạo một Set để theo dõi các CateId đã xử lý
             Set<Long> processedCategoryIds = new HashSet<>();
-
             List<Orders> orders = orderRepository.findAllByUserUserId(Math.toIntExact(userId));
             for(Orders order : orders) {
                 OrderItem orderItem = order.getOrderItem();
@@ -326,8 +308,7 @@ public class Recommender {
                     Category category = product.getCategory();
                     List<Product> productList = productRepository.findByCategory_CateId(category.getCateId());
 
-                    // Kiểm tra nếu danh mục đã được xử lý trước đó
-                    if (!processedCategoryIds.contains(category.getCateId())) {
+                    if (!processedCategoryIds.contains(Long.valueOf(category.getCateId()))) {
                         for (Product product1 : productList) {
                             List<ProductImageResponse> productImageResponses = new ArrayList<>();
                             String currentProImg = product.getListProImg();

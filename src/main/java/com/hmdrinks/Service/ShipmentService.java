@@ -85,6 +85,7 @@ public class ShipmentService {
        {
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer Not Found");
        }
+       User shipper = shippment.getUser();
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
                shippment.getDateCreated(),
@@ -98,7 +99,8 @@ public class ShipmentService {
                customer.getFullName(),
                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                customer.getPhoneNumber(),
-               customer.getEmail()
+               customer.getEmail(),
+               orders.getOrderId()
        ));
     }
 
@@ -147,7 +149,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 
@@ -162,6 +165,42 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
         }
+
+        if(LocalDateTime.now().isAfter(shippment.getDateDelivered()))
+        {
+                    shippment.setStatus(Status_Shipment.CANCELLED);
+                    shipmentRepository.save(shippment);
+                    Payment payment = shippment.getPayment();
+                    Orders orders = payment.getOrder();
+
+                    if(payment.getPaymentMethod() == Payment_Method.CASH)
+                    {
+                        payment.setStatus(Status_Payment.FAILED);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                        orderRepository.save(orders);
+                    }
+                    if(payment.getPaymentMethod() == Payment_Method.CREDIT)
+                    {
+                        payment.setStatus(Status_Payment.REFUND);
+                        payment.setIsRefund(false);
+                        paymentRepository.save(payment);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                    }
+                    Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                    List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+                    for (CartItem cartItem : cartItems) {
+                      ProductVariants productVariants = cartItem.getProductVariants();
+                      productVariants.setStock(productVariants.getStock() + cartItem.getQuantity());
+                      productVariantsRepository.save(productVariants);
+
+            }
+
+               return ResponseEntity.ok().build();
+        }
+
         shippment.setStatus(Status_Shipment.CANCELLED);
         shipmentRepository.save(shippment);
 
@@ -181,7 +220,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 
@@ -208,6 +248,32 @@ public class ShipmentService {
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
+
+        if(statusShipment == Status_Shipment.CANCELLED) {
+            Cart cart = orders.getOrderItem().getCart();
+            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+            for (CartItem cartItem : cartItems) {
+                ProductVariants productVariants = cartItem.getProductVariants();
+                productVariants.setStock(productVariants.getStock() + cartItem.getQuantity());
+                productVariantsRepository.save(productVariants);
+            }
+            if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
+            {
+                payment.setStatus(Status_Payment.REFUND);
+                payment.setIsRefund(false);
+                paymentRepository.save(payment);
+            }
+            if (payment.getPaymentMethod() == Payment_Method.CASH
+            ) {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+            orders.setStatus(Status_Order.CANCELLED);
+            orderRepository.save(orders);
+        }
+
+        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
                 shippment.getDateCreated(),
@@ -221,7 +287,7 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(), orders.getOrderId()
         ));
     }
 
@@ -248,7 +314,6 @@ public class ShipmentService {
             paymentRepository.save(payment1);
         }
 
-
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = userRepository.findByUserId(orders.getUser().getUserId());
@@ -265,7 +330,7 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(), orders.getOrderId()
         ));
     }
 
@@ -299,7 +364,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
         }
@@ -312,6 +378,7 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> getListAllShipmentByShipper(String pageFromParam, String limitFromParam, int userId)
     {
         int page = Integer.parseInt(pageFromParam);
@@ -342,7 +409,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
         }
@@ -355,6 +423,7 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> getListAllShipment(String pageFromParam, String limitFromParam)
     {
         User user1 = null;
@@ -368,7 +437,6 @@ public class ShipmentService {
         List<Shippment> shippments1 = shipmentRepository.findAll();
 
         List<CRUDShipmentResponse> responses = new ArrayList<>();
-        int total = 0;
 
         for (Shippment shippment : shippments) {
             // Retrieve shipper (user associated with shipment)
@@ -398,7 +466,8 @@ public class ShipmentService {
             // Create response object
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shippment.getDateCreated(),
+                    shipper1.getFullName(),
+                    orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
@@ -409,10 +478,11 @@ public class ShipmentService {
                     customerFullName,
                     customerAddress,
                     customerPhone,
-                    customerEmail
+                    customerEmail,
+                    orders.getOrderId()
             );
 
-            // Add response to list
+
             responses.add(response);
 
         }
@@ -448,7 +518,8 @@ public class ShipmentService {
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shippment.getDateCreated(),
+                    shipper.getFullName(),
+                    orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
@@ -459,7 +530,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
             total++;
@@ -518,7 +590,8 @@ public class ShipmentService {
                  customer.getFullName(),
                  customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                  customer.getPhoneNumber(),
-                 customer.getEmail()
+                 customer.getEmail(),
+                 orders.getOrderId()
          ));
     }
 
@@ -531,8 +604,13 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         }
         Payment payment = paymentRepository.findByPaymentId(order.getPayment().getPaymentId());
-        User customer = order.getUser();
-        Shippment shipment = payment.getShipment();
+        if(payment != null)
+        {
+
+        }
+        User customer = payment.getOrder().getUser();
+        Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
+        User shipper = shipment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
                 shipment.getDateCreated(),
@@ -546,7 +624,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                order.getOrderId()
         ));
     }
 
@@ -562,7 +641,7 @@ public class ShipmentService {
         User shipper = shipment.getUser();
         Payment payment = paymentRepository.findByPaymentId(shipment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
-        User customer = orders.getUser();// Giả sử User là Customer
+        User customer = orders.getUser();
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
@@ -577,7 +656,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 

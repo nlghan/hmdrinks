@@ -36,8 +36,6 @@ public class VNPayIpnHandler {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private PaymentService paymentService;
-    @Autowired
     private UserRepository userRepository;
 
     public static class VnpIpnResponseConst {
@@ -85,7 +83,20 @@ public class VNPayIpnHandler {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
-                assignShipments();
+                Orders orders = payment.getOrder();
+                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+                for (CartItem cartItem : cartItems) {
+                    ProductVariants productVariants = cartItem.getProductVariants();
+                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                        productVariantsRepository.save(productVariants);
+                    }
+
+                }
+
+                assignShipments(orders.getOrderId());
 
             }
             response = VnpIpnResponseConst.SUCCESS;

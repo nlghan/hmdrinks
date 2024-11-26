@@ -42,19 +42,20 @@ public class PaymentService {
     private static final String clientId = "0e21da23-8871-45ef-8624-694417cf10eb";
     private static final String apiKey = "0ad492a1-cf68-446e-901d-d282171cbdd9";
     private static final String checksumKey = "465b9e56baff7a17688d4867b9ad117f9f0ccc95732f18971f9e94b72ffe9a2e";
-    private static  final String webhookUrl = " https://0a21-14-241-170-199.ngrok-free.app/intermediary-page";
+    private static  final String webhookUrl = "https://da9b-2405-4803-c7a7-e900-509-6d67-25cb-b3eb.ngrok-free.app/intermediary-page";
 
     //momo
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://0a21-14-241-170-199.ngrok-free.app/intermediary-page";
+    private final String redirectUrl = "https://57f8-2001-ee0-4f84-5630-adca-18e8-6808-a51b.ngrok-free.app/intermediary-page";
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
     private final int orderExpireTime = 15;
     private final String lang = "vi";
     private String orderInfo = "Payment Order";
+
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
@@ -80,6 +81,28 @@ public class PaymentService {
         Random random = new Random();
         int randomNumber = 100000 + random.nextInt(900000);
         return Long.valueOf(randomNumber);
+    }
+
+    public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
+        int hours = 0;
+        int minutes = 0;
+
+        if (duration.contains("giờ")) {
+            String[] parts = duration.split("giờ");
+            hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
+            if (parts.length > 1 && parts[1].contains("phút")) {
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10;
+            }
+        } else if (duration.contains("phút")) {
+            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 10;
+        }
+
+        if (minutes >= 60) {
+            hours += minutes / 60;
+            minutes = minutes % 60;
+        }
+
+        return currentTime.plusHours(hours).plusMinutes(minutes);
     }
 
     @Transactional
@@ -134,7 +157,7 @@ public class PaymentService {
             Long totalAmountLong = totalAmount.longValue();
             String amount = totalAmountLong.toString();
             if (order.getDiscountPrice() > 0) {
-                orderInfo = "Giam gia: " + order.getDiscountPrice() + " VND";
+                orderInfo = "Giảm giá: " + order.getDiscountPrice() + " VND";
             }
             String rawSignature = String.format(
                     "accessKey=%s&amount=%s&extraData=&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
@@ -315,7 +338,7 @@ public class PaymentService {
                     .buyerEmail(user.getEmail())
                     .buyerName(user.getPhoneNumber())
                     .buyerName(user.getFullName())
-                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60)) // 20 phut
+                    .expiredAt((long) (System.currentTimeMillis() / 1000 + 15 * 60))
                     .items(items).build();
 
             CheckoutResponseData result = payOS.createPaymentLink(paymentData);
@@ -388,7 +411,6 @@ public class PaymentService {
         User user = userRepository.findByUserId(order.getUser().getUserId());
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
         Long totalAmountLong = totalAmount.longValue();
-        String amount = totalAmountLong.toString();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
         payment.setPaymentMethod(Payment_Method.CREDIT);
@@ -399,7 +421,6 @@ public class PaymentService {
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
         paymentRepository.save(payment);
-        System.out.println("");
         String order_id = generateUniqueNumericString(5);
         var initPaymentRequest = InitPaymentRequest.builder()
                 .userId(Long.valueOf(String.valueOf(user.getUserId())))
@@ -447,10 +468,8 @@ public class PaymentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cancelled");
         }
         Orders order = orderRepository.findByOrderId(orderId1);
-        User user = userRepository.findByUserId(order.getUser().getUserId());
         Double totalAmount = order.getTotalPrice() - order.getDiscountPrice() + order.getDeliveryFee();
         Long totalAmountLong = totalAmount.longValue();
-        String amount = totalAmountLong.toString();
         String orderId = partnerCode + "-" + UUID.randomUUID();
         Payment payment = new Payment();
         payment.setPaymentMethod(Payment_Method.CREDIT);
@@ -676,7 +695,6 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByIsDeletedFalse(pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -690,7 +708,6 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -708,7 +725,6 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(statusPayment, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -722,7 +738,6 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -740,7 +755,6 @@ public class PaymentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Payment> payments = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(paymentMethod, pageable);
         List<CRUDPaymentResponse> responses = new ArrayList<>();
-        int total = 0;
         for (Payment payment : payments) {
             responses.add(
                     new CRUDPaymentResponse(
@@ -754,7 +768,6 @@ public class PaymentService {
                             payment.getOrder().getOrderId()
                     )
             );
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
                 page,
@@ -860,4 +873,64 @@ public class PaymentService {
             return null;
         }
     }
+    @Transactional
+    public  ResponseEntity<?> listAllPaymentRefund(String pageFromParam, String limitFromParam){
+       int page = Integer.parseInt(pageFromParam);
+       int limit = Integer.parseInt(limitFromParam);
+       if (limit >= 100) limit = 100;
+       Pageable pageable = PageRequest.of(page - 1, limit);
+       Page<Payment> payments = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND, pageable);
+       List<Payment> payments1 = paymentRepository.findAllByStatusAndIsDeletedFalse(Status_Payment.REFUND);
+       List<CRUDPaymentResponse> responses = new ArrayList<>();
+       for (Payment payment : payments) {
+           responses.add(
+                   new CRUDPaymentResponse(
+                           payment.getPaymentId(),
+                           payment.getAmount(),
+                           payment.getDateCreated(),
+                           payment.getDateDeleted(),
+                           payment.getIsDeleted(),
+                           payment.getPaymentMethod(),
+                           payment.getStatus(),
+                           payment.getOrder().getOrderId(),
+                           payment.getIsRefund()
+                   )
+           );
+       }
+       return ResponseEntity.status(HttpStatus.OK).body(new ListAllPaymentResponse(
+               page,
+               payments.getTotalPages(),
+               limit,
+               payments1.size(),
+               responses
+       ));
+   }
+
+    @Transactional
+    public ResponseEntity<?> activateRefund(int paymentId)
+    {
+       Payment payment = paymentRepository.findByPaymentIdAndIsDeletedFalse(paymentId);
+       if(payment == null)
+       {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found payment");
+       }
+       Shippment shippment = payment.getShipment();
+
+       if(shippment.getStatus() == Status_Shipment.WAITING ||shippment.getStatus() == Status_Shipment.SHIPPING)
+       {
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with shipment");
+       }
+       if(payment.getPaymentMethod() == Payment_Method.CASH)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not refund with payment method cash");
+        }
+       if(payment.getIsRefund())
+       {
+           return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund exists");
+       }
+       payment.setIsRefund(true);
+       paymentRepository.save(payment);
+       return ResponseEntity.status(HttpStatus.OK).body("Refund activated");
+   }
+
 }

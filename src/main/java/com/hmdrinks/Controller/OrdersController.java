@@ -68,6 +68,15 @@ public class OrdersController {
         return  generateInvoiceService.createInvoice(orderId);
     }
 
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<?> historyOrder(@PathVariable int userId) {
+        return  ordersService.listHistoryOrder(userId);
+    }
+
+    @GetMapping("/view/confirmed/{userId}")
+    public ResponseEntity<?> historyOrder1(@PathVariable int userId) {
+        return  ordersService.listOrderConfirmed(userId);
+    }
     @GetMapping("/view/{userId}")
     public ResponseEntity<?> getAllPaymentByUserId(@RequestParam(name = "page") String page,
                                                    @RequestParam(name = "limit") String limit,

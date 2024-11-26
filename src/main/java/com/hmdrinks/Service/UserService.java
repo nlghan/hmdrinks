@@ -53,15 +53,9 @@ public class UserService {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private CartItemRepository cartItemRepository;
-    @Autowired
     private ShipmentRepository shipmentRepository;
     @Autowired
     private  PaymentRepository paymentRepository;
-    @Autowired
-    private UserVoucherRepository userVoucherRepository;
     @Autowired
     private  ReviewRepository reviewRepository;
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -82,8 +76,8 @@ public class UserService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findAll(pageable);
+        List<User> userList1 = userRepository.findAll();
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
-        int total = 0;
         for (User user : userList) {
             String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
@@ -103,7 +97,6 @@ public class UserService {
                         user.getDateCreated(),
                         user.getRole().toString()
                 ));
-            total++;
             }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,total, detailUserResponseList));
     }
@@ -114,8 +107,8 @@ public class UserService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findAllByRole(role,pageable);
+        List<User> userList1 = userRepository.findAllByRole(role);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
-        int total = 0;
         for (User user : userList) {
             String fullLocation = user.getStreet() +  "," + user.getWard() + user.getDistrict() + ","+ user.getCity();
             detailUserResponseList.add(new DetailUserResponse(
@@ -135,9 +128,8 @@ public class UserService {
                     user.getDateCreated(),
                     user.getRole().toString()
             ));
-            total++;
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, total,detailUserResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit, userList1.size(),detailUserResponseList));
     }
 
     public ResponseEntity<?> getDetailUserInfoResponse(Integer id){
@@ -326,6 +318,8 @@ public class UserService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<User> userList = userRepository.findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
                 keyword,keyword,keyword,keyword,keyword,keyword,keyword,pageable);
+        List<User> userList1 = userRepository.findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
+                keyword,keyword,keyword,keyword,keyword,keyword,keyword);
         List<DetailUserResponse> detailUserResponseList = new ArrayList<>();
         for (User user : userList) {
             String fullLocation = user.getStreet() + ","+ user.getDistrict() + ","+ user.getCity();
@@ -347,7 +341,7 @@ public class UserService {
                     user.getRole().toString()
             ));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchUserResponse(page,userList.getTotalPages(),limit, detailUserResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchUserResponse(page,userList.getTotalPages(),limit,userList1.size(), detailUserResponseList));
     }
 
     public ResponseEntity<?> changePasswordResponse(ChangePasswordReq req) {

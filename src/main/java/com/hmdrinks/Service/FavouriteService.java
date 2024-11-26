@@ -65,7 +65,6 @@ public class FavouriteService {
         }
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(id);;
         List<CRUDFavouriteItemResponse> crudFavouriteItemResponses = new ArrayList<>();
-        int total = 0;
         for(FavouriteItem favouriteItem : favouriteItems)
         {
             crudFavouriteItemResponses.add(new CRUDFavouriteItemResponse(
@@ -74,17 +73,15 @@ public class FavouriteService {
                     favouriteItem.getProductVariants().getProduct().getProId(),
                     favouriteItem.getProductVariants().getSize()
             ));
-            total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body( new ListItemFavouriteResponse(
                 id,
-                total,
+                favouriteItems.size(),
                 crudFavouriteItemResponses
         ));
     }
 
     public ResponseEntity<?> getFavoriteById(int userId) {
-        // Check if user exists
         User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("UserId not found");
@@ -95,7 +92,7 @@ public class FavouriteService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite not found");
         }
         CreateNewFavouriteResponse favouriteResponse = new CreateNewFavouriteResponse(
-                favourite.getFavId(), // Assuming you have a cart ID in your Favourite entity
+                favourite.getFavId(),
                 favourite.getUser().getUserId(),
                 favourite.getIsDeleted(),
                 favourite.getDateDeleted(),

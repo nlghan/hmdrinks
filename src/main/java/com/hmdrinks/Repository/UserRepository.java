@@ -41,6 +41,15 @@ import java.util.Optional;
            String phoneNumber,
            Pageable pageable);
 
+    List<User> findByUserNameContainingOrEmailContainingOrFullNameContainingOrStreetContainingOrDistrictContainingOrCityContainingOrPhoneNumberContaining(
+            String userName,
+            String email,
+            String fullName,
+            String street,
+            String district,
+            String city,
+            String phoneNumber);
+
     Optional<User> findByEmailAndUserIdNot(String email, Integer userId);
     Optional<User> findByEmailAndIsDeletedFalseAndTypeIn(String username, List<TypeLogin> types);
     Optional<User> findByUserNameAndIsDeletedFalse(String username);

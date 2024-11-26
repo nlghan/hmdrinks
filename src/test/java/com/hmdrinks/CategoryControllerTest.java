@@ -342,6 +342,7 @@ class CategoryControllerTest {
                 1,
                 2,
                 1,
+                2,
                 Arrays.asList(response1, response2)
         );
 

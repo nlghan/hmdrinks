@@ -15,5 +15,6 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
     Contact findByContactIdAndUserUserIdAndIsDeletedFalse(int contactId, int userId);
     List<Contact> findByIsDeletedFalse();
     Page<Contact> findAllByStatus(Status_Contact status,Pageable pageable);
+    List<Contact> findAllByStatus(Status_Contact status);
     Page<Contact> findAll(Pageable pageable);
 }

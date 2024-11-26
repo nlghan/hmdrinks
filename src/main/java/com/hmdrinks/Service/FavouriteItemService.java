@@ -122,7 +122,6 @@ public class FavouriteItemService {
         Map<Integer, Integer> favouriteCountMap = new HashMap<>();
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findAll();
 
-        // Đếm số lượng yêu thích theo proId
         for (FavouriteItem favouriteItem : favouriteItems) {
             int proId = favouriteItem.getProductVariants().getProduct().getProId();
             favouriteCountMap.put(proId, favouriteCountMap.getOrDefault(proId, 0) + 1);
@@ -132,8 +131,6 @@ public class FavouriteItemService {
                 .map(entry -> {
                     int proId = entry.getKey();
                     int totalCount = entry.getValue();
-
-                    // Truy vấn productName từ ProductRepository
                     Product product = productRepository.findByProId(proId);
                     String productName = (product != null) ? product.getProName() : "Unknown";
 

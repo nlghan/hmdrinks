@@ -30,10 +30,6 @@ public class UserVoucherService {
     private UserRepository userRepository;
     @Autowired
     private VoucherRepository voucherRepository;
-    @Autowired
-    private PostRepository postRepository;
-
-
 
     public boolean isCurrentDateWithinVoucherPeriod(Voucher voucher) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -44,7 +40,6 @@ public class UserVoucherService {
 
     public ResponseEntity<?> getVoucher(GetVoucherReq req)
     {
-
         User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
@@ -101,7 +96,7 @@ public class UserVoucherService {
         }
          List<UserVoucher> userVoucherList = userVoucherRepository.findByUserUserId(userId);
          List<GetVoucherResponse> listVoucherResponse = new ArrayList<>();
-         int total =0;
+
          for(UserVoucher userVoucher : userVoucherList)
          {
              listVoucherResponse.add( new GetVoucherResponse(
@@ -110,8 +105,7 @@ public class UserVoucherService {
                      userVoucher.getVoucher().getVoucherId(),
                      userVoucher.getStatus().toString()
              ));
-             total++;
          }
-         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(total,listVoucherResponse));
+         return ResponseEntity.status(HttpStatus.OK).body(new ListAllVoucherUserIdResponse(userVoucherList.size(), listVoucherResponse));
     }
 }
