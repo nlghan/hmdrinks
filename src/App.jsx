@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
+import LoginGG from './pages/Login/LoginGG'; // Import LoginGG
 import Register from './pages/Register/Register';
 import Home from './pages/Home/Home';
 import ShipperHome from './pages/Shipper/HomeShipper';
@@ -37,9 +38,9 @@ import PaymentOnlineStatusVnpay from "./pages/Payment/PaymentOnlineStatusVNPay";
 import Orders from "./pages/Admin/Orders";
 import ShipmentDetail from "./pages/Shipper/ShipmentDetail";
 import MyOrder from "./pages/Order/MyOrder";
-
+import { PaymentStatusProvider } from "./context/PaymentStatusContext";
+import MyOrderDetail from "./pages/Order/MyOrderDetail";
 import Cookies from 'js-cookie';
-
 
 // Thêm hàm helper để lấy role từ token
 const getRoleFromToken = (token) => {
@@ -59,7 +60,7 @@ const LoginRedirect = () => {
   const role = token ? getRoleFromToken(token) : null;
 
   if (!isLoggedIn) {
-    return <Login />;
+    return <Login />; // Redirect to Login if not logged in
   }
 
   if (role && role.includes("SHIPPER")) {
@@ -80,52 +81,58 @@ const App = () => {
   return (
     <FavoriteProvider>
       <CartProvider>
-        <div className='app'>
-          <Routes location={location}>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/shipper-home" element={<ShipperHome />} />
-            <Route path="/login" element={<LoginRedirect />} />
-            <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/user" element={<User />} />
-            <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
-            <Route path="/shipper-info" element={isLoggedIn ? <InfoShipper /> : <Navigate to="/login" />} />
-            <Route path="/about" element={<About />} /> {/* Không cần kiểm tra đăng nhập */}
-            <Route path="/shipper-about" element={<AboutShipper />} />
-            {/* <Route path="/shipper-menu" element={<ShipperMenuPage />} />
-            <Route path="/shipper-post" element={<ShipperPostPage />} /> */}
-            <Route path="/shipper-analytics" element={<AnalyticsShipper />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
-            <Route path="/send-mail" element={<SendMail />} />
-            <Route path="/category" element={<Category />} />
-            <Route path="/product" element={<Product />} />
-            <Route path="/product/:productId" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/favorite" element={<Favorite />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/post" element={<NewsUser />} />
-            <Route path="/order" element={<Order />} />
-            <Route path="/marketing/:postId" element={<PostVoucher />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/response" element={<Response />} />
-            <Route path="/payment-status" element={<PaymentStatus />} />
-            <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
-            <Route path="/intermediary-page" element={<IntermediaryPage />} />
-            <Route path="/payment-online-status-payos" element={<PaymentOnlineStatusPayos />} />
-            <Route path="/payment-online-status-momo" element={<PaymentOnlineStatusMomo />} />
-            <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/my-orders" element={<MyOrder />} />
-            <Route
-              path="/shipment-detail/:shipmentId"
-              element={isLoggedIn ? <ShipmentDetail /> : <Navigate to="/home" />}
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </div>
+        <PaymentStatusProvider>
+          <div className='app'>
+            <Routes location={location}>
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
+              <Route path="/shipper-home" element={<ShipperHome />} />
+              <Route path="/login" element={<LoginRedirect />} />
+              <Route path="/login-gg" element={<LoginGG />} />
+              <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/user" element={<User />} />
+              <Route path="/info" element={isLoggedIn ? <Info /> : <Navigate to="/login" />} />
+              <Route path="/shipper-info" element={isLoggedIn ? <InfoShipper /> : <Navigate to="/login" />} />
+              <Route path="/about" element={<About />} /> {/* Không cần kiểm tra đăng nhập */}
+              <Route path="/shipper-about" element={<AboutShipper />} />
+              <Route path="/shipper-analytics" element={<AnalyticsShipper />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/change" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
+              <Route path="/send-mail" element={<SendMail />} />
+              <Route path="/category" element={<Category />} />
+              <Route path="/product" element={<Product />} />
+              <Route path="/product/:productId" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/favorite" element={<Favorite />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/post" element={<NewsUser />} />
+              <Route path="/order" element={<Order />} />
+              <Route path="/marketing/:postId" element={<PostVoucher />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/response" element={<Response />} />
+              <Route path="/payment-status" element={<PaymentStatus />} />
+              <Route path="/payment-online-status" element={<PaymentOnlineStatus />} />
+              <Route path="/intermediary-page" element={<IntermediaryPage />} />
+              <Route path="/payment-online-status-payos" element={<PaymentOnlineStatusPayos />} />
+              <Route path="/payment-online-status-momo" element={<PaymentOnlineStatusMomo />} />
+              <Route path="/payment-online-status-vnpay" element={<PaymentOnlineStatusVnpay />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/my-orders" element={<MyOrder />} />
+              <Route
+                path="/my-order-detail/:shipmentId"
+                element={isLoggedIn ? <MyOrderDetail /> : <Navigate to="/home" />}
+              />
+              <Route
+                path="/shipment-detail/:shipmentId"
+                element={isLoggedIn ? <ShipmentDetail /> : <Navigate to="/home" />}
+              />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        </PaymentStatusProvider>
+
       </CartProvider>
     </FavoriteProvider>
   );

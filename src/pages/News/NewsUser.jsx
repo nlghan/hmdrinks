@@ -38,10 +38,12 @@ const NewsUser = () => {
   const fetchPosts = async (page) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all?page=${page}&limit=${postsPerPage}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=${page}&limit=${postsPerPage}`);
       setPosts(response.data.listPosts);
       setTotalPages(response.data.totalPages);
       setLoading(false);
+
+
     } catch (error) {
       console.error('Error fetching posts:', error);
       setLoading(false);
@@ -50,11 +52,17 @@ const NewsUser = () => {
 
   useEffect(() => {
     fetchPosts(currentPage);
+   
   }, [currentPage]);
 
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
+      const halfHeight = document.body.scrollHeight / 3;
+      window.scrollTo({
+        top: halfHeight,
+        behavior: "smooth" // Thêm hiệu ứng cuộn mượt
+      });
     }
   };
 
@@ -84,6 +92,13 @@ const NewsUser = () => {
     };
   }, []);
 
+  useEffect(() => {
+    // Cuộn đầu trang nếu đến từ trang khác (vd: từ home)
+    if (location.pathname === '/post') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location]);
+
   const handleDetailsClick = (postId) => {
     const token = getCookie('access_token');
     const userId = getUserIdFromToken(token);
@@ -92,10 +107,10 @@ const NewsUser = () => {
     console.log("UserId:", userId); // Log userId
 
     if (!userId) {
-        setShowLoginPrompt(true);
+      setShowLoginPrompt(true);
     } else {
-        console.log("Navigating to /marketing/" + postId); // Log navigation
-        navigate(`/marketing/${postId}`);
+      console.log("Navigating to /marketing/" + postId); // Log navigation
+      navigate(`/marketing/${postId}`);
     }
   };
 
@@ -117,7 +132,7 @@ const NewsUser = () => {
                 Tại HMDrinks, chúng mình mang đến cho bạn những loại trà trái cây, nước ép và trà sữa đặc biệt,
                 mỗi sản phẩm đều chứa đựng hương vị tự nhiên và tươi mới. Được chế biến từ những nguyên liệu chọn lọc kỹ lưỡng
                 và qua quy trình sản xuất hiện đại, chúng mình cam kết mang lại cho bạn những trải nghiệm thú vị,
-                không chỉ ngon miệng mà còn tốt cho sức khỏe.<br/>
+                không chỉ ngon miệng mà còn tốt cho sức khỏe.<br />
                 Hãy để HMDrinks đồng hành cùng bạn trong từng khoảnh khắc, biến mỗi lần bạn tìm đến chúng mình thành một trải nghiệm khó quên.
               </p>
             </div>
@@ -139,7 +154,7 @@ const NewsUser = () => {
                   <img src={post.url || "https://via.placeholder.com/250"} alt={post.title || "Tin tức"} className="news-user-image" />
                   <div className="news-user-card-content">
                     <p className="news-user-card-date">
-                      <span role="img" aria-label="calendar">📅</span> {post.dateCreated }
+                      <span role="img" aria-label="calendar">📅</span> {post.dateCreated}
                     </p>
                     <h4 className="news-user-card-title">{post.title}</h4>
                     <p className="news-user-card-description">{post.shortDescription}</p>
@@ -154,8 +169,8 @@ const NewsUser = () => {
               ))
             )}
           </div>
-          
-          <div className="menu-product-pagination" style={{marginBottom:'20px'}}>
+
+          <div className="menu-product-pagination" style={{ marginBottom: '20px' }}>
             {/* <span className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => handlePageChange(currentPage - 1)}>
               <i className='ti-arrow-left' id='arrow' />
             </span> */}
@@ -170,16 +185,16 @@ const NewsUser = () => {
           </div>
         </section>
         {showLoginPrompt && (
-                <div className="login-modal">
-                    <div className="login-modal-content">
-                        <p>Bạn cần đăng nhập để xem chi tiết bài đăng.</p>
-                        <a href="/login">Đăng nhập</a>
-                        <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>                       
-                    </div>
-                </div>
-            )}
+          <div className="login-modal">
+            <div className="login-modal-content">
+              <p>Bạn cần đăng nhập để xem chi tiết bài đăng.</p>
+              <a href="/login">Đăng nhập</a>
+              <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+            </div>
+          </div>
+        )}
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };

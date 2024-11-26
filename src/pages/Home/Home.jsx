@@ -56,8 +56,8 @@ const Home = () => {
     // Fetch posts from API
     const fetchPosts = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all?page=1&limit=30`);
-            const reversedPosts = response.data.listPosts.reverse(); // Reverse the order of posts
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=1&limit=30`);
+            const reversedPosts = response.data.listPosts; // Reverse the order of posts
             setPosts(reversedPosts);
         } catch (error) {
             console.error('Error fetching posts:', error);
@@ -161,8 +161,8 @@ const Home = () => {
     };
 
     const handleViewMore = () => {
-        navigate('/post');
-    };
+        navigate('/post', { replace: true }); // Điều hướng mà không lưu lịch sử vị trí
+    };    
 
     const handlePrevBanner = () => {
         setCurrentBannerIndex((prevIndex) => (prevIndex - 1 + banners.length) % banners.length);

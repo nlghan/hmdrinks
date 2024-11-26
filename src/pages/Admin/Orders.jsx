@@ -9,6 +9,8 @@ function Orders() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalOrders, setTotalOrders] = useState(1);
     const [selectedStatus, setSelectedStatus] = useState('all'); // Trạng thái đã chọn
+    const [refundOrders, setRefundOrders] = useState([]); // Danh sách đơn hàng hoàn tiền
+    const [loadingRefunds, setLoadingRefunds] = useState(true);
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -16,6 +18,40 @@ function Orders() {
 
         if (parts.length === 2) return parts.pop().split(';').shift();
     };
+
+    const fetchRefundOrders = async (page = 1, limit = 100) => {
+        const token = getCookie('access_token');
+        setLoadingRefunds(true);
+
+        try {
+            const response = await fetch(`http://localhost:1010/api/admin/list-payment-refund?page=${page}&limit=${limit}`, {
+                method: 'GET',
+                headers: {
+                    Accept: '*/*',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+
+            const refundOrders = data.listPayments.map((payment) => ({
+                refundId: payment.paymentId,
+                orderId: payment.orderId,
+                paymentMethod: payment.paymentMethod,
+                amount: payment.amount,
+                refunded: payment.refunded ? "True" : "False", // Convert boolean to string
+            }));
+
+
+
+            setRefundOrders(refundOrders);
+        } catch (error) {
+            console.error('Error fetching refund orders:', error);
+        } finally {
+            setLoadingRefunds(false);
+        }
+    };
+
 
     const fetchShipperName = async (shipperId, token) => {
         try {
@@ -108,6 +144,8 @@ function Orders() {
 
     useEffect(() => {
         fetchShipments(currentPage, selectedStatus);
+        fetchRefundOrders();
+
     }, [currentPage, selectedStatus]);
 
     const getPaginationNumbers = () => {
@@ -183,6 +221,45 @@ function Orders() {
         }
     };
 
+    const updateRefund = async (refundId) => {
+        const token = getCookie('access_token');  // Get token from the cookie
+    
+        try {
+            const response = await fetch('http://localhost:1010/api/admin/activate/refund', {
+                method: 'PUT',
+                headers: {
+                    'Accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: refundId,  // Send the refund ID to activate it
+                }),
+            });
+    
+            // Check if the response is JSON or plain text
+            const contentType = response.headers.get('Content-Type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                // Handle the JSON response if needed
+                fetchRefundOrders();
+                console.log('Refund activated:', data);
+            } else {
+                // If it's plain text, just handle the message
+                fetchRefundOrders();
+                const message = await response.text();
+                console.log('Refund activated:', message);
+            }
+    
+        } catch (error) {
+            fetchRefundOrders();  // Refresh the refund list after activation
+            console.error('Error activating refund:', error);
+            alert('Error activating refund');
+        }
+    };
+    
+
+
     return (
         <div className="orders-table">
             <Header title="Đơn Hàng" />
@@ -215,6 +292,7 @@ function Orders() {
                             <thead>
                                 <tr>
                                     <th>Mã Đơn Giao</th>
+                                    <th>Mã Đơn Hàng</th>
                                     <th>Khách Hàng</th>
                                     <th>Điện Thoại</th>
                                     <th>Địa Chỉ</th>
@@ -235,13 +313,14 @@ function Orders() {
                                     shipments.map((shipment) => (
                                         <tr key={shipment.shipmentId}>
                                             <td>{shipment.shipmentId}</td>
+                                            <td>{shipment.orderId}</td>
                                             <td>{shipment.customerName}</td>
                                             <td>{shipment.phoneNumber}</td>
                                             <td>{shipment.address}</td>
                                             <td>{shipment.paymentMethod}</td>
                                             <td>{shipment.statusPayment}</td>
                                             <td>{shipment.dateCreated}</td>
-                                            <td>{shipment.dateDeliver}</td>
+                                            <td>{shipment.dateShipped}</td>
                                             <td>{shipment.shipperName}</td>
                                             <td>
                                                 <select
@@ -258,7 +337,7 @@ function Orders() {
                                                         backgroundColor: getSelectBackgroundColor(
                                                             shipment.status
                                                         ),
-                                                         
+
                                                     }}
                                                 >
                                                     <option value="WAITING">Chờ xử lý</option>
@@ -279,7 +358,7 @@ function Orders() {
                             </tbody>
                         </table>
 
-                        <div className="pagination" style={{marginLeft:'45%'}}>
+                        <div className="pagination" style={{ marginLeft: '45%' }}>
                             <button
                                 className="btn btn-pre me-2"
                                 onClick={() => handlePageChange(currentPage - 1)}
@@ -290,9 +369,8 @@ function Orders() {
                             {getPaginationNumbers().map((number, index) => (
                                 <button
                                     key={index}
-                                    className={`btn ${
-                                        number === currentPage ? 'btn-page' : 'btn-light'
-                                    } me-2`}
+                                    className={`btn ${number === currentPage ? 'btn-page' : 'btn-light'
+                                        } me-2`}
                                     onClick={() => {
                                         if (number !== '...') {
                                             handlePageChange(number);
@@ -312,9 +390,63 @@ function Orders() {
                             </button>
                         </div>
                     </div>
+
+
+
+                    {/* Bảng Danh Sách Đơn Hoàn Tiền */}
+                    <div className="refund-orders-box">
+                        <div className="header-orders-box">
+                            <h2>Danh Sách Đơn Hoàn Tiền</h2>
+                        </div>
+                        <div className="table-container">
+                            <table className="table-orders">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Đơn Thanh Toán</th>
+                                        <th>Mã Đơn Hàng</th>
+                                        <th>Hình thức Thanh Toán</th>
+                                        <th>Số Tiền</th>
+                                        <th>Trạng Thái Hoàn Tiền</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loadingRefunds ? (
+                                        <tr>
+                                            <td colSpan="6" style={{ textAlign: 'center' }}>Đang tải dữ liệu...</td>
+                                        </tr>
+                                    ) : refundOrders.length > 0 ? (
+                                        refundOrders.map((refund) => (
+                                            <tr key={refund.refundId}>
+                                                <td>{refund.refundId}</td>
+                                                <td>{refund.orderId}</td>
+                                                <td>{refund.paymentMethod}</td>
+                                                <td>{refund.amount}</td>
+                                                <td>{refund.refunded}</td>
+                                                <td>
+                                                    <button onClick={() => updateRefund(refund.refundId)}>
+                                                        <i className="ti-pencil" style={{ color: 'blue', fontSize: '20px' }}></i> {/* Edit icon */}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" style={{ textAlign: 'center' }}>Không có đơn hoàn tiền.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
+
+
             </div>
         </div>
+        
+
     );
 }
 
