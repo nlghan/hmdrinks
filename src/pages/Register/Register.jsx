@@ -39,7 +39,11 @@ const Register = () => {
         const userNameRegex = /^(?!.*\.\.)(?!.*\s)(?!.*[&=_'\-+,<>])(?!\.)[A-Za-z0-9.]+(?<!\.)$/;
         return userNameRegex.test(username);
     };
-
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+    
 
     const handleLoginGG = async () => {
         try {
@@ -69,6 +73,10 @@ const Register = () => {
 
         if (!validateUserName(userName)) {
             setError("Tên tài khoản không hợp lệ. Vui lòng nhập tên tài khoản không chứa ký hiệu đặc biệt (&, =, _, ', -, +, ,, <, >), không chứa khoảng trắng và không có nhiều dấu chấm liên tiếp.");
+            return;
+        }
+        if (!validateEmail(email)) {
+            setError("Email không hợp lệ. Vui lòng nhập email đúng định dạng.");
             return;
         }
 
@@ -175,7 +183,6 @@ const Register = () => {
                         <input
                             type="text"
                             placeholder="Tên tài khoản"
-
                             className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
                             onChange={handleInputChange(setUserName)}
@@ -192,9 +199,10 @@ const Register = () => {
                         <input
                             type="email"
                             placeholder="Email"
-                            className={`register-input ${error && !validateEmail(email) ? 'input-error' : ''}`} // Thêm lớp CSS nếu email không hợp lệ
+                 className={`register-input ${error && !validateEmail(email) ? 'input-error' : ''}`} // Thêm lớp CSS nếu email không hợp lệ
                             value={email}
                             onChange={handleInputChange(setEmail)}
+
                             style={{
                                 width: '80%',
                                 padding: '10px 0',

@@ -23,6 +23,8 @@ const Category = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [loadingbtn, setLoadingbtn] = useState(false);
 
     const [isUpdateMode, setIsUpdateMode] = useState(false); // Track if we are in update mode
     const [updateCategory, setUpdateCategory] = useState(null); // The category to update
@@ -262,13 +264,15 @@ const Category = () => {
                 fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi thêm danh mục:", error);
-                alert("Không thể thêm danh mục. Vui lòng thử lại.");
+                setErrorMessage("Không thể thêm danh mục. Vui lòng thử lại.");
+                setTimeout(() => setErrorMessage(''), 2000);
             }
-            finally{
-                setIsCreating(false); 
+            finally {
+                setIsCreating(false);
             }
         } else {
-            alert("Vui lòng nhập tên danh mục và chọn hình ảnh.");
+            setErrorMessage("Vui lòng nhập tên danh mục và chọn hình ảnh.");
+            setTimeout(() => setErrorMessage(''), 2000);
         }
     };
 
@@ -288,7 +292,7 @@ const Category = () => {
             };
 
             try {
-                // Nếu có hình ảnh mới được chọn, upload trước
+                setLoadingbtn(true);
                 if (categoryImage) {
                     const formData = new FormData();
                     formData.append('file', categoryImage);
@@ -323,10 +327,14 @@ const Category = () => {
                 fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi cập nhật danh mục:", error);
-                alert("Không thể cập nhật danh mục. Vui lòng thử lại.");
+                setErrorMessage("Không thể cập nhật danh mục. Vui lòng thử lại.");
+                setTimeout(() => setErrorMessage(''), 2000);
+            } finally {
+                setLoadingbtn(false);
             }
         } else {
-            alert("Vui lòng nhập tên danh mục.");
+            setErrorMessage("Vui lòng nhập tên danh mục.");
+            setTimeout(() => setErrorMessage(''), 2000);
         }
     };
 
@@ -383,12 +391,12 @@ const Category = () => {
     };
 
     return (
-        <div className="category" style={{paddingLeft:'70px'}}>
+        <div className="category" style={{ paddingLeft: '70px' }}>
             {isCreating && (
-            <div className="category-loading-overlay active">
-                <div className="category-loading-spinner"></div>
-            </div>
-        )}
+                <div className="category-loading-overlay active">
+                    <div className="category-loading-spinner"></div>
+                </div>
+            )}
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Danh mục" />
             <div className={`category-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="side-section-cate">
@@ -439,7 +447,12 @@ const Category = () => {
                                 <button
                                     type="button"
                                     id="btn-add"
+                                    disabled={loadingbtn}
                                     onClick={isUpdateMode ? handleUpdateCategory : handleAddCategory}
+                                    style={{
+                                        cursor: loadingbtn ? 'not-allowed' : 'pointer',
+                                        borderRadius: "6px"
+                                    }}
                                 >
                                     {isUpdateMode ? 'Cập nhật' : 'Thêm danh mục'}
                                 </button>
@@ -448,12 +461,18 @@ const Category = () => {
                                         type="button"
                                         className="btn-clear"
                                         onClick={resetForm}
+                                        disabled={loadingbtn}
+                                        style={{
+                                            cursor: loadingbtn ? 'not-allowed' : 'pointer',
+                                            borderRadius: "6px"
+                                        }}
                                     >
                                         Hủy
                                     </button>
                                 )}
                             </div>
                             {successMessage && <div className="success-message">{successMessage}</div>}
+                            {errorMessage && <p className="form-update-post-error">{errorMessage}</p>}
                         </form>
                     </div>
                 </div>
@@ -543,14 +562,14 @@ const Category = () => {
                                                             setIsUpdateMode(true);
                                                         }}
                                                     >
-                                                        <i className="ti-pencil" style={{color: "blue", fontSize: "20px"}}></i> {/* Edit icon */}
+                                                        <i className="ti-pencil" style={{ color: "blue", fontSize: "20px" }}></i> {/* Edit icon */}
                                                     </button>
-                                                
+
                                                     <button
                                                         className="cate-btn"
                                                         onClick={() => handleViewProduct(category.cateId, category.cateName)}
                                                     >
-                                                        <i className="ti-eye" style={{color: "red", fontSize: "20px"}}></i> {/* View/eye icon */}
+                                                        <i className="ti-zoom-in" style={{ color: "red", fontSize: "20px" }}></i> {/* View/eye icon */}
                                                     </button>
 
                                                 </div>

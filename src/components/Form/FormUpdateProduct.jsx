@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
 import './FormUpdateProduct.css'; // Ensure this CSS file exists and is properly styled
 
@@ -196,8 +197,16 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
     // Function to handle image deletion
     const handleDeleteImage = async (imageId, index) => {
-        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa hình ảnh này?");
-        if (!confirmDelete) return;
+        const result = await Swal.fire({
+            title: 'Xác nhận xóa ảnh',
+            text: 'Bạn có chắc chắn muốn xóa hình ảnh này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không',
+        });
+
+        if (!result.isConfirmed) return; // Nếu người dùng chọn "Không", thoát khỏi hàm
 
         setDeletingImageId(imageId);
 
@@ -243,8 +252,20 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
     };
     // Function to handle delete all images
     const handleDeleteAllImages = async () => {
-        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa tất cả hình ảnh không?');
-        if (!confirmDelete) return;
+
+        const result = await Swal.fire({
+            title: 'Xác nhận xóa tất cả ảnh',
+            text: 'Bạn có chắc chắn muốn xóa tất cả hình ảnh không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không',
+        });
+
+        // Nếu người dùng nhấn "Không", thoát khỏi hàm
+        if (!result.isConfirmed) return;
+
+        setDeletingAllImages(true); // Bắt đầu trạng thái loading
 
         setDeletingAllImages(true); // Start loading state
         const token = getCookie('access_token');
@@ -635,8 +656,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                 <button
                                     type="button"
                                     onClick={handleDeleteAllImages}
-                                    disabled={deletingAllImages}
-                                    style={{ borderRadius: '20px' }}
+                                    disabled={deletingAllImages || isUploading}
+                                    style={{ borderRadius: '20px', cursor: (deletingAllImages || isUploading) ? 'not-allowed' : 'pointer', }}
                                 >
                                     {deletingAllImages ? 'Đang xóa tất cả...' : 'Xóa tất cả hình ảnh'}
                                 </button>
@@ -700,10 +721,15 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 </div>
 
                 <div className="update-pro-form-actions">
-                    <button type="submit" disabled={loading} id="update-pro-submit-button">
+                    <button type="submit" disabled={loading || isUploading} id="update-pro-submit-button" style={{
+                        cursor: (loading || isUploading) ? 'not-allowed' : 'pointer',
+                    }}>
                         {loading ? 'Đang cập nhật...' : 'Cập nhật'}
                     </button>
-                    <button type="button" onClick={onClose} id="update-pro-cancel-button">Hủy</button>
+                    <button type="button" onClick={onClose} disabled={loading || isUploading} id="update-pro-cancel-button" style={{
+                        cursor: (loading || isUploading) ? 'not-allowed' : 'pointer',
+                    }}>
+                        {loading ? 'Hủy' : 'Hủy'}</button>
                 </div>
             </form>
         </div>
