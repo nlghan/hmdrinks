@@ -3,7 +3,7 @@
     flex-direction: column;
     width: 100%;
     margin: 0;
-    height: 100vh;
+    height: auto;
     background-image: url('../../assets/img/contact.png');
     background-size: cover;
     background-position: center;
@@ -139,21 +139,21 @@
 }
 
 .table-orders th:nth-child(2), .table-orders td:nth-child(2) {
-    width: 11%; /* Width for the Mã Đơn Hàng (Order Code) column */
+    width: 8%; /* Width for the Mã Đơn Hàng (Order Code) column */
 }
 
 
 
 .table-orders th:nth-child(4), .table-orders td:nth-child(4) {
-    width: 15%; /* Width for the Email column */
+    width: 8%; /* Width for the Email column */
 }
 
 .table-orders th:nth-child(5), .table-orders td:nth-child(5) {
-    width: 10%; /* Width for the Điện Thoại (Phone Number) column */
+    width: 13%; /* Width for the Điện Thoại (Phone Number) column */
 }
 
 .table-orders th:nth-child(6), .table-orders td:nth-child(6) {
-    width: 10%; /* Width for the Địa Chỉ (Address) column */
+    width: 8%; /* Width for the Địa Chỉ (Address) column */
 }
 
 .table-orders th:nth-child(7), .table-orders td:nth-child(7) {
@@ -255,4 +255,74 @@
 .orders-btn:disabled {
     background-color: #e0e0e0;
     cursor: not-allowed;
+}
+
+
+.refund-orders-box {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 98.5%;
+}
+
+.refund-orders-box .table-container {
+    max-height: 250px; /* Limit height to show 5 rows */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.refund-orders-box .table-orders {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.refund-orders-box .table-orders thead {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.refund-orders-box .table-orders th {
+    padding: 12px 10px;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.refund-orders-box .table-orders tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.refund-orders-box .table-orders tbody tr:hover {
+    background-color: #e9f7ff;
+}
+
+.refund-orders-box .table-orders td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 0.9rem;
+    color: #555;
+    text-align: left;
+}
+
+.refund-orders-box .table-orders tbody td:nth-child(4),
+.refund-orders-box .table-orders tbody td:nth-child(5) {
+    text-align: right;
+}
+
+.refund-orders-box .table-orders td:first-child,
+.refund-orders-box .table-orders th:first-child {
+    text-align: center;
+}
+
+.refund-orders-box .table-orders tbody tr td:last-child {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.refund-orders-box .table-orders tbody tr td:last-child {
+    color: #007bff;
 }

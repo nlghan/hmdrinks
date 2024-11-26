@@ -49,7 +49,7 @@ const MyOrder = () => {
                 state: { orderData }
             });
         } catch (error) {
-            console.error('Không thể lấy thông tin chi tiết đơn hàng:', error);            
+            console.error('Không thể lấy thông tin chi tiết đơn hàng:', error);
         }
     };
 
@@ -171,7 +171,7 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token'); // Lấy token từ cookie
         const userId = getUserIdFromToken(token); // Lấy userId từ token
-    
+
         try {
             // Gọi API để lấy danh sách đơn hàng đã xác nhận
             const response = await axios.get(
@@ -182,9 +182,9 @@ const MyOrder = () => {
                     },
                 }
             );
-    
+
             const { data: list = [] } = response;
-    
+
             // Chuẩn bị danh sách dữ liệu kết hợp giữa order và shipment
             const orders = list.map((item) => ({
                 orderId: item.order.orderId,
@@ -193,6 +193,7 @@ const MyOrder = () => {
                 totalPrice: item.order.totalPrice,
                 status: item.order.status,
                 dateCreated: item.order.dateCreated,
+                dateOders: item.order.dateOders,
                 dateDelivered: item.order.dateDelivered,
                 discountPrice: item.order.discountPrice,
                 note: item.order.note,
@@ -208,7 +209,7 @@ const MyOrder = () => {
                     shipperName: item.shipment.nameShipper,
                 },
             }));
-    
+
             // Lưu danh sách đơn hàng vào state
             setConfirmedOrders(orders);
             console.log('Danh sách đơn hàng đã xác nhận:', orders);
@@ -219,19 +220,23 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
+
 
 
     useEffect(() => {
         if (selectedTab === 'cancelled') {
             fetchCancelledOrders();
+            window.scrollTo(0, 0);
         } else if (selectedTab === 'pending') {
             fetchWaitingOrders();
+            window.scrollTo(0, 0);
         } else if (selectedTab === 'delivering') {
             fetchConfirmedOrders();
+            window.scrollTo(0, 0);
         }
         else if (selectedTab === 'history') {
             fetchHistoryOrders();
+            window.scrollTo(0, 0);
         }
     }, [selectedTab]);
 
@@ -246,7 +251,7 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         try {
             // Gọi API để lấy danh sách lịch sử đơn hàng
             const response = await axios.get(
@@ -257,9 +262,9 @@ const MyOrder = () => {
                     },
                 }
             );
-    
+
             const { list = [] } = response.data;
-    
+
             // Chuẩn bị danh sách dữ liệu kết hợp giữa order và shipment
             const orders = list.map((item) => ({
                 orderId: item.order.orderId,
@@ -270,6 +275,7 @@ const MyOrder = () => {
                 status: item.order.status,
                 dateCreated: item.order.dateCreated,
                 dateDelivered: item.order.dateDelivered,
+                dateOders: item.order.dateOders,
                 shipment: {
                     shipmentId: item.shipment.shipmentId,
                     customerName: item.shipment.customerName,
@@ -281,7 +287,7 @@ const MyOrder = () => {
                     shipperName: item.shipment.nameShipper
                 },
             }));
-    
+
             // Lưu danh sách đơn hàng vào state
             setHistoryOrders(orders);
             console.log('Lịch sử đặt hàng:', orders);
@@ -292,7 +298,7 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
+
 
     const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
 
@@ -326,7 +332,7 @@ const MyOrder = () => {
                     Authorization: `Bearer ${token}`,
                 }
             });
-    
+
             // Kiểm tra nếu response trả về thành công
             if (response.ok) {
                 const blob = await response.blob(); // Lấy dữ liệu dưới dạng blob (tệp PDF)
@@ -341,7 +347,7 @@ const MyOrder = () => {
             console.error('Lỗi kết nối hoặc tải hóa đơn:', error);
         }
     };
-    
+
 
     const renderContent = () => {
         const itemsPerPage = 5;  // Số lượng đơn hàng hiển thị mỗi trang
@@ -369,6 +375,16 @@ const MyOrder = () => {
                                                 style={{ background: '#7cc58d' }}
                                             >
                                                 <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                            state: { dateDelivered: order.dateOders },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
@@ -376,7 +392,8 @@ const MyOrder = () => {
                                                 <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateCreated}</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                                <p><strong>Mã đơn giao: </strong> {order.shipment?.shipmentId}</p>
                                                 <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
 
                                             </div>
@@ -399,7 +416,7 @@ const MyOrder = () => {
                                 </ul>
                                 {/* Pagination */}
                                 <div className="menu-category-pagination" style={{ width: '100%' }}>
-                                {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
+                                    {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
                                         <span
                                             key={index + 1}
                                             className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
@@ -427,7 +444,18 @@ const MyOrder = () => {
                                 <ul className="my-orders-list">
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
-                                            <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p></div>
+                                            <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                            <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                            state: { dateDelivered: order.dateOders },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
+                                            </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ: </strong> {order.address}</p>
                                                 <p><strong>Số điện thoại: </strong> {order.phone}</p>
@@ -469,6 +497,7 @@ const MyOrder = () => {
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header">
                                                 <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
@@ -520,6 +549,17 @@ const MyOrder = () => {
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#a0ccdb' }}>
                                                 <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                            state: { dateDelivered: order.dateOders },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
+
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
@@ -527,10 +567,11 @@ const MyOrder = () => {
                                                 <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
                                                 <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
                                                 <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateDelivered}</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
                                                 <p><strong>Ngày nhận hàng:</strong> {order.shipment?.dateShipped}</p>
+                                                <p><strong>Mã đơn giao: </strong> {order.shipment?.shipmentId}</p>
                                                 <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
-                                                
+
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                 <button
