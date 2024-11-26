@@ -167,7 +167,22 @@ const Register = () => {
                             className={`register-input ${error && !validateUserName(userName) ? 'input-error' : ''}`}
                             value={userName}
                             onChange={handleInputChange(setUserName)}
-                            onKeyPress={handleKeyPress}
+                            style={{
+                                width: '80%',
+                                padding: '10px 0',
+                                border: 'none',
+                                borderBottom: '1px solid #666',
+                                outline: 'none',
+                                margin: '5px 0',
+                                fontSize: '16px'
+                            }}
+                        />
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            className="register-input"
+                            value={email} // Giá trị email
+                            onChange={handleInputChange(setEmail)} // Cập nhật state email
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -202,17 +217,6 @@ const Register = () => {
                             ></i>
                         </div>
 
-                            value={password}
-                            onChange={handleInputChange(setPassword)}
-                            style={{
-                                width: '80%',
-                                padding: '10px 0',
-                                border: 'none',
-                                borderBottom: '1px solid #666',
-                                outline: 'none',
-                                margin: '5px 0',
-                                fontSize: '16px'
-                            }}
                     </div>
                     <div className="button-group-register">
                         <button className="btn-register" onClick={handleRegister}>Tạo tài khoản</button>
