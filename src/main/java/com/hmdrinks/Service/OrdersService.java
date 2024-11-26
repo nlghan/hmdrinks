@@ -538,7 +538,8 @@ public class OrdersService {
                                 customer.getFullName(),
                                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                                 customer.getPhoneNumber(),
-                                customer.getEmail()
+                                customer.getEmail(),
+                                order.getOrderId()
                         );
                         historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse,crudShipmentResponse));
                     }
@@ -607,7 +608,8 @@ public class OrdersService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    order.getOrderId()
             );
 
             historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse, crudShipmentResponse));

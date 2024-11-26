@@ -100,7 +100,8 @@ public class ShipmentService {
                customer.getFullName(),
                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                customer.getPhoneNumber(),
-               customer.getEmail()
+               customer.getEmail(),
+               orders.getOrderId()
        ));
     }
 
@@ -151,7 +152,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 
@@ -239,7 +241,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 
@@ -306,7 +309,7 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(), orders.getOrderId()
         ));
     }
 
@@ -352,7 +355,7 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(), orders.getOrderId()
         ));
     }
 
@@ -389,7 +392,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
         }
@@ -435,7 +439,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
         }
@@ -493,7 +498,7 @@ public class ShipmentService {
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
                     shipper1.getFullName(),
-                    shippment.getDateCreated(),
+                    orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
@@ -504,7 +509,8 @@ public class ShipmentService {
                     customerFullName,
                     customerAddress,
                     customerPhone,
-                    customerEmail
+                    customerEmail,
+                    orders.getOrderId()
             );
 
 
@@ -545,7 +551,7 @@ public class ShipmentService {
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
                     shipper.getFullName(),
-                    shippment.getDateCreated(),
+                    orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
@@ -556,7 +562,8 @@ public class ShipmentService {
                     customer.getFullName(),
                     customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                     customer.getPhoneNumber(),
-                    customer.getEmail()
+                    customer.getEmail(),
+                    orders.getOrderId()
             );
             responses.add(response);
             total++;
@@ -617,7 +624,8 @@ public class ShipmentService {
                  customer.getFullName(),
                  customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                  customer.getPhoneNumber(),
-                 customer.getEmail()
+                 customer.getEmail(),
+                 orders.getOrderId()
          ));
     }
 
@@ -651,7 +659,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                order.getOrderId()
         ));
     }
 
@@ -716,7 +725,8 @@ public class ShipmentService {
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
                 customer.getPhoneNumber(),
-                customer.getEmail()
+                customer.getEmail(),
+                orders.getOrderId()
         ));
     }
 

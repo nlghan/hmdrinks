@@ -38,4 +38,5 @@ public class CRUDShipmentResponse {
     private String address;
     private String phoneNumber;
     private String email;
+    private Integer orderId;
 }
