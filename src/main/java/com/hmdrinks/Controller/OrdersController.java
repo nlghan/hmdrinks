@@ -78,6 +78,21 @@ public class OrdersController {
         return  ordersService.listOrderConfirmed(userId);
     }
 
+    @GetMapping("/view/order-cancel/payment-refund")
+    public ResponseEntity<?> orderCancelAndPaymentRefund() {
+        return  ordersService.listOrderCancelAndPaymentRefund();
+    }
+
+    @GetMapping("/view/order-cancel/payment-not")
+    public ResponseEntity<?> orderCancelAndPaymentNot() {
+        return  ordersService.listOrderCancelnotPayment();
+    }
+
+    @GetMapping("/view/fetchOrdersAwaiting")
+    public ResponseEntity<?> fetchOrdersAwaitingPayment() {
+        return  ordersService.fetchOrdersAwaitingPayment();
+    }
+
     @GetMapping("/view/{userId}")
     public ResponseEntity<?> getAllPaymentByUserId(@RequestParam(name = "page") String page,
                                                    @RequestParam(name = "limit") String limit,
@@ -106,5 +121,9 @@ public class OrdersController {
     public ResponseEntity<?> detailItem(@PathVariable int orderId) {
         return  ordersService.detailItemOrders(orderId);
     }
+
+
+
+
 
 }

@@ -1,17 +1,12 @@
 package com.hmdrinks.Service;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.*;
-import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.ConfirmOderReq;
 import com.hmdrinks.Request.CreateOrdersReq;
-import com.hmdrinks.Request.CreateVoucherReq;
-import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.SupportFunction.DistanceAndDuration;
 import com.hmdrinks.SupportFunction.SupportFunction;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+
 @Service
 public class OrdersService {
     @Autowired
@@ -158,7 +153,6 @@ public class OrdersService {
         }
 
         orderRepository.save(order);
-
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setUser(user);
@@ -551,6 +545,166 @@ public class OrdersService {
     }
 
     @Transactional
+    public  ResponseEntity<?> fetchOrdersAwaitingPayment()
+    {
+        List<Orders> ordersWaiting = orderRepository.findAllByStatus(Status_Order.WAITING);
+        List<Orders> ordersConfirm = orderRepository.findAllByStatus(Status_Order.CONFIRMED);
+        List<CreateOrdersResponse> listOrderWaiting = new ArrayList<>();
+        List<CreateOrdersResponse> listOrderConfirm = new ArrayList<>();
+        for(Orders order: ordersWaiting)
+        {
+            Voucher voucher = null;
+            CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            );
+            listOrderWaiting.add(createOrdersResponse);
+        }
+
+        for(Orders order: ordersConfirm)
+        {
+                Payment payment = order.getPayment();
+                if(payment != null) {
+                    continue;
+                }
+                Voucher voucher = null;
+                CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                        order.getOrderId(),
+                        order.getAddress(),
+                        order.getDeliveryFee(),
+                        order.getDateCreated(),
+                        order.getDateDeleted(),
+                        order.getDateUpdated(),
+                        order.getDeliveryDate(),
+                        order.getDiscountPrice(),
+                        order.getIsDeleted(),
+                        order.getNote(),
+                        order.getOrderDate(),
+                        order.getPhoneNumber(),
+                        order.getStatus(),
+                        order.getTotalPrice(),
+                        order.getUser().getUserId(),
+                        voucher != null ? voucher.getVoucherId() : null
+                );
+                listOrderConfirm.add(createOrdersResponse);
+            }
+        ListOrderWaiting list1 = new ListOrderWaiting(ordersWaiting.size(),listOrderWaiting);
+        ListAllOrderConfirmAndNotPayment list2 = new ListAllOrderConfirmAndNotPayment(ordersConfirm.size(),listOrderConfirm);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new fetchOrdersAwaitingPayment(
+                        list1.getTotal() + list2.getTotal(),
+                        list1,
+                        list2
+                )
+        );
+        }
+
+        @Transactional
+    public ResponseEntity<?> listOrderCancelnotPayment()
+    {
+        List<Orders> orders = orderRepository.findAllByStatus(Status_Order.CANCELLED);
+        List<CreateOrdersResponse> createOrdersResponses = new ArrayList<>();
+        for(Orders order: orders)
+        {
+            Payment payment = order.getPayment();
+            if(payment != null)
+            {
+                continue;
+            }
+            Voucher voucher = null;
+            CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            );
+            createOrdersResponses.add(createOrdersResponse);
+        }
+         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndNotPayment(createOrdersResponses.size(),createOrdersResponses));
+    }
+
+
+    @Transactional
+    public ResponseEntity<?> listOrderCancelAndPaymentRefund()
+    {
+        List<Orders> orders = orderRepository.findAllByStatus(Status_Order.CANCELLED);
+        List<OrderCancelPaymentRefund> historyOrderResponses = new ArrayList<>();
+        for(Orders order: orders)
+        {
+            Payment payment = order.getPayment();
+            if(payment == null)
+            {
+                continue;
+            }
+            if(payment.getStatus() != Status_Payment.REFUND)
+            {
+                continue;
+            }
+            Voucher voucher = null;
+            CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            );
+
+            CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
+                    payment.getPaymentId(),
+                    payment.getAmount(),
+                    payment.getDateCreated(),
+                    payment.getDateDeleted(),
+                    payment.getIsDeleted(),
+                    payment.getPaymentMethod(),
+                    payment.getStatus(),
+                    payment.getOrder().getOrderId(),
+                    payment.getIsRefund()
+            );
+
+            historyOrderResponses.add(new OrderCancelPaymentRefund(createOrdersResponse, crudPaymentResponse));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndPaymentRefund(historyOrderResponses.size(), historyOrderResponses));
+    }
+
+
+    @Transactional
     public ResponseEntity<?> listOrderConfirmed(int userId) {
         User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
         if (user == null) {
@@ -590,10 +744,8 @@ public class OrdersService {
                     null
             );
 
-
             User shipper = shipment.getUser();
             User customer = order.getUser();
-
             CRUDShipmentResponse crudShipmentResponse = new CRUDShipmentResponse(
                     shipment.getShipmentId(),
                     shipper != null ? shipper.getFullName() : null,
@@ -617,7 +769,6 @@ public class OrdersService {
 
         return ResponseEntity.status(HttpStatus.OK).body(historyOrderResponses);
     }
-
 
 
 }
