@@ -1,16 +1,17 @@
 package com.hmdrinks.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hmdrinks.Entity.*;
+import com.hmdrinks.Entity.Payment;
+import com.hmdrinks.Entity.Shippment;
+import com.hmdrinks.Entity.User;
 import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Status_Shipment;
-import com.hmdrinks.Repository.*;
+import com.hmdrinks.Repository.PaymentRepository;
+import com.hmdrinks.Repository.ShipmentRepository;
+import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Service.crypto.HMACUtil;
-import com.hmdrinks.SupportFunction.DistanceAndDuration;
-import com.hmdrinks.SupportFunction.SupportFunction;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.apache.hadoop.shaded.com.squareup.okhttp.OkHttpClient;
 import org.apache.hadoop.shaded.com.squareup.okhttp.Request;
@@ -57,55 +58,15 @@ public class ZaloPayService {
     private ShipmentRepository shipmentRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private CartItemRepository cartItemRepository;
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ProductVariantsRepository productVariantsRepository;
-    @Autowired
-    private SupportFunction supportFunction;
-    @Autowired
-    private OrderRepository orderRepository;
 
     public ZaloPayService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
-
-    public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
-        int hours = 0;
-        int minutes = 0;
-
-        // Phân tích chuỗi "3 giờ 4 phút"
-        if (duration.contains("giờ")) {
-            String[] parts = duration.split("giờ");
-            hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
-            if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút
-            }
-        } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim());
-        }
-
-        return currentTime.plusHours(hours).plusMinutes(minutes);
-    }
-
-    @Transactional
-    public  void assignShipments(int orderId) {
+    public void assignShipments() {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
                 .collect(Collectors.toList());
-        Orders orders = orderRepository.findByOrderId(orderId);
-        String place_id = supportFunction.getLocation(orders.getAddress());
-        double[] destinations = supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075, 106.77190192800003};  // Số 1-3 Võ Văn Ngân,Linh Chiểu, Thủ Đức, Tp HCM
-        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
-        String minute = distanceAndDuration.getDuration();
-        LocalDateTime currentTime = LocalDateTime.now(); // Thời gian hiện tại
-        LocalDateTime updatedTime = addDurationToCurrentTime(minute, currentTime);
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
         for (Shippment shipment : pendingShipments) {
@@ -113,12 +74,11 @@ public class ZaloPayService {
             User selectedShipper = shippers.stream()
                     .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
                     .orElse(null);
+
             if (selectedShipper != null) {
                 shipment.setUser(selectedShipper);
-                shipment.setStatus(Status_Shipment.SHIPPING);
-                shipment.setDateDelivered(updatedTime);
+                shipment.setStatus(Status_Shipment.SHIPPING); // Đổi trạng thái đơn hàng
                 shipmentRepository.save(shipment);
-
             }
         }
     }
@@ -139,7 +99,7 @@ public class ZaloPayService {
         order.put("item", "[]");
 
         String data = APP_ID + "|" + order.get("app_trans_id") + "|" + order.get("app_user") + "|" +
-                order.get("amount") + "|" + order.get("app_time") + "|" + order.get("embed_data") + "|" + order.get("item");
+                order.get("amount") + "|" + order.get("app_time") + "|" + order.get("embed_data") + "|" + order.get("item") ;
 
         // Tạo chữ ký `mac`
         String mac = generateHmacSHA256(data, KEY1);
@@ -152,12 +112,12 @@ public class ZaloPayService {
 
             String payUrl = response.optString("order_url");
             result.put("order_url", payUrl);
-            result.put("app_trans_id", (String) order.get("app_trans_id"));
+            result.put("app_trans_id",  (String) order.get("app_trans_id"));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return  result;
     }
 
     private static String getCurrentTimeString(String format) {
@@ -244,16 +204,16 @@ public class ZaloPayService {
         return false;
     }
 
-    @Transactional
-    public ResponseEntity<?> handleCallBack(String appTransId) {
+    public ResponseEntity<?> handleCallBack(String appTransId){
         Payment payment = paymentRepository.findByOrderIdPayment(appTransId);
-        if (payment == null) {
+        if(payment == null){
             return ResponseEntity.notFound().build();
         }
         Map<String, Integer> response = new HashMap<>();
         boolean isSuccess = checkStatusOrder(appTransId);
-        if (isSuccess) {
-            if (payment.getStatus() != Status_Payment.FAILED || payment.getStatus() != Status_Payment.COMPLETED) {
+        if(isSuccess){
+            if(payment.getStatus() != Status_Payment.FAILED || payment.getStatus() != Status_Payment.COMPLETED)
+            {
                 payment.setStatus(Status_Payment.COMPLETED);
                 paymentRepository.save(payment);
                 Shippment shippment = new Shippment();
@@ -263,32 +223,19 @@ public class ZaloPayService {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
-
-                // - sp
-                Orders orders = payment.getOrder();
-                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
-                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
-
-                for (CartItem cartItem : cartItems) {
-                    ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
-                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
-                        productVariantsRepository.save(productVariants);
-                    }
-
-                }
-
-                assignShipments(orders.getOrderId());
-
-                response.put("status", 1);
-            } else {
-                payment.setStatus(Status_Payment.FAILED);
-                paymentRepository.save(payment);
-                response.put("status", 0);
+                assignShipments();
             }
-
+            response.put("status", 1);
+            return ResponseEntity.ok().body(response);
         }
-        return ResponseEntity.ok().body(response);
+        else {
+            payment.setStatus(Status_Payment.FAILED);
+            paymentRepository.save(payment);
+            response.put("status", 0);
+            return ResponseEntity.ok().body(response);
+        }
+
     }
+
 
 }

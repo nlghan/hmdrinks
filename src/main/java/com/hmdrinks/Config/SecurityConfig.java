@@ -47,7 +47,6 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/fav-item/list").permitAll()
-                        .requestMatchers("/api/product/recommended/**").permitAll()
                         .requestMatchers("/api/payment/callback").permitAll()
                         .requestMatchers("/api/v1/auth/social-login/google").permitAll()
                         .requestMatchers("/api/orders/pdf/**").permitAll()
@@ -66,8 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/shipment/allocate").hasAuthority("ADMIN")
                         .requestMatchers("/api/shipment/activate/**").hasAnyAuthority("SHIPPER","ADMIN")
                         .requestMatchers("/api/shipment/shipper/**").hasAnyAuthority("SHIPPER","ADMIN")
-                        .requestMatchers("/api/shipment/check-time").hasAnyAuthority("ADMIN","SHIPPER","CUSTOMER")
-                        .requestMatchers("/api/shipment/view/**").hasAnyAuthority("ADMIN","SHIPPER","CUSTOMER")
+                        .requestMatchers("/api/shipment/view/**").hasAnyAuthority("ADMIN","SHIPPER")
                         .requestMatchers("/api/payment/listAll","/api/payment/listAll-method","/api/payment/listAll-status").hasAuthority("ADMIN")
                         .requestMatchers("/api/payment/create/cash","/api/payment/create/credit").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register").permitAll()

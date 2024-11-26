@@ -98,7 +98,7 @@ public class UserService {
                         user.getRole().toString()
                 ));
             }
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,userList1.size(), detailUserResponseList));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllUserResponse(page,userList.getTotalPages(),limit,total, detailUserResponseList));
     }
 
     public ResponseEntity<?> getListAllUserByRole(String pageFromParam, String limitFromParam,Role role) {

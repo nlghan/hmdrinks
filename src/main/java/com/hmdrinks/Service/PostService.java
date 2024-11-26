@@ -11,7 +11,9 @@ import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Repository.VoucherRepository;
 import com.hmdrinks.Request.CRUDPostReq;
 import com.hmdrinks.Request.CreateNewPostReq;
-import com.hmdrinks.Response.*;
+import com.hmdrinks.Response.CRUDPostResponse;
+import com.hmdrinks.Response.ListAllPostByUserIdResponse;
+import com.hmdrinks.Response.ListAllPostResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -122,6 +124,7 @@ public class PostService {
     }
 
 
+
     @Transactional
     public ListAllPostResponse getAllPostByType(String pageFromParam, String limitFromParam, Type_Post typePost) {
         int page = Integer.parseInt(pageFromParam);
@@ -209,6 +212,7 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate(),
                     voucherResponse
+
             ));
             total++;
         }
@@ -256,6 +260,7 @@ public class PostService {
                     post.getDateDeleted(),
                     post.getDateCreate(),
                     voucherResponse
+
             ));
             total++;
         }

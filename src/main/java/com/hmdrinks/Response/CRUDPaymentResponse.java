@@ -28,5 +28,4 @@ public class CRUDPaymentResponse {
     private Payment_Method paymentMethod;
     private Status_Payment statusPayment;
     private int orderId;
-    private boolean isRefunded;
 }
