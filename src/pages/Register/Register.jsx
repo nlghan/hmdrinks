@@ -175,7 +175,7 @@ const Register = () => {
                                     margin: '5px 0',
                                     fontSize: '16px',
                                 }}
-                            />b
+                            />
                             <i
                                 className={`ti-eye ${showPassword ? 'show' : 'hide'}`}
                                 onClick={togglePasswordVisibility}
