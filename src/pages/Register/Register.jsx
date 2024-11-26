@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer.jsx";
 import './Register.css';
 import { assets } from '../../assets/assets.js';
@@ -45,25 +45,25 @@ const Register = () => {
     };
     
 
-    const handleLoginGG = async () => {   
+    const handleLoginGG = async () => {
         try {
-          // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
-          const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
-            headers: { 'accept': '*/*' }
-          });
-      
-          // Kiểm tra nếu API trả về URL cho Google login
-          if (response.data) {
-            // Điều hướng đến Google login (redirect URL)
-            window.location.href = response.data;
-          } else {
-            console.error('Không nhận được URL đăng nhập từ API');
-          }
+            // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
+            const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+                headers: { 'accept': '*/*' }
+            });
+
+            // Kiểm tra nếu API trả về URL cho Google login
+            if (response.data) {
+                // Điều hướng đến Google login (redirect URL)
+                window.location.href = response.data;
+            } else {
+                console.error('Không nhận được URL đăng nhập từ API');
+            }
         } catch (error) {
-          console.error('Lỗi khi gửi yêu cầu Google login:', error);
+            console.error('Lỗi khi gửi yêu cầu Google login:', error);
         }
-      };
-    
+    };
+
 
     const handleRegister = async () => {
         if (!validateFullName(fullName)) {
@@ -77,6 +77,12 @@ const Register = () => {
         }
         if (!validateEmail(email)) {
             setError("Email không hợp lệ. Vui lòng nhập email đúng định dạng.");
+            return;
+        }
+
+        // Kiểm tra định dạng email
+        if (!validateEmail(email)) {
+            setError("Địa chỉ email không hợp lệ.");
             return;
         }
 
@@ -124,6 +130,12 @@ const Register = () => {
         if (event.key === "Enter") {
             handleRegister();
         }
+    };
+
+    const validateEmail = (email) => {
+        // Biểu thức chính quy để kiểm tra email hợp lệ
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
     };
 
     // Handler for input change
@@ -187,9 +199,10 @@ const Register = () => {
                         <input
                             type="email"
                             placeholder="Email"
-                            className={`register-input ${error && !validateEmail(email) ? 'input-error' : ''}`}
-                            value={email} // Giá trị email
-                            onChange={handleInputChange(setEmail)} // Cập nhật state email
+                 className={`register-input ${error && !validateEmail(email) ? 'input-error' : ''}`} // Thêm lớp CSS nếu email không hợp lệ
+                            value={email}
+                            onChange={handleInputChange(setEmail)}
+
                             style={{
                                 width: '80%',
                                 padding: '10px 0',
@@ -200,6 +213,8 @@ const Register = () => {
                                 fontSize: '16px'
                             }}
                         />
+                        {error && !validateEmail(email) && <div style={{ color: 'red', fontSize: '12px' }}>Địa chỉ email không hợp lệ.</div>}
+
                         <div className="password-input-container">
                             <input
                                 type={showPassword ? 'text' : 'password'} // Kiểu của input thay đổi tùy vào trạng thái showPassword

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout, totalOfCart } = useCart();
+    const { cartItems, increase, increaseQuantity, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout, totalOfCart } = useCart();
 
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -175,8 +175,15 @@ const Cart = () => {
         setIsLoading(true);
     };
 
-
-
+    const handleQuantityChange = (itemId, newQuantity) => {
+        if (newQuantity > 0) {
+            // Update cartItems with the new quantity
+            increaseQuantity(itemId, newQuantity);
+        } else {
+            // If quantity is zero or less, remove the item (optional behavior)
+            deleteOneItem(itemId);
+        }
+    };
 
 
 
@@ -200,6 +207,10 @@ const Cart = () => {
     const handBack = () => {
         navigate('/menu');
     };
+
+    const [editingItemId, setEditingItemId] = useState(null);
+    const [editingValue, setEditingValue] = useState("");
+
 
 
     return (
@@ -304,26 +315,68 @@ const Cart = () => {
                                                                     {item.size}
                                                                 </td>
                                                                 <td>
-                                                                    <div>
+
+                                                                    <div style={{display:'flex'}}>
+                                                                        {/* Thay thế nút tăng giảm bằng input */}
                                                                         <button
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                decrease(item.cartItemId);
+                                                                                if (item.quantity > 1) decrease(item.cartItemId);  // Giảm số lượng, không cho phép nhỏ hơn 1
                                                                             }}
                                                                         >
                                                                             -
                                                                         </button>
-                                                                        {item.quantity}
+
+                                                                        <input
+                                                                            type="text"
+                                                                            value={editingItemId === item.cartItemId ? editingValue : item.quantity} // Hiển thị giá trị đang chỉnh sửa hoặc giá trị gốc
+                                                                            onChange={(e) => {
+                                                                                const newQuantity = e.target.value;
+                                                                                console.log("Giá trị nhập vào:", newQuantity); // Log giá trị nhập vào
+                                                                                if (!isNaN(newQuantity) && newQuantity > 0) {
+                                                                                    setEditingValue(newQuantity); // Lưu giá trị mới vào state tạm thời
+                                                                                }
+                                                                            }}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === 'Enter') { // Kiểm tra phím Enter
+                                                                                    // Cập nhật ngay giá trị mới trong giao diện
+                                                                                    item.quantity = editingValue; // Tạm thời gán giá trị mới vào item
+                                                                                    handleQuantityChange(item.cartItemId, editingValue) // Gọi API để cập nhật dữ liệu thực tế
+                                                                                        .then(() => {
+                                                                                            console.log("Cập nhật thành công trên server:", editingValue);
+                                                                                        })
+                                                                                        .catch((error) => {
+                                                                                            console.error("Lỗi khi cập nhật server:", error);
+                                                                                            // Nếu cập nhật thất bại, khôi phục giá trị cũ
+                                                                                            item.quantity = previousQuantity;
+                                                                                        });
+                                                                                    console.log("Giá trị được gửi qua API:", editingValue); // Log giá trị khi gọi API
+                                                                                    setEditingItemId(null); // Xóa trạng thái chỉnh sửa
+                                                                                }
+                                                                            }}
+                                                                            onFocus={() => {
+                                                                                setEditingItemId(item.cartItemId); // Bắt đầu chỉnh sửa
+                                                                                setEditingValue(""); // Clear giá trị hiện tại để người dùng nhập mới
+                                                                                previousQuantity = item.quantity; // Lưu lại giá trị trước khi chỉnh sửa
+                                                                            }}
+                                                                            onBlur={() => {
+                                                                                setEditingItemId(null); // Xóa trạng thái chỉnh sửa
+                                                                            }}
+                                                                        />
+
                                                                         <button
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                increase(item.cartItemId);
+                                                                                increase(item.cartItemId);  // Tăng số lượng
                                                                             }}
                                                                         >
                                                                             +
                                                                         </button>
                                                                     </div>
                                                                 </td>
+
+
+
                                                                 {subIndex === 0 && (
                                                                     <td rowSpan={group.items.length}>{formatCurrency(totalPrice)}</td>
                                                                 )}

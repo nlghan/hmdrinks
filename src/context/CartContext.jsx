@@ -671,6 +671,142 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    const increaseQuantity = async (cartItemId, inputQuantity) => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+        
+        if (!cartItemId || !inputQuantity) {
+            console.error('No cart item ID or input quantity provided.');
+            return;
+        }
+    
+        // Ensure that the input quantity is a valid number
+        const quantityToAdd = parseInt(inputQuantity, 10);
+        if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+            console.error('Invalid quantity input.');
+            return;
+        }
+    
+        try {
+            // Step 1: Fetch the cart item to get the current quantity and other details
+            const cartItemResponse = await fetch(`http://localhost:1010/api/cart/list-cartItem/${cartId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                },
+            });
+    
+            if (!cartItemResponse.ok) {
+                const errorText = await cartItemResponse.text();
+                console.error('Failed to fetch cart item data:', errorText);
+                return;
+            }
+    
+            let cartItemData;
+            try {
+                cartItemData = await cartItemResponse.json();
+            } catch (jsonError) {
+                console.error('Error parsing JSON response:', jsonError);
+                return;
+            }
+    
+            const cartItem = cartItemData.listCartItemResponses.find(item => item.cartItemId === cartItemId);
+            
+            if (!cartItem) {
+                console.error(`Cart item with ID ${cartItemId} not found.`);
+                return;
+            }
+    
+            const { proId, size, quantity } = cartItem;
+    
+            // Step 2: Fetch stock information using the productId
+            const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${proId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                },
+            });
+    
+            if (!variantResponse.ok) {
+                const variantErrorText = await variantResponse.text();
+                console.error('Failed to fetch variant data:', variantErrorText);
+                return;
+            }
+    
+            let variantData;
+            try {
+                variantData = await variantResponse.json();
+            } catch (jsonError) {
+                console.error('Error parsing JSON variant response:', jsonError);
+                return;
+            }
+    
+            const variant = variantData.responseList.find(v => v.size === size);
+    
+            if (!variant) {
+                console.error(`No variant found for size: ${size}`);
+                return;
+            }
+    
+            const { stock } = variant;
+    
+            // Step 3: Check if adding the desired quantity exceeds stock
+            if (quantity + quantityToAdd > stock) {
+                console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
+                alert(`Đã đạt giới hạn số lượng cho sản phẩm này!`); // Alert if stock limit is exceeded
+                return;
+            }
+    
+            // Step 4: Proceed to increase the item quantity using the new API
+            const updateResponse = await fetch('http://localhost:1010/api/cart-item/update', {
+                method: 'PUT',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    cartItemId: cartItemId,
+                    quantity: quantityToAdd, // Update with the new total quantity
+                }),
+            });
+    
+            if (!updateResponse.ok) {
+                const updateErrorText = await updateResponse.text();
+                console.error('Failed to update item quantity:', updateErrorText);
+                return;
+            }
+    
+            // Parse the response to get the updated quantity and total price
+            let updateData;
+            try {
+                updateData = await updateResponse.json();
+            } catch (jsonError) {
+                console.error('Error parsing update response:', jsonError);
+                return;
+            }
+    
+            const { quantity: updatedQuantity, totalPrice } = updateData;
+    
+            // Update the cart items in the state if the request is successful
+            setCartItems(prevItems =>
+                prevItems.map(item =>
+                    item.cartItemId === cartItemId
+                        ? { ...item, quantity: updatedQuantity, totalPrice: totalPrice }
+                        : item
+                )
+            );
+            fetchCartItemsByCartId(cartId); // Re-fetch updated cart items
+    
+        } catch (error) {
+            console.error('Error increasing item quantity:', error);
+        }
+    };
+    
+    
+
     // Delete one item from cart
     const deleteOneItem = async (cartItemId) => {
         const token = getCookie('access_token');
@@ -715,7 +851,7 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, ensureCartExists,cartId, addToCart, increase, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout, totalOfCart }}>
+        <CartContext.Provider value={{ cartItems, ensureCartExists,cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating ,handleCheckout, totalOfCart, fetchCartItemsByCartId }}>
             {children}
         </CartContext.Provider>
     );
