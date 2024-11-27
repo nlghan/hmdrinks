@@ -197,7 +197,7 @@ button[type="button"] {
 }
 
 #update-pro-submit-button {
-    background-color: #28a745;
+    background-color: #00B087;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -210,7 +210,7 @@ button[type="button"] {
 }
 
 #update-pro-submit-button:hover {
-    background-color: #218838;
+    background-color: #00b04c;
 }
 
 .submit-button:disabled {
@@ -219,7 +219,7 @@ button[type="button"] {
 }
 
 #update-pro-cancel-button {
-    background-color: #dc3545;
+    background-color: #c73b48;
     color: white;
     border: none;
     padding: 10px 20px;

@@ -115,27 +115,39 @@ const ProductDetail = () => {
                         'Accept': '*/*'
                     }
                 });
-
+    
                 if (!variantResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-
+    
                 const variantData = await variantResponse.json();
-                setAvailableSizes(variantData.responseList.map(v => v.size)); // Get available sizes
-
-                // Find the variant based on selected size
+    
+                // Lọc các size có stock > 0 và cập nhật availableSizes
+                const filteredSizes = variantData.responseList
+                    .filter(v => v.stock > 0)
+                    .map(v => v.size);
+    
+                setAvailableSizes(filteredSizes);
+    
+                // Kiểm tra nếu selectedSize không còn khả dụng sau khi lọc
+                if (!filteredSizes.includes(selectedSize)) {
+                    setSelectedSize(filteredSizes.length > 0 ? filteredSizes[0] : null); // Chọn size đầu tiên khả dụng hoặc null
+                }
+    
+                // Tìm biến thể dựa trên selectedSize
                 const variant = variantData.responseList.find(v => v.size === selectedSize);
                 if (variant) {
-                    setPrice(variant.price); // Set the price based on selected size
-                    setStock(variant.stock); // Set the stock based on selected size
+                    setPrice(variant.price); // Đặt giá theo size đã chọn
+                    setStock(variant.stock); // Đặt stock theo size đã chọn
                 }
             } catch (error) {
                 console.error('Failed to fetch product variants:', error);
             }
         };
-
+    
         fetchProductVariants();
     }, [selectedSize, product.proId]);
+    
 
 
     const handleSizeChange = (size) => {

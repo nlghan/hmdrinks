@@ -321,7 +321,7 @@ const Cart = () => {
                                                                         <button
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                if (item.quantity > 1) decrease(item.cartItemId);  // Giảm số lượng, không cho phép nhỏ hơn 1
+                                                                                if (item.quantity > 0) decrease(item.cartItemId);  // Giảm số lượng, không cho phép nhỏ hơn 1
                                                                             }}
                                                                         >
                                                                             -

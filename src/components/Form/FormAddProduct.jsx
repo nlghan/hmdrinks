@@ -88,25 +88,42 @@ const FormAddProduct = ({ onClose }) => {
 
     const handleSubmit = async () => {
         const { cateId, proName, description } = formData;
-
+    
         const token = getCookie('access_token');
         if (!token) {
             setErrorMessage("Bạn cần đăng nhập để thêm sản phẩm.");
             return;
         }
-
+    
         if (!cateId || !proName || !description) {
             setErrorMessage("Vui lòng không để trống bất kỳ trường thông tin nào.");
             return;
         }
-
-        if (variants.some(variant => !variant.size || !variant.price || !variant.stock)) {
-            setErrorMessage("Vui lòng điền đầy đủ thông tin cho tất cả các biến thể.");
-            return;
+    
+        // Kiểm tra giá và số lượng của các biến thể
+        for (const variant of variants) {
+            if (!variant.size || !variant.price || !variant.stock) {
+                setErrorMessage("Vui lòng điền đầy đủ thông tin cho tất cả các biến thể.");
+                return;
+            }
+    
+            // Kiểm tra giá phải lớn hơn 1000 và không âm
+            const price = parseInt(variant.price, 10);
+            if (price <= 1000 || price < 0) {
+                setErrorMessage("Giá sản phẩm phải lớn hơn 1000VND");
+                return;
+            }
+    
+            // Kiểm tra số lượng phải lớn hơn 0 và không âm
+            const stock = parseInt(variant.stock, 10);
+            if (stock <= 0) {
+                setErrorMessage("Số lượng sản phẩm phải lớn hơn 0.");
+                return;
+            }
         }
-
+    
         setIsSubmitting(true);
-
+    
         try {
             setLoading(true);
             setIsCreating(true);  // Set loading to true when starting to submit
@@ -119,22 +136,22 @@ const FormAddProduct = ({ onClose }) => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
+    
             if (productResponse.data) {
                 const proId = productResponse.data.proId;
-
+    
                 const imageFormData = new FormData();
                 files.forEach(file => {
                     imageFormData.append('files', file);
                 });
-
+    
                 await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/product-image/upload?proId=${proId}`, imageFormData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-
+    
                 for (const variant of variants) {
                     if (variant.size && variant.price && variant.stock) {
                         await axios.post(`${import.meta.env.VITE_API_BASE_URL}/productVar/create`, {
@@ -150,12 +167,10 @@ const FormAddProduct = ({ onClose }) => {
                         });
                     }
                 }
-
-
+    
                 setErrorMessage("");
-
+    
                 setTimeout(() => {
-                    console.log("setTimeout triggered"); // Log 3
                     setSuccessMessage("Thêm sản phẩm thành công!");
                     onClose();
                 }, 1000);
@@ -163,7 +178,11 @@ const FormAddProduct = ({ onClose }) => {
         } catch (error) {
             console.error('Error:', error);
             if (error.response) {
-                setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi khi thêm sản phẩm.');
+                if (error.response.status === 409) {
+                    setErrorMessage("Sản phẩm cùng tên đã tồn tại. Vui lòng thử lại");
+                } else {
+                    setErrorMessage(error.response.data.message || 'Đã xảy ra lỗi khi thêm sản phẩm.');
+                }
             }
         } finally {
             setLoading(false);
@@ -171,7 +190,8 @@ const FormAddProduct = ({ onClose }) => {
             setIsCreating(false);  // Set loading to false after the response is received
         }
     };
-
+    
+    
     return (
 
         <div className="add-product-overlay">
@@ -253,7 +273,7 @@ const FormAddProduct = ({ onClose }) => {
                                     type="button"
                                     onClick={addVariant}
                                     className="add-variant-button"
-                                    style={{ display: 'inline', fontSize: '24px', lineHeight: '24px' }}
+                                    style={{ display: 'inline', fontSize: '24px', lineHeight: '24px', borderRadius:'100%', backgroundColor:'white', color:'green' }}
                                 >
                                     +
                                 </button></span></h3>
