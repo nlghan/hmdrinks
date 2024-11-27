@@ -82,24 +82,36 @@ const MyOrder = () => {
     const fetchCancelledOrders = async () => {
         setLoading(true);
         setError('');
-        const token = getCookie('access_token')
+        const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
+        
         try {
-            const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=100&status=CANCELLED`,
+         
+            // Gọi API lấy danh sách đơn hàng đã hủy nhưng đã thanh toán
+            const responsePaid = await axios.get(
+                `http://localhost:1010/api/orders/view/order-cancel/payment-have/${userId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        accept: '*/*',
                     },
                 }
             );
-            setCancelledOrders(response.data.listOrders);
+            const paidOrders = responsePaid.data.list || [];
+    
+            // Hợp nhất hai danh sách đơn hàng
+            const combinedOrders = [...paidOrders];
+            setCancelledOrders(combinedOrders);
+            
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đã hủy.');
+            console.error('Error fetching cancelled orders:', err);
         } finally {
             setLoading(false);
         }
     };
+    
+    
 
 
     const [waitingOrders, setWaitingOrders] = useState([]);
@@ -109,60 +121,40 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
+        
         try {
+            // Gọi API để lấy danh sách đơn hàng đang chờ
             const response = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=10&status=WAITING`,
+                `http://localhost:1010/api/orders/view/fetchOrdersAwaiting/${userId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-
-            // Lấy danh sách đơn hàng từ API
-            const fetchedOrders = response.data.listOrders;
-
-            // Duyệt qua các đơn hàng đã CONFIRMED để kiểm tra payment
-            const confirmedResponse = await axios.get(
-                `http://localhost:1010/api/orders/view/${userId}/status?page=1&limit=20&status=CONFIRMED`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            const confirmedOrders = confirmedResponse.data.listOrders;
-
-            // Kiểm tra từng đơn hàng CONFIRMED với API info-payment
-            const waitingFromConfirmed = [];
-            for (const order of confirmedOrders) {
-                try {
-                    await axios.get(
-                        `http://localhost:1010/api/orders/info-payment?orderId=${order.orderId}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                        }
-                    );
-                } catch (err) {
-                    if (err.response && err.response.status === 404) {
-                        // Nếu không có thông tin thanh toán, thêm vào danh sách waiting
-                        waitingFromConfirmed.push(order);
-                    } else {
-                        console.error(`Lỗi khi kiểm tra payment cho orderId ${order.orderId}:`, err);
-                    }
-                }
-            }
-
-            // Gộp danh sách đơn hàng chờ từ API và từ CONFIRMED không có payment
-            setWaitingOrders([...fetchedOrders, ...waitingFromConfirmed]);
+    
+            // Tách dữ liệu từ response
+            const { listOrderWaiting, listAllOrderConfirmAndNotPayment } = response.data;
+    
+            // Lấy danh sách đơn hàng đang chờ
+            const waitingOrders = listOrderWaiting?.list || [];
+            const confirmedNotPaidOrders = listAllOrderConfirmAndNotPayment?.list || [];
+    
+            // Gộp hai danh sách đơn hàng vào một nếu cần hiển thị cả hai hoặc xử lý riêng
+            const combinedOrders = [...waitingOrders, ...confirmedNotPaidOrders];
+    
+            // Cập nhật danh sách đơn hàng đang chờ
+            setWaitingOrders(combinedOrders);
+            
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đang chờ thanh toán.');
+            console.error('Error fetching waiting orders:', err);
         } finally {
             setLoading(false);
         }
     };
+    
+    
 
 
     const [confirmedOrders, setConfirmedOrders] = useState([]);
@@ -232,6 +224,10 @@ const MyOrder = () => {
             window.scrollTo(0, 0);
         } else if (selectedTab === 'delivering') {
             fetchConfirmedOrders();
+            window.scrollTo(0, 0);
+        }
+        else if (selectedTab === 'refund') {
+            fetchRefundOrders();
             window.scrollTo(0, 0);
         }
         else if (selectedTab === 'history') {
@@ -348,6 +344,71 @@ const MyOrder = () => {
         }
     };
 
+    const [refundOrders, setRefundOrders] = useState([]);
+    const [currentRefundPage, setCurrentRefundPage] = useState(1);
+
+    const fetchRefundOrders = async () => {
+        setLoading(true);
+        setError('');
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+    
+        try {
+            // Gọi API để lấy danh sách đơn hàng hoàn tiền
+            const response = await axios.get(
+                `http://localhost:1010/api/orders/view/order-cancel/payment-refund-user/${userId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Accept': '*/*'
+                    },
+                }
+            );
+    
+            const { list = [] } = response.data;
+    
+            // Chuẩn bị danh sách dữ liệu kết hợp giữa order và payment
+            const refunds = list.map((item) => ({
+                orderId: item.order.orderId,
+                address: item.order.address,
+                phoneNumber: item.order.phone,
+                deliveryFee: item.order.deliveryFee,
+                discountPrice: item.order.discountPrice,
+                totalPrice: item.order.totalPrice,
+                status: item.order.status,
+                dateCreated: item.order.dateCreated,
+                dateDelivered: item.order.dateDelivered,
+                dateOders: item.order.dateOders,
+                note: item.order.note,
+    
+                payment: {
+                    paymentId: item.payment.paymentId,
+                    amount: item.payment.amount,
+                    dateCreated: item.payment.dateCreated,
+                    paymentMethod: item.payment.paymentMethod,
+                    statusPayment: item.payment.statusPayment,
+                    refunded: item.payment.refunded ? 'ĐÃ HOÀN' : 'CHƯA HOÀN',
+                }
+            }));
+    
+            // Lưu danh sách đơn hàng hoàn tiền vào state
+            setRefundOrders(refunds);
+            console.log('Danh sách hoàn tiền:', refunds);
+        } catch (err) {
+            setError('Không thể tải danh sách hoàn tiền.');
+            console.error('Lỗi khi gọi API hoàn tiền:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
+    const handleRefundPageChange = (pageNumber) => {
+        setCurrentRefundPage(pageNumber);
+        window.scrollTo(0, 0);
+    };
+
+
 
     const renderContent = () => {
         const itemsPerPage = 5;  // Số lượng đơn hàng hiển thị mỗi trang
@@ -445,16 +506,7 @@ const MyOrder = () => {
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                            <button
-                                                    className="btn-view-details-ship"
-                                                    onClick={() =>
-                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
-                                                            state: { dateDelivered: order.dateOders },
-                                                        })
-                                                    }
-                                                >
-                                                    Chi tiết
-                                                </button>
+                                        
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ: </strong> {order.address}</p>
@@ -497,7 +549,7 @@ const MyOrder = () => {
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header">
                                                 <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                                
+
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ:</strong> {order.address}</p>
@@ -535,6 +587,61 @@ const MyOrder = () => {
                         )}
                     </div>
                 );
+            case 'refund':
+                return (
+                    <div>
+                        {loading ? (
+                            <div>Đang tải...</div>
+                        ) : error ? (
+                            <div>{error}</div>
+                        ) : (
+                            <>
+                                <ul className="my-orders-list">
+                                    {paginate(refundOrders, currentRefundPage).map((refund) => (
+                                        <li key={refund.orderId} className="my-orders-item">
+                                            <div className="my-orders-item-header" style={{ background: '#f3d2f1' }}>
+                                                <p><strong>Mã đơn hàng:</strong> {refund.orderId}</p>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${refund.orderId}`, {
+                                                            state: { dateRequested: refund.dateRequested },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
+                                            </div>
+                                            <div className="my-refunds-item-content">
+                                                <p><strong>Địa chỉ:</strong> {refund.address}</p>
+                                                <p><strong>Số điện thoại:</strong> {refund.phoneNumber}</p>
+                                                <p><strong>Ngày đặt hàng:</strong> {refund.dateOders}</p>
+                                                <p><strong>Số tiền đã thanh toán (gồm ship):</strong> {refund.payment?.amount} VND</p>
+                                                <p><strong>Phương thức thanh toán:</strong> {refund.payment?.paymentMethod}</p>
+                                                <p><strong>Trạng thái hoàn tiền: </strong> {refund.payment?.refunded}</p>
+                                            </div>
+                                            
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {/* Pagination */}
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
+                                    {Array.from({ length: Math.ceil(refundOrders.length / itemsPerPage) }, (_, index) => (
+                                        <span
+                                            key={index + 1}
+                                            className={`pagination-cate-dot ${currentRefundPage === index + 1 ? 'active' : ''}`}
+                                            onClick={() => handleRefundPageChange(index + 1)}
+                                        >
+                                            •
+                                        </span>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                );
+
             case 'history':
                 return (
                     <div>
@@ -630,6 +737,12 @@ const MyOrder = () => {
                         onClick={() => setSelectedTab('pending')}
                     >
                         Đơn hàng chờ thanh toán
+                    </div>
+                    <div
+                        className={`my-orders-menu-item ${selectedTab === 'refund' ? 'my-orders-active' : ''}`}
+                        onClick={() => setSelectedTab('refund')}
+                    >
+                        Đơn hàng hoàn tiền
                     </div>
                     <div
                         className={`my-orders-menu-item ${selectedTab === 'history' ? 'my-orders-active' : ''}`}

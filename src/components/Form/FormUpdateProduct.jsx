@@ -137,12 +137,13 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                         else if (variant.size === 'L') setVarIdL(variant.varId);
                     });
 
-                    setPriceS(sizeVariants.S.price || '');
-                    setStockS(sizeVariants.S.stock || '');
-                    setPriceM(sizeVariants.M.price || '');
-                    setStockM(sizeVariants.M.stock || '');
-                    setPriceL(sizeVariants.L.price || '');
-                    setStockL(sizeVariants.L.stock || '');
+                    // Đảm bảo số lượng bằng 0 vẫn được hiển thị
+                    setPriceS(sizeVariants.S.price ?? '');
+                    setStockS(sizeVariants.S.stock ?? 0);
+                    setPriceM(sizeVariants.M.price ?? '');
+                    setStockM(sizeVariants.M.stock ?? 0);
+                    setPriceL(sizeVariants.L.price ?? '');
+                    setStockL(sizeVariants.L.stock ?? 0);
                 } else {
                     console.warn("No variants found in the response.");
                 }
@@ -396,12 +397,12 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
         // Simple client-side validation for each variant
         const validateVariant = (price, stock) => {
-            if (!price || price <= 0) return "Giá không hợp lệ.";
-            if (stock === '' || stock < 0) return "Số lượng không hợp lệ.";
+            if (price !== undefined && (price <= 1000 || !price)) return "Giá không hợp lệ.";
+            if (stock !== undefined && (stock === '' || stock < 0)) return "Số lượng không hợp lệ.";
             return null;
         };
 
-        // Validate all variants
+        // Validate only the variants that have changes
         const errorS = validateVariant(priceS, stockS);
         const errorM = validateVariant(priceM, stockM);
         const errorL = validateVariant(priceL, stockL);
@@ -468,22 +469,26 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             // Prepare variant updates with varId
             const variantRequests = [];
             const variantUpdates = [
-                { varId: varIdS, size: "S", price: Number(priceS), stock: Number(stockS) },
-                { varId: varIdM, size: "M", price: Number(priceM), stock: Number(stockM) },
-                { varId: varIdL, size: "L", price: Number(priceL), stock: Number(stockL) },
+                { varId: varIdS, size: "S", price: priceS, stock: stockS },
+                { varId: varIdM, size: "M", price: priceM, stock: stockM },
+                { varId: varIdL, size: "L", price: priceL, stock: stockL },
             ];
 
-            // Loop through each variant and prepare requests
+            // Loop through each variant and prepare requests only for those that have changed
             for (const variant of variantUpdates) {
-                if (variant.price !== '' && variant.stock !== '') {
-                    // If the varId is null, create a new variant
+                if (variant.stock === 0) {
+                    setError(`Số lượng của variant ${variant.size} phải lớn hơn 0.`);
+                    setLoading(false);
+                    return;
+                }
+                if (variant.price !== undefined || variant.stock !== undefined) {
                     if (variant.varId === null) {
-                        // Create new variant
+                        // Create new variant if varId is null
                         const variantPayload = {
                             proId: Number(proId),
                             size: variant.size,
-                            price: variant.price,
-                            stock: variant.stock,
+                            price: variant.price || 0,  // Default price if not provided
+                            stock: variant.stock || 0,  // Default stock if not provided
                         };
                         variantRequests.push(axios.post(variantCreateUrl, variantPayload, {
                             headers: {
@@ -498,8 +503,8 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             varId: variant.varId,
                             proId: Number(proId),
                             size: variant.size,
-                            price: variant.price,
-                            stock: variant.stock,
+                            price: variant.price || 0,  // Default price if not provided
+                            stock: variant.stock || 0,  // Default stock if not provided
                         };
                         variantRequests.push(axios.put(variantUpdateUrl, variantPayload, {
                             headers: {
@@ -523,11 +528,23 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             onClose();
         } catch (err) {
             console.error("Error updating product or variants:", err);
-            setError("Cập nhật sản phẩm thất bại. Vui lòng thử lại sau.");
+
+            if (err.response) {
+                // Check if the error is 409 (Conflict)
+                if (err.response.status === 409) {
+                    setError("Đã tồn tại sản phẩm cùng tên.");
+                } else {
+                    setError("Cập nhật sản phẩm thất bại. Vui lòng thử lại sau.");
+                }
+            } else {
+                setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+            }
         } finally {
             setLoading(false);
         }
     };
+
+
 
 
     return (
@@ -682,24 +699,27 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                             type="number"
                                             value={size === 'S' ? priceS : size === 'M' ? priceM : priceL}
                                             onChange={(e) => {
-                                                if (size === 'S') setPriceS(e.target.value);
-                                                else if (size === 'M') setPriceM(e.target.value);
-                                                else setPriceL(e.target.value);
+                                                const value = e.target.value === '' ? null : parseFloat(e.target.value); // Set to null if empty
+                                                if (size === 'S') setPriceS(value);
+                                                else if (size === 'M') setPriceM(value);
+                                                else setPriceL(value);
                                             }}
                                             required
                                             min="0"
                                             step="0.01"
                                         />
                                     </div>
+
                                     <div className="pro-update-field-group">
                                         <label>Số lượng:</label>
                                         <input
                                             type="number"
                                             value={size === 'S' ? stockS : size === 'M' ? stockM : stockL}
                                             onChange={(e) => {
-                                                if (size === 'S') setStockS(e.target.value);
-                                                else if (size === 'M') setStockM(e.target.value);
-                                                else setStockL(e.target.value);
+                                                const value = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+                                                if (size === 'S') setStockS(value);
+                                                else if (size === 'M') setStockM(value);
+                                                else setStockL(value);
                                             }}
                                             required
                                             min="0"

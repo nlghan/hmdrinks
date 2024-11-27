@@ -264,10 +264,14 @@ const Category = () => {
                 fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi thêm danh mục:", error);
-                setErrorMessage("Không thể thêm danh mục. Vui lòng thử lại.");
+                // Kiểm tra lỗi 409
+                if (error.response && error.response.status === 409) {
+                    setErrorMessage("Danh mục với tên này đã tồn tại. Vui lòng chọn tên khác.");
+                } else {
+                    setErrorMessage("Không thể thêm danh mục. Vui lòng thử lại.");
+                }
                 setTimeout(() => setErrorMessage(''), 2000);
-            }
-            finally {
+            } finally {
                 setIsCreating(false);
             }
         } else {
@@ -275,6 +279,7 @@ const Category = () => {
             setTimeout(() => setErrorMessage(''), 2000);
         }
     };
+
 
     const handleSortChange = (e) => {
         const order = e.target.value;
@@ -287,16 +292,33 @@ const Category = () => {
             const token = getCookie('access_token');
             let updatedCategoryData = {
                 cateId: updateCategory.cateId,  // Đảm bảo đây là ID đúng của danh mục
-                cateName: categoryName,
+                cateName: categoryName,  // Sử dụng tên danh mục mới nhập vào
                 cateImg: updateCategory.cateImg // Mặc định giữ lại hình ảnh cũ nếu không có hình ảnh mới
             };
-
+    
             try {
                 setLoadingbtn(true);
+    
+                // Gửi yêu cầu cập nhật danh mục trước
+                const updateCategoryResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                // Kiểm tra nếu trả về thông điệp "category already exists" trong response.data
+                if (updateCategoryResponse.data === "category already exists") {
+                    setErrorMessage("Danh mục với tên này đã tồn tại. Vui lòng chọn tên khác.");
+                    setTimeout(() => setErrorMessage(''), 2000);
+                    return; // Dừng lại nếu tên danh mục đã tồn tại
+                }
+    
+                // Nếu có hình ảnh mới, upload ảnh
                 if (categoryImage) {
                     const formData = new FormData();
                     formData.append('file', categoryImage);
-
+    
                     // Upload hình ảnh để lấy URL mới
                     const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
                         headers: {
@@ -304,30 +326,37 @@ const Category = () => {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
-
+    
                     // Cập nhật URL hình ảnh sau khi upload thành công
                     updatedCategoryData.cateImg = uploadResponse.data.url;
+    
+                    // Gửi yêu cầu cập nhật danh mục một lần nữa với hình ảnh mới
+                    await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
                 }
-
-                // Gửi yêu cầu cập nhật danh mục
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
+    
                 setSuccessMessage("Cập nhật danh mục thành công!");
                 setTimeout(() => setSuccessMessage(''), 2000);
-
+    
                 // Reset form
                 resetForm();
-
+    
                 // Tải lại danh sách danh mục
                 fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi cập nhật danh mục:", error);
-                setErrorMessage("Không thể cập nhật danh mục. Vui lòng thử lại.");
+    
+                // Kiểm tra nếu có lỗi trả về từ server
+                if (error.response && error.response.data === "category already exists") {
+                    setErrorMessage("Danh mục với tên này đã tồn tại. Vui lòng chọn tên khác.");
+                } else {
+                    setErrorMessage("Không thể cập nhật danh mục. Vui lòng thử lại.");
+                }
+    
                 setTimeout(() => setErrorMessage(''), 2000);
             } finally {
                 setLoadingbtn(false);
@@ -337,7 +366,9 @@ const Category = () => {
             setTimeout(() => setErrorMessage(''), 2000);
         }
     };
-
+    
+    
+    
     const resetForm = () => {
         setCategoryName('');
         setCategoryImage(null);
@@ -431,18 +462,8 @@ const Category = () => {
                                     onChange={handleImageChange}
                                 />
                             </div>
-                            <div className="form-group">
-                                <label className='check-active-cate' style={{ fontSize: '18px' }}>
-                                    <input
-                                        className='check-box-active-cate'
-                                        type="checkbox"
-                                        style={{ width: '15px' }}
-                                        checked={isActive}
-                                        onChange={(e) => setIsActive(e.target.checked)}
-                                    />
-                                    Kích hoạt
-                                </label>
-                            </div>
+
+
                             <div className="cate-form-actions">
                                 <button
                                     type="button"
