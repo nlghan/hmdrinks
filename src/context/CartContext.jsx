@@ -674,16 +674,21 @@ export const CartProvider = ({ children }) => {
     const increaseQuantity = async (cartItemId, inputQuantity) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-        
+    
         if (!cartItemId || !inputQuantity) {
             console.error('No cart item ID or input quantity provided.');
             return;
         }
     
-        // Ensure that the input quantity is a valid number
         const quantityToAdd = parseInt(inputQuantity, 10);
         if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
             console.error('Invalid quantity input.');
+            return;
+        }
+
+        if (quantityToAdd === 0) {
+            console.error('Quantity cannot be zero.');
+            alert('Số lượng không thể bằng 0!');
             return;
         }
     
@@ -703,22 +708,16 @@ export const CartProvider = ({ children }) => {
                 return;
             }
     
-            let cartItemData;
-            try {
-                cartItemData = await cartItemResponse.json();
-            } catch (jsonError) {
-                console.error('Error parsing JSON response:', jsonError);
-                return;
-            }
-    
+            const cartItemData = await cartItemResponse.json();
             const cartItem = cartItemData.listCartItemResponses.find(item => item.cartItemId === cartItemId);
-            
+    
             if (!cartItem) {
                 console.error(`Cart item with ID ${cartItemId} not found.`);
                 return;
             }
     
             const { proId, size, quantity } = cartItem;
+            const previousQuantity = quantity; // Lưu số lượng hiện tại trước khi cập nhật
     
             // Step 2: Fetch stock information using the productId
             const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${proId}`, {
@@ -734,14 +733,7 @@ export const CartProvider = ({ children }) => {
                 return;
             }
     
-            let variantData;
-            try {
-                variantData = await variantResponse.json();
-            } catch (jsonError) {
-                console.error('Error parsing JSON variant response:', jsonError);
-                return;
-            }
-    
+            const variantData = await variantResponse.json();
             const variant = variantData.responseList.find(v => v.size === size);
     
             if (!variant) {
@@ -750,11 +742,36 @@ export const CartProvider = ({ children }) => {
             }
     
             const { stock } = variant;
+
+            if (quantityToAdd === 0) {
+                console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
+                alert(`Không thể nhập số lượng là 0!`);
+                
+                // Khôi phục số lượng cũ
+                setCartItems(prevItems =>
+                    prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? { ...item, quantity: previousQuantity }
+                            : item
+                    )
+                );
+                return;
+            }
+
     
             // Step 3: Check if adding the desired quantity exceeds stock
-            if (quantity + quantityToAdd > stock) {
+            if (quantityToAdd > stock) {
                 console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
-                alert(`Đã đạt giới hạn số lượng cho sản phẩm này!`); // Alert if stock limit is exceeded
+                alert(`Đã đạt giới hạn số lượng cho sản phẩm này!`);
+                
+                // Khôi phục số lượng cũ
+                setCartItems(prevItems =>
+                    prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? { ...item, quantity: previousQuantity }
+                            : item
+                    )
+                );
                 return;
             }
     
@@ -769,41 +786,40 @@ export const CartProvider = ({ children }) => {
                 body: JSON.stringify({
                     userId: userId,
                     cartItemId: cartItemId,
-                    quantity: quantityToAdd, // Update with the new total quantity
+                    quantity: quantityToAdd,
                 }),
             });
     
             if (!updateResponse.ok) {
                 const updateErrorText = await updateResponse.text();
                 console.error('Failed to update item quantity:', updateErrorText);
+                setCartItems(prevItems =>
+                    prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? { ...item, quantity: previousQuantity }
+                            : item
+                    )
+                );
                 return;
             }
     
-            // Parse the response to get the updated quantity and total price
-            let updateData;
-            try {
-                updateData = await updateResponse.json();
-            } catch (jsonError) {
-                console.error('Error parsing update response:', jsonError);
-                return;
-            }
-    
+            const updateData = await updateResponse.json();
             const { quantity: updatedQuantity, totalPrice } = updateData;
     
-            // Update the cart items in the state if the request is successful
             setCartItems(prevItems =>
                 prevItems.map(item =>
                     item.cartItemId === cartItemId
-                        ? { ...item, quantity: updatedQuantity, totalPrice: totalPrice }
+                        ? { ...item, quantity: updatedQuantity, totalPrice }
                         : item
                 )
             );
-            fetchCartItemsByCartId(cartId); // Re-fetch updated cart items
+            fetchCartItemsByCartId(cartId);
     
         } catch (error) {
             console.error('Error increasing item quantity:', error);
         }
     };
+    
     
     
 

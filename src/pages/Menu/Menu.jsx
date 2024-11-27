@@ -10,7 +10,8 @@ import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
 import { useLocation } from "react-router-dom";
-const [showError, setShowError] = useState(false);
+
+
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -29,6 +30,7 @@ const useDebounce = (value, delay) => {
 
 const Menu = () => {
     const location = useLocation();
+    const [showError, setShowError] = useState(false);
     const { selectedCategoryId: selectedCategoryIdFromHome } = location.state || {}; // Get selectedCategoryId from Home
     const { isLoggedIn } = useAuth(); // Get login status from useAuth
     const [products, setProducts] = useState([]);

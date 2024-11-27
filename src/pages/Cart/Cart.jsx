@@ -316,7 +316,7 @@ const Cart = () => {
                                                                 </td>
                                                                 <td>
 
-                                                                    <div style={{display:'flex'}}>
+                                                                    <div style={{ display: 'flex' }}>
                                                                         {/* Thay thế nút tăng giảm bằng input */}
                                                                         <button
                                                                             onClick={(e) => {
@@ -326,41 +326,42 @@ const Cart = () => {
                                                                         >
                                                                             -
                                                                         </button>
-
                                                                         <input
                                                                             type="text"
                                                                             value={editingItemId === item.cartItemId ? editingValue : item.quantity} // Hiển thị giá trị đang chỉnh sửa hoặc giá trị gốc
                                                                             onChange={(e) => {
                                                                                 const newQuantity = e.target.value;
-                                                                                console.log("Giá trị nhập vào:", newQuantity); // Log giá trị nhập vào
-                                                                                if (!isNaN(newQuantity) && newQuantity > 0) {
-                                                                                    setEditingValue(newQuantity); // Lưu giá trị mới vào state tạm thời
+                                                                                if (/^\d*$/.test(newQuantity)) { // Cho phép chuỗi rỗng hoặc số
+                                                                                    setEditingValue(newQuantity); // Lưu giá trị vào state tạm thời
                                                                                 }
                                                                             }}
                                                                             onKeyDown={(e) => {
-                                                                                if (e.key === 'Enter') { // Kiểm tra phím Enter
-                                                                                    // Cập nhật ngay giá trị mới trong giao diện
-                                                                                    item.quantity = editingValue; // Tạm thời gán giá trị mới vào item
-                                                                                    handleQuantityChange(item.cartItemId, editingValue) // Gọi API để cập nhật dữ liệu thực tế
-                                                                                        .then(() => {
-                                                                                            console.log("Cập nhật thành công trên server:", editingValue);
-                                                                                        })
-                                                                                        .catch((error) => {
-                                                                                            console.error("Lỗi khi cập nhật server:", error);
-                                                                                            // Nếu cập nhật thất bại, khôi phục giá trị cũ
-                                                                                            item.quantity = previousQuantity;
-                                                                                        });
-                                                                                    console.log("Giá trị được gửi qua API:", editingValue); // Log giá trị khi gọi API
-                                                                                    setEditingItemId(null); // Xóa trạng thái chỉnh sửa
+                                                                                if (e.key === 'Enter') {
+                                                                                    const parsedValue = parseInt(editingValue, 10);
+                                                                                    if (parsedValue > 0) {
+                                                                                        item.quantity = parsedValue; // Cập nhật giá trị vào item tạm thời
+                                                                                        handleQuantityChange(item.cartItemId, parsedValue) // Gọi API để cập nhật dữ liệu thực tế
+                                                                                            .then(() => {
+                                                                                                console.log("Cập nhật thành công trên server:", parsedValue);
+                                                                                            })
+                                                                                            .catch((error) => {
+                                                                                                console.error("Lỗi khi cập nhật server:", error);
+                                                                                            });
+                                                                                        setEditingItemId(null); // Kết thúc trạng thái chỉnh sửa
+                                                                                    } else {
+                                                                                        alert("Số lượng phải lớn hơn 0!"); // Thông báo lỗi khi số lượng <= 0
+                                                                                    }
                                                                                 }
                                                                             }}
                                                                             onFocus={() => {
                                                                                 setEditingItemId(item.cartItemId); // Bắt đầu chỉnh sửa
-                                                                                setEditingValue(""); // Clear giá trị hiện tại để người dùng nhập mới
-                                                                                previousQuantity = item.quantity; // Lưu lại giá trị trước khi chỉnh sửa
+                                                                                setEditingValue(""); // Cho phép nhập giá trị mới
                                                                             }}
                                                                             onBlur={() => {
-                                                                                setEditingItemId(null); // Xóa trạng thái chỉnh sửa
+                                                                                if (!editingValue) {
+                                                                                    setEditingValue(item.quantity.toString()); // Hiển thị lại giá trị cũ nếu chưa nhập gì
+                                                                                }
+                                                                                setEditingItemId(null); // Kết thúc chỉnh sửa
                                                                             }}
                                                                         />
 
