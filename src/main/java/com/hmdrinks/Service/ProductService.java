@@ -1,15 +1,9 @@
 package com.hmdrinks.Service;
 
-import com.hmdrinks.Entity.Category;
-import com.hmdrinks.Entity.Product;
-import com.hmdrinks.Entity.ProductVariants;
-import com.hmdrinks.Entity.Review;
+import com.hmdrinks.Entity.*;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.NotFoundException;
-import com.hmdrinks.Repository.CategoryRepository;
-import com.hmdrinks.Repository.ProductRepository;
-import com.hmdrinks.Repository.ProductVariantsRepository;
-import com.hmdrinks.Repository.ReviewRepository;
+import com.hmdrinks.Repository.*;
 import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import jakarta.transaction.Transactional;
@@ -35,7 +29,17 @@ public class ProductService {
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
     @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     public ResponseEntity<?> crateProduct(CreateProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
@@ -493,6 +497,24 @@ public class ProductService {
             productVariant.setIsDeleted(true);
             productVariant.setDateDeleted(LocalDateTime.now());
             productVariantsRepository.save(productVariant);
+            List<CartItem> cartItems = cartItemRepository.findByProductVariants_VarId(productVariant.getVarId());
+            for(CartItem cartItem : cartItems)
+            {
+                cartItem.setIsDeleted(true);
+                cartItem.setDateDeleted(LocalDateTime.now());
+                cartItemRepository.save(cartItem);
+            }
+            List<Cart> carts = cartRepository.findAll();
+            for(Cart cart : carts){
+                List<CartItem> cartItems1 = cartItemRepository.findByCart_CartIdAndIsDeletedFalse(cart.getCartId());
+                double total = 0.0 ;
+                for(CartItem cartItem1 : cartItems1)
+                {
+                    total += cartItem1.getTotalPrice();
+                }
+                cart.setTotalPrice(total);
+                cartRepository.save(cart);
+            }
         }
         List<Review> reviewList = reviewRepository.findAllByProduct_ProId(product.getProId());
         for(Review review : reviewList)
@@ -545,6 +567,25 @@ public class ProductService {
             productVariant.setIsDeleted(false);
             productVariant.setDateDeleted(null);
             productVariantsRepository.save(productVariant);
+
+            List<CartItem> cartItems = cartItemRepository.findByProductVariants_VarId(productVariant.getVarId());
+            for(CartItem cartItem : cartItems)
+            {
+                cartItem.setIsDeleted(false);
+                cartItem.setDateDeleted(null);
+                cartItemRepository.save(cartItem);
+            }
+            List<Cart> carts = cartRepository.findAll();
+            for(Cart cart : carts){
+                List<CartItem> cartItems1 = cartItemRepository.findByCart_CartIdAndIsDeletedFalse(cart.getCartId());
+                double total = 0.0 ;
+                for(CartItem cartItem1 : cartItems1)
+                {
+                    total += cartItem1.getTotalPrice();
+                }
+                cart.setTotalPrice(total);
+                cartRepository.save(cart);
+            }
         }
         List<Review> reviewList = reviewRepository.findAllByProduct_ProId(product.getProId());
         for(Review review : reviewList)

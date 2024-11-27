@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -36,6 +38,12 @@ public class CartItem {
 
     @Column(name = "quantity")
     private int quantity;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
+    private LocalDateTime dateDeleted;
 
 }
 

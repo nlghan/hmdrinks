@@ -115,7 +115,7 @@ public class ProductVarService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Variant Not Found");
         }
-        if(req.getStock() <=0)
+        if(req.getStock() < 0)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Stock greater than 0");
         }
