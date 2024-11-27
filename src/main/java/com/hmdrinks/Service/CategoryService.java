@@ -247,11 +247,15 @@ public class CategoryService {
                 for(Cart cart : carts){
                     List<CartItem> cartItems1 = cartItemRepository.findByCart_CartIdAndIsDeletedFalse(cart.getCartId());
                     double total = 0.0 ;
+                    int quantity = 0;
                     for(CartItem cartItem1 : cartItems1)
                     {
                         total += cartItem1.getTotalPrice();
+                        quantity += cartItem1.getQuantity();
                     }
                     cart.setTotalPrice(total);
+                    cart.setTotalProduct(quantity);
+
                     cartRepository.save(cart);
                 }
             }
@@ -312,13 +316,16 @@ public class CategoryService {
                 for(Cart cart : carts){
                     List<CartItem> cartItems1 = cartItemRepository.findByCart_CartIdAndIsDeletedFalse(cart.getCartId());
                     double total = 0.0 ;
+                    int quantity = 0;
                     for(CartItem cartItem1 : cartItems1)
                     {
                         total += cartItem1.getTotalPrice();
+                        quantity += cartItem1.getQuantity();
                     }
                     cart.setTotalPrice(total);
-                    cartRepository.save(cart);
+                    cart.setTotalProduct(quantity);
 
+                    cartRepository.save(cart);
                 }
             }
             List<Review> reviews = reviewRepository.findAllByProduct_ProId(product.getProId());
