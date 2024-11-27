@@ -185,7 +185,7 @@ const ProductDetail = () => {
         navigate('/menu');
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         const token = getCookie('access_token')
         const userId = getUserIdFromToken(token); // Hàm lấy userId từ token
         if (!userId) {
@@ -201,15 +201,27 @@ const ProductDetail = () => {
             return;
         }
 
-        addToCart({
+        const { status, message } = await addToCart({
             productId: product.proId,
             name: product.proName,
             price: price,
             size: selectedSize,
             quantity: quantity,
-            image: product.productImageResponseList[currentImageIndex].linkImage
+            image: product.productImageResponseList[currentImageIndex].linkImage,
         });
+    
+        // Kiểm tra nếu API trả về lỗi 400
+        if (status === 400) {
+            setShowError(true);
+            setMessage(message || "Đã đạt giới hạn số lượng cho sản phẩm này!");
+            setTimeout(() => {
+                setShowError(false);
+            }, 2000);
+            return; // Dừng lại nếu có lỗi 400
+        }    
+        // Nếu thành công
         setShowSuccess(true);
+        setMessage(message);
         setTimeout(() => {
             setShowSuccess(false);
         }, 2000);

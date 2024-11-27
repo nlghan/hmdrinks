@@ -61,7 +61,7 @@ const Login = () => {
     const handleLogin = async () => {
         const data = { userName, password };
         const maxAttempts = 5; // Số lần nhập sai tối đa
-        const lockoutTime = 5 * 60 * 1000; // Thời gian khóa tính bằng ms (5 phút)
+        const lockoutTime = 30 * 1000; // Thời gian khóa tính bằng ms
 
         // Lấy thông tin lần nhập sai từ localStorage
         const loginAttempts = JSON.parse(localStorage.getItem('loginAttempts')) || {};
@@ -69,7 +69,7 @@ const Login = () => {
 
         // Kiểm tra nếu người dùng đang bị khóa
         if (userAttempts.lockedUntil && new Date() < new Date(userAttempts.lockedUntil)) {
-            setMessage("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 5 phút.");
+            setMessage("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 30 giây.");
             setError("Tài khoản bị khóa tạm thời.");
             return;
         }
@@ -134,7 +134,7 @@ const Login = () => {
                     userAttempts.count += 1;
                     if (userAttempts.count >= maxAttempts) {
                         userAttempts.lockedUntil = new Date(new Date().getTime() + lockoutTime); // Khóa trong 5 phút
-                        setError("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 5 phút.");
+                        setError("Bạn đã nhập sai mật khẩu quá số lần quy định, vui lòng thử lại sau 30 giây.");
                     } else {
                         setError(`Sai tên đăng nhập hoặc mật khẩu. Bạn còn ${maxAttempts - userAttempts.count} lần thử.`);
                     }

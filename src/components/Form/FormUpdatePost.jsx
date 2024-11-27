@@ -158,12 +158,76 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     };
 
     const userId = getUserIdFromToken(authToken);
+    const validateNotEmpty = (formData) => {
+        for (const key in formData) {
+            if (formData[key] === "" || formData[key] === null || formData[key] === undefined) {
+                return `Không được để trống thông tin.`;
+            }
+        }
+        return null;
+    };
+    const validatePositiveNumber = (value, fieldName) => {
+        if (isNaN(value) || value <= 0 || !Number.isInteger(Number(value))) {
+            return `Trường ${fieldName} phải là số tự nhiên lớn hơn 0.`;
+        }
+        return null;
+    };
+    const validateDates = (startDate, endDate) => {
+        const now = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
+        if (start <= now) {
+            return 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại.';
+        }
+        if (end <= start) {
+            return 'Thời gian kết thúc phải lớn hơn thời gian bắt đầu.';
+        }
+        return null;
+    };
+    const validateForm = () => {
+        const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, number } = formData;
+    
+        if (!title || !description || !shortDescription || !typePost || !startDate || !endDate || !keyVoucher || !discount || !number) {
+            setErrorMessage('Tất cả các trường thông tin đều bắt buộc.');
+            return false;
+        }
+    
+        if (isNaN(discount) || discount <= 0) {
+            setErrorMessage('Giảm giá phải là số tự nhiên lớn hơn 0.');
+            return false;
+        }
+    
+        if (isNaN(number) || number <= 0) {
+            setErrorMessage('Số lượng phải là số tự nhiên lớn hơn 0.');
+            return false;
+        }
+    
+        const currentTime = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+    
+        if (start <= currentTime) {
+            setErrorMessage('Ngày bắt đầu phải lớn hơn thời gian hiện tại.');
+            return false;
+        }
+    
+        if (end <= start) {
+            setErrorMessage('Ngày kết thúc phải lớn hơn ngày bắt đầu.');
+            return false;
+        }
+    
+        setErrorMessage('');
+        return true;
+    };
+    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const token = getCookie('access_token'); // Ensure the token is retrieved here if not already available
-
+        if (!validateForm()) {
+            return;
+        }
         try {
             setLoading(true);
             setIsCreating(true);
@@ -456,17 +520,27 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                         <div className="form-update-post-actions">
                             <button type="submit" className="form-update-post-submit" disabled={loading} style={{
                                 cursor: loading ? 'not-allowed' : 'pointer',
-                                width: '150px'
+                                width: '170px',
+                                backgroundColor: '#00B087',
+                                position: 'relative',
+                                left: '50px',
+                                marginLeft: '100px'
+
                             }}
+                                onMouseOver={(e) => (e.target.style.backgroundColor = '#17d4a8')} // Màu hover
+                                onMouseOut={(e) => (e.target.style.backgroundColor = '#00B087')} // Trả về màu cũ
                             >
                                 {loading ? 'Đang cập nhật...' : 'Cập nhật'}</button>
                             <button type="button" className="form-update-post-cancel" disabled={loading} onClick={onClose} style={{
                                 cursor: loading ? 'not-allowed' : 'pointer',
-                                width: '150px',
+                                width: '170px',
                                 position: 'relative',
-                                right:'-400px'
+                                right: '-250px',
+                                backgroundColor: '#c73b48',
 
                             }}
+                                onMouseOver={(e) => (e.target.style.backgroundColor = '#f03748')} // Màu hover
+                                onMouseOut={(e) => (e.target.style.backgroundColor = '#c73b48')}
                             >
                                 {loading ? 'Hủy' : 'Hủy'}</button>
                         </div>

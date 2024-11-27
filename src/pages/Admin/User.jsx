@@ -407,7 +407,7 @@ const User = () => {
                                         <td>
                                             <div className="user-button-container">
                                                 <button id="user-update-btn3" onClick={() => handleDetailsClick(user)}>
-                                                    <i className="ti-info-alt"></i> {/* Themify icon for details */}
+                                                    <i className="ti-info-alt" style={{ color: 'violet' }}></i> {/* Themify icon for details */}
                                                 </button>
                                                 <button id="user-update-btn1" onClick={() => handleUpdateClick(user)}>
                                                     <i className="ti-pencil"></i> {/* Themify icon for update */}

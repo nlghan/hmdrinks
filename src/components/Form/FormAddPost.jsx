@@ -56,6 +56,42 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
+    const validateForm = () => {
+        const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, number } = formData;
+    
+        if (!title || !description || !shortDescription || !typePost || !startDate || !endDate || !keyVoucher || !discount || !number) {
+            setErrorMessage('Tất cả các trường thông tin đều bắt buộc.');
+            return false;
+        }
+    
+        if (isNaN(discount) || discount <= 0) {
+            setErrorMessage('Giảm giá phải là số tự nhiên lớn hơn 0.');
+            return false;
+        }
+    
+        if (isNaN(number) || number <= 0) {
+            setErrorMessage('Số lượng phải là số tự nhiên lớn hơn 0.');
+            return false;
+        }
+    
+        const currentTime = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+    
+        if (start <= currentTime) {
+            setErrorMessage('Ngày bắt đầu phải lớn hơn thời gian hiện tại.');
+            return false;
+        }
+    
+        if (end <= start) {
+            setErrorMessage('Ngày kết thúc phải lớn hơn ngày bắt đầu.');
+            return false;
+        }
+    
+        setErrorMessage('');
+        return true;
+    };
+    
 
     const handleFileChange = (e) => {
         setFormData((prevData) => ({
@@ -84,6 +120,9 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
     };
 
     const handleSubmit = async () => {
+        if (!validateForm()) {
+            return;
+        }
         const { title, description, shortDescription, typePost, startDate, endDate, keyVoucher, discount, status, file, number } = formData;
 
         try {
@@ -151,7 +190,11 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
             }, 1000);
         } catch (error) {
             setIsCreating(false);
-            setErrorMessage('Đã xảy ra lỗi khi thêm bài đăng hoặc voucher.');
+            if (error.response && error.response.status === 409) {
+                setErrorMessage('Bài đăng có voucher đã tồn tại.');
+            } else {
+                setErrorMessage('Đã xảy ra lỗi khi thêm bài đăng hoặc voucher.');
+            }
             setSuccessMessage('');
         } finally {
             setLoading(false);
@@ -164,7 +207,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
         <div className="form-add-post-container">
             <div className="form-add-post-wrapper">
                 <h2>Thêm Bài Đăng và Voucher</h2>
-                {errorMessage && <p className="form-add-post-error">{errorMessage}</p>}
+                {errorMessage && <p className="form-add-post-error" style={{color: 'red'}}>{errorMessage}</p>}
                 {successMessage && <p className="form-add-post-success">{successMessage}</p>}
                 <form className="form-add-post-columns" onSubmit={(e) => e.preventDefault()}>
                     <div className="form-add-post-column">
@@ -242,9 +285,9 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         </div>
                     </div>
                 </form>
-                <div className="form-add-post-actions">
+                <div className="form-add-post-actions" style= {{justifyContent: "space-around"}}>
                     <button type="button" onClick={handleSubmit} disabled={loading} style={{
-                        backgroundColor: hoveredButton === 'save' ? '#45a049' : 'green',
+                        backgroundColor: hoveredButton === 'save' ? '#17d4a8' : '#00B087',
                         color: 'white',
                         transition: 'background-color 0.3s',
                         cursor: loading ? 'not-allowed' : 'pointer',
@@ -257,7 +300,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         {loading ? 'Đang thêm...' : 'Thêm'}
                     </button>
                     <button type="button" onClick={onClose} disabled={loading} style={{
-                        backgroundColor: hoveredButton === 'cancel' ? '#d73939' : 'red',
+                        backgroundColor: hoveredButton === 'cancel' ?  '#f03748': '#c73b48',
                         color: 'white',
                         transition: 'background-color 0.3s',
                         cursor: loading ? 'not-allowed' : 'pointer',

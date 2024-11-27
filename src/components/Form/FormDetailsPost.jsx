@@ -75,10 +75,26 @@ const FormDetailsPost = ({ postId, onClose }) => {
     };
 
     return (
-        <div className="form-details-post-container">
+        <div className="form-details-post-container" sttyle={{height: '1000px'}}>
             <div className="form-details-post-header">
-                <h2 className="form-details-post-title">Chi Tiết Bài Đăng</h2>
-                <button onClick={onClose} className="form-details-post-close-button">x</button>
+                <h2 className="form-details-post-title">Chi Tiết Bài Đăng</h2><button
+                    onClick={onClose}
+                    style={{
+                        height: '35px',
+                        width: '35px',
+                        borderRadius: '50%',
+                        backgroundColor: '#e8e6e6',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: 'none'
+                    }}
+                    className="form-details-post-close-button"
+                >
+                    <i className="ti-close" style={{ color: '#f21b1b', fontSize: '18px' }}></i>
+                </button>
+
+
             </div>
             <div className="form-details-post-content">
                 <div className="form-details-post-details">
@@ -125,7 +141,7 @@ const FormDetailsPost = ({ postId, onClose }) => {
                                     </span>
                                 </div>
                             </div>
-                            
+
                             {post.isDeleted && <p className="form-details-post-status"><strong>Trạng Thái:</strong> Đã xóa</p>}
                         </>
                     ) : (

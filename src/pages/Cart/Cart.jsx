@@ -349,7 +349,10 @@ const Cart = () => {
                                                                                             });
                                                                                         setEditingItemId(null); // Kết thúc trạng thái chỉnh sửa
                                                                                     } else {
-                                                                                        alert("Số lượng phải lớn hơn 0!"); // Thông báo lỗi khi số lượng <= 0
+                                                                                        setShowError(true);
+                                                                                        setTimeout(() => {
+                                                                                            setShowError(false);
+                                                                                        }, 2000);
                                                                                     }
                                                                                 }
                                                                             }}
@@ -434,6 +437,22 @@ const Cart = () => {
                                     <button className="continue-shopping-button" onClick={handBack}>Tìm thêm sản phẩm khác <i className='ti-arrow-right' style={{ fontSize: '12px' }} /></button>
                                 </section>
                             </>
+                        )}
+                        {showError && (
+                            <div className="error-animation">
+                                <div className="error-modal">
+                                    <div className="error-icon">
+                                        <div className="error-icon-circle">
+                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3>Số lượng phải lớn hơn 0!</h3>
+                                    <p>Vui lòng chọn lại số lượng phù hợp.</p>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

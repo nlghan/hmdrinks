@@ -124,7 +124,7 @@ const Dashboard = () => {
     const timeAgo = (date) => {
         const now = new Date();
         const inputDate = new Date(date);
-        
+
         // Kiểm tra nếu ngày truyền vào là hôm nay
         if (now.toDateString() === inputDate.toDateString()) {
             return "Vừa tạo hôm nay";
@@ -137,7 +137,7 @@ const Dashboard = () => {
         if (interval > 0) return `${interval} tháng trước`;
         interval = Math.floor(seconds / 86400);
         if (interval > 0) return `${interval} ngày trước`;
-        
+
         return "Vừa tạo hôm nay"; // fallback
     };
 
@@ -194,7 +194,7 @@ const Dashboard = () => {
                             height='180px'
                             data="📬 TỶ LỆ GIẢI QUYẾT PHẢN HỒI"
                             description="Các phản hồi từ khách hàng đã được giải quyết xong"
-                            color="#66e366" 
+                            color="#66e366"
                             colorline="#e8ffe8" // Pastel Blue
                             backgroundColor="#cafaca" // Light Pastel Blue
                         />
@@ -223,10 +223,10 @@ const Dashboard = () => {
                                                 <td>{shipment.phoneNumber}</td>
                                                 <td className={`dash-status-${shipment.status.toLowerCase()}`}>
                                                     {shipment.status === 'WAITING' ? 'Đang chờ' :
-                                                    shipment.status === 'SHIPPING' ? 'Đang giao' :
-                                                    shipment.status === 'SUCCESS' ? 'Thành công' :
-                                                    shipment.status === 'CANCELLED' ? 'Thất bại' :
-                                                    shipment.status}
+                                                        shipment.status === 'SHIPPING' ? 'Đang giao' :
+                                                            shipment.status === 'SUCCESS' ? 'Thành công' :
+                                                                shipment.status === 'CANCELLED' ? 'Thất bại' :
+                                                                    shipment.status}
                                                 </td>
                                                 <td>{shipment.dateCreated}</td>
                                             </tr>
@@ -248,8 +248,12 @@ const Dashboard = () => {
                         <h2>Cập nhật gần đây</h2>
                         <ul>
                             {users.map(user => (
-                                <li key={user.userId}>
-                                    <img src={user.avatar && user.avatar.trim() !== "" ? user.avatar : assets.avtrang} alt={user.userName} className="update-image-dash" />
+                                <li key={user.userId}>                                    
+                                    {user.avatar && user.avatar !== "None" && user.avatar !== null && user.avatar !== "string" ? (
+                                        <img src={user.avatar} className="update-image-dash" />
+                                    ) : (
+                                        <img src={assets.avtrang} className="update-image-dash" />
+                                    )}
                                     <span>{user.userName} đã đăng ký tài khoản</span>
                                     <span>{timeAgo(user.dateCreated)}</span>
                                 </li>

@@ -19,8 +19,7 @@
     border-radius: 8px; /* Bo góc khung */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
     background-color: #fff; /* Màu nền trắng */
-  
-}
+  }
 
 .form-details-post-header {
     display: flex;
@@ -49,7 +48,7 @@
 .form-details-post-details {
     display: block;
     max-width: 800px; /* Để tbody có thể cuộn */
-    max-height: 500px; /* Giới hạn độ cao tối đa cho tbody */
+    max-height: 700px; /* Giới hạn độ cao tối đa cho tbody */
     overflow-y: auto;
     padding: 10px; /* Khoảng cách trong phần chi tiết bài đăng */
 }
