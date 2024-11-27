@@ -132,11 +132,11 @@ const Register = () => {
         }
     };
 
-    const validateEmail = (email) => {
-        // Biểu thức chính quy để kiểm tra email hợp lệ
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(email);
-    };
+    // const validateEmail = (email) => {
+    //     // Biểu thức chính quy để kiểm tra email hợp lệ
+    //     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    //     return emailRegex.test(email);
+    // };
 
     // Handler for input change
     const handleInputChange = (setter) => (event) => {

@@ -330,6 +330,7 @@ const News = () => {
             if (response.data && response.data.body) {
                 const fetchedVouchers = response.data.body.voucherResponseList || [];
                 setAllVouchers(fetchedVouchers);
+                setTotalV(response.data.body.total)
             }
         } catch (error) {
             console.error("Error refreshing data after post addition:", error);

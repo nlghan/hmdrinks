@@ -10,6 +10,7 @@ import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
 import { useLocation } from "react-router-dom";
+const [showError, setShowError] = useState(false);
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -180,7 +181,10 @@ const Menu = () => {
         } else {
             // Nếu số lượng vượt quá hàng tồn kho, ngăn việc thêm vào giỏ hàng
             if (quantity > stock) {
-                alert(`Số lượng vượt quá hàng tồn kho. Chỉ có sẵn ${stock}.`);
+                setShowError(true);
+                setTimeout(() => {
+                    setShowError(false);
+                }, 2000);
                 return;
             }
 
@@ -365,7 +369,9 @@ const Menu = () => {
                                     {'>'}
                                 </span>
                             </div>
+
                         )}
+
 
                     </div>
 
@@ -395,7 +401,22 @@ const Menu = () => {
                             )}
                         </div>
                     )}
-
+                    {showError && (
+                        <div className="error-animation">
+                            <div className="error-modal">
+                                {/* <div className="error-icon">
+                                    <div className="error-icon-circle">
+                                        <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                        </svg>
+                                    </div>
+                                </div> */}
+                                <h3>Không thể thêm vào giỏ hàng!</h3>
+                                <p>Số lượng trong kho đã hết.</p>
+                            </div>
+                        </div>
+                    )}
 
                     {showLoginPrompt && (
                         <div className="login-modal">
