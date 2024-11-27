@@ -45,13 +45,13 @@ public class PaymentService {
     private static final String clientId = "0e21da23-8871-45ef-8624-694417cf10eb";
     private static final String apiKey = "0ad492a1-cf68-446e-901d-d282171cbdd9";
     private static final String checksumKey = "465b9e56baff7a17688d4867b9ad117f9f0ccc95732f18971f9e94b72ffe9a2e";
-    private static  final String webhookUrl = "https://da9b-2405-4803-c7a7-e900-509-6d67-25cb-b3eb.ngrok-free.app/intermediary-page";
+    private static  final String webhookUrl = "https://65c5-2001-ee0-4fc7-e490-fd77-782e-28f-ff61.ngrok-free.app/intermediary-page";
 
     //momo
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://57f8-2001-ee0-4f84-5630-adca-18e8-6808-a51b.ngrok-free.app/intermediary-page";
+    private final String redirectUrl = "https://65c5-2001-ee0-4fc7-e490-fd77-782e-28f-ff61.ngrok-free.app/intermediary-page";
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
@@ -182,7 +182,27 @@ public class PaymentService {
                     payment.setIsDeleted(false);
                     payment.setIsRefund(false);
                     paymentRepository.save(payment);
-                    assignShipments(orderId1);
+
+                Shippment shippment = new Shippment();
+                shippment.setPayment(payment);
+                shippment.setIsDeleted(false);
+                shippment.setDateCreated(LocalDateTime.now());
+                shippment.setDateDelivered(LocalDateTime.now());
+                shippment.setStatus(Status_Shipment.WAITING);
+                shipmentRepository.save(shippment);
+
+                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+                for (CartItem cartItem : cartItems) {
+                    ProductVariants productVariants = cartItem.getProductVariants();
+                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                        productVariantsRepository.save(productVariants);
+                    }
+                }
+                assignShipments(orderId1);
+
 
                 return new ResponseEntity<>(new CreatePaymentResponse(
                         payment.getPaymentId(),
@@ -313,6 +333,7 @@ public class PaymentService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> createPaymentATM(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
@@ -353,6 +374,25 @@ public class PaymentService {
                 payment.setIsDeleted(false);
                 payment.setIsRefund(false);
                 paymentRepository.save(payment);
+
+                Shippment shippment = new Shippment();
+                shippment.setPayment(payment);
+                shippment.setIsDeleted(false);
+                shippment.setDateCreated(LocalDateTime.now());
+                shippment.setDateDelivered(LocalDateTime.now());
+                shippment.setStatus(Status_Shipment.WAITING);
+                shipmentRepository.save(shippment);
+
+                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+                for (CartItem cartItem : cartItems) {
+                    ProductVariants productVariants = cartItem.getProductVariants();
+                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                        productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                        productVariantsRepository.save(productVariants);
+                    }
+                }
                 assignShipments(orderId1);
 
                 return new ResponseEntity<>(new CreatePaymentResponse(
@@ -494,6 +534,25 @@ public class PaymentService {
             payment.setIsDeleted(false);
             payment.setIsRefund(false);
             paymentRepository.save(payment);
+
+            Shippment shippment = new Shippment();
+            shippment.setPayment(payment);
+            shippment.setIsDeleted(false);
+            shippment.setDateCreated(LocalDateTime.now());
+            shippment.setDateDelivered(LocalDateTime.now());
+            shippment.setStatus(Status_Shipment.WAITING);
+            shipmentRepository.save(shippment);
+
+            Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+            for (CartItem cartItem : cartItems) {
+                ProductVariants productVariants = cartItem.getProductVariants();
+                if (productVariants.getStock() > cartItem.getQuantity()) {
+                    productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                    productVariantsRepository.save(productVariants);
+                }
+            }
             assignShipments(orderId1);
 
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -581,6 +640,25 @@ public class PaymentService {
             payment.setIsDeleted(false);
             payment.setIsRefund(false);
             paymentRepository.save(payment);
+
+            Shippment shippment = new Shippment();
+            shippment.setPayment(payment);
+            shippment.setIsDeleted(false);
+            shippment.setDateCreated(LocalDateTime.now());
+            shippment.setDateDelivered(LocalDateTime.now());
+            shippment.setStatus(Status_Shipment.WAITING);
+            shipmentRepository.save(shippment);
+
+            Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+            for (CartItem cartItem : cartItems) {
+                ProductVariants productVariants = cartItem.getProductVariants();
+                if (productVariants.getStock() > cartItem.getQuantity()) {
+                    productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                    productVariantsRepository.save(productVariants);
+                }
+            }
             assignShipments(orderId1);
 
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -765,6 +843,7 @@ public class PaymentService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> createPaymentCash(int orderId) {
         Payment payment = paymentRepository.findByOrderOrderId(orderId);
         if (payment != null) {
@@ -794,7 +873,7 @@ public class PaymentService {
         if(totalAmount <= 0.0)
         {
             Payment payments = new Payment();
-            payments.setPaymentMethod(Payment_Method.CREDIT);
+            payments.setPaymentMethod(Payment_Method.CASH);
             payments.setStatus(Status_Payment.COMPLETED);
             payments.setOrder(order);
             payments.setAmount(0.0);
@@ -803,6 +882,25 @@ public class PaymentService {
             payments.setIsDeleted(false);
             payments.setIsRefund(false);
             paymentRepository.save(payments);
+
+            Shippment shippment = new Shippment();
+            shippment.setPayment(payments);
+            shippment.setIsDeleted(false);
+            shippment.setDateCreated(LocalDateTime.now());
+            shippment.setDateDelivered(LocalDateTime.now());
+            shippment.setStatus(Status_Shipment.WAITING);
+            shipmentRepository.save(shippment);
+
+            Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
+            List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+            for (CartItem cartItem : cartItems) {
+                ProductVariants productVariants = cartItem.getProductVariants();
+                if (productVariants.getStock() > cartItem.getQuantity()) {
+                    productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
+                    productVariantsRepository.save(productVariants);
+                }
+            }
             assignShipments(orderId);
 
             return new ResponseEntity<>(new CreatePaymentResponse(

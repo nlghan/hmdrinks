@@ -83,14 +83,24 @@ public class OrdersController {
         return  ordersService.listOrderCancelAndPaymentRefund();
     }
 
-    @GetMapping("/view/order-cancel/payment-not")
-    public ResponseEntity<?> orderCancelAndPaymentNot() {
-        return  ordersService.listOrderCancelnotPayment();
+    @GetMapping("/view/order-cancel/payment-refund-user/{userId}")
+    public ResponseEntity<?> orderCancelAndPaymentRefundUser(@PathVariable int userId) {
+        return  ordersService.listOrderCancelAndPaymentRefundUser(userId);
     }
 
-    @GetMapping("/view/fetchOrdersAwaiting")
-    public ResponseEntity<?> fetchOrdersAwaitingPayment() {
-        return  ordersService.fetchOrdersAwaitingPayment();
+    @GetMapping("/view/order-cancel/payment-not/{userId}")
+    public ResponseEntity<?> orderCancelAndPaymentNot(@PathVariable int userId) {
+        return  ordersService.listOrderCancelnotPayment(userId);
+    }
+
+    @GetMapping("/view/order-cancel/payment-have/{userId}")
+    public ResponseEntity<?> orderCancelAndPaymentHave(@PathVariable int userId) {
+        return  ordersService.listOrderCancelHavetPayment(userId);
+    }
+
+    @GetMapping("/view/fetchOrdersAwaiting/{userId}")
+    public ResponseEntity<?> fetchOrdersAwaitingPayment(@PathVariable int userId) {
+        return  ordersService.fetchOrdersAwaitingPayment(userId);
     }
 
     @GetMapping("/view/{userId}")

@@ -269,7 +269,7 @@ public class GenerateInvoiceService {
         Table addressTable = new Table(twoColumnWidth);
         addressTable.addCell(createCell10fLeft("Ngày đặt", true));
         addressTable.addCell(createCell10fLeft("Địa chỉ", true));
-        addressTable.addCell(createCell10fLeft(String.valueOf(orders.getDateCreated().format(formatter)), false));
+        addressTable.addCell(createCell10fLeft(String.valueOf(orders.getOrderDate().format(formatter)), false));
         addressTable.addCell(createCell10fLeft(
                 user.getStreet() + ", " + user.getWard() + ", " + user.getDistrict() + ", " + user.getCity(), false));
 
@@ -401,7 +401,11 @@ public class GenerateInvoiceService {
         document.add(discount);
 
 // Dòng tổng cộng nổi bật
-        Paragraph totalSummary = new Paragraph("Tổng cộng: " + formatCurrency(totalAmount + orders.getDeliveryFee() - orders.getDiscountPrice()) + "₫")
+        double total = totalAmount + orders.getDeliveryFee() - orders.getDiscountPrice();
+        if (total <= 0) {
+            total = 0;
+        }
+        Paragraph totalSummary = new Paragraph("Tổng cộng: " + formatCurrency(total) + "₫")
                 .setFont(vietnameseFont)
                 .setFontSize(15f)
                 .setBold()

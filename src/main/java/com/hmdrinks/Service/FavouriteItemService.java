@@ -70,6 +70,7 @@ public class FavouriteItemService {
         {
             favouriteItem.setFavourite(favourite);
             favouriteItem.setProductVariants(productVariants);
+            favouriteItem.setIsDeleted(false);
             favouriteItemRepository.save(favouriteItem);
             favourite.setDateUpdated(LocalDateTime.now());
             favouriteRepository.save(favourite);
