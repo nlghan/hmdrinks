@@ -96,7 +96,7 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("category already exists");
         }
         LocalDateTime currentDateTime = LocalDateTime.now();
-        category.setCateName(category.getCateName());
+        category.setCateName(req.getCateName());
         category.setCateImg(category.getCateImg());
         category.setDateUpdated(LocalDateTime.now());
         categoryRepository.save(category);
