@@ -15,7 +15,6 @@ const FormDetailsUser = ({ user, onClose }) => {
         <div className="form-details-user">
             <div className="form-header-details-user">
                 <h2>Chi tiết Người Dùng</h2>
-                <button className="close-btn" onClick={onClose}>Đóng</button>
             </div>
             <div className="form-content-details-user">
                 <div className="avatar-section">
@@ -30,7 +29,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     </div>
                     <div className="user-dates">
                         <div>Ngày tạo: {user.dateCreated ? new Date(user.dateCreated).toLocaleDateString() : 'N/A'}</div>
-                        <div>Ngày cập nhật: {user.dateUpdated ? new Date(user.dateUpdated).toLocaleDateString() : 'N/A'}</div>
+                        <div>Ngày cập nhật: {user.dateUpdated ? new Date(user.dateUpdated).toLocaleDateString() : 'Chưa cập nhật'}</div>
                     </div>
                 </div>
 
@@ -49,7 +48,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     </div>
                     <div className="detail-row">
                         <label>Ngày sinh:</label>
-                        <span>{formatDate(user.birth_date) }</span>
+                        <span>{formatDate(user.birth_date)}</span>
                     </div>
                     <div className="detail-row">
                         <label>Địa chỉ:</label>
@@ -72,6 +71,13 @@ const FormDetailsUser = ({ user, onClose }) => {
                         <span>{user.isDelete ? 'Đã xóa' : 'Hoạt động'}</span>
                     </div>
                 </div>
+
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '13px', alignItems: 'flex-end' }}>
+                <button className="close-btn" style={{ display: 'flex', justifyContent: 'flex-end', backgroundColor: '#c73b48', alignItems: 'flex-end' }}
+                    onMouseOver={(e) => (e.target.style.backgroundColor = '#f03748')} // Màu hover
+                    onMouseOut={(e) => (e.target.style.backgroundColor = '#c73b48')} // Trả về màu cũ
+                    onClick={onClose}>Hủy</button>
             </div>
         </div>
     );

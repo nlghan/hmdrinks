@@ -76,6 +76,12 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             });
 
             if (response.data) {
+                // Nếu response trả về status code là 409
+                if (response.data.statusCodeValue === 409) {
+                    setErrorMessage("Người dùng đã tồn tại!");
+                    return;
+                }
+                // Nếu thêm người dùng thành công
                 setSuccessMessage("Thêm người dùng thành công!");
                 setErrorMessage("");
                 console.log('User created successfully:', response.data);
@@ -87,17 +93,35 @@ const FormAddUser = ({ onClose, onSubmit }) => {
             }
         } catch (error) {
             console.error('Error creating user:', error);
-            if (error.response) {
-                setErrorMessage(error.response.data.message || 'Người dùng này đã tồn tại.');
-            } else if (error.request) {
-                setErrorMessage('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
+
+    if (error.response) {
+        const errorMessage2 = error.response.data;
+
+        // Kiểm tra kiểu dữ liệu của `errorMessage2`
+        console.log('Error message from server:', errorMessage2);
+
+        if (typeof errorMessage2 === 'string') {
+            if (errorMessage2.includes("User name already exists")) {
+                setErrorMessage("Email hoặc tên người dùng đã tồn tại. Vui lòng thử email khác.");
+            } else if (errorMessage2.includes("Role is wrong")) {
+                setErrorMessage("Vai trò không hợp lệ. Vui lòng kiểm tra lại.");
             } else {
-                setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
+                setErrorMessage(errorMessage2 || 'Đã xảy ra lỗi khi tạo người dùng.');
             }
+        } else {
+            // Nếu `errorMessage2` không phải là chuỗi
+            setErrorMessage('Đã xảy ra lỗi không xác định từ máy chủ.');
+        }
+    } else if (error.request) {
+        setErrorMessage('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.');
+    } else {
+        setErrorMessage('Đã xảy ra sự cố. Vui lòng thử lại sau.');
+    }
         } finally {
             // Kết thúc xử lý
             setIsSubmitting(false);
         }
+
 
     };
     const togglePasswordVisibility = () => {

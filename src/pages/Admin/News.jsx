@@ -24,7 +24,7 @@ const News = () => {
     const [vouchersPerPage] = useState(2);
     const [currentPageVouchers, setCurrentPageVouchers] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
-    const [limit, setLimit] = useState(4);
+    const [limit, setLimit] = useState(3);
     const [currentPage, setCurrentPage] = useState(1); // Current page for posts
     const [totalPages, setTotalPages] = useState(1); // Total pages for posts
     const [postData, setPostData] = useState({});
