@@ -35,11 +35,7 @@ public class CategoryService {
     @Autowired
     private CartItemRepository cartItemRepository;
     @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private FavouriteItemRepository favouriteItemRepository;
     @Autowired
     private CartRepository cartRepository;
 
@@ -236,6 +232,15 @@ public class CategoryService {
                 productVariant.setIsDeleted(true);
                 productVariant.setDateDeleted(LocalDateTime.now());
                 productVariantsRepository.save(productVariant);
+
+                List<FavouriteItem> favouriteItems = favouriteItemRepository.findByProductVariants_VarId(productVariant.getVarId());
+                for(FavouriteItem favouriteItem: favouriteItems)
+                {
+                    favouriteItem.setIsDeleted(true);
+                    favouriteItem.setDateDeleted(LocalDateTime.now());
+                    favouriteItemRepository.save(favouriteItem);
+                }
+
                 List<CartItem> cartItems = cartItemRepository.findByProductVariants_VarId(productVariant.getVarId());
                 for(CartItem cartItem : cartItems)
                 {
@@ -304,7 +309,13 @@ public class CategoryService {
                 productVariant.setIsDeleted(false);
                 productVariant.setDateDeleted(null);
                 productVariantsRepository.save(productVariant);
-
+                List<FavouriteItem> favouriteItems = favouriteItemRepository.findByProductVariants_VarId(productVariant.getVarId());
+                for(FavouriteItem favouriteItem: favouriteItems)
+                {
+                    favouriteItem.setIsDeleted(false);
+                    favouriteItem.setDateDeleted(null);
+                    favouriteItemRepository.save(favouriteItem);
+                }
                 List<CartItem> cartItems = cartItemRepository.findByProductVariants_VarId(productVariant.getVarId());
                 for(CartItem cartItem : cartItems)
                 {

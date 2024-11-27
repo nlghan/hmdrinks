@@ -121,7 +121,6 @@ public class FavouriteItemService {
     public ResponseEntity<?> listAllTotalFavouriteByProId() {
         Map<Integer, Integer> favouriteCountMap = new HashMap<>();
         List<FavouriteItem> favouriteItems = favouriteItemRepository.findAll();
-
         for (FavouriteItem favouriteItem : favouriteItems) {
             int proId = favouriteItem.getProductVariants().getProduct().getProId();
             favouriteCountMap.put(proId, favouriteCountMap.getOrDefault(proId, 0) + 1);

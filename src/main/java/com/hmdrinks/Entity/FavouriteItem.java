@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -29,5 +31,11 @@ public class FavouriteItem {
     @ManyToOne
     @JoinColumn(name = "favId", nullable = false)
     private Favourite favourite;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
+    private LocalDateTime dateDeleted;
 }
 

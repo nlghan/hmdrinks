@@ -63,7 +63,7 @@ public class FavouriteService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favourite not found");
         }
-        List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavId(id);;
+        List<FavouriteItem> favouriteItems = favouriteItemRepository.findByFavourite_FavIdAndIsDeletedFalse(id);;
         List<CRUDFavouriteItemResponse> crudFavouriteItemResponses = new ArrayList<>();
         for(FavouriteItem favouriteItem : favouriteItems)
         {

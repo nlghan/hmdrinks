@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface FavouriteItemRepository extends JpaRepository<FavouriteItem,Integer> {
     List<FavouriteItem> findByFavourite_FavId(Integer id);
+    List<FavouriteItem> findByFavourite_FavIdAndIsDeletedFalse(Integer id);
+    List<FavouriteItem> findByProductVariants_VarId(Integer id);
 
     FavouriteItem findByFavItemId(int id);
 
