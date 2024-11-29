@@ -4,6 +4,8 @@ import com.hmdrinks.Enum.Status_Order;
 import com.hmdrinks.Request.ConfirmCancelOrderReq;
 import com.hmdrinks.Request.CreateOrdersReq;
 import com.hmdrinks.Request.CreatePaymentReq;
+import com.hmdrinks.Request.IdReq;
+import com.hmdrinks.Response.CancelReasonReq;
 import com.hmdrinks.Service.GenerateInvoiceService;
 import com.hmdrinks.Service.OrdersService;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -130,6 +132,31 @@ public class OrdersController {
     @GetMapping("/detail-item/{orderId}")
     public ResponseEntity<?> detailItem(@PathVariable int orderId) {
         return  ordersService.detailItemOrders(orderId);
+    }
+
+    @PostMapping("/reason-cancel")
+    public ResponseEntity<?> ReasonCancel(@RequestBody CancelReasonReq req, HttpServletRequest httpRequest) {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+        return  ordersService.CancelReason(req);
+    }
+
+    @GetMapping("/list-cancel-reason")
+    public ResponseEntity<?> detailItem1() {
+        return  ordersService.listAllCancelReasonAwait();
+    }
+
+    @PostMapping("/reason-cancel/accept")
+    public ResponseEntity<?> AcceptReasonCancel(@RequestBody IdReq req) {
+
+        return  ordersService.acceptCancelReason(req.getId());
+    }
+
+    @PostMapping("/reason-cancel/reject")
+    public ResponseEntity<?> RejectReasonCancel(@RequestBody IdReq req) {
+        return  ordersService.rejectCancelReason(req.getId());
     }
 
 

@@ -698,4 +698,21 @@ public class ProductService {
                 productWithAvgRatingResponses
         ));
     }
+
+    @Transactional
+    public  ResponseEntity<?> listAvgRatingProduct()
+    {
+        List<Product> productList = productRepository.findByIsDeletedFalse();
+        List<AvgRatingProduct> avgRatingProductList = new ArrayList<>();
+        for(Product product : productList)
+        {
+            Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
+            if(avgRating == null) {
+                avgRating = 0.0;
+            }
+            AvgRatingProduct avgRatingProduct = new AvgRatingProduct(product.getProId(),avgRating);
+            avgRatingProductList.add(avgRatingProduct);
+        }
+        return new ResponseEntity<>(new ListAllProductRating(avgRatingProductList.size(),avgRatingProductList), HttpStatus.OK);
+    }
 }

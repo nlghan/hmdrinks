@@ -56,8 +56,15 @@ public class ProductController {
     public ResponseEntity<?> listAllProduct(
             @RequestParam(name = "page") String page,
             @RequestParam(name = "limit") String limit
-    ) {
+    )
+    {
         return productService.listProduct(page, limit);
+    }
+
+    @GetMapping(value = "/list-rating")
+    public ResponseEntity<?> listAllProductRating()
+    {
+        return productService.listAvgRatingProduct();
     }
 
     @GetMapping( value = "/variants/{id}")
@@ -66,12 +73,16 @@ public class ProductController {
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+    public ResponseEntity<?> searchByCategoryName(@RequestParam(name = "keyword") String keyword,
+                                                  @RequestParam(name = "page") String page,
+                                                  @RequestParam(name = "limit") String limit) {
         return productService.totalSearchProduct(keyword,page,limit);
     }
 
     @GetMapping(value = "/list-review")
-    public ResponseEntity<?> listReview(@RequestParam(name = "proId") Integer proId, @RequestParam(name = "page") String page, @RequestParam(name = "limit") String limit) {
+    public ResponseEntity<?> listReview(@RequestParam(name = "proId") Integer proId,
+                                        @RequestParam(name = "page") String page,
+                                        @RequestParam(name = "limit") String limit) {
         return reviewService.getAllReview(page,limit,proId);
     }
 

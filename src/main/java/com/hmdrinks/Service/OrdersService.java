@@ -43,6 +43,8 @@ public class OrdersService {
     private  ShipmentRepository shipmentRepository;
     @Autowired
     private CartItemRepository cartItemRepository;
+    @Autowired
+    private ProductVariantsRepository productVariantsRepository;
 
     public boolean isNumeric(String voucherId) {
         if (voucherId == null) {
@@ -168,6 +170,7 @@ public class OrdersService {
         order.setDeliveryDate(LocalDateTime.now());
         order.setNote(req.getNote());
         order.setTotalPrice(orderItem.getTotalPrice());
+        order.setDateCanceled(null);
         orderRepository.save(order);
 
         cart.setStatus(Status_Cart.COMPLETED);
@@ -186,6 +189,7 @@ public class OrdersService {
                 order.getDateDeleted(),
                 order.getDateUpdated(),
                 order.getDeliveryDate(),
+                order.getDateCanceled(),
                 order.getDiscountPrice(),
                 order.getIsDeleted(),
                 order.getNote(),
@@ -303,6 +307,7 @@ public class OrdersService {
                         payment.getAmount(),
                         payment.getDateCreated(),
                         payment.getDateDeleted(),
+                        payment.getDateRefunded(),
                         payment.getIsDeleted(),
                         payment.getPaymentMethod(),
                         payment.getStatus(),
@@ -335,6 +340,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -379,6 +385,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -505,6 +512,7 @@ public class OrdersService {
                                 order.getDateDeleted(),
                                 order.getDateUpdated(),
                                 order.getDeliveryDate(),
+                                order.getDateCanceled(),
                                 order.getDiscountPrice(),
                                 order.getIsDeleted(),
                                 order.getNote(),
@@ -525,6 +533,7 @@ public class OrdersService {
                                 shipment.getDateDeleted(),
                                 shipment.getDateDelivered(),
                                 shipment.getDateShip(),
+                                shipment.getDateCancel(),
                                 shipment.getIsDeleted(),
                                 shipment.getStatus(),
                                 shipment.getPayment().getPaymentId(),
@@ -562,6 +571,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -590,6 +600,7 @@ public class OrdersService {
                         order.getDateDeleted(),
                         order.getDateUpdated(),
                         order.getDeliveryDate(),
+                        order.getDateCanceled(),
                         order.getDiscountPrice(),
                         order.getIsDeleted(),
                         order.getNote(),
@@ -634,6 +645,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -670,6 +682,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -711,6 +724,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -727,6 +741,7 @@ public class OrdersService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -764,6 +779,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -780,6 +796,7 @@ public class OrdersService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -822,6 +839,7 @@ public class OrdersService {
                     order.getDateDeleted(),
                     order.getDateUpdated(),
                     order.getDeliveryDate(),
+                    order.getDateCanceled(),
                     order.getDiscountPrice(),
                     order.getIsDeleted(),
                     order.getNote(),
@@ -842,6 +860,7 @@ public class OrdersService {
                     shipment.getDateDeleted(),
                     shipment.getDateDelivered(),
                     shipment.getDateShip(),
+                    shipment.getDateCancel(),
                     shipment.getIsDeleted(),
                     shipment.getStatus(),
                     shipment.getPayment().getPaymentId(),
@@ -859,5 +878,115 @@ public class OrdersService {
         return ResponseEntity.status(HttpStatus.OK).body(historyOrderResponses);
     }
 
+    @Transactional
+    public  ResponseEntity<?> CancelReason(CancelReasonReq req)
+    {
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        Orders orders = orderRepository.findByOrderIdAndUserUserIdAndIsDeletedFalse(req.getOrderId(), req.getUserId());
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        orders.setCancelReason(req.getCancelReason());
+        orderRepository.save(orders);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
+    @Transactional
+    public ResponseEntity<?> listAllCancelReasonAwait()
+    {
+        List<Orders> orders = orderRepository.findAllByIsDeletedFalse();
+        List<CancelReasonResponse> listCancelReasonResponses = new ArrayList<>();
+        for (Orders order : orders) {
+            if(order.getCancelReason() == null)
+            {
+                continue;
+            }
+            if(order.getIsCancelReason() != null)
+            {
+                continue;
+            }
+            CancelReasonResponse cancelReasonResponse = new CancelReasonResponse(
+                    order.getUser().getUserId(),
+                    order.getOrderId(),
+                    order.getCancelReason()
+
+            );
+            listCancelReasonResponses.add(cancelReasonResponse);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllCancelReasonResponse(listCancelReasonResponses.size(), listCancelReasonResponses));
+    }
+
+    @Transactional
+    public ResponseEntity<?> acceptCancelReason(int orderId)
+    {
+        Orders orders = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        if(orders.getIsCancelReason() != null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is accept or reject");
+        }
+        orders.setIsCancelReason(true);
+        orders.setDateCanceled(LocalDateTime.now());
+        orders.setStatus(Status_Order.CANCELLED);
+        orderRepository.save(orders);
+        Payment payment = orders.getPayment();
+
+        Cart cart = orders.getOrderItem().getCart();
+        List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+
+        for (CartItem cartItem : cartItems) {
+            ProductVariants productVariants = cartItem.getProductVariants();
+            productVariants.setStock(productVariants.getStock() + cartItem.getQuantity());
+            productVariantsRepository.save(productVariants);
+        }
+        if(payment != null)
+        {
+            if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
+            {
+                payment.setStatus(Status_Payment.REFUND);
+                payment.setDateRefunded(LocalDateTime.now());
+                payment.setIsRefund(false);
+                paymentRepository.save(payment);
+            }
+            if (payment.getPaymentMethod() == Payment_Method.CASH) {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+            }
+        }
+        assert payment != null;
+        Shippment shipment = payment.getShipment();
+        if(shipment != null)
+        {
+            shipment.setDateCancel(LocalDateTime.now());
+            shipment.setStatus(Status_Shipment.CANCELLED);
+            shipmentRepository.save(shipment);
+
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Success");
+    }
+
+    @Transactional
+    public ResponseEntity<?> rejectCancelReason(int orderId) {
+        Orders orders = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        if(orders.getIsCancelReason() != null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is accept or reject");
+        }
+        if (orders.getCancelReason() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not allow");
+        }
+        orders.setIsCancelReason(false);
+        orders.setDateCanceled(LocalDateTime.now());
+        orders.setStatus(Status_Order.CANCELLED);
+        orderRepository.save(orders);
+        return ResponseEntity.ok("Success");
+    }
 }

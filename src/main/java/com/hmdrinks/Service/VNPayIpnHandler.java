@@ -98,6 +98,7 @@ public class VNPayIpnHandler {
         }
     }
 
+    @Transactional
     public IpnResponse process(Map<String, String> params) {
         if (!vnPayService.verifyIpn(params)) {
             return VnpIpnResponseConst.SIGNATURE_FAILED;
@@ -117,21 +118,19 @@ public class VNPayIpnHandler {
                 shippment.setDateDelivered(LocalDateTime.now());
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
+
                 Orders orders = payment.getOrder();
-                Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
-                List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
+                Cart cart = orders.getOrderItem().getCart();
+                List<CartItem> cartItems = cart.getCartItems();
 
                 for (CartItem cartItem : cartItems) {
                     ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                    if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
                     }
-
                 }
-
                 assignShipments(orders.getOrderId());
-
             }
             response = VnpIpnResponseConst.SUCCESS;
         }

@@ -93,6 +93,7 @@ public class ShipmentService {
                shippment.getDateDeleted(),
                shippment.getDateDelivered(),
                shippment.getDateShip(),
+               shippment.getDateCancel(),
                shippment.getIsDeleted(),
                shippment.getStatus(),
                shippment.getPayment().getPaymentId(),
@@ -145,6 +146,7 @@ public class ShipmentService {
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
                 shippment.getDateShip(),
+                shippment.getDateCancel(),
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
@@ -173,6 +175,7 @@ public class ShipmentService {
 
         if(LocalDateTime.now().isAfter(shippment.getDateDelivered()))
         {
+                    shippment.setDateCancel(LocalDateTime.now());
                     shippment.setStatus(Status_Shipment.CANCELLED);
                     shipmentRepository.save(shippment);
                     Payment payment = shippment.getPayment();
@@ -182,16 +185,19 @@ public class ShipmentService {
                     {
                         payment.setStatus(Status_Payment.FAILED);
                         paymentRepository.save(payment);
+                        orders.setDateCanceled(LocalDateTime.now());
                         orders.setStatus(Status_Order.CANCELLED);
                         orderRepository.save(orders);
                     }
                     if(payment.getPaymentMethod() == Payment_Method.CREDIT)
                     {
                         payment.setStatus(Status_Payment.REFUND);
+                        payment.setDateRefunded(LocalDateTime.now());
                         payment.setIsRefund(false);
                         paymentRepository.save(payment);
-                        paymentRepository.save(payment);
+                        orders.setDateCanceled(LocalDateTime.now());
                         orders.setStatus(Status_Order.CANCELLED);
+                        orderRepository.save(orders);
                     }
                     Cart cart = cartRepository.findByCartId(orders.getOrderItem().getCart().getCartId());
                     List<CartItem> cartItems = cartItemRepository.findByCart_CartId(cart.getCartId());
@@ -207,20 +213,25 @@ public class ShipmentService {
         }
 
         shippment.setStatus(Status_Shipment.CANCELLED);
+        shippment.setDateCancel(LocalDateTime.now());
         shipmentRepository.save(shippment);
 
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
         if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
         {
             payment.setStatus(Status_Payment.REFUND);
+            payment.setDateRefunded(LocalDateTime.now());
+            payment.setIsRefund(false);
             paymentRepository.save(payment);
             Orders orders = payment.getOrder();
+            orders.setDateCanceled(LocalDateTime.now());
             orders.setStatus(Status_Order.CANCELLED);
             orderRepository.save(orders);
         }
         else{
 
             Orders orders = payment.getOrder();
+            orders.setDateCanceled(LocalDateTime.now());
             orders.setStatus(Status_Order.CANCELLED);
             orderRepository.save(orders);
         }
@@ -234,6 +245,7 @@ public class ShipmentService {
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
                 shippment.getDateShip(),
+                shippment.getDateCancel(),
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
@@ -255,6 +267,11 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
         }
         shippment.setStatus(statusShipment);
+        if(statusShipment == Status_Shipment.CANCELLED)
+        {
+            shippment.setDateCancel(LocalDateTime.now());
+            shipmentRepository.save(shippment);
+        }
         shipmentRepository.save(shippment);
         if(statusShipment == Status_Shipment.SUCCESS)
         {
@@ -282,6 +299,7 @@ public class ShipmentService {
             if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
             {
                 payment.setStatus(Status_Payment.REFUND);
+                payment.setDateRefunded(LocalDateTime.now());
                 payment.setIsRefund(false);
                 paymentRepository.save(payment);
             }
@@ -291,6 +309,7 @@ public class ShipmentService {
                 paymentRepository.save(payment);
             }
             orders.setStatus(Status_Order.CANCELLED);
+            orders.setDateCanceled(LocalDateTime.now());
             orderRepository.save(orders);
         }
 
@@ -302,6 +321,7 @@ public class ShipmentService {
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
                 shippment.getDateShip(),
+                shippment.getDateCancel(),
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
@@ -348,6 +368,7 @@ public class ShipmentService {
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
                 shippment.getDateShip(),
+                shippment.getDateCancel(),
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
@@ -368,10 +389,7 @@ public class ShipmentService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserIdAndStatus(userId,status,pageable);
         List<Shippment> shippments1 = shipmentRepository.findAllByUserUserIdAndStatus(userId,status);
-
         List<CRUDShipmentResponse> responses = new ArrayList<>();
-
-
         for(Shippment shippment : shippments)
         {
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
@@ -385,6 +403,7 @@ public class ShipmentService {
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
+                    shippment.getDateCancel(),
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
@@ -432,6 +451,7 @@ public class ShipmentService {
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
+                    shippment.getDateCancel(),
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
@@ -469,11 +489,8 @@ public class ShipmentService {
         List<CRUDShipmentResponse> responses = new ArrayList<>();
 
         for (Shippment shippment : shippments) {
-            // Retrieve shipper (user associated with shipment)
             User shipper = shippment.getUser();
             Integer shipperId = (shipper != null) ? shipper.getUserId() : null;
-
-            // Retrieve payment and ensure it's valid
             Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());
 
             // Ensure the payment and associated order exist
@@ -502,6 +519,7 @@ public class ShipmentService {
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
+                    shippment.getDateCancel(),
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
@@ -527,7 +545,6 @@ public class ShipmentService {
                 responses
         ));
     }
-
 
     @Transactional
     public ResponseEntity<?> getListAllShipmentByStatus(String pageFromParam, String limitFromParam,Status_Shipment status)
@@ -555,6 +572,7 @@ public class ShipmentService {
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
                     shippment.getDateShip(),
+                    shippment.getDateCancel(),
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
@@ -617,6 +635,7 @@ public class ShipmentService {
                  shippment.getDateDeleted(),
                  shippment.getDateDelivered(),
                  shippment.getDateShip(),
+                 shippment.getDateCancel(),
                  shippment.getIsDeleted(),
                  shippment.getStatus(),
                  shippment.getPayment().getPaymentId(),
@@ -652,6 +671,7 @@ public class ShipmentService {
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
                 shipment.getDateShip(),
+                shipment.getDateCancel(),
                 shipment.getIsDeleted(),
                 shipment.getStatus(),
                 shipment.getPayment().getPaymentId(),
@@ -686,6 +706,7 @@ public class ShipmentService {
                     if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
                     {
                         payment.setStatus(Status_Payment.REFUND);
+                        payment.setDateRefunded(LocalDateTime.now());
                         payment.setIsRefund(false);
                         paymentRepository.save(payment);
                         paymentRepository.save(payment);
@@ -718,6 +739,7 @@ public class ShipmentService {
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
                 shipment.getDateShip(),
+                shipment.getDateCancel(),
                 shipment.getIsDeleted(),
                 shipment.getStatus(),
                 shipment.getPayment().getPaymentId(),

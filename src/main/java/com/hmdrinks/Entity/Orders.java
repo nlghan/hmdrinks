@@ -1,5 +1,6 @@
 package com.hmdrinks.Entity;
 
+import com.hmdrinks.Enum.CancelReason;
 import com.hmdrinks.Enum.Status_Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,13 @@ public class Orders { // Changed from Orders to Order
     @Column(name = "status", nullable = false)
     private Status_Order status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "CancelReason")
+    private CancelReason cancelReason;
+
+    @Column(name = "is_cancel_reason")
+    private Boolean isCancelReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
@@ -72,6 +80,9 @@ public class Orders { // Changed from Orders to Order
 
     @Column(name = "date_updated",columnDefinition = "DATETIME")
     private LocalDateTime dateUpdated;
+
+    @Column(name = "date_canceled",columnDefinition = "DATETIME")
+    private LocalDateTime dateCanceled;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private OrderItem orderItem;

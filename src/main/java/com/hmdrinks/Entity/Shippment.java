@@ -46,6 +46,9 @@ public class Shippment {
     @Column(name = "date_created", columnDefinition = "DATETIME")
     private LocalDateTime dateCreated;
 
+    @Column(name = "date_canceled",columnDefinition = "DATETIME")
+    private LocalDateTime dateCancel;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paymentId", nullable = false)
     private Payment payment;

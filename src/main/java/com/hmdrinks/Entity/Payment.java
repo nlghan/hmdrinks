@@ -45,7 +45,10 @@ public class Payment {
     private Boolean isRefund;
 
     @Column(name = "date_deleted")
-    private LocalDateTime dateDeleted; // Changed to LocalDateTime
+    private LocalDateTime dateDeleted;
+
+    @Column(name = "date_refunded",columnDefinition = "DATETIME")
+    private LocalDateTime dateRefunded;// Changed to LocalDateTime
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;

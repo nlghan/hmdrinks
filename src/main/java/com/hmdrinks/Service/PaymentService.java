@@ -209,6 +209,7 @@ public class PaymentService {
                         payment.getAmount(),
                         payment.getDateCreated(),
                         payment.getDateDeleted(),
+                        payment.getDateRefunded(),
                         payment.getIsDeleted(),
                         payment.getPaymentMethod(),
                         payment.getStatus(),
@@ -319,6 +320,7 @@ public class PaymentService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -400,6 +402,7 @@ public class PaymentService {
                         payment.getAmount(),
                         payment.getDateCreated(),
                         payment.getDateDeleted(),
+                        payment.getDateRefunded(),
                         payment.getIsDeleted(),
                         payment.getPaymentMethod(),
                         payment.getStatus(),
@@ -471,6 +474,7 @@ public class PaymentService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -548,7 +552,7 @@ public class PaymentService {
 
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
-                if (productVariants.getStock() > cartItem.getQuantity()) {
+                if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 }
@@ -560,6 +564,7 @@ public class PaymentService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -597,6 +602,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -666,6 +672,7 @@ public class PaymentService {
                     payment.getAmount(),
                     payment.getDateCreated(),
                     payment.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payment.getIsDeleted(),
                     payment.getPaymentMethod(),
                     payment.getStatus(),
@@ -697,6 +704,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -730,7 +738,7 @@ public class PaymentService {
 
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
-                if (productVariants.getStock() > cartItem.getQuantity()) {
+                if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 } else {
@@ -811,6 +819,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -835,6 +844,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -896,7 +906,7 @@ public class PaymentService {
 
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
-                if (productVariants.getStock() > cartItem.getQuantity()) {
+                if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 }
@@ -908,6 +918,7 @@ public class PaymentService {
                     payments.getAmount(),
                     payments.getDateCreated(),
                     payments.getDateDeleted(),
+                    payment.getDateRefunded(),
                     payments.getIsDeleted(),
                     payments.getPaymentMethod(),
                     payments.getStatus(),
@@ -950,6 +961,7 @@ public class PaymentService {
                 payment1.getAmount(),
                 payment1.getDateCreated(),
                 payment1.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment1.getIsDeleted(),
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
@@ -973,6 +985,7 @@ public class PaymentService {
                             payment.getAmount(),
                             payment.getDateCreated(),
                             payment.getDateDeleted(),
+                            payment.getDateRefunded(),
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
@@ -1005,6 +1018,7 @@ public class PaymentService {
                             payment.getAmount(),
                             payment.getDateCreated(),
                             payment.getDateDeleted(),
+                            payment.getDateRefunded(),
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
@@ -1037,6 +1051,7 @@ public class PaymentService {
                             payment.getAmount(),
                             payment.getDateCreated(),
                             payment.getDateDeleted(),
+                            payment.getDateRefunded(),
                             payment.getIsDeleted(),
                             payment.getPaymentMethod(),
                             payment.getStatus(),
@@ -1065,6 +1080,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -1121,7 +1137,7 @@ public class PaymentService {
 
                 for (CartItem cartItem : cartItems) {
                     ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                    if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
                     }
@@ -1139,6 +1155,7 @@ public class PaymentService {
                 payment.getAmount(),
                 payment.getDateCreated(),
                 payment.getDateDeleted(),
+                payment.getDateRefunded(),
                 payment.getIsDeleted(),
                 payment.getPaymentMethod(),
                 payment.getStatus(),
@@ -1182,6 +1199,7 @@ public class PaymentService {
                            payment.getAmount(),
                            payment.getDateCreated(),
                            payment.getDateDeleted(),
+                           payment.getDateRefunded(),
                            payment.getIsDeleted(),
                            payment.getPaymentMethod(),
                            payment.getStatus(),
@@ -1222,6 +1240,7 @@ public class PaymentService {
            return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund exists");
        }
        payment.setIsRefund(true);
+       payment.setDateRefunded(LocalDateTime.now());
        paymentRepository.save(payment);
        return ResponseEntity.status(HttpStatus.OK).body("Refund activated");
    }
