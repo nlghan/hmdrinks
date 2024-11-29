@@ -196,7 +196,7 @@ public class PaymentService {
 
                 for (CartItem cartItem : cartItems) {
                     ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                    if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
                     }
@@ -390,7 +390,7 @@ public class PaymentService {
 
                 for (CartItem cartItem : cartItems) {
                     ProductVariants productVariants = cartItem.getProductVariants();
-                    if (productVariants.getStock() > cartItem.getQuantity()) {
+                    if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
                     }
@@ -660,7 +660,7 @@ public class PaymentService {
 
             for (CartItem cartItem : cartItems) {
                 ProductVariants productVariants = cartItem.getProductVariants();
-                if (productVariants.getStock() > cartItem.getQuantity()) {
+                if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
                 }
@@ -950,7 +950,7 @@ public class PaymentService {
 
         for (CartItem cartItem : cartItems) {
             ProductVariants productVariants = cartItem.getProductVariants();
-            if (productVariants.getStock() > cartItem.getQuantity()) {
+            if (productVariants.getStock() >= cartItem.getQuantity()) {
                 productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                 productVariantsRepository.save(productVariants);
             }
