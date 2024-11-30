@@ -81,61 +81,73 @@ public class VNPayIpnHandler {
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
 
+        // Debugging: Kiểm tra xem có bao nhiêu shipper
+        System.out.println("Số lượng shipper: " + shippers.size());
+        for (User shipper : shippers) {
+            System.out.println("ShipperId: " + shipper.getUserId());
+        }
+
         // Duyệt qua các đơn hàng chờ để phân phối
         for (Shippment shipment : pendingShipments) {
             User selectedShipper = null;
             LocalDateTime currentTime = LocalDateTime.now();
             LocalDateTime now = currentTime;
 
-            // Chọn shipper có ít đơn hàng nhất
-            selectedShipper = shippers.stream()
-                    .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
-                    .orElse(null);
+            // Duyệt qua các shipper và tìm shipper có ít đơn nhất thỏa mãn điều kiện
+            for (User shipper : shippers.stream()
+                    .sorted(Comparator.comparingInt(shipper -> shipper.getShippments().size())) // Sắp xếp shipper theo số đơn
+                    .collect(Collectors.toList())) {
 
+                System.out.println("ShipperId dang check:" + shipper.getUserId()); // Debugging: In shipper đang kiểm tra
+
+                // Lọc các đơn đã giao trong vòng 1 giờ gần nhất của shipper
+                List<Shippment> recentShipments = shipper.getShippments().stream()
+                        .filter(s -> s.getDateDelivered() != null &&
+                                Duration.between(s.getDateDelivered(), now).toHours() < 1)
+                        .collect(Collectors.toList());
+
+                // Kiểm tra số lượng đơn hàng đã giao của shipper trong vòng 1 giờ
+                if (recentShipments.size() >= 5) {
+                    continue; // Nếu shipper đã nhận quá 5 đơn trong 1 giờ, bỏ qua shipper này
+                }
+
+                double[] lastDestination = origin; // Nếu chưa có đơn, lấy điểm gốc làm điểm xuất phát
+                if (!recentShipments.isEmpty()) {
+                    // Lấy đơn cuối cùng trong danh sách recentShipments của shipper
+                    Shippment lastShipment = recentShipments.get(recentShipments.size() - 1);
+                    lastDestination = supportFunction.getCoordinates(
+                            supportFunction.getLocation(lastShipment.getPayment().getOrder().getAddress()));
+
+                    // Kiểm tra khoảng cách từ đơn cuối cùng đến điểm giao mới
+                    DistanceAndDuration distance = supportFunction.getShortestDistance(lastDestination, destination);
+                    if (distance.getDistance() > 5) {
+                        continue; // Nếu khoảng cách quá xa, bỏ qua shipper này
+                    }
+
+                    // Tính thời gian giao mới dựa trên đơn cuối cùng
+                    DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
+                    String duration = lastToCurrent.getDuration();
+                    currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
+                } else {
+                    // Nếu không có đơn trước đó, kiểm tra khoảng cách từ origin đến destination
+                    DistanceAndDuration originToDestination = supportFunction.getShortestDistance(origin, destination);
+                    if (originToDestination.getDistance() > 25) {
+                        continue;
+                    }
+
+                    String duration = originToDestination.getDuration();
+                    currentTime = addDurationToCurrentTime(duration, currentTime);
+                }
+
+                // Nếu shipper này thỏa mãn tất cả điều kiện, gán đơn
+                selectedShipper = shipper;
+                break; // Dừng vòng lặp khi đã tìm thấy shipper phù hợp
+            }
+
+            // Nếu không tìm thấy shipper phù hợp
             if (selectedShipper == null) {
                 System.out.println("Không tìm thấy shipper phù hợp");
                 return;
-            }
-
-            // Kiểm tra số lượng đơn hàng đã giao của shipper trong vòng 1 giờ
-            List<Shippment> recentShipments = selectedShipper.getShippments().stream()
-                    .filter(s -> s.getDateDelivered() != null &&
-                            Duration.between(s.getDateDelivered(), now).toHours() < 1)
-                    .collect(Collectors.toList());
-
-            // Nếu shipper đã nhận 10 đơn trong vòng 1 giờ, chọn shipper khác
-            if (recentShipments.size() >= 10) {
-                System.out.println("Shipper đã nhận quá nhiều đơn trong 1 giờ.");
-                return;
-            }
-
-            double[] lastDestination = origin; // Nếu chưa có đơn, lấy điểm gốc làm điểm xuất phát
-            if (!recentShipments.isEmpty()) {
-                // Lấy đơn cuối cùng của shipper
-                Shippment lastShipment = recentShipments.get(recentShipments.size() - 1);
-                lastDestination = supportFunction.getCoordinates(
-                        supportFunction.getLocation(lastShipment.getPayment().getOrder().getAddress()));
-
-                DistanceAndDuration distance = supportFunction.getShortestDistance(lastDestination, destination);
-                if (distance.getDistance() > 5) {
-                    System.out.println("Khoảng cách giữa các đơn quá xa");
-                    return;
-                }
-
-                // Tính thời gian giao mới dựa trên đơn cuối cùng
-                DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
-                String duration = lastToCurrent.getDuration();
-                currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
-            } else {
-                // Nếu không có đơn trước đó, kiểm tra khoảng cách từ origin đến destination
-                DistanceAndDuration originToDestination = supportFunction.getShortestDistance(origin, destination);
-                if (originToDestination.getDistance() > 5) {
-                    System.out.println("Khoảng cách giữa điểm gốc và điểm giao quá xa");
-                    return;
-                }
-
-                String duration = originToDestination.getDuration();
-                currentTime = addDurationToCurrentTime(duration, currentTime);
             }
 
             // Gán đơn cho shipper
