@@ -1,32 +1,22 @@
 package com.hmdrinks.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.Role;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Status_Shipment;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Service.crypto.HMACUtil;
 import com.hmdrinks.SupportFunction.DistanceAndDuration;
 import com.hmdrinks.SupportFunction.SupportFunction;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
-import org.apache.hadoop.shaded.com.squareup.okhttp.OkHttpClient;
-import org.apache.hadoop.shaded.com.squareup.okhttp.Request;
-import org.apache.hadoop.shaded.com.squareup.okhttp.Response;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -93,33 +84,85 @@ public class ZaloPayService {
     }
 
     @Transactional
-    public  void assignShipments(int orderId) {
+    public void assignShipments(int orderId) {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
                 .collect(Collectors.toList());
+
         Orders orders = orderRepository.findByOrderId(orderId);
-        String place_id = supportFunction.getLocation(orders.getAddress());
-        double[] destinations = supportFunction.getCoordinates(place_id);
-        double[] origins = {10.850575879000075, 106.77190192800003};  // Số 1-3 Võ Văn Ngân,Linh Chiểu, Thủ Đức, Tp HCM
-        DistanceAndDuration distanceAndDuration = supportFunction.getShortestDistance(origins, destinations);
-        String minute = distanceAndDuration.getDuration();
-        LocalDateTime currentTime = LocalDateTime.now(); // Thời gian hiện tại
-        LocalDateTime updatedTime = addDurationToCurrentTime(minute, currentTime);
+        String placeId = supportFunction.getLocation(orders.getAddress());
+        double[] destination = supportFunction.getCoordinates(placeId);
+        double[] origin = {10.850575879000075, 106.77190192800003}; // Số 1-3 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Tp HCM
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
-        for (Shippment shipment : pendingShipments) {
 
-            User selectedShipper = shippers.stream()
+        // Duyệt qua các đơn hàng chờ để phân phối
+        for (Shippment shipment : pendingShipments) {
+            User selectedShipper = null;
+            LocalDateTime currentTime = LocalDateTime.now();
+            LocalDateTime now = currentTime;
+
+            // Chọn shipper có ít đơn hàng nhất
+            selectedShipper = shippers.stream()
                     .min(Comparator.comparingInt(shipper -> shipper.getShippments().size()))
                     .orElse(null);
-            if (selectedShipper != null) {
-                shipment.setUser(selectedShipper);
-                shipment.setStatus(Status_Shipment.SHIPPING);
-                shipment.setDateDelivered(updatedTime);
-                shipmentRepository.save(shipment);
 
+            if (selectedShipper == null) {
+                System.out.println("Không tìm thấy shipper phù hợp");
+                return;
             }
+
+            // Kiểm tra số lượng đơn hàng đã giao của shipper trong vòng 1 giờ
+            List<Shippment> recentShipments = selectedShipper.getShippments().stream()
+                    .filter(s -> s.getDateDelivered() != null &&
+                            Duration.between(s.getDateDelivered(), now).toHours() < 1)
+                    .collect(Collectors.toList());
+
+            // Nếu shipper đã nhận 10 đơn trong vòng 1 giờ, chọn shipper khác
+            if (recentShipments.size() >= 10) {
+                System.out.println("Shipper đã nhận quá nhiều đơn trong 1 giờ.");
+                return;
+            }
+
+            double[] lastDestination = origin; // Nếu chưa có đơn, lấy điểm gốc làm điểm xuất phát
+            if (!recentShipments.isEmpty()) {
+                // Lấy đơn cuối cùng của shipper
+                Shippment lastShipment = recentShipments.get(recentShipments.size() - 1);
+                lastDestination = supportFunction.getCoordinates(
+                        supportFunction.getLocation(lastShipment.getPayment().getOrder().getAddress()));
+
+                // Kiểm tra khoảng cách từ đơn cuối cùng đến điểm giao mới
+                DistanceAndDuration distance = supportFunction.getShortestDistance(lastDestination, destination);
+                if (distance.getDistance() > 5) {
+                    System.out.println("Khoảng cách giữa các đơn quá xa");
+                    return; // Nếu khoảng cách quá xa, không phân đơn cho shipper này
+                }
+
+                // Tính thời gian giao mới dựa trên đơn cuối cùng
+                DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
+                String duration = lastToCurrent.getDuration();
+                currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
+            } else {
+                // Nếu không có đơn trước đó, kiểm tra khoảng cách từ origin đến destination
+                DistanceAndDuration originToDestination = supportFunction.getShortestDistance(origin, destination);
+                if (originToDestination.getDistance() > 5) {
+                    System.out.println("Khoảng cách giữa điểm gốc và điểm giao quá xa");
+                    return;
+                }
+
+                String duration = originToDestination.getDuration();
+                currentTime = addDurationToCurrentTime(duration, currentTime);
+            }
+
+            // Gán đơn cho shipper
+            shipment.setUser(selectedShipper);
+            shipment.setStatus(Status_Shipment.SHIPPING);
+            shipment.setDateDelivered(currentTime);
+            shipmentRepository.save(shipment);
+
+            // Cập nhật lại danh sách đơn hàng của shipper
+            selectedShipper.getShippments().add(shipment);
         }
     }
 
