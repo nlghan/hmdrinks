@@ -26,8 +26,6 @@ public class FavouriteController {
     private FavouriteItemService favouriteItemService;
     @Autowired
     private SupportFunction supportFunction;
-    @Autowired
-    private JwtService jwtService;
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createFavourite(@RequestBody CreateNewFavourite req, HttpServletRequest httpRequest){

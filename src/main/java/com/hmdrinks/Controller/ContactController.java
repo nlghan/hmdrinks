@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/contact")
 public class ContactController {
     @Autowired
-    private VoucherService voucherService;
-    @Autowired
     private ContactService contactService;
 
     @PostMapping(value = "/create")

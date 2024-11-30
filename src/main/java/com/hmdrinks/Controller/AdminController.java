@@ -24,10 +24,6 @@ public class AdminController {
     @Autowired
     private  ShipmentService shipmentService;
     @Autowired
-    private ContactService contactService;
-    @Autowired
-    private ReviewService reviewService;
-    @Autowired
     private UserVoucherService userVoucherService;
     @Autowired
     private  PaymentService paymentService;
