@@ -20,7 +20,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -136,6 +138,7 @@ public class CategoryService {
         return new ListCategoryResponse(page,categoryList.getTotalPages(),limit,categoryList1.size(),crudCategoryResponseList);
     }
 
+    @Transactional
     public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
         int page = Integer.parseInt(pageFromParam);
@@ -165,6 +168,21 @@ public class CategoryService {
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
+            List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                    .stream()
+                    .map(variant -> new CRUDProductVarResponse(
+                            variant.getVarId(),
+                            variant.getProduct().getProId(),
+                            variant.getSize(),
+                            variant.getPrice(),
+                            variant.getStock(),
+                            variant.getIsDeleted(),
+                            variant.getDateDeleted(),
+                            variant.getDateCreated(),
+                            variant.getDateUpdated()
+                    ))
+                    .toList();
 
             crudProductResponseList.add(new CRUDProductResponse(
                     product1.getProId(),
@@ -175,7 +193,8 @@ public class CategoryService {
                     product1.getIsDeleted(),
                     product1.getDateDeleted(),
                     product1.getDateCreated(),
-                    product1.getDateUpdated()
+                    product1.getDateUpdated(),
+                    variantResponses
             ));
             total++;
         }

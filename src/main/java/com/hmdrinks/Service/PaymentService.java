@@ -110,7 +110,7 @@ public class PaymentService {
 
 
     @Transactional
-    public void assignShipments(int orderId) {
+    public boolean assignShipments(int orderId) {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
@@ -155,7 +155,6 @@ public class PaymentService {
                         continue;
                     }
 
-                    // Tính thời gian giao mới dựa trên đơn cuối cùng
                     DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
                     String duration = lastToCurrent.getDuration();
                     currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
@@ -173,22 +172,21 @@ public class PaymentService {
                 break;
             }
 
-
             if (selectedShipper == null) {
-                System.out.println("Không tìm thấy shipper phù hợp");
-                return;
+                return false;
             }
 
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
-
             selectedShipper.getShippments().add(shipment);
         }
+        return true;
     }
 
 
+    @Transactional
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
             Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
@@ -248,8 +246,12 @@ public class PaymentService {
                         productVariantsRepository.save(productVariants);
                     }
                 }
-                assignShipments(orderId1);
-
+                boolean status_assign = assignShipments(orderId1);
+                String note = "";
+                if(!status_assign)
+                {
+                    note = "Hiện không thể giao hàng";
+                }
 
                 return new ResponseEntity<>(new CreatePaymentResponse(
                         payment.getPaymentId(),
@@ -261,7 +263,8 @@ public class PaymentService {
                         payment.getPaymentMethod(),
                         payment.getStatus(),
                         payment.getOrder().getOrderId(),
-                        ""
+                        "",
+                        note
                 ), HttpStatus.OK);
 
             }
@@ -372,7 +375,8 @@ public class PaymentService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    shortLink
+                    shortLink,
+                    ""
             ), HttpStatus.OK);
 
         } catch (Exception e) {
@@ -442,8 +446,12 @@ public class PaymentService {
                         productVariantsRepository.save(productVariants);
                     }
                 }
-                assignShipments(orderId1);
-
+                boolean status_assign = assignShipments(orderId1);
+                String note = "";
+                if(!status_assign)
+                {
+                    note = "Hiện không thể giao hàng";
+                }
                 return new ResponseEntity<>(new CreatePaymentResponse(
                         payment.getPaymentId(),
                         payment.getAmount(),
@@ -454,7 +462,8 @@ public class PaymentService {
                         payment.getPaymentMethod(),
                         payment.getStatus(),
                         payment.getOrder().getOrderId(),
-                        ""
+                        "",
+                        note
                 ), HttpStatus.OK);
 
             }
@@ -526,7 +535,8 @@ public class PaymentService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    link
+                    link,
+                    ""
             ), HttpStatus.OK);
 
         } catch (Exception e) {
@@ -549,6 +559,7 @@ public class PaymentService {
         }
         return result.toString();
     }
+    @Transactional
     public ResponseEntity<?> createVNPay(CreatePaymentVNPayReq req)
     {
         int orderId1 = req.getOrderId();
@@ -604,7 +615,12 @@ public class PaymentService {
                     productVariantsRepository.save(productVariants);
                 }
             }
-            assignShipments(orderId1);
+            boolean status_assign = assignShipments(req.getOrderId());
+            String note = "";
+            if(!status_assign)
+            {
+                note = "Hiện không thể giao hàng";
+            }
 
             return new ResponseEntity<>(new CreatePaymentResponse(
                     payment.getPaymentId(),
@@ -616,7 +632,8 @@ public class PaymentService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    ""
+                    "",
+                    note
             ), HttpStatus.OK);
 
         }
@@ -654,12 +671,14 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                initPaymentResponse.getVnpUrl()
+                initPaymentResponse.getVnpUrl(),
+                ""
         ), HttpStatus.OK);
     }
     @Autowired
     private ZaloPayService zaloPayService;
 
+    @Transactional
     public ResponseEntity<?> createZaloPay(CreatePaymentReq req) throws Exception {
         int orderId1 = req.getOrderId();
         Payment payment1 = paymentRepository.findByOrderOrderIdAndIsDeletedFalse(orderId1);
@@ -712,7 +731,12 @@ public class PaymentService {
                     productVariantsRepository.save(productVariants);
                 }
             }
-            assignShipments(orderId1);
+            boolean status_assign = assignShipments(orderId1);
+            String note = "";
+            if(!status_assign)
+            {
+                note = "Hiện không thể giao hàng";
+            }
 
             return new ResponseEntity<>(new CreatePaymentResponse(
                     payment.getPaymentId(),
@@ -724,7 +748,8 @@ public class PaymentService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    ""
+                    "",
+                    note
             ), HttpStatus.OK);
 
         }
@@ -756,7 +781,8 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                orderUrl
+                orderUrl,
+                ""
         ), HttpStatus.OK);
     }
 
@@ -958,7 +984,12 @@ public class PaymentService {
                     productVariantsRepository.save(productVariants);
                 }
             }
-            assignShipments(orderId);
+            boolean status_assign = assignShipments(orderId);
+            String note = "";
+            if(!status_assign)
+            {
+                note = "Hiện không thể giao hàng";
+            }
 
             return new ResponseEntity<>(new CreatePaymentResponse(
                     payments.getPaymentId(),
@@ -970,7 +1001,8 @@ public class PaymentService {
                     payments.getPaymentMethod(),
                     payments.getStatus(),
                     payments.getOrder().getOrderId(),
-                    ""
+                    "",
+                    note
             ), HttpStatus.OK);
 
         }

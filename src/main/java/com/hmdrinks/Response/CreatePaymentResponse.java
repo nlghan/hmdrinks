@@ -28,4 +28,5 @@ public class CreatePaymentResponse {
     private Status_Payment statusPayment;
     private int orderId;
     private String linkPayment;
+    private String note;
 }

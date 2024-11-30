@@ -102,7 +102,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
 
         );
 
@@ -169,7 +170,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
         when(productService.getOneProduct(anyInt()))
                 .thenReturn((ResponseEntity) ResponseEntity.status(HttpStatus.OK).body(response));
@@ -260,7 +262,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
 
         );
         when(productService.updateProduct(any(CRUDProductReq.class)))
@@ -286,7 +289,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
         CRUDProductResponse response2 = new CRUDProductResponse(
                 1,
@@ -297,7 +301,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
         ListProductResponse listProductResponse = new ListProductResponse(
                 1,
@@ -377,7 +382,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
         CRUDProductResponse response2 = new CRUDProductResponse(
                 1,
@@ -388,7 +394,8 @@ class ProductControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
         );
         TotalSearchProductResponse listCategoryResponse = new TotalSearchProductResponse(
                 1,

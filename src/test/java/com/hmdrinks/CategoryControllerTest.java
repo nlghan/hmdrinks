@@ -273,7 +273,8 @@ class CategoryControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
 
         );
         CRUDProductResponse response2 = new CRUDProductResponse(
@@ -285,7 +286,8 @@ class CategoryControllerTest {
                 false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                new ArrayList<>()
 
         );
         GetViewProductCategoryResponse listCategoryResponse = new GetViewProductCategoryResponse(

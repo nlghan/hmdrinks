@@ -124,6 +124,7 @@ class PaymentControllerTest {
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
                 1,
+                "",
                 ""
         );
 
@@ -238,6 +239,7 @@ class PaymentControllerTest {
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
                 1,
+                "",
                 ""
         );
 
@@ -366,6 +368,7 @@ class PaymentControllerTest {
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
                 1,
+                "",
                 ""
         );
 
@@ -399,6 +402,7 @@ class PaymentControllerTest {
                 Payment_Method.CREDIT,
                 Status_Payment.PENDING,
                 1,
+                "",
                 ""
         );
 
@@ -604,6 +608,7 @@ class PaymentControllerTest {
                 Payment_Method.CASH,
                 Status_Payment.PENDING,
                 1,
+                "",
                 ""
         );
 
@@ -916,7 +921,7 @@ class PaymentControllerTest {
 
     @Test
     void VnPayCallback_success() throws Exception {
-        IpnResponse ipnResponse = new IpnResponse("00", "Successful");
+        IpnResponse ipnResponse = new IpnResponse("00", "Successful","");
         Map<String, String> params = new HashMap<>();
         params.put("vnp_ResponseCode", "00");
         when(vnPayIpnHandler.process(params)).thenReturn(ipnResponse);

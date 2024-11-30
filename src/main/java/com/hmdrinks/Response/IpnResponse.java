@@ -20,4 +20,6 @@ public class IpnResponse {
     private String responseCode;
     @JsonProperty("Message")
     private String message;
+    @JsonProperty("Note") // Thêm trường Note, có thể là null
+    private String note;
 }

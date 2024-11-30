@@ -84,7 +84,7 @@ public class ZaloPayService {
     }
 
     @Transactional
-    public void assignShipments(int orderId) {
+    public boolean assignShipments(int orderId) {
         List<Shippment> pendingShipments = shipmentRepository.findByStatus(Status_Shipment.WAITING)
                 .stream()
                 .sorted(Comparator.comparing(Shippment::getDateCreated))
@@ -97,57 +97,44 @@ public class ZaloPayService {
 
         List<User> shippers = userRepository.findAllByRole(Role.SHIPPER);
 
-        // Debugging: Kiểm tra xem có bao nhiêu shipper
-        System.out.println("Số lượng shipper: " + shippers.size());
-        for (User shipper : shippers) {
-            System.out.println("ShipperId: " + shipper.getUserId());
-        }
 
-        // Duyệt qua các đơn hàng chờ để phân phối
         for (Shippment shipment : pendingShipments) {
             User selectedShipper = null;
             LocalDateTime currentTime = LocalDateTime.now();
             LocalDateTime now = currentTime;
 
-            // Duyệt qua các shipper và tìm shipper có ít đơn nhất thỏa mãn điều kiện
             for (User shipper : shippers.stream()
                     .sorted(Comparator.comparingInt(shipper -> shipper.getShippments().size())) // Sắp xếp shipper theo số đơn
                     .collect(Collectors.toList())) {
 
-                System.out.println("ShipperId dang check:" + shipper.getUserId()); // Debugging: In shipper đang kiểm tra
 
-                // Lọc các đơn đã giao trong vòng 1 giờ gần nhất của shipper
                 List<Shippment> recentShipments = shipper.getShippments().stream()
                         .filter(s -> s.getDateDelivered() != null &&
                                 Duration.between(s.getDateDelivered(), now).toHours() < 1)
                         .collect(Collectors.toList());
 
-                // Kiểm tra số lượng đơn hàng đã giao của shipper trong vòng 1 giờ
                 if (recentShipments.size() >= 5) {
-                    continue; // Nếu shipper đã nhận quá 5 đơn trong 1 giờ, bỏ qua shipper này
+                    continue;
                 }
 
-                double[] lastDestination = origin; // Nếu chưa có đơn, lấy điểm gốc làm điểm xuất phát
+                double[] lastDestination = origin;
                 if (!recentShipments.isEmpty()) {
-                    // Lấy đơn cuối cùng trong danh sách recentShipments của shipper
+
                     Shippment lastShipment = recentShipments.get(recentShipments.size() - 1);
                     lastDestination = supportFunction.getCoordinates(
                             supportFunction.getLocation(lastShipment.getPayment().getOrder().getAddress()));
 
-                    // Kiểm tra khoảng cách từ đơn cuối cùng đến điểm giao mới
                     DistanceAndDuration distance = supportFunction.getShortestDistance(lastDestination, destination);
                     if (distance.getDistance() > 5) {
-                        continue; // Nếu khoảng cách quá xa, bỏ qua shipper này
+                        continue;
                     }
 
-                    // Tính thời gian giao mới dựa trên đơn cuối cùng
                     DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
                     String duration = lastToCurrent.getDuration();
                     currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
                 } else {
-                    // Nếu không có đơn trước đó, kiểm tra khoảng cách từ origin đến destination
                     DistanceAndDuration originToDestination = supportFunction.getShortestDistance(origin, destination);
-                    if (originToDestination.getDistance() > 25) {
+                    if (originToDestination.getDistance() > 20) {
                         continue;
                     }
 
@@ -155,26 +142,22 @@ public class ZaloPayService {
                     currentTime = addDurationToCurrentTime(duration, currentTime);
                 }
 
-                // Nếu shipper này thỏa mãn tất cả điều kiện, gán đơn
                 selectedShipper = shipper;
-                break; // Dừng vòng lặp khi đã tìm thấy shipper phù hợp
+                break;
             }
 
-            // Nếu không tìm thấy shipper phù hợp
             if (selectedShipper == null) {
-                System.out.println("Không tìm thấy shipper phù hợp");
-                return;
+                return false;
             }
 
-            // Gán đơn cho shipper
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
 
-            // Cập nhật lại danh sách đơn hàng của shipper
             selectedShipper.getShippments().add(shipment);
         }
+        return  true;
     }
 
     public Map<String, Object> createPayment(Long total) throws Exception {
@@ -304,7 +287,7 @@ public class ZaloPayService {
         if (payment == null) {
             return ResponseEntity.notFound().build();
         }
-        Map<String, Integer> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         boolean isSuccess = checkStatusOrder(appTransId);
         if (isSuccess) {
             if (payment.getStatus() != Status_Payment.FAILED || payment.getStatus() != Status_Payment.COMPLETED) {
@@ -331,10 +314,15 @@ public class ZaloPayService {
                     }
 
                 }
-
-                assignShipments(orders.getOrderId());
+                boolean status_assign = assignShipments(orders.getOrderId());
+                String note = "";
+                if(!status_assign)
+                {
+                    note = "Hiện không thể giao hàng";
+                }
 
                 response.put("status", 1);
+                response.put("note",note);
             } else {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);

@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -37,6 +39,7 @@ public class ProductService {
     @Autowired
     private FavouriteItemRepository favouriteItemRepository;
 
+    @Transactional
     public ResponseEntity<?> crateProduct(CreateProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
@@ -67,6 +70,22 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product.getProductVariants())
+                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                .stream()
+                .map(variant -> new CRUDProductVarResponse(
+                        variant.getVarId(),
+                        variant.getProduct().getProId(),
+                        variant.getSize(),
+                        variant.getPrice(),
+                        variant.getStock(),
+                        variant.getIsDeleted(),
+                        variant.getDateDeleted(),
+                        variant.getDateCreated(),
+                        variant.getDateUpdated()
+                ))
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
@@ -76,10 +95,12 @@ public class ProductService {
                 product1.getIsDeleted(),
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
-                product1.getDateUpdated()
+                product1.getDateUpdated(),
+                variantResponses
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> getOneProduct(Integer id) {
         Product product1 = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product1 == null) {
@@ -97,6 +118,22 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                .stream()
+                .map(variant -> new CRUDProductVarResponse(
+                        variant.getVarId(),
+                        variant.getProduct().getProId(),
+                        variant.getSize(),
+                        variant.getPrice(),
+                        variant.getStock(),
+                        variant.getIsDeleted(),
+                        variant.getDateDeleted(),
+                        variant.getDateCreated(),
+                        variant.getDateUpdated()
+                ))
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
@@ -106,10 +143,12 @@ public class ProductService {
                 product1.getIsDeleted(),
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
-                product1.getDateUpdated()
+                product1.getDateUpdated(),
+                variantResponses
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> updateProduct(CRUDProductReq req) {
         Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getCateId());
         if (category == null) {
@@ -140,6 +179,22 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                .stream()
+                .map(variant -> new CRUDProductVarResponse(
+                        variant.getVarId(),
+                        variant.getProduct().getProId(),
+                        variant.getSize(),
+                        variant.getPrice(),
+                        variant.getStock(),
+                        variant.getIsDeleted(),
+                        variant.getDateDeleted(),
+                        variant.getDateCreated(),
+                        variant.getDateUpdated()
+                ))
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDProductResponse(
                 product1.getProId(),
                 product1.getCategory().getCateId(),
@@ -149,10 +204,12 @@ public class ProductService {
                 product1.getIsDeleted(),
                 product1.getDateDeleted(),
                 product1.getDateCreated(),
-                product1.getDateUpdated()
+                product1.getDateUpdated(),
+                variantResponses
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> listProduct(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -164,7 +221,6 @@ public class ProductService {
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
-            //String currentProImg = product1.getListProImg();
             if(currentProImg != null && !currentProImg.trim().isEmpty())
             {
                 String[] imageEntries1 = currentProImg.split(", ");
@@ -175,6 +231,22 @@ public class ProductService {
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
+            List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                    .stream()
+                    .map(variant -> new CRUDProductVarResponse(
+                            variant.getVarId(),
+                            variant.getProduct().getProId(),
+                            variant.getSize(),
+                            variant.getPrice(),
+                            variant.getStock(),
+                            variant.getIsDeleted(),
+                            variant.getDateDeleted(),
+                            variant.getDateCreated(),
+                            variant.getDateUpdated()
+                    ))
+                    .toList();
+
             crudProductResponseList.add(new CRUDProductResponse(
                     product1.getProId(),
                     product1.getCategory().getCateId(),
@@ -184,13 +256,15 @@ public class ProductService {
                     product1.getIsDeleted(),
                     product1.getDateDeleted(),
                     product1.getDateCreated(),
-                    product1.getDateUpdated()
+                    product1.getDateUpdated(),
+                    variantResponses
             ));
             total++;
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListProductResponse(page, productList.getTotalPages(), limit, total,crudProductResponseList));
     }
 
+    @Transactional
     public ResponseEntity<?> getAllProductVariantFromProduct(int id) {
         Product product = productRepository.findByProIdAndIsDeletedFalse(id);
         if (product == null) {
@@ -217,6 +291,7 @@ public class ProductService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -237,6 +312,22 @@ public class ProductService {
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
+            List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                    .stream()
+                    .map(variant -> new CRUDProductVarResponse(
+                            variant.getVarId(),
+                            variant.getProduct().getProId(),
+                            variant.getSize(),
+                            variant.getPrice(),
+                            variant.getStock(),
+                            variant.getIsDeleted(),
+                            variant.getDateDeleted(),
+                            variant.getDateCreated(),
+                            variant.getDateUpdated()
+                    ))
+                    .toList();
+
             crudProductResponseList.add(new CRUDProductResponse(
                     product1.getProId(),
                     product1.getCategory().getCateId(),
@@ -246,12 +337,14 @@ public class ProductService {
                     product1.getIsDeleted(),
                     product1.getDateDeleted(),
                     product1.getDateCreated(),
-                    product1.getDateUpdated()
+                    product1.getDateUpdated(),
+                    variantResponses
             ));
         }
         return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList));
     }
 
+    @Transactional
     public ResponseEntity<?> deleteImageFromProduct(int proId, int deleteStt ) {
         Product product = productRepository.findByProIdAndIsDeletedFalse(proId);
         if (product == null) {
@@ -306,6 +399,7 @@ public class ProductService {
         return ResponseEntity.status(HttpStatus.OK).body(new ImgResponse(product.getListProImg()));
     }
 
+    @Transactional
     public ResponseEntity<?> getAllProductImages(int proId) {
         List<ProductImageResponse> productImageResponses = new ArrayList<>();
         Product product = productRepository.findByProId(proId);
@@ -542,6 +636,7 @@ public class ProductService {
             ));
         }
 
+    @Transactional
     public ResponseEntity<?> resetAllQuantityProduct()
     {
         List<Product> productList = productRepository.findAll();
@@ -625,6 +720,22 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product.getProductVariants())
+                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                .stream()
+                .map(variant -> new CRUDProductVarResponse(
+                        variant.getVarId(),
+                        variant.getProduct().getProId(),
+                        variant.getSize(),
+                        variant.getPrice(),
+                        variant.getStock(),
+                        variant.getIsDeleted(),
+                        variant.getDateDeleted(),
+                        variant.getDateCreated(),
+                        variant.getDateUpdated()
+                ))
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDProductResponse(
                 product.getProId(),
                 product.getCategory().getCateId(),
@@ -634,7 +745,8 @@ public class ProductService {
                 product.getIsDeleted(),
                 product.getDateDeleted(),
                 product.getDateCreated(),
-                product.getDateUpdated()
+                product.getDateUpdated(),
+                variantResponses
         ));
     }
 
@@ -706,6 +818,22 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product.getProductVariants())
+                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                .stream()
+                .map(variant -> new CRUDProductVarResponse(
+                        variant.getVarId(),
+                        variant.getProduct().getProId(),
+                        variant.getSize(),
+                        variant.getPrice(),
+                        variant.getStock(),
+                        variant.getIsDeleted(),
+                        variant.getDateDeleted(),
+                        variant.getDateCreated(),
+                        variant.getDateUpdated()
+                ))
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDProductResponse(
                 product.getProId(),
                 product.getCategory().getCateId(),
@@ -715,9 +843,11 @@ public class ProductService {
                 product.getIsDeleted(),
                 product.getDateDeleted(),
                 product.getDateCreated(),
-                product.getDateUpdated()
+                product.getDateUpdated(),
+                variantResponses
         ));
     }
+    @Transactional
     public ResponseEntity<?> listProductsWithAverageRating(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
