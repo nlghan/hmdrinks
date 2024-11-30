@@ -114,7 +114,6 @@ public class ProductController {
     @DeleteMapping(value = "/image/deleteAll")
     public ResponseEntity<?> deleteOneItem(@RequestBody DeleteAllProductImgReq req, HttpServletRequest httpRequest){
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
-
         if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
             return authResponse;
         }

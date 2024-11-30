@@ -70,8 +70,8 @@ public class ProductService {
                 productImageResponses.add(new ProductImageResponse(stt, url));
             }
         }
-        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product.getProductVariants())
-                .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+        List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                .orElse(Collections.emptyList())
                 .stream()
                 .map(variant -> new CRUDProductVarResponse(
                         variant.getVarId(),
@@ -422,11 +422,14 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<?> filterProduct(FilterProductBox req) {
-        List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        // c -1: lay tat ca
         List<CRUDProductVarFilterResponse> crudProductVarFilterResponseList = new ArrayList<>();
-        Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getC());
-        if (category == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not exists");
+        if(req.getC() != -1)
+        {
+            Category category = categoryRepository.findByCateIdAndIsDeletedFalse(req.getC());
+            if (category == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not exists");
+            }
         }
         for (Integer id : req.getP()) {
             Product product = productRepository.findByProIdAndIsDeletedFalse(id);
@@ -447,9 +450,12 @@ public class ProductService {
         int total = 0;
         if (req.getO() == 1) {
             List<Product> productWithPrices;
-            if (req.getP() == null || req.getP().isEmpty()) {
+            if(req.getC() == -1){
+                productWithPrices = productRepository.findAllProductsWithMinPriceNoCategory();
+            } else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findProductsWithMinPriceNoProduct(req.getC());
-            } else {
+            }
+            else {
                 productWithPrices = productRepository.findProductsWithMinPrice(req.getC(), req.getP());
             }
             for (Product product: productWithPrices) {
@@ -467,7 +473,7 @@ public class ProductService {
                         ))
                         .toList();
 
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(), product.getProId());
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
@@ -483,7 +489,10 @@ public class ProductService {
 
         } else if (req.getO() == 2) {
             List<Product> productWithPrices;
-            if (req.getP() == null || req.getP().isEmpty()) {
+            if(req.getC() == -1) {
+                productWithPrices = productRepository.findAllProductsWithMaxPriceNoCategory();
+            }
+            else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findProductsWithMaxPriceNoProduct(req.getC());
             } else {
                 productWithPrices = productRepository.findProductsWithMaxPrice(req.getC(), req.getP());
@@ -503,7 +512,7 @@ public class ProductService {
                         ))
                         .toList();
 
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(), product.getProId());
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
@@ -519,7 +528,11 @@ public class ProductService {
         }
          else if (req.getO() == 3) {
             List<Product> productWithPrices;
-            if (req.getP() == null || req.getP().isEmpty()) {
+            if(req.getC() == -1)
+            {
+                productWithPrices = productRepository.findByIsDeletedFalse(Sort.by(Sort.Direction.DESC, "dateCreated"));
+            }
+            else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findByCategory_CateIdAndIsDeletedFalse(req.getC(),Sort.by(Sort.Direction.DESC, "dateCreated"));
             } else {
                 productWithPrices = productRepository.findByCategory_CateIdAndProIdInAndIsDeletedFalse(req.getC(), req.getP(),Sort.by(Sort.Direction.DESC, "dateCreated"));
@@ -539,7 +552,7 @@ public class ProductService {
                         ))
                         .toList();
 
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(), product.getProId());
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
@@ -555,7 +568,11 @@ public class ProductService {
         }
         else if (req.getO() == 4) {
             List<Product> productWithPrices;
-            if (req.getP() == null || req.getP().isEmpty()) {
+            if(req.getC() == -1)
+            {
+                productWithPrices = productRepository.findTopRatedProductsDesc();
+            }
+            else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findTopRatedProductsDescByCategory(req.getC());
             } else {
                 productWithPrices = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
@@ -575,7 +592,7 @@ public class ProductService {
                         ))
                         .toList();
 
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(), product.getProId());
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
@@ -591,7 +608,11 @@ public class ProductService {
         }
          else if (req.getO() == 5) {
             List<Product> productWithPrices;
-            if (req.getP() == null || req.getP().isEmpty()) {
+            if(req.getC() == -1)
+            {
+                productWithPrices = productRepository.findTopRatedProductsAsc();
+            }
+            else  if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findTopRatedProductsAscByCategory(req.getC());
 
             } else {
@@ -612,7 +633,7 @@ public class ProductService {
                         ))
                         .toList();
 
-                Double avgRating = productRepository.findAverageRatingByProductId(req.getC(), product.getProId());
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,

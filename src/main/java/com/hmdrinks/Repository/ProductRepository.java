@@ -60,6 +60,17 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             @Param("categoryId") int categoryId
     );
 
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.isDeleted = false " +
+            "AND (r.isDeleted = false OR r IS NULL) " +
+            "GROUP BY pv.proId " +
+            "ORDER BY AVG(CASE WHEN r.ratingStar IS NOT NULL THEN r.ratingStar ELSE 0 END) DESC")
+    List<Product> findTopRatedProductsDesc();
+
+
+
+
     @Query("SELECT AVG(r.ratingStar) " +
             "FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
@@ -102,6 +113,16 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     );
 
 
+
+    @Query("SELECT pv FROM Product pv " +
+            "LEFT JOIN pv.reviews r " +
+            "WHERE pv.isDeleted = false " +
+            "AND (r.isDeleted = false OR r IS NULL) " +
+            "GROUP BY pv.proId " +
+            "ORDER BY AVG(CASE WHEN r.ratingStar IS NOT NULL THEN r.ratingStar ELSE 0 END) ASC")
+    List<Product> findTopRatedProductsAsc();
+
+
     @Query(value = "SELECT p.*, " +
             "(SELECT MIN(v.price) " +
             " FROM product_variants v " +
@@ -127,6 +148,16 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     List<Product> findProductsWithMinPriceNoProduct(@Param("categoryId") int categoryId);
 
     @Query(value = "SELECT p.*, " +
+            "(SELECT MIN(v.price) " +
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS minPrice " +
+            "FROM product p " +
+            "WHERE p.is_deleted = false " +
+            "ORDER BY minPrice ASC", nativeQuery = true)
+    List<Product> findAllProductsWithMinPriceNoCategory();
+
+    @Query(value = "SELECT p.*, " +
             "(SELECT MAX(v.price) " +
             " FROM product_variants v " +
             " WHERE v.pro_id = p.pro_id " +
@@ -136,6 +167,17 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "  AND p.is_deleted = false " +
             "ORDER BY maxPrice DESC ", nativeQuery = true)
     List<Product> findProductsWithMaxPriceNoProduct(@Param("categoryId") int categoryId);
+
+    @Query(value = "SELECT p.*, " +
+            "(SELECT MAX(v.price) " +
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS maxPrice " +
+            "FROM product p " +
+            "WHERE p.is_deleted = false " +
+            "ORDER BY maxPrice DESC", nativeQuery = true)
+    List<Product> findAllProductsWithMaxPriceNoCategory();
+
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MAX(v.price) " +
@@ -159,6 +201,10 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     List<Product> findByCategory_CateIdAndIsDeletedFalse(
             int categoryId,
+            Sort sort
+    );
+
+    List<Product> findByIsDeletedFalse(
             Sort sort
     );
 

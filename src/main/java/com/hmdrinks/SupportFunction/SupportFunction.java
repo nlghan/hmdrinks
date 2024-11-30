@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hmdrinks.Entity.User;
+import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.ConflictException;
 import com.hmdrinks.Repository.UserRepository;
 import com.hmdrinks.Service.JwtService;
@@ -15,10 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -298,4 +302,48 @@ public class SupportFunction {
         }
     }
 
+//    public ResponseEntity<?> validate(Object request) {
+//        for (Field field : request.getClass().getDeclaredFields()) {
+//            field.setAccessible(true);
+//            try {
+//                Object value = field.get(request);
+//
+//                // Kiểm tra trường kiểu nguyên thủy (int, boolean, v.v.) nếu không có giá trị hợp lệ
+//                if (field.getType().isPrimitive()) {
+//                    if (value == null || (value instanceof Integer && (Integer) value == 0) ||
+//                            (value instanceof Boolean && (Boolean) value == false) ||
+//                            (value instanceof Double && (Double) value == 0.0) ||
+//                            (value instanceof Float && (Float) value == 0.0f) ||
+//                            (value instanceof Long && (Long) value == 0L) ||
+//                            (value instanceof Short && (Short) value == (short) 0) ||
+//                            (value instanceof Byte && (Byte) value == (byte) 0)) {
+//                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                                .body(field.getName() + " is required. Its type is " + field.getType().getSimpleName());
+//                    }
+//                }
+//
+//                // Kiểm tra trường kiểu đối tượng có giá trị null hoặc chuỗi rỗng
+//                if (value == null || (value instanceof String && ((String) value).isEmpty())) {
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                            .body(field.getName() + " is required. Its type is " + field.getType().getSimpleName());
+//                }
+//
+//                // Kiểm tra trường kiểu java.sql.Date có giá trị null (nếu cần thiết bỏ qua kiểm tra)
+//                if (field.getType() == java.sql.Date.class && Objects.equals(value, null)) {
+//                    continue;
+//                }
+//
+//            } catch (IllegalAccessException e) {
+//                // Trả về ResponseEntity nếu có lỗi trong khi truy cập trường
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                        .body("Failed to validate request: " + e.getMessage());
+//            }
+//        }
+//
+//        // Nếu tất cả các trường hợp hợp lệ, trả về thông báo thành công
+//        return ResponseEntity.ok().body("Validation successful");
+//    }
+
+
 }
+
