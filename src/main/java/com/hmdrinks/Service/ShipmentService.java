@@ -106,7 +106,7 @@ public class ShipmentService {
        ));
     }
 
-    public ResponseEntity<?> activateShipment(int shipmentId,int userId)
+    public ResponseEntity<?> activateShipment(int shipmentId, int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
         if(shippment == null)
@@ -746,6 +746,58 @@ public class ShipmentService {
                 shipment.getUser().getUserId(),
                 customer.getFullName(),
                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                customer.getPhoneNumber(),
+                customer.getEmail(),
+                orders.getOrderId()
+        ));
+    }
+
+    @Transactional
+    public ResponseEntity<?> ActivateReceiving(int shipmentId, int userId)
+    {
+        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
+        if(shippment == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
+        }
+        User user = userRepository.findByUserId(userId);
+        if(user == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
+        }
+        if(user.getRole() != Role.SHIPPER)
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not shipper");
+        }
+        if (shippment.getUser() != null) {
+            if (shippment.getUser().getUserId() != null && shippment.getUser().getUserId() != userId) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is receiving");
+            }
+        }
+        if(shippment.getStatus() != Status_Shipment.WAITING)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is not waiting");
+        }
+        shippment.setUser(user);
+        shipmentRepository.save(shippment);
+        Payment payment = shippment.getPayment();
+        Orders orders = payment.getOrder();
+        User customer = orders.getUser();
+        User shipper = shippment.getUser();
+        return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
+                shippment.getShipmentId(),
+                shipper.getFullName(),
+                shippment.getDateCreated(),
+                shippment.getDateDeleted(),
+                shippment.getDateDelivered(),
+                shippment.getDateShip(),
+                shippment.getDateCancel(),
+                shippment.getIsDeleted(),
+                shippment.getStatus(),
+                shippment.getPayment().getPaymentId(),
+                shippment.getUser().getUserId(),
+                customer.getFullName(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(),
                 orders.getOrderId()

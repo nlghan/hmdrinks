@@ -32,6 +32,11 @@ public class ShipmentController {
         return shipmentService.activateShipment(req.getShipmentId(),req.getUserId());
     }
 
+    @PostMapping("/activate/receiving")
+    public ResponseEntity<?> activeReceiving(@RequestBody AllocationShipmentReq req) {
+        return shipmentService.ActivateReceiving(req.getShipmentId(),req.getUserId());
+    }
+
     @PostMapping("/activate/success")
     public ResponseEntity<?> activeSuccess(@RequestBody AllocationShipmentReq req) {
         return shipmentService.successShipment(req.getShipmentId(),req.getUserId());

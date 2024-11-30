@@ -930,8 +930,12 @@ public class PaymentService {
     public ResponseEntity<?> createPaymentCash(int orderId) {
         Payment payment = paymentRepository.findByOrderOrderId(orderId);
         if (payment != null) {
+            if(payment.getPaymentMethod() == Payment_Method.CASH)
+            {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment already exists");
+            }
             if (payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.PENDING) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type cash");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment create with type credit");
             }
             if (payment.getStatus() == Status_Payment.COMPLETED) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment already completed");
