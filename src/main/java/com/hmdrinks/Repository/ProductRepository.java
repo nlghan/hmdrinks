@@ -3,8 +3,10 @@ package com.hmdrinks.Repository;
 import com.hmdrinks.Entity.Category;
 import com.hmdrinks.Entity.Product;
 import com.hmdrinks.Entity.ProductVariants;
+import com.hmdrinks.Enum.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -69,6 +71,21 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             @Param("productIds") List<Integer> productIds
     );
 
+    @Query(value = "SELECT p.*, " +
+            "       (SELECT MIN(v.price) " +
+            "        FROM product_variants v " +
+            "        WHERE v.proId = p.proId " +
+            "          AND v.is_deleted = false) AS minPrice " +
+            "FROM product p " +
+            "WHERE p.category_id = :categoryId " +
+            "  AND p.proId IN :productIds " +
+            "  AND p.is_deleted = false " +
+            "ORDER BY minPrice ASC", nativeQuery = true)
+    List<Object[]> findProductsWithMinPriceAscending(
+            @Param("categoryId") int categoryId,
+            @Param("productIds") List<Integer> productIds);
+
+
     @Query("SELECT AVG(r.ratingStar) " +
             "FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
@@ -121,4 +138,96 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             @Param("categoryId") int categoryId,
             @Param("productIds") List<Integer> productIds
     );
+
+    @Query(value = "SELECT p.*, " +
+            "(SELECT MIN(v.price) " +
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS minPrice " +
+            "FROM product p " +
+            "WHERE p.category_id = :categoryId " +
+            "  AND p.pro_id IN :productIds " +
+            "  AND p.is_deleted = false " +
+            "ORDER BY minPrice ASC", nativeQuery = true)
+    List<Product> findProductsWithMinPrice(@Param("categoryId") int categoryId,
+                                           @Param("productIds") List<Integer> productIds);
+
+    @Query(value = "SELECT p.*, " +
+            "(SELECT MIN(v.price) " +
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS minPrice " +
+            "FROM product p " +
+            "WHERE p.category_id = :categoryId " +
+            "  AND p.is_deleted = false " +  // Chỉ lọc theo categoryId và is_deleted
+            "ORDER BY minPrice ASC", nativeQuery = true)
+    List<Product> findProductsWithMinPriceNoProduct(@Param("categoryId") int categoryId);
+
+    @Query(value = "SELECT p.*, " +
+            "(SELECT MAX(v.price) " +
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS maxPrice " +
+            "FROM product p " +
+            "WHERE p.category_id = :categoryId " +
+            "  AND p.is_deleted = false " +  // Chỉ lọc theo categoryId và is_deleted
+            "ORDER BY maxPrice DESC ", nativeQuery = true)
+    List<Product> findProductsWithMaxPriceNoProduct(@Param("categoryId") int categoryId);
+
+    @Query(value = "SELECT p.*, " +
+            "(SELECT MAX(v.price) " +  // Thay MIN thành MAX để lấy giá cao nhất
+            " FROM product_variants v " +
+            " WHERE v.pro_id = p.pro_id " +
+            "   AND v.is_deleted = false) AS maxPrice " +  // Tính giá cao nhất
+            "FROM product p " +
+            "WHERE p.category_id = :categoryId " +
+            "  AND p.pro_id IN :productIds " +
+            "  AND p.is_deleted = false " +
+            "ORDER BY maxPrice DESC", nativeQuery = true)
+    List<Product> findProductsWithMaxPrice(@Param("categoryId") int categoryId,
+                                            @Param("productIds") List<Integer> productIds);
+
+
+
+
+//    @Query(value = "SELECT p.*, " +
+//            "       (SELECT MIN(v.price) " +
+//            "        FROM product_variants v " +
+//            "        WHERE v.product_id = p.pro_id " + // Thay bằng tên cột chính xác
+//            "          AND v.is_deleted = false) AS minPrice " +
+//            "FROM product p " +
+//            "WHERE p.category_id = :categoryId " +
+//            "  AND p.pro_id IN :productIds " +
+//            "  AND p.is_deleted = false " +
+//            "ORDER BY minPrice ASC", nativeQuery = true)
+//    List<Object[]> findProductsWithMinPriceNative(
+//            @Param("categoryId") int categoryId,
+//            @Param("productIds") List<Integer> productIds);
+
+
+
+
+
+
+    @Query("SELECT v.price " +
+            "FROM ProductVariants v " +
+            "WHERE v.product.proId IN :productIds " +
+            "AND v.isDeleted = false " +
+            "AND v.size = " +
+            "   (SELECT MIN(v2.size) " +
+            "    FROM ProductVariants v2 " +
+            "    WHERE v2.product.proId = v.product.proId " +
+            "    AND v2.isDeleted = false " +
+            "    AND v2.size IN :sizes) " +
+            "ORDER BY v.size ASC")
+    List<Double> findPriceByProductIdsAndSizePriority(
+            @Param("productIds") List<Integer> productIds,
+            @Param("sizes") List<Size> sizes);
+
+    List<Product> findByCategory_CateIdAndProIdInAndIsDeletedFalse(
+            int categoryId,
+            List<Integer> productIds,
+            Sort sort
+    );
+
 }

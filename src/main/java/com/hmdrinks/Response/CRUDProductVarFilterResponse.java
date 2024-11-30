@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Data
@@ -14,11 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CRUDProductVarFilterResponse {
     private double avgRating;
-    private int varId;
     private int proId;
-    private Size size;
-    private Double price;
-    private int stock;
     private boolean isDeleted;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -29,4 +26,5 @@ public class CRUDProductVarFilterResponse {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dateUpdated;
+    List<CRUDProductVarResponse> listProductVariants;
 }

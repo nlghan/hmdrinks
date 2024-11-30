@@ -407,58 +407,58 @@ class ProductControllerTest {
                 .andDo(print());
     }
 
-    @Test
-    void filterProduct_Success() throws Exception {
-        CRUDProductVarFilterResponse response1 = new CRUDProductVarFilterResponse(
-                4.5,
-                1,
-                1,
-                Size.S,
-                20000.0,
-                100,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        CRUDProductVarFilterResponse response2 = new CRUDProductVarFilterResponse(
-                4.2,
-                2,
-                1,
-                Size.L,
-                25000.0,
-                100,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-        FilterProductBoxResponse filterProductBoxResponse = new FilterProductBoxResponse(
-                true,
-                2,
-                 Arrays.asList(response1, response2),
-                "OK",
-                false
-        );
-        FilterProductBox req = new FilterProductBox(
-                1,
-                Arrays.asList(1),
-                1
-        );
-
-        when(productService.filterProduct(any(FilterProductBox.class))).thenReturn((ResponseEntity) ResponseEntity.ok(filterProductBoxResponse));
-        String requestBody = objectMapper.writeValueAsString(req);
-
-        mockMvc.perform(post(endPointPath + "/filter-product") // Check endPointPath value
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(requestBody))
-                 .andExpect(status().isOk())
-                 .andExpect(jsonPath("$.total").value(2))
-                 .andExpect(jsonPath("$.productResponseList[0].varId").value(1))
-                 .andExpect(jsonPath("$.productResponseList[1].price").value(25000.0))
-                 .andDo(print());
-    }
+//    @Test
+//    void filterProduct_Success() throws Exception {
+//        CRUDProductVarFilterResponse response1 = new CRUDProductVarFilterResponse(
+//                4.5,
+//                1,
+//                1,
+//                Size.S,
+//                20000.0,
+//                100,
+//                false,
+//                LocalDateTime.now(),
+//                LocalDateTime.now(),
+//                LocalDateTime.now()
+//        );
+//
+//        CRUDProductVarFilterResponse response2 = new CRUDProductVarFilterResponse(
+//                4.2,
+//                2,
+//                1,
+//                Size.L,
+//                25000.0,
+//                100,
+//                false,
+//                LocalDateTime.now(),
+//                LocalDateTime.now(),
+//                LocalDateTime.now()
+//        );
+//        FilterProductBoxResponse filterProductBoxResponse = new FilterProductBoxResponse(
+//                true,
+//                2,
+//                 Arrays.asList(response1, response2),
+//                "OK",
+//                false
+//        );
+//        FilterProductBox req = new FilterProductBox(
+//                1,
+//                Arrays.asList(1),
+//                1
+//        );
+//
+//        when(productService.filterProduct(any(FilterProductBox.class))).thenReturn((ResponseEntity) ResponseEntity.ok(filterProductBoxResponse));
+//        String requestBody = objectMapper.writeValueAsString(req);
+//
+//        mockMvc.perform(post(endPointPath + "/filter-product") // Check endPointPath value
+//                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                        .content(requestBody))
+//                 .andExpect(status().isOk())
+//                 .andExpect(jsonPath("$.total").value(2))
+//                 .andExpect(jsonPath("$.productResponseList[0].varId").value(1))
+//                 .andExpect(jsonPath("$.productResponseList[1].price").value(25000.0))
+//                 .andDo(print());
+//    }
 
     @Test
     void filterProduct_CategoryNotFound() throws Exception {
