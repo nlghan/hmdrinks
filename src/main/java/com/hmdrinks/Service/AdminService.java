@@ -31,10 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -71,9 +68,10 @@ public class AdminService {
         }
 
         User userWithEmail = userRepository.findByEmail(req.getEmail());
-        if (userWithEmail != null && !(userWithEmail.getUserName() == (req.getUserName()))) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User name already exists");
+        if (userWithEmail != null ) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
         }
+
         LocalDate currentDate = LocalDate.now();
         User user1 = new User();
         user1.setType(TypeLogin.BASIC);
