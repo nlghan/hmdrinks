@@ -49,6 +49,7 @@ public class ShipmentService {
     @Autowired
     private ShipmentRepository shipmentRepository;
 
+    @Transactional
     public ResponseEntity<?> shipmentAllocation(CRUDShipmentReq req)
     {
        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(req.getShipmentId());
@@ -99,13 +100,14 @@ public class ShipmentService {
                shippment.getPayment().getPaymentId(),
                shippment.getUser().getUserId(),
                customer.getFullName(),
-               customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+               orders.getAddress(),
                customer.getPhoneNumber(),
                customer.getEmail(),
                orders.getOrderId()
        ));
     }
 
+    @Transactional
     public ResponseEntity<?> activateShipment(int shipmentId, int userId)
     {
         Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
@@ -152,7 +154,7 @@ public class ShipmentService {
                 shippment.getPayment().getPaymentId(),
                 shippment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(),
                 orders.getOrderId()
@@ -251,7 +253,7 @@ public class ShipmentService {
                 shippment.getPayment().getPaymentId(),
                 shippment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(),
                 orders.getOrderId()
@@ -327,7 +329,7 @@ public class ShipmentService {
                 shippment.getPayment().getPaymentId(),
                 shippment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(), orders.getOrderId()
         ));
@@ -374,7 +376,7 @@ public class ShipmentService {
                 shippment.getPayment().getPaymentId(),
                 shippment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(), orders.getOrderId()
         ));
@@ -409,7 +411,7 @@ public class ShipmentService {
                     shippment.getPayment().getPaymentId(),
                     shippment.getUser().getUserId(),
                     customer.getFullName(),
-                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                    orders.getAddress(),
                     customer.getPhoneNumber(),
                     customer.getEmail(),
                     orders.getOrderId()
@@ -457,7 +459,7 @@ public class ShipmentService {
                     shippment.getPayment().getPaymentId(),
                     shippment.getUser().getUserId(),
                     customer.getFullName(),
-                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                    orders.getAddress(),
                     customer.getPhoneNumber(),
                     customer.getEmail(),
                     orders.getOrderId()
@@ -578,7 +580,7 @@ public class ShipmentService {
                     shippment.getPayment().getPaymentId(),
                     user1 != null ? shippment.getUser().getUserId() : null,
                     customer.getFullName(),
-                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                    orders.getAddress(),
                     customer.getPhoneNumber(),
                     customer.getEmail(),
                     orders.getOrderId()
@@ -641,7 +643,7 @@ public class ShipmentService {
                  shippment.getPayment().getPaymentId(),
                  user1 != null ? shippment.getUser().getUserId() : null,
                  customer.getFullName(),
-                 customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                 orders.getAddress(),
                  customer.getPhoneNumber(),
                  customer.getEmail(),
                  orders.getOrderId()
@@ -677,7 +679,7 @@ public class ShipmentService {
                 shipment.getPayment().getPaymentId(),
                 shipment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                order.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(),
                 order.getOrderId()
@@ -745,7 +747,7 @@ public class ShipmentService {
                 shipment.getPayment().getPaymentId(),
                 shipment.getUser().getUserId(),
                 customer.getFullName(),
-                customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                orders.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getEmail(),
                 orders.getOrderId()

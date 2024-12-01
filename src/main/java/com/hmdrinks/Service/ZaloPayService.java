@@ -2,6 +2,7 @@ package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.*;
 import com.hmdrinks.Enum.Role;
+import com.hmdrinks.Enum.Status_Cart;
 import com.hmdrinks.Enum.Status_Payment;
 import com.hmdrinks.Enum.Status_Shipment;
 import com.hmdrinks.Repository.*;
@@ -311,6 +312,28 @@ public class ZaloPayService {
                     if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
+                        if(productVariants.getStock() == 0) {
+                            List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                            for (CartItem cartItemList1 : cartItemList) {
+                                Cart cart1 = cartItemList1.getCart();
+                                if (cart1.getStatus() == Status_Cart.NEW) {
+                                    cartItemList1.setQuantity(0);
+                                    cartItemList1.setNote("Hiện đang hết hàng");
+                                    cartItemList1.setTotalPrice(0.0);
+                                    cartItemRepository.save(cartItemList1);
+                                }
+                                List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                                double total = 0.0;
+                                int total_quantity = 0;
+                                for (CartItem cartItemList3 : cartItemList2) {
+                                    total += cartItemList3.getTotalPrice();
+                                    total_quantity += cartItemList3.getQuantity();
+                                }
+                                cart1.setTotalPrice(total);
+                                cart1.setTotalProduct(total_quantity);
+                                cartRepository.save(cart1);
+                            }
+                        }
                     }
 
                 }

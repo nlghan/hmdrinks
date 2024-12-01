@@ -23,8 +23,11 @@ public class OTP {
     @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @Column(name = "email", nullable = false)
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "email", referencedColumnName = "email", nullable = false)
+    private User user;
+
+
     @Column(name = "otp", nullable = false)
     private String Otp;
 

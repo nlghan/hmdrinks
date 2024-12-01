@@ -232,13 +232,14 @@ public class UserService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> sendEmail(String email) {
         Random random = new Random();
         User users = userRepository.findByEmail(email);
         if (users == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username or email does not exist");
         }
-        OTP otpEntity = otpRepository.findByEmail(email);
+        OTP otpEntity = otpRepository.findByUser_Email(email);
         if (otpEntity != null) {
             otpRepository.deleteById(otpEntity.getOtpId());
         }
@@ -263,13 +264,13 @@ public class UserService {
         javaMailSender.send(message);
         LocalDateTime currentDateTime = LocalDateTime.now();
         OTP otp = new OTP();
-        otp.setEmail(users.getEmail());
+        otp.setUser(users);
         otp.setUserName(users.getUserName());
         otp.setOtp(String.valueOf(randomNumber));
         otp.setTimeOtp(currentDateTime);
         otp.setStatus(Boolean.TRUE);
         otpRepository.save(otp);
-        return ResponseEntity.status(HttpStatus.OK).body(new SendEmailResponse(otp.getEmail(), "OTP has been sent to your email."));
+        return ResponseEntity.status(HttpStatus.OK).body(new SendEmailResponse(otp.getUser().getEmail(), "OTP has been sent to your email."));
     }
 
     public ResponseEntity<?> AcceptOTP(String email, int OTP) {

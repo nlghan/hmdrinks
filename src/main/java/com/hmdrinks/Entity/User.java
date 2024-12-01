@@ -28,8 +28,9 @@ public class User {
     @Column(name = "username", nullable = false)
     private String userName;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -109,6 +110,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OTP> otps;
 
 
 

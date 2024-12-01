@@ -244,6 +244,29 @@ public class PaymentService {
                     if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
+                        if(productVariants.getStock() == 0)
+                        {
+                            List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                            for (CartItem cartItemList1 : cartItemList) {
+                                Cart cart1 = cartItemList1.getCart();
+                                if(cart1.getStatus() == Status_Cart.NEW)
+                                {
+                                    cartItemList1.setQuantity(0);
+                                    cartItemList1.setNote("Hiện đang hết hàng");
+                                    cartItemList1.setTotalPrice(0.0);
+                                    cartItemRepository.save(cartItemList1);
+                                }
+                                List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                                double total = 0.0;
+                                int total_quantity = 0;
+                                for (CartItem cartItemList3 : cartItemList2) {
+                                    total +=  cartItemList3.getTotalPrice();
+                                    total_quantity += cartItemList3.getQuantity();
+                                }
+                                cart1.setTotalPrice(total);
+                                cart1.setTotalProduct(total_quantity);
+                                cartRepository.save(cart1);
+                            }}
                     }
                 }
                 boolean status_assign = assignShipments(orderId1);
@@ -444,6 +467,29 @@ public class PaymentService {
                     if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
+                        if(productVariants.getStock() == 0)
+                        {
+                            List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                            for (CartItem cartItemList1 : cartItemList) {
+                                Cart cart1 = cartItemList1.getCart();
+                                if(cart1.getStatus() == Status_Cart.NEW)
+                                {
+                                    cartItemList1.setQuantity(0);
+                                    cartItemList1.setNote("Hiện đang hết hàng");
+                                    cartItemList1.setTotalPrice(0.0);
+                                    cartItemRepository.save(cartItemList1);
+                                }
+                                List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                                double total = 0.0;
+                                int total_quantity = 0;
+                                for (CartItem cartItemList3 : cartItemList2) {
+                                    total +=  cartItemList3.getTotalPrice();
+                                    total_quantity += cartItemList3.getQuantity();
+                                }
+                                cart1.setTotalPrice(total);
+                                cart1.setTotalProduct(total_quantity);
+                                cartRepository.save(cart1);
+                            }}
                     }
                 }
                 boolean status_assign = assignShipments(orderId1);
@@ -613,6 +659,29 @@ public class PaymentService {
                 if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
+                    if(productVariants.getStock() == 0)
+                    {
+                        List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                        for (CartItem cartItemList1 : cartItemList) {
+                            Cart cart1 = cartItemList1.getCart();
+                            if(cart1.getStatus() == Status_Cart.NEW)
+                            {
+                                cartItemList1.setQuantity(0);
+                                cartItemList1.setNote("Hiện đang hết hàng");
+                                cartItemList1.setTotalPrice(0.0);
+                                cartItemRepository.save(cartItemList1);
+                            }
+                            List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                            double total = 0.0;
+                            int total_quantity = 0;
+                            for (CartItem cartItemList3 : cartItemList2) {
+                                total +=  cartItemList3.getTotalPrice();
+                                total_quantity += cartItemList3.getQuantity();
+                            }
+                            cart1.setTotalPrice(total);
+                            cart1.setTotalProduct(total_quantity);
+                            cartRepository.save(cart1);
+                        }}
                 }
             }
             boolean status_assign = assignShipments(req.getOrderId());
@@ -729,6 +798,29 @@ public class PaymentService {
                 if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
+                    if(productVariants.getStock() == 0)
+                    {
+                        List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                        for (CartItem cartItemList1 : cartItemList) {
+                            Cart cart1 = cartItemList1.getCart();
+                            if(cart1.getStatus() == Status_Cart.NEW)
+                            {
+                                cartItemList1.setQuantity(0);
+                                cartItemList1.setNote("Hiện đang hết hàng");
+                                cartItemList1.setTotalPrice(0.0);
+                                cartItemRepository.save(cartItemList1);
+                            }
+                            List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                            double total = 0.0;
+                            int total_quantity = 0;
+                            for (CartItem cartItemList3 : cartItemList2) {
+                                total +=  cartItemList3.getTotalPrice();
+                                total_quantity += cartItemList3.getQuantity();
+                            }
+                            cart1.setTotalPrice(total);
+                            cart1.setTotalProduct(total_quantity);
+                            cartRepository.save(cart1);
+                        }}
                 }
             }
             boolean status_assign = assignShipments(orderId1);
@@ -814,6 +906,31 @@ public class PaymentService {
                 if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
+                    if(productVariants.getStock() == 0)
+                    {
+                        List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                        for (CartItem cartItemList1 : cartItemList) {
+                            Cart cart1 = cartItemList1.getCart();
+                            if(cart1.getStatus() == Status_Cart.NEW)
+                            {
+                                cartItemList1.setQuantity(0);
+                                cartItemList1.setNote("Hiện đang hết hàng");
+                                cartItemList1.setTotalPrice(0.0);
+                                cartItemRepository.save(cartItemList1);
+                            }
+                            List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                            double total = 0.0;
+                            int total_quantity = 0;
+                            for (CartItem cartItemList3 : cartItemList2) {
+                                total +=  cartItemList3.getTotalPrice();
+                                total_quantity += cartItemList3.getQuantity();
+                            }
+                            cart1.setTotalPrice(total);
+                            cart1.setTotalProduct(total_quantity);
+                            cartRepository.save(cart1);
+                        }
+
+                    }
                 } else {
                     response.put("status", HttpStatus.BAD_REQUEST.value());
                     response.put("message", "Insufficient quantity");
@@ -986,6 +1103,29 @@ public class PaymentService {
                 if (productVariants.getStock() >= cartItem.getQuantity()) {
                     productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                     productVariantsRepository.save(productVariants);
+                    if(productVariants.getStock() == 0)
+                    {
+                        List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                        for (CartItem cartItemList1 : cartItemList) {
+                            Cart cart1 = cartItemList1.getCart();
+                            if(cart1.getStatus() == Status_Cart.NEW)
+                            {
+                                cartItemList1.setQuantity(0);
+                                cartItemList1.setNote("Hiện đang hết hàng");
+                                cartItemList1.setTotalPrice(0.0);
+                                cartItemRepository.save(cartItemList1);
+                            }
+                            List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                            double total = 0.0;
+                            int total_quantity = 0;
+                            for (CartItem cartItemList3 : cartItemList2) {
+                                total +=  cartItemList3.getTotalPrice();
+                                total_quantity += cartItemList3.getQuantity();
+                            }
+                            cart1.setTotalPrice(total);
+                            cart1.setTotalProduct(total_quantity);
+                            cartRepository.save(cart1);
+                        }}
                 }
             }
             boolean status_assign = assignShipments(orderId);
@@ -1036,6 +1176,29 @@ public class PaymentService {
             if (productVariants.getStock() >= cartItem.getQuantity()) {
                 productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                 productVariantsRepository.save(productVariants);
+                if(productVariants.getStock() == 0)
+                {
+                    List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                    for (CartItem cartItemList1 : cartItemList) {
+                        Cart cart1 = cartItemList1.getCart();
+                        if(cart1.getStatus() == Status_Cart.NEW)
+                        {
+                            cartItemList1.setQuantity(0);
+                            cartItemList1.setNote("Hiện đang hết hàng");
+                            cartItemList1.setTotalPrice(0.0);
+                            cartItemRepository.save(cartItemList1);
+                        }
+                        List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                        double total = 0.0;
+                        int total_quantity = 0;
+                        for (CartItem cartItemList3 : cartItemList2) {
+                            total +=  cartItemList3.getTotalPrice();
+                            total_quantity += cartItemList3.getQuantity();
+                        }
+                        cart1.setTotalPrice(total);
+                        cart1.setTotalProduct(total_quantity);
+                        cartRepository.save(cart1);
+                    }}
             }
         }
         assignShipments(orderId);
@@ -1223,6 +1386,28 @@ public class PaymentService {
                     if (productVariants.getStock() >= cartItem.getQuantity()) {
                         productVariants.setStock(productVariants.getStock() - cartItem.getQuantity());
                         productVariantsRepository.save(productVariants);
+                        if(productVariants.getStock() == 0) {
+                            List<CartItem> cartItemList = cartItemRepository.findByProductVariants_VarId(productVariants.getVarId());
+                            for (CartItem cartItemList1 : cartItemList) {
+                                Cart cart1 = cartItemList1.getCart();
+                                if (cart1.getStatus() == Status_Cart.NEW) {
+                                    cartItemList1.setQuantity(0);
+                                    cartItemList1.setNote("Hiện đang hết hàng");
+                                    cartItemList1.setTotalPrice(0.0);
+                                    cartItemRepository.save(cartItemList1);
+                                }
+                                List<CartItem> cartItemList2 = cartItemRepository.findByCart_CartId(cart1.getCartId());
+                                double total = 0.0;
+                                int total_quantity = 0;
+                                for (CartItem cartItemList3 : cartItemList2) {
+                                    total += cartItemList3.getTotalPrice();
+                                    total_quantity += cartItemList3.getQuantity();
+                                }
+                                cart1.setTotalPrice(total);
+                                cart1.setTotalProduct(total_quantity);
+                                cartRepository.save(cart1);
+                            }
+                        }
                     }
 
                 }

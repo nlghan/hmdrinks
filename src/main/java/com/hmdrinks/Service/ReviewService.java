@@ -74,6 +74,7 @@ public class ReviewService {
         review.setContent(req.getContent());
         review.setRatingStar(req.getRatingStart());
         review.setDateUpdated(LocalDateTime.now());
+        review.setDateCreated(LocalDateTime.now());
         reviewRepository.save(review);
         CRUDReviewResponse response = new CRUDReviewResponse(
                 review.getReviewId(),

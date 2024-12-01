@@ -233,6 +233,7 @@ public class AdminService {
         return  ResponseEntity.status(HttpStatus.OK).body(new ListProductImageResponse(proId,total,productImageResponses));
     }
 
+    @Transactional
     public TotalSearchProductResponse totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -462,6 +463,7 @@ public class AdminService {
         );
     }
 
+    @Transactional
     public ListProductResponse listProduct(String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -515,6 +517,7 @@ public class AdminService {
         return new ListProductResponse(page, productList.getTotalPages(), limit,productList1.size(), crudProductResponseList);
     }
 
+    @Transactional
     public CRUDProductResponse getOneProduct(Integer id) {
         Product product1 = productRepository.findByProId(id);
         if (product1 == null) {
@@ -562,6 +565,7 @@ public class AdminService {
         );
     }
 
+    @Transactional
     public ResponseEntity<?> getAllProductFromCategory(int id,String pageFromParam, String limitFromParam)
     {
         int page = Integer.parseInt(pageFromParam);

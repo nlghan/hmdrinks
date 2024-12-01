@@ -36,6 +36,9 @@ public class CartItem {
     @Column(name = "totalPrice")
     private double totalPrice;
 
+    @Column(name = "note")
+    private String note;
+
     @Column(name = "quantity")
     private int quantity;
 
