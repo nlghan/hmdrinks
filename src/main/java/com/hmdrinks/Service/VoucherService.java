@@ -100,15 +100,15 @@ public class VoucherService {
                         .body("Post not found");
             }
             LocalDateTime createPost = post.getDateCreate();
-            LocalDateTime currentDate = LocalDateTime.now();
+            LocalDateTime currentDate = voucher.getStartDate();
 
             if (req.getStartDate().isBefore(currentDate)) {
                 return ResponseEntity.status(HttpStatus.valueOf(400))
-                        .body("Start date must be greater than or equal to current date");
+                        .body("Start date new must be greater than or equal to start date old");
             }
             if (req.getEndDate().isBefore(currentDate)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("End date must be greater than start date and current date");
+                        .body("End date must be greater than start date new");
             }
             if (req.getStartDate().isBefore(createPost)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -161,12 +161,12 @@ public class VoucherService {
                 throw new BadRequestException("Not found post");
             }
             LocalDateTime createPost = post.getDateCreate();
-            LocalDateTime currentDate = LocalDateTime.now();
+            LocalDateTime currentDate =vou.getStartDate();
             if (req.getStartDate().isBefore(currentDate)) {
-                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be greater than or equal to current date");
+                return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be greater than or equal to start date old");
             }
             if (req.getEndDate().isBefore(createPost) || req.getEndDate().isBefore(currentDate)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than start date and current date");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than start date old");
             }
             if (req.getStartDate().isBefore(createPost)) {
                 return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be greater than or equal to post creation date");
