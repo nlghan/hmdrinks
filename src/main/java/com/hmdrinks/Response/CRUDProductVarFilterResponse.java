@@ -16,6 +16,8 @@ import java.util.List;
 public class CRUDProductVarFilterResponse {
     private double avgRating;
     private int proId;
+    private String proName;
+    List<ProductImageResponse> productImageResponseList;
     private boolean isDeleted;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

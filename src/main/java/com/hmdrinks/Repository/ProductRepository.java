@@ -43,9 +43,10 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " +
             "ORDER BY AVG(r.ratingStar) DESC")
-    List<Product> findTopRatedProductsDesc(
+    Page<Product> findTopRatedProductsDesc(
             @Param("categoryId") int categoryId,
-            @Param("productIds") List<Integer> productIds
+            @Param("productIds") List<Integer> productIds,
+            Pageable pageable
     );
 
     @Query("SELECT pv FROM Product pv " +
@@ -56,9 +57,11 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " +
             "ORDER BY AVG(r.ratingStar) DESC")
-    List<Product> findTopRatedProductsDescByCategory(
-            @Param("categoryId") int categoryId
+    Page<Product> findTopRatedProductsDescByCategory(
+            @Param("categoryId") int categoryId,
+            Pageable pageable
     );
+
 
     @Query("SELECT pv FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
@@ -66,7 +69,8 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "AND (r.isDeleted = false OR r IS NULL) " +
             "GROUP BY pv.proId " +
             "ORDER BY AVG(CASE WHEN r.ratingStar IS NOT NULL THEN r.ratingStar ELSE 0 END) DESC")
-    List<Product> findTopRatedProductsDesc();
+    Page<Product> findTopRatedProductsDesc(Pageable pageable);
+
 
 
 
@@ -95,9 +99,10 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " +
             "ORDER BY AVG(r.ratingStar) ASC")
-    List<Product> findTopRatedProductsAsc(
+    Page<Product> findTopRatedProductsAsc(
             @Param("categoryId") int categoryId,
-            @Param("productIds") List<Integer> productIds
+            @Param("productIds") List<Integer> productIds,
+            Pageable pageable
     );
 
     @Query("SELECT pv FROM Product pv " +
@@ -108,11 +113,10 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "GROUP BY pv.proId " +
             "HAVING COUNT(r) > 0 " +
             "ORDER BY AVG(r.ratingStar) ASC")
-    List<Product> findTopRatedProductsAscByCategory(
-            @Param("categoryId") int categoryId
+    Page<Product> findTopRatedProductsAscByCategory(
+            @Param("categoryId") int categoryId,
+            Pageable pageable
     );
-
-
 
     @Query("SELECT pv FROM Product pv " +
             "LEFT JOIN pv.reviews r " +
@@ -120,8 +124,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "AND (r.isDeleted = false OR r IS NULL) " +
             "GROUP BY pv.proId " +
             "ORDER BY AVG(CASE WHEN r.ratingStar IS NOT NULL THEN r.ratingStar ELSE 0 END) ASC")
-    List<Product> findTopRatedProductsAsc();
-
+    Page<Product> findTopRatedProductsAsc(Pageable pageable);
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MIN(v.price) " +
@@ -132,9 +135,16 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "WHERE p.category_id = :categoryId " +
             "  AND p.pro_id IN :productIds " +
             "  AND p.is_deleted = false " +
-            "ORDER BY minPrice ASC", nativeQuery = true)
-    List<Product> findProductsWithMinPrice(@Param("categoryId") int categoryId,
-                                           @Param("productIds") List<Integer> productIds);
+            "ORDER BY minPrice ASC",
+            countQuery = "SELECT COUNT(*) " +
+                    "FROM product p " +
+                    "WHERE p.category_id = :categoryId " +
+                    "  AND p.pro_id IN :productIds " +
+                    "  AND p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findProductsWithMinPrice(@Param("categoryId") int categoryId,
+                                           @Param("productIds") List<Integer> productIds,
+                                           Pageable pageable);
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MIN(v.price) " +
@@ -144,8 +154,14 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "FROM product p " +
             "WHERE p.category_id = :categoryId " +
             "  AND p.is_deleted = false " +
-            "ORDER BY minPrice ASC", nativeQuery = true)
-    List<Product> findProductsWithMinPriceNoProduct(@Param("categoryId") int categoryId);
+            "ORDER BY minPrice ASC",
+            countQuery = "SELECT COUNT(*) " +
+                    "FROM product p " +
+                    "WHERE p.category_id = :categoryId " +
+                    "  AND p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findProductsWithMinPriceNoProduct(@Param("categoryId") int categoryId, Pageable pageable);
+
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MIN(v.price) " +
@@ -154,8 +170,11 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "   AND v.is_deleted = false) AS minPrice " +
             "FROM product p " +
             "WHERE p.is_deleted = false " +
-            "ORDER BY minPrice ASC", nativeQuery = true)
-    List<Product> findAllProductsWithMinPriceNoCategory();
+            "ORDER BY minPrice ASC",
+            countQuery = "SELECT COUNT(*) FROM product p WHERE p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findAllProductsWithMinPriceNoCategory(Pageable pageable);
+
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MAX(v.price) " +
@@ -165,8 +184,13 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "FROM product p " +
             "WHERE p.category_id = :categoryId " +
             "  AND p.is_deleted = false " +
-            "ORDER BY maxPrice DESC ", nativeQuery = true)
-    List<Product> findProductsWithMaxPriceNoProduct(@Param("categoryId") int categoryId);
+            "ORDER BY maxPrice DESC",
+            countQuery = "SELECT COUNT(*) " +
+                    "FROM product p " +
+                    "WHERE p.category_id = :categoryId " +
+                    "  AND p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findProductsWithMaxPriceNoProduct(@Param("categoryId") int categoryId, Pageable pageable);
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MAX(v.price) " +
@@ -175,9 +199,12 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "   AND v.is_deleted = false) AS maxPrice " +
             "FROM product p " +
             "WHERE p.is_deleted = false " +
-            "ORDER BY maxPrice DESC", nativeQuery = true)
-    List<Product> findAllProductsWithMaxPriceNoCategory();
-
+            "ORDER BY maxPrice DESC",
+            countQuery = "SELECT COUNT(*) " +
+                    "FROM product p " +
+                    "WHERE p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findAllProductsWithMaxPriceNoCategory(Pageable pageable);
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MAX(v.price) " +
@@ -188,24 +215,25 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "WHERE p.category_id = :categoryId " +
             "  AND p.pro_id IN :productIds " +
             "  AND p.is_deleted = false " +
-            "ORDER BY maxPrice DESC", nativeQuery = true)
-    List<Product> findProductsWithMaxPrice(@Param("categoryId") int categoryId,
-                                            @Param("productIds") List<Integer> productIds);
+            "ORDER BY maxPrice DESC",
+            countQuery = "SELECT COUNT(*) " +
+                    "FROM product p " +
+                    "WHERE p.category_id = :categoryId " +
+                    "  AND p.pro_id IN :productIds " +
+                    "  AND p.is_deleted = false",
+            nativeQuery = true)
+    Page<Product> findProductsWithMaxPrice(@Param("categoryId") int categoryId,
+                                           @Param("productIds") List<Integer> productIds,
+                                           Pageable pageable);
 
 
-    List<Product> findByCategory_CateIdAndProIdInAndIsDeletedFalse(
+
+    Page<Product> findByCategory_CateIdAndProIdInAndIsDeletedFalse(
             int categoryId,
             List<Integer> productIds,
-            Sort sort
+            Pageable pageable
     );
 
-    List<Product> findByCategory_CateIdAndIsDeletedFalse(
-            int categoryId,
-            Sort sort
-    );
 
-    List<Product> findByIsDeletedFalse(
-            Sort sort
-    );
 
 }

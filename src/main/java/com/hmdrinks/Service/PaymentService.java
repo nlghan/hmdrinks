@@ -86,9 +86,18 @@ public class PaymentService {
         return Long.valueOf(randomNumber);
     }
 
+
+
     public static LocalDateTime addDurationToCurrentTime(String duration, LocalDateTime currentTime) {
         int hours = 0;
         int minutes = 0;
+
+        // Lấy thời gian hiện tại
+        LocalDateTime now = LocalDateTime.now();
+
+        if (currentTime.isBefore(now)) {
+            return now.plusMinutes(20);
+        }
 
         if (duration.contains("giờ")) {
             String[] parts = duration.split("giờ");
@@ -100,12 +109,12 @@ public class PaymentService {
             minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 25;
         }
 
-        // Kiểm tra nếu cả giờ và phút đều là 0
+        // Nếu không có giờ hoặc phút, thêm mặc định 25 phút
         if (hours == 0 && minutes == 0) {
-            minutes += 25; // Thêm 15 phút
+            minutes += 25;
         }
 
-        // Điều chỉnh nếu phút vượt quá 60
+        // Xử lý trường hợp số phút lớn hơn 60
         if (minutes >= 60) {
             hours += minutes / 60;
             minutes = minutes % 60;
@@ -113,7 +122,6 @@ public class PaymentService {
 
         return currentTime.plusHours(hours).plusMinutes(minutes);
     }
-
 
 
     @Transactional

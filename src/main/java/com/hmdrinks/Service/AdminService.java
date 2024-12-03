@@ -453,11 +453,11 @@ public class AdminService {
 //        }
 
         return new FilterProductBoxResponse(
-                true,
-                1,
-                new ArrayList<>(),
-                "OK",
-                false
+//                true,
+//                1,
+//                new ArrayList<>(),
+//                "OK",
+//                false
         );
     }
 

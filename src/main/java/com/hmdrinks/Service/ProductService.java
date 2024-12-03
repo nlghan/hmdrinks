@@ -422,6 +422,11 @@ public class ProductService {
 
     @Transactional
     public ResponseEntity<?> filterProduct(FilterProductBox req) {
+        int page = Integer.parseInt(req.getPage());
+        int limit = Integer.parseInt(req.getLimit());
+
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
         // c -1: lay tat ca
         List<CRUDProductVarFilterResponse> crudProductVarFilterResponseList = new ArrayList<>();
         if(req.getC() != -1)
@@ -446,18 +451,19 @@ public class ProductService {
         // 3: theo ngay moi nhat
         // 4: theo rating thap den cao
         // 5: theo rating cao den thap
-        Sort sort;
         int total = 0;
+        long totalPages = 0;
         if (req.getO() == 1) {
-            List<Product> productWithPrices;
+            Page<Product> productWithPrices;
             if(req.getC() == -1){
-                productWithPrices = productRepository.findAllProductsWithMinPriceNoCategory();
+                productWithPrices = productRepository.findAllProductsWithMinPriceNoCategory(pageable);
             } else if (req.getP() == null || req.getP().isEmpty()) {
-                productWithPrices = productRepository.findProductsWithMinPriceNoProduct(req.getC());
+                productWithPrices = productRepository.findProductsWithMinPriceNoProduct(req.getC(),pageable);
             }
             else {
-                productWithPrices = productRepository.findProductsWithMinPrice(req.getC(), req.getP());
+                productWithPrices = productRepository.findProductsWithMinPrice(req.getC(), req.getP(),pageable);
             }
+            totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
                 List<CRUDProductVarResponse> variantResponses = product.getProductVariants().stream()
                         .map(variant -> new CRUDProductVarResponse(
@@ -475,9 +481,23 @@ public class ProductService {
 
                 Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         product.getProId(),
+                        product.getProName(),
+                        productImageResponses,
                         product.getIsDeleted(),
                         product.getDateDeleted(),
                         product.getDateCreated(),
@@ -488,15 +508,16 @@ public class ProductService {
             }
 
         } else if (req.getO() == 2) {
-            List<Product> productWithPrices;
+            Page<Product> productWithPrices;
             if(req.getC() == -1) {
-                productWithPrices = productRepository.findAllProductsWithMaxPriceNoCategory();
+                productWithPrices = productRepository.findAllProductsWithMaxPriceNoCategory(pageable);
             }
             else if (req.getP() == null || req.getP().isEmpty()) {
-                productWithPrices = productRepository.findProductsWithMaxPriceNoProduct(req.getC());
+                productWithPrices = productRepository.findProductsWithMaxPriceNoProduct(req.getC(),pageable);
             } else {
-                productWithPrices = productRepository.findProductsWithMaxPrice(req.getC(), req.getP());
+                productWithPrices = productRepository.findProductsWithMaxPrice(req.getC(), req.getP(),pageable);
             }
+            totalPages = productWithPrices.getTotalPages();
             for (Product product : productWithPrices) {
                 List<CRUDProductVarResponse> variantResponses = product.getProductVariants().stream()
                         .map(variant -> new CRUDProductVarResponse(
@@ -514,9 +535,23 @@ public class ProductService {
 
                 Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         product.getProId(),
+                        product.getProName(),
+                        productImageResponses,
                         product.getIsDeleted(),
                         product.getDateDeleted(),
                         product.getDateCreated(),
@@ -527,16 +562,21 @@ public class ProductService {
             }
         }
          else if (req.getO() == 3) {
-            List<Product> productWithPrices;
-            if(req.getC() == -1)
-            {
-                productWithPrices = productRepository.findByIsDeletedFalse(Sort.by(Sort.Direction.DESC, "dateCreated"));
-            }
-            else if (req.getP() == null || req.getP().isEmpty()) {
-                productWithPrices = productRepository.findByCategory_CateIdAndIsDeletedFalse(req.getC(),Sort.by(Sort.Direction.DESC, "dateCreated"));
+            Page<Product> productWithPrices;
+
+            Sort sort = Sort.by(Sort.Direction.DESC, "dateCreated");
+            if (req.getC() == -1) {
+                Pageable pageable1 = PageRequest.of(page, limit, sort);
+                productWithPrices = productRepository.findByIsDeletedFalse(pageable1);
+            } else if (req.getP() == null || req.getP().isEmpty()) {
+                Pageable pageable1 = PageRequest.of(page, limit, sort);
+                productWithPrices = productRepository.findByCategory_CateIdAndIsDeletedFalse(req.getC(), pageable1);
             } else {
-                productWithPrices = productRepository.findByCategory_CateIdAndProIdInAndIsDeletedFalse(req.getC(), req.getP(),Sort.by(Sort.Direction.DESC, "dateCreated"));
+                Pageable pageable1 = PageRequest.of(page, limit, sort);
+                productWithPrices = productRepository.findByCategory_CateIdAndProIdInAndIsDeletedFalse(req.getC(), req.getP(), pageable1);
             }
+
+            totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
                 List<CRUDProductVarResponse> variantResponses = product.getProductVariants().stream()
                         .map(variant -> new CRUDProductVarResponse(
@@ -554,9 +594,23 @@ public class ProductService {
 
                 Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         product.getProId(),
+                        product.getProName(),
+                        productImageResponses,
                         product.getIsDeleted(),
                         product.getDateDeleted(),
                         product.getDateCreated(),
@@ -567,16 +621,17 @@ public class ProductService {
             }
         }
         else if (req.getO() == 4) {
-            List<Product> productWithPrices;
+            Page<Product> productWithPrices;
             if(req.getC() == -1)
             {
-                productWithPrices = productRepository.findTopRatedProductsDesc();
+                productWithPrices = productRepository.findTopRatedProductsDesc(pageable);
             }
             else if (req.getP() == null || req.getP().isEmpty()) {
-                productWithPrices = productRepository.findTopRatedProductsDescByCategory(req.getC());
+                productWithPrices = productRepository.findTopRatedProductsDescByCategory(req.getC(),pageable);
             } else {
-                productWithPrices = productRepository.findTopRatedProductsDesc(req.getC(), req.getP());
+                productWithPrices = productRepository.findTopRatedProductsDesc(req.getC(), req.getP(),pageable);
             }
+            totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
                 List<CRUDProductVarResponse> variantResponses = product.getProductVariants().stream()
                         .map(variant -> new CRUDProductVarResponse(
@@ -594,9 +649,23 @@ public class ProductService {
 
                 Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         product.getProId(),
+                        product.getProName(),
+                        productImageResponses,
                         product.getIsDeleted(),
                         product.getDateDeleted(),
                         product.getDateCreated(),
@@ -607,17 +676,18 @@ public class ProductService {
             }
         }
          else if (req.getO() == 5) {
-            List<Product> productWithPrices;
+            Page<Product> productWithPrices;
             if(req.getC() == -1)
             {
-                productWithPrices = productRepository.findTopRatedProductsAsc();
+                productWithPrices = productRepository.findTopRatedProductsAsc(pageable);
             }
             else  if (req.getP() == null || req.getP().isEmpty()) {
-                productWithPrices = productRepository.findTopRatedProductsAscByCategory(req.getC());
+                productWithPrices = productRepository.findTopRatedProductsAscByCategory(req.getC(),pageable);
 
             } else {
-                productWithPrices = productRepository.findTopRatedProductsAsc(req.getC(), req.getP());
+                productWithPrices = productRepository.findTopRatedProductsAsc(req.getC(), req.getP(),pageable);
             }
+            totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
                 List<CRUDProductVarResponse> variantResponses = product.getProductVariants().stream()
                         .map(variant -> new CRUDProductVarResponse(
@@ -635,9 +705,23 @@ public class ProductService {
 
                 Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
                 if (avgRating == null) avgRating = 0.0;
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
                 crudProductVarFilterResponseList.add(new CRUDProductVarFilterResponse(
                         Math.round(avgRating * 10) / 10.0,
                         product.getProId(),
+                        product.getProName(),
+                        productImageResponses,
                         product.getIsDeleted(),
                         product.getDateDeleted(),
                         product.getDateCreated(),
@@ -648,12 +732,12 @@ public class ProductService {
             }
         }
 
-            return ResponseEntity.status(HttpStatus.OK).body(new FilterProductBoxResponse(
-                    true,
+         return ResponseEntity.status(HttpStatus.OK).body(new FilterProductBoxResponse(
+                    page,
+                    totalPages,
+                    limit,
                     total,
-                    crudProductVarFilterResponseList,
-                    "OK",
-                    false
+                    crudProductVarFilterResponseList
             ));
         }
 

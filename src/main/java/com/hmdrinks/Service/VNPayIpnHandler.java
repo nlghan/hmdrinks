@@ -55,14 +55,30 @@ public class VNPayIpnHandler {
         int hours = 0;
         int minutes = 0;
 
+        // Lấy thời gian hiện tại
+        LocalDateTime now = LocalDateTime.now();
+
+        if (currentTime.isBefore(now)) {
+            return now.plusMinutes(20);
+        }
+
         if (duration.contains("giờ")) {
             String[] parts = duration.split("giờ");
             hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
             if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10; // Lấy số phút
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 25;
             }
         } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim());
+            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 25;
+        }
+
+        if (hours == 0 && minutes == 0) {
+            minutes += 25;
+        }
+
+        if (minutes >= 60) {
+            hours += minutes / 60;
+            minutes = minutes % 60;
         }
 
         return currentTime.plusHours(hours).plusMinutes(minutes);

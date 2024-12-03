@@ -15,4 +15,6 @@ public class FilterProductBox {
     private int c;
     List<Integer> p;
     private  int o;
+    private  String page;
+    private  String limit;
 }

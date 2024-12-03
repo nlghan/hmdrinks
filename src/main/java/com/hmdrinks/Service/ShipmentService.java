@@ -708,11 +708,6 @@ public class ShipmentService {
             if(shippment.getStatus() == Status_Shipment.SHIPPING)
             {
                 if(now.isAfter(shippment.getDateDelivered())) {
-                    System.out.println("Biến Now:" + now);
-                    System.out.println("Biến DateDeliver:" + shippment.getDateDelivered());
-                    shippment.setStatus(Status_Shipment.CANCELLED);
-                    shippment.setDateCancel(LocalDateTime.now());
-                    shipmentRepository.save(shippment);
                     Payment payment = shippment.getPayment();
                     Orders orders = payment.getOrder();
                     if(payment.getPaymentMethod() == Payment_Method.CASH)
@@ -731,6 +726,9 @@ public class ShipmentService {
                         paymentRepository.save(payment);
                         orders.setStatus(Status_Order.CANCELLED);
                     }
+                    shippment.setStatus(Status_Shipment.CANCELLED);
+                    shippment.setDateCancel(LocalDateTime.now());
+                    shipmentRepository.save(shippment);
                 }
             }
         }

@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 
 public class FilterProductBoxResponse {
-     private boolean isShowFilterMonopoly;
+     private int currentPage;
+     private long totalPages;
+     private int limit;
      private int total;
      List<CRUDProductVarFilterResponse> productResponseList;
-     private String textResponseAPI;
-     private boolean isFilterRange;
 }
