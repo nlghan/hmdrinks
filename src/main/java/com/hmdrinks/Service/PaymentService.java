@@ -194,6 +194,10 @@ public class PaymentService {
 
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
+            if(selectedShipper == null)
+            {
+                 currentTime = null;
+            }
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
             selectedShipper.getShippments().add(shipment);

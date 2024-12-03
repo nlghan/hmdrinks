@@ -170,6 +170,10 @@ public class ZaloPayService {
 
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
+            if(selectedShipper == null)
+            {
+                currentTime = null;
+            }
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
 
