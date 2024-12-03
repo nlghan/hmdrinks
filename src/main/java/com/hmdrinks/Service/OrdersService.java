@@ -212,6 +212,7 @@ public class OrdersService {
         if (orders == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found order status waiting");
         }
+        orders.setDateCanceled(LocalDateTime.now());
         order.setStatus(Status_Order.CANCELLED);
         orderRepository.save(order);
         if(order.getVoucher() != null)
@@ -446,6 +447,7 @@ public class OrdersService {
             System.out.println("Payment not found");
         }
         order.setStatus(Status_Order.CANCELLED);
+        order.setDateCanceled(LocalDateTime.now());
         orderRepository.save(order);
         Voucher voucher = order.getVoucher();
         if (voucher != null) {
