@@ -89,7 +89,7 @@ public class ShipmentService {
        User shipper = shippment.getUser();
        return  ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                shippment.getShipmentId(),
-               shipper.getFullName(),
+               shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                shippment.getDateCreated(),
                shippment.getDateDeleted(),
                shippment.getDateDelivered(),
@@ -98,7 +98,7 @@ public class ShipmentService {
                shippment.getIsDeleted(),
                shippment.getStatus(),
                shippment.getPayment().getPaymentId(),
-               shippment.getUser().getUserId(),
+               shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                customer.getFullName(),
                orders.getAddress(),
                customer.getPhoneNumber(),
@@ -143,7 +143,7 @@ public class ShipmentService {
         User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
+                shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -152,7 +152,7 @@ public class ShipmentService {
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
-                shippment.getUser().getUserId(),
+                shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
@@ -243,7 +243,7 @@ public class ShipmentService {
         User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
+                shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -252,7 +252,7 @@ public class ShipmentService {
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
-                shippment.getUser().getUserId(),
+                shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
@@ -321,7 +321,7 @@ public class ShipmentService {
         User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
+                shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -330,7 +330,7 @@ public class ShipmentService {
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
-                shippment.getUser().getUserId(),
+                shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
@@ -368,7 +368,7 @@ public class ShipmentService {
         User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
+                shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -377,7 +377,7 @@ public class ShipmentService {
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
-                shippment.getUser().getUserId(),
+                shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
@@ -403,7 +403,7 @@ public class ShipmentService {
             User shipper = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
+                    shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -412,7 +412,7 @@ public class ShipmentService {
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
-                    shippment.getUser().getUserId(),
+                    shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                     customer.getFullName(),
                     orders.getAddress(),
                     customer.getPhoneNumber(),
@@ -451,7 +451,7 @@ public class ShipmentService {
             User shipper = shippment.getUser();
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
+                    shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                     shippment.getDateCreated(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -460,7 +460,7 @@ public class ShipmentService {
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
-                    shippment.getUser().getUserId(),
+                    shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                     customer.getFullName(),
                     orders.getAddress(),
                     customer.getPhoneNumber(),
@@ -645,7 +645,7 @@ public class ShipmentService {
         User shipper = shippment.getUser();
          return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                  shippment.getShipmentId(),
-                 shipper.getFullName(),
+                 shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                  shippment.getDateCreated(),
                  shippment.getDateDeleted(),
                  shippment.getDateDelivered(),
@@ -654,7 +654,7 @@ public class ShipmentService {
                  shippment.getIsDeleted(),
                  shippment.getStatus(),
                  shippment.getPayment().getPaymentId(),
-                 user1 != null ? shippment.getUser().getUserId() : null,
+                 shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                  customer.getFullName(),
                  orders.getAddress(),
                  customer.getPhoneNumber(),
@@ -681,7 +681,7 @@ public class ShipmentService {
         User shipper = shipment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
-                shipper.getFullName(),
+                shipment.getUser() != null ? shipment.getUser().getFullName() : null,
                 shipment.getDateCreated(),
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
@@ -690,7 +690,7 @@ public class ShipmentService {
                 shipment.getIsDeleted(),
                 shipment.getStatus(),
                 shipment.getPayment().getPaymentId(),
-                shipment.getUser().getUserId(),
+                shipment.getUser() != null ? shipment.getUser().getUserId() : null,
                 customer.getFullName(),
                 order.getAddress(),
                 customer.getPhoneNumber(),
@@ -751,7 +751,7 @@ public class ShipmentService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
-                shipper.getFullName(),
+                shipment.getUser() != null ? shipment.getUser().getFullName() : null,
                 shipment.getDateCreated(),
                 shipment.getDateDeleted(),
                 shipment.getDateDelivered(),
@@ -760,7 +760,7 @@ public class ShipmentService {
                 shipment.getIsDeleted(),
                 shipment.getStatus(),
                 shipment.getPayment().getPaymentId(),
-                shipment.getUser().getUserId(),
+                shipment.getUser() != null ? shipment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
@@ -800,10 +800,9 @@ public class ShipmentService {
         Payment payment = shippment.getPayment();
         Orders orders = payment.getOrder();
         User customer = orders.getUser();
-        User shipper = shippment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shippment.getShipmentId(),
-                shipper.getFullName(),
+                shippment.getUser() != null ? shippment.getUser().getFullName() : null,
                 shippment.getDateCreated(),
                 shippment.getDateDeleted(),
                 shippment.getDateDelivered(),
@@ -812,7 +811,7 @@ public class ShipmentService {
                 shippment.getIsDeleted(),
                 shippment.getStatus(),
                 shippment.getPayment().getPaymentId(),
-                shippment.getUser().getUserId(),
+                shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                 customer.getFullName(),
                 orders.getAddress(),
                 customer.getPhoneNumber(),
