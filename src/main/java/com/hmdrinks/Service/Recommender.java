@@ -204,7 +204,7 @@ public class Recommender {
         Map<Long, Map<Long, Integer>> userWithRatesMap = new TreeMap<>();
 
         User user = userRepository.findByUserIdAndIsDeletedFalse(Integer.valueOf(String.valueOf(userId)));
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
         }
 
@@ -213,8 +213,8 @@ public class Recommender {
             Map<Long, Integer> userRatings = new HashMap<>();
 
             List<Review> reviews = reviewRepository.findByUser_UserId(userItem.getUserId());
-            for(Review review : reviews) {
-                userRatings.put(Long.parseLong(String.valueOf(review.getProduct().getProId())),review.getRatingStar());
+            for (Review review : reviews) {
+                userRatings.put(Long.parseLong(String.valueOf(review.getProduct().getProId())), review.getRatingStar());
             }
 
             if (userId.compareTo(userID) == 0) {
@@ -266,11 +266,10 @@ public class Recommender {
             Map.Entry<Long, Double> entry = sortedREntries.next();
             if (entry.getValue() >= MIN_VALUE_RECOMMENDATION) {
                 Product product = productRepository.findByProId(Integer.parseInt(entry.getKey().toString()));
-                if(product != null) {
+                if (product != null) {
                     List<ProductImageResponse> productImageResponses = new ArrayList<>();
                     String currentProImg = product.getListProImg();
-                    if(currentProImg != null && !currentProImg.trim().isEmpty())
-                    {
+                    if (currentProImg != null && !currentProImg.trim().isEmpty()) {
                         String[] imageEntries1 = currentProImg.split(", ");
                         for (String imageEntry : imageEntries1) {
                             String[] parts = imageEntry.split(": ");
@@ -297,15 +296,15 @@ public class Recommender {
             }
         }
 
-        if(crudProductResponses.isEmpty()) {
+        if (crudProductResponses.isEmpty()) {
             Set<Long> processedCategoryIds = new HashSet<>();
             List<Orders> orders = orderRepository.findAllByUserUserId(Math.toIntExact(userId));
-            for(Orders order : orders) {
+            for (Orders order : orders) {
                 OrderItem orderItem = order.getOrderItem();
                 System.out.println(orderItem.getOrderItemId());
                 Cart cart = orderItem.getCart();
                 List<CartItem> cartItem = cartItemRepository.findByCart_CartId(cart.getCartId());
-                for(CartItem cartItem1 : cartItem) {
+                for (CartItem cartItem1 : cartItem) {
                     ProductVariants productVariants = cartItem1.getProductVariants();
                     Product product = productRepository.findByProId(productVariants.getProduct().getProId());
                     Category category = product.getCategory();
@@ -343,6 +342,7 @@ public class Recommender {
             }
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ListRecommendResponse(Math.toIntExact(userId),total,crudProductResponses));
+        return ResponseEntity.status(HttpStatus.OK).body(new ListRecommendResponse(Math.toIntExact(userId), total, crudProductResponses));
+
     }
 }

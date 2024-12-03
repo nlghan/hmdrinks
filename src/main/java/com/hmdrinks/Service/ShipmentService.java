@@ -591,7 +591,7 @@ public class ShipmentService {
                     shippment.getIsDeleted(),
                     shippment.getStatus(),
                     shippment.getPayment().getPaymentId(),
-                    user1 != null ? shippment.getUser().getUserId() : null,
+                    shippment.getUser() != null ? shippment.getUser().getUserId() : null,
                     customer.getFullName(),
                     orders.getAddress(),
                     customer.getPhoneNumber(),

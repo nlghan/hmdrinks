@@ -94,12 +94,18 @@ public class PaymentService {
             String[] parts = duration.split("giờ");
             hours = Integer.parseInt(parts[0].trim()); // Lấy số giờ
             if (parts.length > 1 && parts[1].contains("phút")) {
-                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 10;
+                minutes = Integer.parseInt(parts[1].replace("phút", "").trim()) + 25;
             }
         } else if (duration.contains("phút")) {
-            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 10;
+            minutes = Integer.parseInt(duration.replace("phút", "").trim()) + 25;
         }
 
+        // Kiểm tra nếu cả giờ và phút đều là 0
+        if (hours == 0 && minutes == 0) {
+            minutes += 25; // Thêm 15 phút
+        }
+
+        // Điều chỉnh nếu phút vượt quá 60
         if (minutes >= 60) {
             hours += minutes / 60;
             minutes = minutes % 60;
@@ -107,6 +113,7 @@ public class PaymentService {
 
         return currentTime.plusHours(hours).plusMinutes(minutes);
     }
+
 
 
     @Transactional
@@ -158,6 +165,7 @@ public class PaymentService {
                     DistanceAndDuration lastToCurrent = supportFunction.getShortestDistance(lastDestination, destination);
                     String duration = lastToCurrent.getDuration();
                     currentTime = addDurationToCurrentTime(duration, lastShipment.getDateDelivered());
+
                 } else {
                     DistanceAndDuration originToDestination = supportFunction.getShortestDistance(origin, destination);
                     if (originToDestination.getDistance() > 20) {
