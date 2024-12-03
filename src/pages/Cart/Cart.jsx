@@ -263,8 +263,8 @@ const Cart = () => {
                                     </svg>
                                 </div>
                             </div>
-                            <h3>Bạn đã thu thập voucher rồi!</h3>
-                            <p>Một người dùng chỉ nhận voucher một lần.</p>
+                            <h3>Số lượng phải lớn hơn 0</h3>
+                            <p>Vui lòng nhập số lượng khác</p>
                         </div>
                     </div>
                 )}

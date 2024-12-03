@@ -601,7 +601,7 @@ const MyOrder = () => {
                                         <li key={refund.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#f3d2f1' }}>
                                                 <p><strong>Mã đơn hàng:</strong> {refund.orderId}</p>
-                                                <button
+                                                {/* <button
                                                     className="btn-view-details-ship"
                                                     onClick={() =>
                                                         navigate(`/my-order-detail/${refund.orderId}`, {
@@ -610,7 +610,7 @@ const MyOrder = () => {
                                                     }
                                                 >
                                                     Chi tiết
-                                                </button>
+                                                </button> */}
                                             </div>
                                             <div className="my-refunds-item-content">
                                                 <p><strong>Địa chỉ:</strong> {refund.address}</p>

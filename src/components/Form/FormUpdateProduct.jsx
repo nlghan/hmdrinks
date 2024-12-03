@@ -476,13 +476,15 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
             // Loop through each variant and prepare requests only for those that have changed
             for (const variant of variantUpdates) {
-                if (variant.stock === 0) {
-                    setError(`Số lượng của variant ${variant.size} phải lớn hơn 0.`);
-                    setLoading(false);
-                    return;
-                }
+                
                 if (variant.price !== undefined || variant.stock !== undefined) {
+                    
                     if (variant.varId === null) {
+                        if (variant.stock === 0) {
+                            setError(`Số lượng của variant ${variant.size} phải lớn hơn 0.`);
+                            setLoading(false);
+                            return;
+                        }
                         // Create new variant if varId is null
                         const variantPayload = {
                             proId: Number(proId),

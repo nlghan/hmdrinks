@@ -306,7 +306,7 @@
 
 .payment-options {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+  grid-template-columns: repeat(2, 1fr); /* 3 items per row */
   gap: 15px; /* Space between items */
   padding: 10px 0;
 }

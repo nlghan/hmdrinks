@@ -111,7 +111,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                 }
             });
             if (response.status === 409) {
-                setError("Thông tin người dùng đã tồn tại. Vui lòng kiểm tra lại!");
+                setError("Email người dùng đã tồn tại. Vui lòng kiểm tra lại!");
                 return; // Dừng xử lý tiếp theo nếu gặp lỗi 409
             }
 
@@ -137,7 +137,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
 
                     // Xử lý lỗi trả về từ server
                     if (serverMessage.includes("Email already exists")) {
-                        setError("Thông tin người dùng đã tồn tại. Vui lòng kiểm tra lại!");
+                        setError("Email người dùng người dùng đã tồn tại. Vui lòng kiểm tra lại!");
                     } else {
                         setError(serverMessage || 'Xung đột dữ liệu. Vui lòng kiểm tra lại!');
                     }

@@ -373,7 +373,7 @@ const Menu = () => {
                 {/* Product listing */}
                 <div className="product-listing">
                     <div className="filter">
-                        <button>Lọc sản phẩm</button>
+                        <div></div>
                         {hasProducts && (
                             <div className="menu-product-pagination">
                                 {/* Previous Button */}
