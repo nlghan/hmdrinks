@@ -85,7 +85,7 @@ const App = () => {
           <div className='app'>
             <Routes location={location}>
               <Route path="/" element={<Home />} />
-              <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
+              <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/" />} />
               <Route path="/shipper-home" element={<ShipperHome />} />
               <Route path="/login" element={<LoginRedirect />} />
               <Route path="/login-gg" element={<LoginGG />} />

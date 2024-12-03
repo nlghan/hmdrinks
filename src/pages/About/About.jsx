@@ -29,6 +29,7 @@ const About = () => {
     const introduceRightRefs = useRef([]); // Ref cho phần tử bên phải
     const featuresSectionRef = useRef(null); // Ref cho .features-section
     const featureItemsRef = useRef([]);
+    const [error, setError]= useState('')
 
 
     useEffect(() => {

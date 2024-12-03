@@ -838,7 +838,7 @@ const Order = () => {
                                                 value="momo"
                                                 onChange={handlePaymentMethodChange}
                                             /> MOMO
-                                            <img src={momo} style={{ width: '50px', height: '40px', flex: '0.4' }} />
+                                            <img src={momo} style={{ width: '40px', height: '40px', flex: '0.4' }} />
                                         </label>
                                     </div>
 
@@ -854,7 +854,7 @@ const Order = () => {
                                         </label>
                                     </div>
 
-                                    <div>
+                                    {/* <div>
                                         <label>
                                             <input
                                                 type="radio"
@@ -864,7 +864,7 @@ const Order = () => {
                                             /> VNPay
                                             <img src={vn} style={{ width: '50px', height: '40px', flex: '0.4' }} />
                                         </label>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}

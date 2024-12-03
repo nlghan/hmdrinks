@@ -33,7 +33,7 @@ const User = () => {
     const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(7);
+    const [limit, setLimit] = useState(10);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
     const [selectedType, setSelectedType] = useState('all');

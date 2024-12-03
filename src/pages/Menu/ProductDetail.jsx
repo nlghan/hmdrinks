@@ -463,13 +463,13 @@ const ProductDetail = () => {
                             }
 
                             // Dừng lại khi đã có đủ 3 sản phẩm
-                            if (uniqueRecommendedProducts.length === 3) {
+                            if (uniqueRecommendedProducts.length === 4) {
                                 break; // Exit the loop if we have 3 unique products
                             }
                         }
 
                         // Đảm bảo danh sách có đủ 3 sản phẩm
-                        if (uniqueRecommendedProducts.length < 3) {
+                        if (uniqueRecommendedProducts.length < 4) {
                             for (const recommendation of reversedList) {
                                 if (recommendation.proName !== currentProductName && !seenProductNames.has(recommendation.proName)) {
                                     uniqueRecommendedProducts.push(recommendation); // Add to unique products
@@ -477,7 +477,7 @@ const ProductDetail = () => {
                                 }
 
                                 // Stop if we have collected 3 unique products
-                                if (uniqueRecommendedProducts.length === 3) {
+                                if (uniqueRecommendedProducts.length === 4) {
                                     break; // Exit the loop if we have 3 unique products
                                 }
                             }
