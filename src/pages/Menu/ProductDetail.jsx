@@ -152,25 +152,25 @@ const ProductDetail = () => {
                         'Accept': '*/*'
                     }
                 });
-    
+
                 if (!variantResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-    
+
                 const variantData = await variantResponse.json();
-    
+
                 // Lọc các size có stock > 0 và cập nhật availableSizes
                 const filteredSizes = variantData.responseList
                     .filter(v => v.stock > 0)
                     .map(v => v.size);
-    
+
                 setAvailableSizes(filteredSizes);
-    
+
                 // Kiểm tra nếu selectedSize không còn khả dụng sau khi lọc
                 if (!filteredSizes.includes(selectedSize)) {
                     setSelectedSize(filteredSizes.length > 0 ? filteredSizes[0] : null); // Chọn size đầu tiên khả dụng hoặc null
                 }
-    
+
                 // Tìm biến thể dựa trên selectedSize
                 const variant = variantData.responseList.find(v => v.size === selectedSize);
                 if (variant) {
@@ -181,10 +181,10 @@ const ProductDetail = () => {
                 console.error('Failed to fetch product variants:', error);
             }
         };
-    
+
         fetchProductVariants();
     }, [selectedSize, product.proId]);
-    
+
 
 
     const handleSizeChange = (size) => {
@@ -338,7 +338,7 @@ const ProductDetail = () => {
             setNewReview({ content: '', ratingStart: 0, proId: product.proId }); // Reset với proId
             fetchReviews(newReview.proId); // Gọi fetchReviews với proId từ newReview
         } catch (error) {
-            console.error('Error submitting review:', error);            
+            console.error('Error submitting review:', error);
         }
     };
 
@@ -840,7 +840,11 @@ const ProductDetail = () => {
                                             onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
                                             id="input-text-review"
                                         />
-                                        <div className="send-button" onClick={() => handleSubmitReview(newReview.proId)}>
+                                        <div
+                                            className="send-button"
+                                            onClick={() => handleSubmitReview(newReview.proId)}
+                                            style={{ cursor: newReview.ratingStart > 0 ? 'pointer' : 'not-allowed', opacity: newReview.ratingStart > 0 ? 1 : 0.5 }} // Thay đổi con trỏ và độ mờ
+                                        >
                                             <i className="far fa-paper-plane"></i>
                                         </div>
                                     </div>

@@ -13,6 +13,18 @@
     position: relative;
     padding-left: 70px;
 }
+/* styles.css hoặc file CSS tương ứng */
+.price-history-modal {
+    background-color: rgba(255, 255, 255, 0.853); /* Màu nền trắng */
+    border: 2px solid #e0caca; /* Đường viền xám */
+    border-radius: 5px; /* Bo góc */
+    padding: 10px; /* Khoảng cách bên trong */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    position: absolute; /* Định vị tuyệt đối */
+    right: 10px; /* Cách bên phải 10px */
+    top: 10px; /* Cách trên 10px */
+    z-index: 1000; /* Đảm bảo modal nằm trên các phần tử khác */
+}
 .product-page::before {
     content: '';
     position: absolute;
