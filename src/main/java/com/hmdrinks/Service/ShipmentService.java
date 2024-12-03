@@ -715,6 +715,7 @@ public class ShipmentService {
                         payment.setStatus(Status_Payment.FAILED);
                         paymentRepository.save(payment);
                         orders.setStatus(Status_Order.CANCELLED);
+                        orders.setDateCanceled(LocalDateTime.now());
                         orderRepository.save(orders);
                     }
                     if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
@@ -723,8 +724,9 @@ public class ShipmentService {
                         payment.setDateRefunded(LocalDateTime.now());
                         payment.setIsRefund(false);
                         paymentRepository.save(payment);
-                        paymentRepository.save(payment);
                         orders.setStatus(Status_Order.CANCELLED);
+                        orders.setDateCanceled(LocalDateTime.now());
+                        orderRepository.save(orders);
                     }
                     shippment.setStatus(Status_Shipment.CANCELLED);
                     shippment.setDateCancel(LocalDateTime.now());
