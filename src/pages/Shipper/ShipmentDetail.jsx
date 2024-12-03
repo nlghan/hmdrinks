@@ -109,21 +109,20 @@ const ShipmentDetail = () => {
             setError('Vui lòng đăng nhập lại.');
             return;
         }
-
-        // Nếu trạng thái được chọn là "SUCCESS", gọi API
-        if (newStatus === 'SUCCESS') {
-            const userId = getUserIdFromToken(token);
-            if (!userId) {
-                setError('Không thể xác định UserId.');
-                return;
-            }
-
-            try {
+    
+        const userId = getUserIdFromToken(token);
+        if (!userId) {
+            setError('Không thể xác định UserId.');
+            return;
+        }
+    
+        try {
+            if (newStatus === 'SUCCESS') {
                 const response = await axios.post(
                     'http://localhost:1010/api/shipment/activate/success',
                     {
                         userId,
-                        shipmentId, // Đảm bảo shipmentId được truyền vào
+                        shipmentId,
                     },
                     {
                         headers: {
@@ -132,16 +131,25 @@ const ShipmentDetail = () => {
                         },
                     }
                 );
-                console.log('API response:', response.data);
-                // Sau khi cập nhật, refresh lại dữ liệu
-                fetchShipmentDetail();
-            } catch (error) {
-                console.error('Error calling success API:', error);
-                setError('Không thể cập nhật trạng thái thành công.');
-            }
-        } else {
-            // Xử lý các trạng thái khác như "SHIPPING" hay "CANCELLED" nếu cần
-            try {
+                console.log('API response (SUCCESS):', response.data);
+                fetchShipmentDetail(); // Làm mới dữ liệu
+            } else if (newStatus === 'CANCELLED') {
+                const response = await axios.post(
+                    'http://localhost:1010/api/shipment/activate/cancel',
+                    {
+                        userId,
+                        shipmentId,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log('API response (CANCELLED):', response.data);
+                fetchShipmentDetail(); // Làm mới dữ liệu
+            } else {
                 const response = await axios.put(
                     `${import.meta.env.VITE_API_BASE_URL}/shipment/update-status/${shipmentId}`,
                     { status: newStatus },
@@ -152,22 +160,28 @@ const ShipmentDetail = () => {
                     }
                 );
                 console.log('Status updated:', response.data);
-                // Refresh the data after status change
-                fetchData(currentPage);
-            } catch (error) {
-                console.error('Error updating status:', error);
-                setError('Không thể cập nhật trạng thái.');
+                fetchData(currentPage); // Làm mới dữ liệu
             }
+        } catch (error) {
+            console.error(`Error updating status (${newStatus}):`, error);
+            setError('Không thể cập nhật trạng thái.');
         }
     };
+    
 
 
 
     return (
         <>
             <NavbarShipper currentPage="Chi Tiết Đơn Hàng" />
-            <div className="shipment-detail-container">
-                <h1>Chi Tiết Đơn Hàng</h1>
+            <div className="shipment-detail-container" >
+            <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between'}}>
+                            <button className="btn-back" onClick={() => navigate(-1)}>
+                                Quay lại
+                            </button>
+
+                        </div>
+
 
                 {loading ? (
                     <div>Đang tải...</div>
@@ -177,9 +191,11 @@ const ShipmentDetail = () => {
                     <>
                         <div className="shipment-detail-card">
                             <h2>Chi Tiết Đơn Hàng</h2>
+                            <p><strong>Mã đơn hàng:</strong> {order?.orderId}</p>
                             <p><strong>Tên khách hàng:</strong> {shipment?.customerName}</p>
                             <p><strong>Địa chỉ giao hàng:</strong> {shipment?.address}</p>
                             <p><strong>Số điện thoại:</strong> {shipment?.phoneNumber}</p>
+                            <p><strong>Mã đơn giao:</strong> {shipment?.shipmentId}</p>
                             <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>
                             <p><strong>Ngày tạo:</strong> {shipment?.dateCreated}</p>
                             <p><strong>Ghi chú:</strong> {shipment?.notes || 'Không có ghi chú.'}</p>
@@ -187,7 +203,7 @@ const ShipmentDetail = () => {
                             <p><strong>Phương thức thanh toán:</strong> {payment?.paymentMethod}</p>
                             <p><strong>Trạng thái thanh toán:</strong> {payment?.statusPayment}</p>
 
-                            <p><strong>Mã đơn hàng:</strong> {order?.orderId}</p>
+                            
                             <p><strong>Tổng tiền:</strong> {payment?.amount} VND (Bao gồm phí ship)</p>
                             <ul className="order-items-list">
                                 {order?.listItemOrders.map(item => (
@@ -234,12 +250,7 @@ const ShipmentDetail = () => {
 
                         </div>
 
-                        <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                            <button className="btn-back" onClick={() => navigate(-1)}>
-                                Quay lại
-                            </button>
-
-                        </div>
+                        
                     </>
                 )}
             </div>

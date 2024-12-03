@@ -168,7 +168,7 @@ const HomeShipper = () => {
                                         }}
                                     >
                                         <span className="shipment-id">
-                                            Mã đơn giao: {shipment?.shipmentId || "N/A"}
+                                            Mã đơn hàng: {shipment?.orderId || "N/A"}
                                         </span>
 
                                         <button

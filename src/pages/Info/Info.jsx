@@ -383,16 +383,31 @@ const Info = () => {
     const validateForm = () => {
         const errors = { email: '', phoneNumber: '', birthDay: '' };
         const phoneRegex = /^[0-9]{10}$/;
-
-        if (!formData.email.includes('@')) errors.email = 'Vui lòng nhập email hợp lệ!';
-        if (!phoneRegex.test(formData.phoneNumber)) errors.phoneNumber = 'Số điện thoại phải có đúng 10 số!';
-
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    
+        // Kiểm tra email hợp lệ
+        if (!emailRegex.test(formData.email)) {
+            errors.email = 'Vui lòng nhập email hợp lệ!';
+        }
+    
+        // Kiểm tra số điện thoại hợp lệ
+        if (!phoneRegex.test(formData.phoneNumber)) {
+            errors.phoneNumber = 'Số điện thoại phải có đúng 10 số!';
+        }
+    
+        // Kiểm tra ngày sinh hợp lệ
         const birthDate = new Date(formData.birthDay);
-        if (birthDate > new Date()) errors.birthDay = 'Ngày sinh không hợp lệ!';
-
+        const today = new Date();
+        if (birthDate > today) {
+            errors.birthDay = 'Ngày sinh không thể lớn hơn ngày hiện tại!';
+        } else if (isNaN(birthDate)) {
+            errors.birthDay = 'Ngày sinh không hợp lệ!';
+        }
+    
         setFormErrors(errors);
-        return Object.values(errors).every(error => error === '');
+        return Object.values(errors).every(error => error === '');  // Kiểm tra nếu không có lỗi nào
     };
+    
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];

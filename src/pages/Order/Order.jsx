@@ -189,14 +189,11 @@ const Order = () => {
             );
 
             // Kiểm tra phản hồi API
-            if (response.data.statusPayment === 'PENDING') {
+            if (response.data.statusPayment === 'PENDING' || response.data.statusPayment === 'COMPLETED') {
                 console.log("Thanh toán đã được tạo, trạng thái: PENDING");
 
                 // Điều hướng đến trang PaymentStatus và truyền trạng thái "success"
                 navigate('/payment-status', { state: { status: 'success' } });
-            } else {
-                console.error("Thanh toán thất bại");
-                navigate('/payment-status', { state: { status: 'failure' } });
             }
         } catch (error) {
             console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
@@ -242,10 +239,14 @@ const Order = () => {
 
                 // Redirect to the link received from the response
                 window.location.href = link;
+            } else if (response.data.statusPayment === 'COMPLETED') {
+                console.log("Thanh toán thành công CHO VOUCHER LỚN.");
+                navigate('/payment-status', { state: { status: 'success' } });
             } else {
-                console.error("Thanh toán thất bại");
+                console.error("Thanh toán thất bại hoặc không xác định.");
                 navigate('/payment-status', { state: { status: 'failure' } });
             }
+            
         } catch (error) {
             console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
             navigate('/payment-status', { state: { status: 'failure' } });
@@ -287,8 +288,11 @@ const Order = () => {
 
                 // Redirect to the link received from the response
                 window.location.href = link;
+            } else if (response.data.statusPayment === 'COMPLETED') {
+                console.log("Thanh toán thành công CHO VOUCHER LỚN.");
+                navigate('/payment-status', { state: { status: 'success' } });
             } else {
-                console.error("Thanh toán thất bại");
+                console.error("Thanh toán thất bại hoặc không xác định.");
                 navigate('/payment-status', { state: { status: 'failure' } });
             }
         } catch (error) {
@@ -332,8 +336,11 @@ const Order = () => {
 
                 // Redirect to the link received from the response
                 window.location.href = link;
+            } else if (response.data.statusPayment === 'COMPLETED') {
+                console.log("Thanh toán thành công CHO VOUCHER LỚN.");
+                navigate('/payment-status', { state: { status: 'success' } });
             } else {
-                console.error("Thanh toán thất bại");
+                console.error("Thanh toán thất bại hoặc không xác định.");
                 navigate('/payment-status', { state: { status: 'failure' } });
             }
         } catch (error) {
@@ -380,8 +387,11 @@ const Order = () => {
 
                 // Redirect to the link received from the response
                 window.location.href = link;
+            } else if (response.data.statusPayment === 'COMPLETED') {
+                console.log("Thanh toán thành công CHO VOUCHER LỚN.");
+                navigate('/payment-status', { state: { status: 'success' } });
             } else {
-                console.error("Thanh toán thất bại");
+                console.error("Thanh toán thất bại hoặc không xác định.");
                 navigate('/payment-status', { state: { status: 'failure' } });
             }
         } catch (error) {
@@ -645,8 +655,12 @@ const Order = () => {
                                     <p><strong>Giảm giá: </strong>{formatCurrency(orderData.discountPrice)}</p>
                                     <hr />
                                     <p style={{ color: 'black', fontSize: '25px', textAlign: 'center' }}>
-                                        <strong>Tổng cộng: {formatCurrency(orderData.totalPrice + orderData.deliveryFee - orderData.discountPrice)}</strong>
+                                        <strong>
+                                            Tổng cộng:
+                                            {formatCurrency(Math.max(orderData.totalPrice + orderData.deliveryFee - orderData.discountPrice, 0))}
+                                        </strong>
                                     </p>
+
                                 </div>
                                 <div className="info-section">
                                     <h2 style={{ marginBottom: '20px' }}>Thông tin khách hàng</h2>
