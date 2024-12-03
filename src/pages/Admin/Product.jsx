@@ -486,6 +486,14 @@ const Product = () => {
         }
     };
 
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(parseFloat(price));
+    };
+
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
@@ -607,7 +615,7 @@ const Product = () => {
                                                         {product.variants.map(variant => (
                                                             <li key={variant.varId}>
                                                                 <span className="size">{variant.size}</span>
-                                                                <span className="price">{variant.price} VND</span>
+                                                                <span className="price">{formatPrice(variant.price)} VND</span>
                                                                 <span className="stock">({variant.stock} sản phẩm)</span>
                                                             </li>
                                                         ))}

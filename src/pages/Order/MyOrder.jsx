@@ -53,6 +53,15 @@ const MyOrder = () => {
         }
     };
 
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(parseFloat(price));
+    };
+
+
 
 
     const getUserIdFromToken = (token) => {
@@ -84,9 +93,9 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-        
+
         try {
-         
+
             // Gọi API lấy danh sách đơn hàng đã hủy nhưng đã thanh toán
             const responsePaid = await axios.get(
                 `http://localhost:1010/api/orders/view/order-cancel/payment-have/${userId}`,
@@ -98,11 +107,11 @@ const MyOrder = () => {
                 }
             );
             const paidOrders = responsePaid.data.list || [];
-    
+
             // Hợp nhất hai danh sách đơn hàng
             const combinedOrders = [...paidOrders];
             setCancelledOrders(combinedOrders);
-            
+
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đã hủy.');
             console.error('Error fetching cancelled orders:', err);
@@ -110,8 +119,8 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
-    
+
+
 
 
     const [waitingOrders, setWaitingOrders] = useState([]);
@@ -121,7 +130,7 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-        
+
         try {
             // Gọi API để lấy danh sách đơn hàng đang chờ
             const response = await axios.get(
@@ -132,20 +141,20 @@ const MyOrder = () => {
                     },
                 }
             );
-    
+
             // Tách dữ liệu từ response
             const { listOrderWaiting, listAllOrderConfirmAndNotPayment } = response.data;
-    
+
             // Lấy danh sách đơn hàng đang chờ
             const waitingOrders = listOrderWaiting?.list || [];
             const confirmedNotPaidOrders = listAllOrderConfirmAndNotPayment?.list || [];
-    
+
             // Gộp hai danh sách đơn hàng vào một nếu cần hiển thị cả hai hoặc xử lý riêng
             const combinedOrders = [...waitingOrders, ...confirmedNotPaidOrders];
-    
+
             // Cập nhật danh sách đơn hàng đang chờ
             setWaitingOrders(combinedOrders);
-            
+
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng đang chờ thanh toán.');
             console.error('Error fetching waiting orders:', err);
@@ -153,8 +162,8 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
-    
+
+
 
 
     const [confirmedOrders, setConfirmedOrders] = useState([]);
@@ -226,6 +235,10 @@ const MyOrder = () => {
             fetchConfirmedOrders();
             window.scrollTo(0, 0);
         }
+        else if (selectedTab === 'waiting') {
+            fetchWaitingList();
+            window.scrollTo(0, 0);
+        }
         else if (selectedTab === 'refund') {
             fetchRefundOrders();
             window.scrollTo(0, 0);
@@ -239,6 +252,7 @@ const MyOrder = () => {
 
     const [currentCancelledPage, setCurrentCancelledPage] = useState(1);
     const [currentPendingPage, setCurrentPendingPage] = useState(1);
+    const [currentWaitingPage, setCurrentWaitingPage] = useState(1);
 
     const [historyOrders, setHistoryOrders] = useState([]);
 
@@ -294,6 +308,61 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
+
+    const [waitingList, setWaitingList] = useState([]);
+
+
+    const fetchWaitingList = async () => {
+        setLoading(true);
+        setError(null);
+    
+        const token = getCookie('access_token');
+        if (!token) {
+            setError('Vui lòng đăng nhập lại.');
+            setLoading(false);
+            return;
+        }
+        const userId = getUserIdFromToken(token);
+    
+        try {
+            // Gọi API danh sách shipment có trạng thái WAITING
+            const responseShipment = await axios.get(
+                `http://localhost:1010/api/shipment/view/list-waiting/${userId}`,
+                {
+                    headers: {
+                        Accept: '*/*',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+    
+            const listShipment = responseShipment.data.listShipment || [];
+    
+            // Lấy chi tiết info-payment của từng orderId
+            const promises = listShipment.map(async (shipment) => {
+                const responseOrder = await axios.get(
+                    `http://localhost:1010/api/orders/info-payment?orderId=${shipment.orderId}`,
+                    {
+                        headers: {
+                            Accept: '*/*',
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                return { ...shipment, infoPayment: responseOrder.data };
+            });
+    
+            const listWithPaymentInfo = await Promise.all(promises);
+            setWaitingList(listWithPaymentInfo);  // Sử dụng setWaitingList thay cho setData
+            window.scrollTo(0, 0);
+        } catch (error) {
+            console.error('Error fetching waiting list:', error);
+            setError('Không thể tải dữ liệu danh sách chờ.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
 
 
     const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
@@ -352,7 +421,7 @@ const MyOrder = () => {
         setError('');
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         try {
             // Gọi API để lấy danh sách đơn hàng hoàn tiền
             const response = await axios.get(
@@ -364,9 +433,9 @@ const MyOrder = () => {
                     },
                 }
             );
-    
+
             const { list = [] } = response.data;
-    
+
             // Chuẩn bị danh sách dữ liệu kết hợp giữa order và payment
             const refunds = list.map((item) => ({
                 orderId: item.order.orderId,
@@ -380,17 +449,18 @@ const MyOrder = () => {
                 dateDelivered: item.order.dateDelivered,
                 dateOders: item.order.dateOders,
                 note: item.order.note,
-    
+
                 payment: {
                     paymentId: item.payment.paymentId,
                     amount: item.payment.amount,
                     dateCreated: item.payment.dateCreated,
+                    dateRefund: item.payment.dateRefund,
                     paymentMethod: item.payment.paymentMethod,
                     statusPayment: item.payment.statusPayment,
                     refunded: item.payment.refunded ? 'ĐÃ HOÀN' : 'CHƯA HOÀN',
                 }
             }));
-    
+
             // Lưu danh sách đơn hàng hoàn tiền vào state
             setRefundOrders(refunds);
             console.log('Danh sách hoàn tiền:', refunds);
@@ -401,7 +471,7 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
+
 
     const handleRefundPageChange = (pageNumber) => {
         setCurrentRefundPage(pageNumber);
@@ -448,14 +518,17 @@ const MyOrder = () => {
                                                 </button>
                                             </div>
                                             <div className="my-orders-item-content">
-                                                <p><strong>Địa chỉ:</strong> {order.address}</p>
-                                                <p><strong>Số điện thoại:</strong> {order.phone}</p>
-                                                <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
-                                                <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
-                                                <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
-                                                <p><strong>Mã đơn giao: </strong> {order.shipment?.shipmentId}</p>
-                                                <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
+                                                <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại: &nbsp;</strong> {order.phone}</p>
+                                                <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.discountPrice)} VND</p>
+                                                <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.deliveryFee)} VND</p>
+                                                <p>
+                                                    <strong>Tổng tiền:&nbsp;</strong>
+                                                    {formatPrice(Math.max(order.totalPrice + order.deliveryFee - order.discountPrice, 0))} VND
+                                                </p>
+                                                <p><strong>Ngày đặt hàng: &nbsp;</strong> {order.dateOders}</p>
+                                                <p><strong>Mã đơn giao: &nbsp;</strong> {order.shipment?.shipmentId}</p>
+                                                <p><strong>Tên shipper:&nbsp; </strong> {order.shipment?.shipperName}</p>
 
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -492,6 +565,80 @@ const MyOrder = () => {
                         )}
                     </div>
                 );
+                case 'waiting':
+                    return (
+                        <div>
+                            {loading ? (
+                                <div>Đang tải...</div>
+                            ) : error ? (
+                                <div>{error}</div>
+                            ) : (
+                                <>
+                                    <ul className="my-orders-list">
+                                        {paginate(waitingList, currentWaitingPage).map((order) => (
+                                            <li key={order.orderId} className="my-orders-item">
+                                                <div
+                                                    className="my-orders-item-header"
+                                                    style={{ background: '#7cc58d' }}
+                                                >
+                                                    <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                    {/* <button
+                                                        className="btn-view-details-ship"
+                                                        onClick={() =>
+                                                            navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                                state: { dateDelivered: order.dateOders },
+                                                            })
+                                                        }
+                                                    >
+                                                        Chi tiết
+                                                    </button> */}
+                                                </div>
+                                                <div className="my-orders-item-content">
+                                                    <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
+                                                    <p><strong>Số điện thoại: &nbsp;</strong> {order.phoneNumber}</p>
+                                                    <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.infoPayment?.discountPrice)} VND</p>
+                                                    <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.infoPayment?.deliveryFee)} VND</p>
+                                                    <p>
+                                                        <strong>Tổng tiền:&nbsp;</strong>
+                                                        {formatPrice(Math.max(order.infoPayment?.totalPrice + order.infoPayment?.deliveryFee - order.infoPayment?.discountPrice, 0))} VND
+                                                    </p>
+                                                    <p><strong>Ngày đặt hàng: &nbsp;</strong> {order.infoPayment?.dateOders}</p>
+                                                    
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                    <button
+                                                        className="shipping-status-button"
+                                                        style={{
+                                                            background: 'aliceblue',
+                                                            padding: '10px',
+                                                            borderRadius: '4px',
+                                                            color: '#000',
+                                                        }}
+    
+                                                    >
+                                                        ĐANG CHỜ SHIPPER NHẬN ĐƠN
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    {/* Pagination */}
+                                    <div className="menu-category-pagination" style={{ width: '100%' }}>
+                                        {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
+                                            <span
+                                                key={index + 1}
+                                                className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
+                                                onClick={() => handleDeliveringPageChange(index + 1)}
+                                            >
+                                                •
+                                            </span>
+                                        ))}
+                                    </div>
+    
+                                </>
+                            )}
+                        </div>
+                    );
 
             case 'cancelled':
                 return (
@@ -506,15 +653,19 @@ const MyOrder = () => {
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                        
+
                                             </div>
                                             <div className="my-orders-item-content">
-                                                <p><strong>Địa chỉ: </strong> {order.address}</p>
-                                                <p><strong>Số điện thoại: </strong> {order.phone}</p>
-                                                <p><strong>Giảm giá: </strong> {order.discountPrice} VND</p>
-                                                <p><strong>Phí vận chuyển: </strong> {order.deliveryFee} VND</p>
-                                                <p><strong>Tổng tiền: </strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng: </strong> {order.dateOders}</p>
+                                                <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại: &nbsp;</strong> {order.phone}</p>
+                                                <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.discountPrice)} VND</p>
+                                                <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.deliveryFee)} VND</p>
+                                                <p>
+                                                    <strong>Tổng tiền:&nbsp;</strong>
+                                                    {formatPrice(Math.max(order.totalPrice + order.deliveryFee - order.discountPrice, 0))} VND
+                                                </p>
+                                                <p><strong>Ngày đặt hàng:&nbsp; </strong> {order.dateOders}</p>
+                                                <p><strong>Ngày hủy đơn: &nbsp;</strong> {order.dateCanceled}</p>
                                             </div>
                                         </li>
                                     ))}
@@ -552,12 +703,15 @@ const MyOrder = () => {
 
                                             </div>
                                             <div className="my-orders-item-content">
-                                                <p><strong>Địa chỉ:</strong> {order.address}</p>
-                                                <p><strong>Số điện thoại:</strong> {order.phone}</p>
-                                                <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
-                                                <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
-                                                <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
+                                                <p><strong>Địa chỉ:&nbsp;</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại:&nbsp;</strong> {order.phone}</p>
+                                                <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.discountPrice)} VND</p>
+                                                <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.deliveryFee)} VND</p>
+                                                <p>
+                                                    <strong>Tổng tiền:&nbsp;</strong>
+                                                    {formatPrice(Math.max(order.totalPrice + order.deliveryFee - order.discountPrice, 0))} VND
+                                                </p>
+                                                <p><strong>Ngày đặt hàng:&nbsp;</strong> {order.dateOders}</p>
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                 <button
@@ -613,14 +767,15 @@ const MyOrder = () => {
                                                 </button> */}
                                             </div>
                                             <div className="my-refunds-item-content">
-                                                <p><strong>Địa chỉ:</strong> {refund.address}</p>
-                                                <p><strong>Số điện thoại:</strong> {refund.phoneNumber}</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {refund.dateOders}</p>
-                                                <p><strong>Số tiền đã thanh toán (gồm ship):</strong> {refund.payment?.amount} VND</p>
-                                                <p><strong>Phương thức thanh toán:</strong> {refund.payment?.paymentMethod}</p>
-                                                <p><strong>Trạng thái hoàn tiền: </strong> {refund.payment?.refunded}</p>
+                                                <p><strong>Địa chỉ:&nbsp;</strong> {refund.address}</p>
+                                                <p><strong>Số điện thoại:&nbsp;</strong> {refund.phoneNumber}</p>
+                                                <p><strong>Ngày đặt hàng:&nbsp;</strong> {refund.dateOders}</p>
+                                                <p><strong>Số tiền đã thanh toán (gồm ship):&nbsp;</strong> {formatPrice(refund.payment?.amount)} VND</p>
+                                                <p><strong>Phương thức thanh toán:&nbsp;</strong> {refund.payment?.paymentMethod}</p>
+                                                <p><strong>Trạng thái hoàn tiền:&nbsp; </strong> {refund.payment?.refunded}</p>
+                                                <p><strong>Ngày hoàn tiền:&nbsp;</strong> {refund.payment?.dateRefund}</p>
                                             </div>
-                                            
+
                                         </li>
                                     ))}
                                 </ul>
@@ -669,15 +824,19 @@ const MyOrder = () => {
 
                                             </div>
                                             <div className="my-orders-item-content">
-                                                <p><strong>Địa chỉ:</strong> {order.address}</p>
-                                                <p><strong>Số điện thoại:</strong> {order.shipment?.phoneNumber}</p>
-                                                <p><strong>Giảm giá:</strong> {order.discountPrice} VND</p>
-                                                <p><strong>Phí vận chuyển:</strong> {order.deliveryFee} VND</p>
-                                                <p><strong>Tổng tiền:</strong> {order.totalPrice} VND</p>
-                                                <p><strong>Ngày đặt hàng:</strong> {order.dateOders}</p>
-                                                <p><strong>Ngày nhận hàng:</strong> {order.shipment?.dateShipped}</p>
-                                                <p><strong>Mã đơn giao: </strong> {order.shipment?.shipmentId}</p>
-                                                <p><strong>Tên shipper: </strong> {order.shipment?.shipperName}</p>
+                                                <p><strong>Địa chỉ:&nbsp;</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại:&nbsp;</strong> {order.shipment?.phoneNumber}</p>
+                                                <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.discountPrice)} VND</p>
+                                                <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.deliveryFee)} VND</p>
+                                                <p>
+                                                    <strong>Tổng tiền:&nbsp;</strong>
+                                                    {formatPrice(Math.max(order.totalPrice + order.deliveryFee - order.discountPrice, 0))} VND
+                                                </p>
+
+                                                <p><strong>Ngày đặt hàng:&nbsp;</strong> {order.dateOders}</p>
+                                                <p><strong>Ngày nhận hàng:&nbsp;</strong> {order.shipment?.dateShipped}</p>
+                                                <p><strong>Mã đơn giao:&nbsp; </strong> {order.shipment?.shipmentId}</p>
+                                                <p><strong>Tên shipper:&nbsp; </strong> {order.shipment?.shipperName}</p>
 
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -725,6 +884,12 @@ const MyOrder = () => {
                         onClick={() => setSelectedTab('delivering')}
                     >
                         Đơn hàng đang giao
+                    </div>
+                    <div
+                        className={`my-orders-menu-item ${selectedTab === 'waiting' ? 'my-orders-active' : ''}`}
+                        onClick={() => setSelectedTab('waiting')}
+                    >
+                        Đơn hàng chờ giao
                     </div>
                     <div
                         className={`my-orders-menu-item ${selectedTab === 'cancelled' ? 'my-orders-active' : ''}`}
