@@ -822,4 +822,75 @@ public class ShipmentService {
         ));
     }
 
+    @Transactional
+    public ResponseEntity<?> getListShipmentStatusWaitingByUserId( int userId)
+    {
+
+
+        User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
+        if(user == null)
+        {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user");
+        }
+        List<Orders> ordersList = orderRepository.findAllByUserUserId(userId);
+        int total = 0;
+        List<CRUDShipmentResponse> responses = new ArrayList<>();
+        for(Orders order : ordersList)
+        {
+
+            Payment payment = order.getPayment();
+            if(order.getStatus() != Status_Order.CONFIRMED)
+            {
+                continue;
+            }
+
+            if(payment == null)
+            {
+                continue;
+            }
+            if(payment.getStatus() != Status_Payment.COMPLETED && payment.getPaymentMethod() == Payment_Method.CREDIT)
+            {
+                continue;
+            }
+            if(payment.getStatus() == Status_Payment.FAILED && payment.getPaymentMethod() == Payment_Method.CASH)
+            {
+                continue;
+            }
+            Shippment shippment = payment.getShipment();
+            Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+            User customer = userRepository.findByUserId(orders.getUser().getUserId());
+            if(shippment.getStatus() != Status_Shipment.WAITING)
+            {
+                continue;
+            }
+
+            CRUDShipmentResponse response = new CRUDShipmentResponse(
+                    shippment.getShipmentId(),
+                    shippment.getUser() != null ? shippment.getUser().getFullName() : null,
+                    shippment.getDateCreated(),
+                    shippment.getDateDeleted(),
+                    shippment.getDateDelivered(),
+                    shippment.getDateShip(),
+                    shippment.getDateCancel(),
+                    shippment.getIsDeleted(),
+                    shippment.getStatus(),
+                    shippment.getPayment().getPaymentId(),
+                    shippment.getUser() != null ? shippment.getUser().getUserId() : null,
+                    customer.getFullName(),
+                    orders.getAddress(),
+                    customer.getPhoneNumber(),
+                    customer.getEmail(),
+                    orders.getOrderId()
+            );
+            System.out.println(response.toString());
+            responses.add(response);
+            total++;
+        }
+
+        return  ResponseEntity.status(HttpStatus.OK).body(new ListAllShipmentsWaitingByUserId(
+                responses.size(),
+                responses
+        ));
+    }
+
 }

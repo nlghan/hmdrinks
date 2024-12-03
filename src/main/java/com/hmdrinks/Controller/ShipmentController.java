@@ -89,6 +89,13 @@ public class ShipmentController {
         return  shipmentService.getListAllShipmentByStatus(page,limit,statusShipment);
     }
 
+    @GetMapping("/view/list-waiting/{userId}")
+    public ResponseEntity<?> getListShipmentByUserId(@PathVariable int userId
+    )
+    {
+        return  shipmentService.getListShipmentStatusWaitingByUserId(userId);
+    }
+
     @PutMapping("/update-time")
     public ResponseEntity<?> updateTimeShipment(@RequestBody UpdateTimeShipmentReq req)
     {

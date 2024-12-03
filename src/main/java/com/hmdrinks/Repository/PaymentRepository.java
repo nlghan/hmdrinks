@@ -18,6 +18,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
      Payment findByOrderOrderId(int orderId);
      Payment findByOrderOrderIdAndIsDeletedFalse(int orderId);
 
+
+
      Page<Payment> findAll(Pageable pageable);
      List<Payment> findAllByIsDeletedFalse();
      Page<Payment> findAllByIsDeletedFalse(Pageable pageable);
