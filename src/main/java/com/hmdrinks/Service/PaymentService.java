@@ -189,15 +189,12 @@ public class PaymentService {
             }
 
             if (selectedShipper == null) {
+                currentTime = null;
                 return false;
             }
 
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
-            if(selectedShipper == null)
-            {
-                 currentTime = null;
-            }
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
             selectedShipper.getShippments().add(shipment);
@@ -252,7 +249,7 @@ public class PaymentService {
                 shippment.setPayment(payment);
                 shippment.setIsDeleted(false);
                 shippment.setDateCreated(LocalDateTime.now());
-                shippment.setDateDelivered(LocalDateTime.now());
+                shippment.setDateDelivered(LocalDateTime.now().plusMinutes(25));
                 shippment.setStatus(Status_Shipment.WAITING);
                 shipmentRepository.save(shippment);
 
@@ -293,7 +290,10 @@ public class PaymentService {
                 String note = "";
                 if(!status_assign)
                 {
+                    shippment.setDateDelivered(null);
+                    shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
+
                 }
 
                 return new ResponseEntity<>(new CreatePaymentResponse(
@@ -516,6 +516,8 @@ public class PaymentService {
                 String note = "";
                 if(!status_assign)
                 {
+                    shippment.setDateDelivered(null);
+                    shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
                 }
                 return new ResponseEntity<>(new CreatePaymentResponse(
@@ -708,6 +710,8 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
+                shippment.setDateDelivered(null);
+                shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
 
@@ -847,6 +851,8 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
+                shippment.setDateDelivered(null);
+                shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
 
@@ -964,7 +970,12 @@ public class PaymentService {
             shippment.setDateDelivered(LocalDateTime.now());
             shippment.setStatus(Status_Shipment.WAITING);
             shipmentRepository.save(shippment);
-            assignShipments(shippment.getPayment().getOrder().getOrderId());
+            boolean status = assignShipments(shippment.getPayment().getOrder().getOrderId());
+            if(!status)
+            {
+                shippment.setDateDelivered(null);
+                shipmentRepository.save(shippment);
+            }
 
             response.put("status", HttpStatus.OK.value());
             response.put("message", "Payment completed successfully");
@@ -1152,6 +1163,8 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
+                shippment.setDateDelivered(null);
+                shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
 
@@ -1221,7 +1234,12 @@ public class PaymentService {
                     }}
             }
         }
-        assignShipments(orderId);
+        boolean status = assignShipments(orderId);
+        if(!status)
+        {
+            shippment.setDateDelivered(null);
+            shipmentRepository.save(shippment);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
                 payment1.getPaymentId(),
                 payment1.getAmount(),
@@ -1431,7 +1449,12 @@ public class PaymentService {
                     }
 
                 }
-                assignShipments(shippment.getPayment().getOrder().getOrderId());
+                boolean status1 = assignShipments(shippment.getPayment().getOrder().getOrderId());
+                if(!status1)
+                {
+                    shippment.setDateDelivered(null);
+                    shipmentRepository.save(shippment);
+                }
             }
             default -> {
                 payment.setStatus(Status_Payment.PENDING);

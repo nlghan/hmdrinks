@@ -110,7 +110,7 @@ public class ShipmentService {
     @Transactional
     public ResponseEntity<?> activateShipment(int shipmentId, int userId)
     {
-        Shippment shippment = shipmentRepository.findByUserUserIdAndShipmentId(userId,shipmentId);
+        Shippment shippment = shipmentRepository.findByShipmentIdAndIsDeletedFalse(shipmentId);
         if(shippment == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shipment Not Found");
@@ -123,6 +123,8 @@ public class ShipmentService {
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is not waiting");
         }
+        shippment.setUser(userRepository.findByUserIdAndIsDeletedFalse(userId));
+        shippment.setDateDelivered(LocalDateTime.now().plusMinutes(25));
         shippment.setStatus(Status_Shipment.SHIPPING);
         shipmentRepository.save(shippment);
         Payment payment = paymentRepository.findByPaymentId(shippment.getPayment().getPaymentId());

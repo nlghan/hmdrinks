@@ -153,10 +153,6 @@ public class VNPayIpnHandler {
 
             shipment.setUser(selectedShipper);
             shipment.setStatus(Status_Shipment.SHIPPING);
-            if(selectedShipper == null)
-            {
-                currentTime = null;
-            }
             shipment.setDateDelivered(currentTime);
             shipmentRepository.save(shipment);
 
@@ -225,6 +221,8 @@ public class VNPayIpnHandler {
                 String note = "";
                 if(!status_assign)
                 {
+                    shippment.setDateDelivered(null);
+                    shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
                 }
                response1 = new IpnResponse(
