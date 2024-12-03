@@ -65,7 +65,7 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
                 setTimeout(() => {
                     setShowSuccess(false);
                 }, 2000);
-            
+
             } else if (status === 400) { // Bad Request case
                 setMessage(message || "Đã đạt giới hạn số lượng cho sản phẩm này!");
             }
@@ -79,6 +79,18 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
         }
     };
 
+    // Hàm renderStars tương tự như đã định nghĩa trước đó
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
+                    ★
+                </span>
+            );
+        }
+        return stars;
+    };
 
     return (
         <>
@@ -96,9 +108,10 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
                     )}
                 </div>
                 <div className="info-product-card">
-                    <h3>{product.name} ({product.size})</h3>
-                    <div className="product-card-price">
-                        <p className="product-card-p">Giá: {formattedPrice} VND</p>
+                    <h3 style={{ margin: "0 0 4px 0" }}>{product.name} ({product.size})</h3>
+                    <p style={{ margin: "0 0 4px 0" }}>{renderStars(product.averageRating)}</p>
+                    <div style={{ margin: "0" }} className="product-card-price">                        
+                        <p style={{ margin: 0 }} className="product-card-p">Giá: {formattedPrice} VND</p>
                     </div>
                     <button className="add-cart" onClick={handleAddToCartClick}>
                         <i className="ti-shopping-cart" /> Đặt mua
@@ -147,7 +160,7 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
                                 </svg>
                             </div>
                         </div>
-                        <h3>Thêm vào giỏ hàng thất bại!</h3>                        
+                        <h3>Thêm vào giỏ hàng thất bại!</h3>
                     </div>
                 </div>
             )}

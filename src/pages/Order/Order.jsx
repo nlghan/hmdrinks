@@ -89,7 +89,7 @@ const Order = () => {
             const userId = getUserIdFromToken(token)
             try {
                 setLoading(true); // Bắt đầu quá trình xác nhận đơn hàng
-
+                setIsLoading(true);
                 // Gọi API xác nhận đơn hàng
                 const response = await fetch('http://localhost:1010/api/orders/confirm', {
                     method: 'POST',
@@ -128,23 +128,32 @@ const Order = () => {
                 }, 2000);
             } finally {
                 setLoading(false); // Kết thúc quá trình tải dữ liệu
+                setIsLoading(false);
             }
 
-
         } else if (currentStep === "payment") {
+            setIsLoading(true); // Bắt đầu quá trình tải dữ liệu cho thanh toán
+
             // Thực hiện thanh toán dựa trên phương thức đã chọn
-            if (selectedPaymentMethod === 'cashOnDelivery') {
-                handleCash();
-            } else if (selectedPaymentMethod === 'creditCard') {
-                handleCreditCard();
-            } else if (selectedPaymentMethod === 'momo') {
-                handleMomo();
-            } else if (selectedPaymentMethod === 'zaloPay') {
-                handleZaloPay();
-            } else if (selectedPaymentMethod === 'vnPay') {
-                handleVnPay();
-            } else {
-                setError('Vui lòng chọn phương thức thanh toán.');
+            try {
+                if (selectedPaymentMethod === 'cashOnDelivery') {
+                    await handleCash();
+                } else if (selectedPaymentMethod === 'creditCard') {
+                    await handleCreditCard();
+                } else if (selectedPaymentMethod === 'momo') {
+                    await handleMomo();
+                } else if (selectedPaymentMethod === 'zaloPay') {
+                    await handleZaloPay();
+                } else if (selectedPaymentMethod === 'vnPay') {
+                    await handleVnPay();
+                } else {
+                    setError('Vui lòng chọn phương thức thanh toán.');
+                }
+            } catch (error) {
+                console.error('Có lỗi khi thực hiện thanh toán:', error);
+                setError('Có lỗi xảy ra trong quá trình thanh toán.');
+            } finally {
+                setIsLoading(false); // Kết thúc quá trình tải dữ liệu
             }
         }
     };
@@ -198,10 +207,12 @@ const Order = () => {
     // Handle Credit Card Payment
     const handleCreditCard = async () => {
         console.log("Thanh toán bằng thẻ ngân hàng");
+        // Bắt đầu quá trình tải dữ liệu
 
         const token = getCookie('access_token');
         if (!token) {
             console.error("Không tìm thấy token");
+            setIsLoading(false); // Kết thúc quá trình tải dữ liệu
             return;
         }
 
@@ -238,7 +249,7 @@ const Order = () => {
         } catch (error) {
             console.error("Có lỗi xảy ra khi tạo thanh toán:", error);
             navigate('/payment-status', { state: { status: 'failure' } });
-        }
+        } 
     };
 
     // Handle MOMO Payment
@@ -593,11 +604,22 @@ const Order = () => {
                                 <i className="fas fa-credit-card"></i>
                                 <span>2. Thanh toán</span>
                             </div>
+                            {isLoading && (
+                                <div className="loading-animation">
+                                    <div className="loading-modal">
+                                        <div className="loading-spinner">
+                                            <div className="spinner"></div>
+                                        </div>
+                                        <h3>Đang xử lý...</h3>
+                                        <p>Vui lòng đợi trong giây lát</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Invoice and Customer Information */}
                         {/* Content for Confirmation Step */}
-                        
+
                         {currentStep === "confirmation" && (
                             <div className="info-order-sections">
                                 <div className="info-section">

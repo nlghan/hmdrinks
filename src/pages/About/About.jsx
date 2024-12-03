@@ -32,7 +32,7 @@ const About = () => {
 
 
     useEffect(() => {
-        fetchResponses();
+        // fetchResponses();
         const targetCounts = {
             sellers: 2050,
             monthlySales: 3300,
