@@ -34,7 +34,11 @@ const ProductDetail = () => {
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
+    const [showErrorLogin, setShowErrorLogin] = useState(false);
     const [recommendedProducts, setRecommendedProducts] = useState([]); // State to hold recommended products
+    const [averageRating, setAverageRating] = useState(0); // State để lưu trữ rating trung bình
+    const [productRatings, setProductRatings] = useState({}); // State để lưu trữ rating cho từng sản phẩm
+
 
     const getUserIdFromToken = (token) => {
         try {
@@ -82,29 +86,62 @@ const ProductDetail = () => {
         return null; // Return null to prevent rendering without product data
     }
 
-    useEffect(() => {
-        const fetchCategoryName = async () => {
-            try {
-                const categoryResponse = await fetch(`http://localhost:1010/api/cate/view/${product.cateId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': '*/*'
-                    }
-                });
-
-                if (!categoryResponse.ok) {
-                    throw new Error('Network response was not ok');
+    const fetchCategoryName = async () => {
+        try {
+            const categoryResponse = await fetch(`http://localhost:1010/api/cate/view/${product.cateId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*'
                 }
+            });
 
-                const categoryData = await categoryResponse.json();
-                setCategoryName(categoryData.cateName);
-            } catch (error) {
-                console.error('Failed to fetch category name:', error);
+            if (!categoryResponse.ok) {
+                throw new Error('Network response was not ok');
             }
-        };
 
+            const categoryData = await categoryResponse.json();
+            setCategoryName(categoryData.cateName);
+        } catch (error) {
+            console.error('Failed to fetch category name:', error);
+        }
+    };
+
+    // Hàm fetchRating để lấy số rating trung bình cho sản phẩm
+    const fetchRating = async () => {
+        try {
+            const ratingResponse = await fetch(`http://localhost:1010/api/product/list-rating`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*'
+                }
+            });
+
+            if (!ratingResponse.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const ratingData = await ratingResponse.json();
+            const ratings = {};
+            ratingData.list.forEach(avgRating => {
+                ratings[avgRating.proId] = avgRating.avgRating;
+            });
+            setProductRatings(ratings);
+            const productRating = ratingData.list.find(avgRating => avgRating.proId === product.proId);
+            if (productRating) {
+                setAverageRating(productRating.avgRating); // Cập nhật rating trung bình
+                console.log(`Rating for product prodetails ${product.proId}: ${productRating.avgRating}`); // Debugging
+            } else {
+                setAverageRating(0); // Nếu không tìm thấy rating, đặt về 0
+            }
+        } catch (error) {
+            console.error('Failed to fetch product rating:', error);
+        }
+    };
+
+    useEffect(() => {
         fetchCategoryName();
-    }, [product.cateId]);
+        fetchRating(); // Gọi hàm fetchRating khi component được mount
+    }, [product.cateId, product.proId]); // Thêm product.proId vào dependency array
 
     useEffect(() => {
         const fetchProductVariants = async () => {
@@ -115,25 +152,25 @@ const ProductDetail = () => {
                         'Accept': '*/*'
                     }
                 });
-    
+
                 if (!variantResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-    
+
                 const variantData = await variantResponse.json();
-    
+
                 // Lọc các size có stock > 0 và cập nhật availableSizes
                 const filteredSizes = variantData.responseList
                     .filter(v => v.stock > 0)
                     .map(v => v.size);
-    
+
                 setAvailableSizes(filteredSizes);
-    
+
                 // Kiểm tra nếu selectedSize không còn khả dụng sau khi lọc
                 if (!filteredSizes.includes(selectedSize)) {
                     setSelectedSize(filteredSizes.length > 0 ? filteredSizes[0] : null); // Chọn size đầu tiên khả dụng hoặc null
                 }
-    
+
                 // Tìm biến thể dựa trên selectedSize
                 const variant = variantData.responseList.find(v => v.size === selectedSize);
                 if (variant) {
@@ -144,10 +181,10 @@ const ProductDetail = () => {
                 console.error('Failed to fetch product variants:', error);
             }
         };
-    
+
         fetchProductVariants();
     }, [selectedSize, product.proId]);
-    
+
 
 
     const handleSizeChange = (size) => {
@@ -221,7 +258,7 @@ const ProductDetail = () => {
             quantity: quantity,
             image: product.productImageResponseList[currentImageIndex].linkImage,
         });
-    
+
         // Kiểm tra nếu API trả về lỗi 400
         if (status === 400) {
             setShowError(true);
@@ -230,7 +267,7 @@ const ProductDetail = () => {
                 setShowError(false);
             }, 2000);
             return; // Dừng lại nếu có lỗi 400
-        }    
+        }
         // Nếu thành công
         setShowSuccess(true);
         setMessage(message);
@@ -249,13 +286,19 @@ const ProductDetail = () => {
     const handleSubmitReview = async () => {
         const token = getCookie('access_token'); // Lấy token từ cookie
         if (!token) {
-            alert('Bạn cần đăng nhập để gửi đánh giá!');
+            setShowErrorLogin(true);
+            setTimeout(() => {
+                setShowErrorLogin(false);
+            }, 2000);
             return;
         }
 
         const userId = getUserIdFromToken(token); // Lấy userId từ token
         if (!userId) {
-            alert('Bạn cần đăng nhập để gửi đánh giá!');
+            setShowErrorLogin(true);
+            setTimeout(() => {
+                setShowErrorLogin(false);
+            }, 2000);
             return;
         }
 
@@ -296,7 +339,6 @@ const ProductDetail = () => {
             fetchReviews(newReview.proId); // Gọi fetchReviews với proId từ newReview
         } catch (error) {
             console.error('Error submitting review:', error);
-            alert('Có lỗi xảy ra, vui lòng thử lại sau!');
         }
     };
 
@@ -505,6 +547,19 @@ const ProductDetail = () => {
         navigate(`/product/${product.proId}`, { state: { product } });
     };
 
+    // Hàm để render ngôi sao dựa trên rating
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(
+                <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
+                    ★
+                </span>
+            );
+        }
+        return stars;
+    };
+
     return (
         <>
             <Navbar />
@@ -550,6 +605,9 @@ const ProductDetail = () => {
 
                         <div className="product-info-container">
                             <h1>{product.proName}</h1>
+                            <span className="product-rating">
+                                {renderStars(averageRating)} {/* Hiển thị ngôi sao */}
+                            </span>
                             <span className="product-category">Danh mục: {categoryName}</span>
                             <span className="product-price">Giá: {formattedPrice} VND</span>
                             <span className="product-stock">Còn lại: {stock > 0 ? stock : '0'} sản phẩm</span>
@@ -561,7 +619,7 @@ const ProductDetail = () => {
                                         <button
                                             key={size}
                                             className={selectedSize === size ? 'size-option active' : 'size-option'}
-                                            style={{ borderRadius: '6px'}}
+                                            style={{ borderRadius: '6px' }}
                                             onClick={() => handleSizeChange(size)}
                                             disabled={!availableSizes.includes(size)} // Disable button if size is not available
                                         >
@@ -583,8 +641,8 @@ const ProductDetail = () => {
                                 />
                             </div>
 
-                            <button className="add-to-cart-button" style={{ borderRadius: '6px'}} onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
-                            <button className="add-to-cart-button" style={{ marginBottom: '10px', borderRadius: '6px',backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>
+                            <button className="add-to-cart-button" style={{ borderRadius: '6px' }} onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
+                            <button className="add-to-cart-button" style={{ marginBottom: '10px', borderRadius: '6px', backgroundColor: '#099494' }} onClick={handleBack}>Xem đồ uống khác</button>
                         </div>
                     </div>
                     {showSuccess && (
@@ -625,6 +683,22 @@ const ProductDetail = () => {
                                 </div> */}
                                 <h3>Không thể thêm vào giỏ hàng!</h3>
                                 <p>Số lượng trong kho chỉ còn {stock} sản phẩm.</p>
+                            </div>
+                        </div>
+                    )}
+                    {showErrorLogin && (
+                        <div className="error-animation">
+                            <div className="error-modal">
+                                {/* <div className="error-icon">
+                                    <div className="error-icon-circle">
+                                        <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                        </svg>
+                                    </div>
+                                </div> */}
+                                <h3>Bạn cần phải đăng nhập!</h3>
+                                <p>Vui lòng đăng nhập để đánh giá sản phẩm.</p>
                             </div>
                         </div>
                     )}
@@ -742,7 +816,7 @@ const ProductDetail = () => {
                         {activeTab === 'reviews' && (
                             <div className="product-rating-container fade-in">
                                 <span className="product-rating">
-                                    {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
+                                    {"★".repeat(product.rate)}{"☆".repeat(5 - product.rate)}
                                 </span>
 
                                 {isLoggedIn ? (
@@ -766,7 +840,11 @@ const ProductDetail = () => {
                                             onChange={(e) => setNewReview({ ...newReview, content: e.target.value })}
                                             id="input-text-review"
                                         />
-                                        <div className="send-button" onClick={() => handleSubmitReview(newReview.proId)}>
+                                        <div
+                                            className="send-button"
+                                            onClick={() => handleSubmitReview(newReview.proId)}
+                                            style={{ cursor: newReview.ratingStart > 0 ? 'pointer' : 'not-allowed', opacity: newReview.ratingStart > 0 ? 1 : 0.5 }} // Thay đổi con trỏ và độ mờ
+                                        >
                                             <i className="far fa-paper-plane"></i>
                                         </div>
                                     </div>
@@ -781,13 +859,14 @@ const ProductDetail = () => {
 
 
                     <h2 className="fade-in h2-maybe">Có thể bạn sẽ thích</h2>
-                    <div className="related-products fade-in" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    <div className="related-products fade-in" style={{ display: 'flex', flexDirection: 'row' }}>
                         {recommendedProducts.length > 0 ? (
-                            recommendedProducts.map((product, index) => (
+                            recommendedProducts.map((recommendedProduct, index) => (
                                 <ProductRecommend
                                     key={index}
-                                    product={product}
-                                    onClick={() => handleProductRecommendClick(product)}
+                                    product={recommendedProduct}
+                                    averageRating={productRatings[recommendedProduct.proId] || 0}
+                                    onClick={() => handleProductRecommendClick(recommendedProduct)}
                                 />
                             ))
                         ) : (

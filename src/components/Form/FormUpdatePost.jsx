@@ -139,10 +139,10 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
     // Update form fields as users type
     const handleInputChange = (event) => {
-        const { name, value, files } = event.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: files ? files[0] : value,
+        const { name, value } = event.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
         }));
     };
 
@@ -206,11 +206,6 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         const currentTime = new Date();
         const start = new Date(startDate);
         const end = new Date(endDate);
-    
-        if (start <= currentTime) {
-            setErrorMessage('Ngày bắt đầu phải lớn hơn thời gian hiện tại.');
-            return false;
-        }
     
         if (end <= start) {
             setErrorMessage('Ngày kết thúc phải lớn hơn ngày bắt đầu.');
@@ -430,6 +425,13 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
         }
     };
 
+    // Khi bạn cập nhật số lượng
+    const updateQuantity = (newQuantity) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            number: newQuantity, // Cập nhật số lượng mới
+        }));
+    };
 
     return (
         <div className="form-update-post-container">

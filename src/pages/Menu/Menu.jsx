@@ -48,7 +48,11 @@ const Menu = () => {
     const { addToCart } = useCart();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const [productRatings, setProductRatings] = useState({}); // State để lưu trữ rating cho từng sản phẩm
+
     const [sortOption, setSortOption] = useState("");
+
 
     useEffect(() => {
         window.scrollTo(0, 0); // Scroll to the top of the page
@@ -226,6 +230,38 @@ const Menu = () => {
         setIsFirstLoad(false);
     }, []);
 
+    // Hàm fetchRating để lấy số rating trung bình cho từng sản phẩm
+    const fetchRating = async () => {
+        try {
+            const ratingResponse = await fetch(`http://localhost:1010/api/product/list-rating`, {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*'
+                }
+            });
+
+            if (!ratingResponse.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const ratingData = await ratingResponse.json();
+            const ratings = {};
+
+            // Lưu trữ rating cho từng proId
+            ratingData.list.forEach(avgRating => {
+                ratings[avgRating.proId] = avgRating.avgRating;
+            });
+
+            setProductRatings(ratings); // Cập nhật state với rating
+        } catch (error) {
+            console.error('Failed to fetch product ratings:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchRating(); // Gọi fetchRating khi component được mount
+    }, []);
+
     const handleFilterChange = async (filterType) => {
         let sortOrder;
         let filterCode;
@@ -312,6 +348,7 @@ const Menu = () => {
     
     
     
+
 
     return (
         <>
@@ -510,6 +547,7 @@ const Menu = () => {
                                             size: product.variantDetails?.size,
                                             price: `${product.variantDetails?.price}`,
                                             image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
+                                            averageRating: productRatings[product.proId] || 0, // Truyền rating vào ProductCard
                                         }}
                                         isFavorited={favoritedProIds.includes(product.proId)} // Check if product is favorited
                                         onClick={() => handleProductCardClick(product)}

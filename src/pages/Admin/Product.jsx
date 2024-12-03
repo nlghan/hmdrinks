@@ -56,8 +56,12 @@ const Product = () => {
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    const LIMIT = 4; // Số lượng sản phẩm mỗi trang
+    const LIMIT = 4; // Số lượng sn phẩm mỗi trang
     const [total, setTotal] = useState(); // Tổng số trang
+
+    const [selectedVariant, setSelectedVariant] = useState(null); // State để lưu biến thể được chọn
+    const [priceHistory, setPriceHistory] = useState({ oldPrice: null, newPrice: null }); // State để lưu giá lịch sử
+    const [showPriceHistoryModal, setShowPriceHistoryModal] = useState(false); // State để kiểm soát hiển thị modal
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -243,7 +247,7 @@ const Product = () => {
                     const images = await fetchProductImages(product.proId);
 
                     console.log("Fetched variants for product:", product.proId, variants);  // Log biến thể của sản phẩm
-                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản phẩm
+                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản ph��m
 
                     return { ...product, variants, images };
                 }));
@@ -437,6 +441,38 @@ const Product = () => {
         }
     };
 
+    // Hàm fetchPriceHistory để lấy oldPrice và newPrice cho varId
+    const fetchPriceHistory = async (varId) => {
+        try {
+            const response = await fetch(`http://localhost:1010/api/price-history/view/productVar?page=1&limit=1&proVarId=${varId}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            if (data.priceHistoryResponses && data.priceHistoryResponses.length > 0) {
+                const { oldPrice, newPrice } = data.priceHistoryResponses[0]; // Lấy giá từ phản hồi
+                setPriceHistory({ oldPrice, newPrice });
+            } else {
+                setPriceHistory({ oldPrice: null, newPrice: null });
+            }
+        } catch (error) {
+            console.error('Failed to fetch price history:', error);
+        }
+    };
+
+    // Hàm để xử lý khi người dùng hover vào biến thể
+    const handleVariantHover = (variant) => {
+        setSelectedVariant(variant); // Lưu biến thể được chọn
+        fetchPriceHistory(variant.varId); // Gọi API để lấy giá lịch sử
+        setShowPriceHistoryModal(true); // Hiển thị modal
+    };
+
+    // Hàm để ẩn modal khi hover ra ngoài
+    const handleMouseLeave = () => {
+        setShowPriceHistoryModal(false); // Ẩn modal
+        setSelectedVariant(null); // Đặt lại biến thể đã chọn
+    };
+
     if (loading) {
         return <LoadingAnimation />;
     }
@@ -613,7 +649,11 @@ const Product = () => {
                                                 {product.variants && product.variants.length > 0 ? (
                                                     <ul>
                                                         {product.variants.map(variant => (
-                                                            <li key={variant.varId}>
+                                                            <li 
+                                                                key={variant.varId} 
+                                                                onMouseEnter={() => handleVariantHover(variant)} // Hiển thị modal khi hover
+                                                                onMouseLeave={handleMouseLeave} // Ẩn modal khi không hover
+                                                            >
                                                                 <span className="size">{variant.size}</span>
                                                                 <span className="price">{formatPrice(variant.price)} VND</span>
                                                                 <span className="stock">({variant.stock} sản phẩm)</span>
@@ -687,6 +727,22 @@ const Product = () => {
                         onUpdate={fetchProducts} // Optionally, you can pass fetchProducts to handle update logic
                     />
                 )}
+
+                {/* Hiển thị form nhỏ khi có biến thể được chọn */}
+                {showPriceHistoryModal && selectedVariant && (
+                <div className="price-history-modal" style={{ position: 'absolute', right: '600px', top: '10px', zIndex: 1000}}>
+                     <h4>Bảng giá cập nhật cho size {selectedVariant.size}</h4>
+                    {priceHistory.oldPrice === null && priceHistory.newPrice === null ? (
+                        <p>Chưa có cập nhật giá</p> // Hiển thị thông báo nếu cả giá cũ và giá mới đều là null
+                    ) : (
+                        <>
+                            <p>Giá cũ: {priceHistory.oldPrice !== null ? `${priceHistory.oldPrice} VND` : 'Không có dữ liệu'}</p>
+                            <p>Giá mới: {priceHistory.newPrice !== null ? `${priceHistory.newPrice} VND` : 'Không có dữ liệu'}</p>
+                        </>
+                    )}
+                    {/* <button onClick={() => setShowPriceHistoryModal(false)}>Đóng</button> */}
+                </div>
+            )}
             </div>
         </div>
     );
