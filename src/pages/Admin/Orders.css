@@ -135,10 +135,14 @@
 
 /* Set specific widths for each column */
 .table-orders th:nth-child(1), .table-orders td:nth-child(1) {
-    width: 8%; /* Width for the STT (Index) column */
+    width: 7%; /* Width for the STT (Index) column */
 }
 
 .table-orders th:nth-child(2), .table-orders td:nth-child(2) {
+    width: 7%; /* Width for the Mã Đơn Hàng (Order Code) column */
+}
+
+.table-orders th:nth-child(3), .table-orders td:nth-child(3) {
     width: 8%; /* Width for the Mã Đơn Hàng (Order Code) column */
 }
 
@@ -157,15 +161,21 @@
 }
 
 .table-orders th:nth-child(7), .table-orders td:nth-child(7) {
-    width: 10%; /* Width for the Ngày Đặt (Order Date) column */
+    width: 8%; /* Width for the Ngày Đặt (Order Date) column */
 }
 
 .table-orders th:nth-child(8), .table-orders td:nth-child(8) {
-    width: 10%; /* Width for the Ngày Giao (Delivery Date) column */
+    width: 7%; /* Width for the Ngày Giao (Delivery Date) column */
 }
 
 .table-orders th:nth-child(9), .table-orders td:nth-child(9) {
-    width: 9%; /* Width for the Trạng Thái (Status) column */
+    width: 6%; /* Width for the Trạng Thái (Status) column */
+}
+.table-orders th:nth-child(10), .table-orders td:nth-child(10) {
+    width: 6%; /* Width for the Trạng Thái (Status) column */
+}
+.table-orders th:nth-child(11), .table-orders td:nth-child(1) {
+    width: 6%; /* Width for the Trạng Thái (Status) column */
 }
 
 /* Styling for rows */
@@ -325,4 +335,27 @@
 
 .refund-orders-box .table-orders tbody tr td:last-child {
     color: #007bff;
+}
+
+
+
+.table-orders-refund {
+    width: 100%;
+    table-layout: fixed; /* Cố định độ rộng các cột */
+    border-collapse: collapse; /* Gộp các đường viền của các ô trong bảng */
+}
+
+.table-orders-refund th, .table-orders-refund td {
+    padding: 10px; /* Thêm khoảng cách trong các ô */
+    text-align: center; /* Căn giữa nội dung trong các ô */
+    border: 1px solid #ddd; /* Thêm đường viền nhẹ */
+}
+
+.table-orders-refund th {
+    background-color: #f2f2f2; /* Màu nền cho tiêu đề cột */
+}
+
+/* Tùy chọn cho các cột để tạo độ rộng đều nhau */
+.table-orders-refund td, .table-orders-refund th {
+    width: 16.66%; /* Đảm bảo mỗi cột chiếm 1/6 tổng chiều rộng */
 }

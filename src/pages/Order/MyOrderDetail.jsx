@@ -18,6 +18,7 @@ const MyOrderDetail = () => {
     const location = useLocation();
     const { dateDelivered } = location.state || {}; 
     console.log("ngày đặt hàng", dateDelivered)
+    const [cancelError, setCancelError] = useState(null); 
 
     const navigate = useNavigate();
     const getCookie = (name) => {
@@ -165,6 +166,54 @@ const MyOrderDetail = () => {
         }
     };
 
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(parseFloat(price));
+    };
+
+    const handleCancelOrder = async () => {
+        const token = getCookie('access_token');
+        if (!token) {
+            setError('Vui lòng đăng nhập lại.');
+            return;
+        }
+
+        const userId = getUserIdFromToken(token);
+        if (!userId) {
+            setError('Không thể xác định UserId.');
+            return;
+        }
+
+        // Check if the shipment is in progress or completed
+        if (shipment.status === 'SHIPPING' || shipment.status === 'SUCCESS') {
+            setCancelError('Đơn hàng không thể hủy vì đang vận chuyển hoặc đã hoàn thành.');
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                'http://localhost:1010/api/orders/cancel-order',
+                {
+                    orderId: order.orderId,
+                    userId,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log('Order canceled:', response.data);
+            fetchShipmentDetail(); // Refresh shipment details
+        } catch (error) {
+            console.error('Error canceling order:', error);
+            setError('Không thể hủy đơn.');
+        }
+    };
 
 
     return (
@@ -201,7 +250,7 @@ const MyOrderDetail = () => {
                             <p><strong>Trạng thái thanh toán:</strong> {payment?.statusPayment}</p>
 
 
-                            <p><strong>Tổng tiền:</strong> {payment?.amount} VND (Bao gồm phí ship)</p>
+                            <p><strong>Tổng tiền:</strong> {formatPrice(payment?.amount)} VND (Bao gồm phí ship)</p>
                             <ul className="order-items-list">
                                 {order?.listItemOrders.map(item => (
                                     <li key={item.cartItemId} className="order-item">
@@ -209,13 +258,27 @@ const MyOrderDetail = () => {
                                         <p><strong>Kích cỡ:</strong> {item.size}</p>
                                         <p><strong>Giá:</strong> {item.priceItem} VND</p>
                                         <p><strong>Số lượng:</strong> {item.quantity}</p>
-                                        <p><strong>Thành tiền:</strong> {item.totalPrice} VND</p>
+                                        <p><strong>Thành tiền:</strong> {formatPrice(item.totalPrice)} VND</p>
                                     </li>
                                 ))}
                             </ul>
 
-
-
+                            {cancelError && <div className="error-message">{cancelError}</div>}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button
+                                    className="btn-deliver"
+                                    style={{
+                                        width: '100%',
+                                        backgroundColor: 'red',
+                                        color: 'white',
+                                        border: shipment.status === 'CANCELLED' ? '2px solid red' : 'none',
+                                    }}
+                                    onClick={handleCancelOrder}
+                                    disabled={shipment.status === 'SHIPPING' || shipment.status === 'SUCCESS'} // Disable if shipment is in progress or completed
+                                >
+                                    Hủy đơn
+                                </button>
+                            </div>
                         </div>
 
                         

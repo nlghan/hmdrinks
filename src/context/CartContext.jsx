@@ -360,6 +360,7 @@ export const CartProvider = ({ children }) => {
 
             if (data.statusCodeValue === 400) {
                 setShowErrorDistance(true);
+                setSelectedVoucher(null)
                 setTimeout(() => {
                     setShowErrorDistance(false);
                     navigate('/info');
@@ -369,14 +370,17 @@ export const CartProvider = ({ children }) => {
 
                 setCartItems([]);  // Clear cart after successful checkout
                 await ensureCartExists(userId);
+                setSelectedVoucher(null)
 
                 // Navigate to the order page and pass the order data using state
                 navigate('/order', { state: { orderData: data.body } });
 
             } else {
+                setSelectedVoucher(null)
                 console.error('Error creating order:', data);
             }
         } catch (error) {
+            setSelectedVoucher(null)
             console.error('Error while making order request:', error);
         } finally {
             setIsCreating(false);
@@ -511,26 +515,25 @@ export const CartProvider = ({ children }) => {
     };
 
 
-    // Decrease quantity of item in cart
     const decrease = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
+    
         if (!cartItemId) {
             console.error('No cart item ID provided.');
             return;
         }
-
-        // Find the item in the cart to check its current quantity
+    
+        // Tìm sản phẩm trong giỏ hàng
         const cartItem = cartItems.find(item => item.cartItemId === cartItemId);
-
+    
         if (!cartItem) {
             console.error('Cart item not found.');
             return;
         }
-
+    
         if (cartItem.quantity > 1) {
-            // If the quantity is greater than 1, decrease it
+            // Giảm số lượng nếu lớn hơn 1
             try {
                 const response = await fetch('http://localhost:1010/api/cart-item/decrease', {
                     method: 'PUT',
@@ -542,22 +545,26 @@ export const CartProvider = ({ children }) => {
                     body: JSON.stringify({
                         userId: userId,
                         cartItemId: cartItemId,
-                        quantity: 1, // Decrease quantity by 1
+                        quantity: 1, // Giảm số lượng 1 đơn vị
                     }),
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok) {
-                    // Update the cart items in the state
-                    setCartItems(prevItems =>
-                        prevItems.map(item =>
+                    setCartItems(prevItems => {
+                        const updatedItems = prevItems.map(item =>
                             item.cartItemId === cartItemId
                                 ? { ...item, quantity: item.quantity - 1 }
                                 : item
-                        )
-                    );
-                    fetchCartItemsByCartId(cartId)
+                        );
+    
+                        // Tính lại tổng số lượng sau khi giảm
+                        const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+                        setTotalOfCart(updatedTotalOfCart);
+    
+                        return updatedItems;
+                    });
                 } else {
                     console.error('Failed to decrease item quantity:', data);
                 }
@@ -565,7 +572,7 @@ export const CartProvider = ({ children }) => {
                 console.error('Error decreasing item quantity:', error);
             }
         } else {
-            // If the quantity is 1, remove the item from the cart
+            // Xóa sản phẩm nếu số lượng bằng 1
             try {
                 const response = await fetch(`http://localhost:1010/api/cart-item/delete/${cartItemId}`, {
                     method: 'DELETE',
@@ -579,16 +586,21 @@ export const CartProvider = ({ children }) => {
                         cartItemId: cartItemId,
                     }),
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok) {
                     console.log('Item deleted from cart:', data.message);
-
-                    // Remove the item from the cart items state
-                    setCartItems(prevItems =>
-                        prevItems.filter(item => item.cartItemId !== cartItemId)
-                    );
+    
+                    setCartItems(prevItems => {
+                        const updatedItems = prevItems.filter(item => item.cartItemId !== cartItemId);
+                        
+                        // Tính lại tổng số lượng sau khi xóa
+                        const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+                        setTotalOfCart(updatedTotalOfCart);
+    
+                        return updatedItems;
+                    });
                 } else {
                     console.error('Failed to delete item:', data);
                 }
@@ -597,6 +609,7 @@ export const CartProvider = ({ children }) => {
             }
         }
     };
+    
 
     // Get userId from token
     const getUserIdFromToken = (token) => {
@@ -623,7 +636,7 @@ export const CartProvider = ({ children }) => {
             // Đảm bảo giỏ hàng tồn tại
             ensureCartExists(userId);
 
-            // Lấy thời gian vận chuyển
+            // // Lấy thời gian vận chuyển
             try {
                 const response = await axios.get('http://localhost:1010/api/shipment/check-time', {
                     headers: {
@@ -828,16 +841,20 @@ export const CartProvider = ({ children }) => {
 
             const updateData = await updateResponse.json();
             const { quantity: updatedQuantity, totalPrice } = updateData;
-
-            setCartItems(prevItems =>
-                prevItems.map(item =>
+    
+            setCartItems(prevItems => {
+                const updatedItems = prevItems.map(item =>
                     item.cartItemId === cartItemId
                         ? { ...item, quantity: updatedQuantity, totalPrice }
                         : item
-                )
-            );
-            fetchCartItemsByCartId(cartId);
-
+                );
+    
+                // Tính lại tổng số lượng của giỏ hàng
+                const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+                setTotalOfCart(updatedTotalOfCart);
+    
+                return updatedItems;
+            });
         } catch (error) {
             console.error('Error increasing item quantity:', error);
         }
@@ -846,16 +863,15 @@ export const CartProvider = ({ children }) => {
 
 
 
-    // Delete one item from cart
     const deleteOneItem = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
+    
         if (!cartItemId) {
             console.error('No cart item ID provided.');
             return;
         }
-
+    
         try {
             const response = await fetch(`http://localhost:1010/api/cart-item/delete/${cartItemId}`, {
                 method: 'DELETE',
@@ -869,16 +885,23 @@ export const CartProvider = ({ children }) => {
                     cartItemId: cartItemId,
                 }),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 console.log('Item deleted successfully:', data.message);
-
-                // Remove the item from the cart items state
-                setCartItems(prevItems =>
-                    prevItems.filter(item => item.cartItemId !== cartItemId)
-                );
+    
+                // Cập nhật lại cartItems và totalOfCart
+                setCartItems((prevItems) => {
+                    const updatedItems = prevItems.filter(item => item.cartItemId !== cartItemId);
+                    
+                    // Tính lại tổng số lượng
+                    const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
+                    setTotalOfCart(updatedTotalOfCart);
+    
+                    return updatedItems;
+                });
+    
             } else {
                 console.error('Failed to delete item:', data);
             }
@@ -886,7 +909,7 @@ export const CartProvider = ({ children }) => {
             console.error('Error deleting item:', error);
         }
     };
-
+    
 
 
     return (
