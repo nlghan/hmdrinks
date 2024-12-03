@@ -102,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/review/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/fav-item/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
                         .requestMatchers("/api/orders/**").hasAnyAuthority("ADMIN","CUSTOMER","SHIPPER")
+                        .requestMatchers("api/orders/reason-cancel").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(myAccessDeniedHandler))

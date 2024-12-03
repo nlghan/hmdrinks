@@ -231,7 +231,8 @@ public class ShipmentService {
             orderRepository.save(orders);
         }
         else{
-
+            payment.setStatus(Status_Payment.FAILED);
+            paymentRepository.save(payment);
             Orders orders = payment.getOrder();
             orders.setDateCanceled(LocalDateTime.now());
             orders.setStatus(Status_Order.CANCELLED);
@@ -277,6 +278,8 @@ public class ShipmentService {
         shipmentRepository.save(shippment);
         if(statusShipment == Status_Shipment.SUCCESS)
         {
+            shippment.setDateShip(LocalDateTime.now());
+            shipmentRepository.save(shippment);
             Payment payment = shippment.getPayment();
             if(payment.getPaymentMethod() == Payment_Method.CASH)
             {
@@ -514,9 +517,14 @@ public class ShipmentService {
 
             // Create response object
             User shipper1 = shippment.getUser();
+            String nameShipper = null;
+            if(shipper1 != null)
+            {
+                nameShipper = shipper.getFullName();
+            }
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper1.getFullName(),
+                    nameShipper,
                     orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -567,9 +575,14 @@ public class ShipmentService {
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             User customer = userRepository.findByUserId(orders.getUser().getUserId());
             User shipper = shippment.getUser();
+            String nameShipper = null;
+            if(shipper != null)
+            {
+                nameShipper = shipper.getFullName();
+            }
             CRUDShipmentResponse response = new CRUDShipmentResponse(
                     shippment.getShipmentId(),
-                    shipper.getFullName(),
+                    nameShipper,
                     orders.getOrderDate(),
                     shippment.getDateDeleted(),
                     shippment.getDateDelivered(),
@@ -689,12 +702,16 @@ public class ShipmentService {
     @Transactional
     public ResponseEntity<?> checkTimeDelivery(){
         List<Shippment> shippmentList = shipmentRepository.findAll();
+        LocalDateTime now  = LocalDateTime.now();
         for(Shippment shippment : shippmentList)
         {
             if(shippment.getStatus() == Status_Shipment.SHIPPING)
             {
-                if(LocalDateTime.now().isAfter(shippment.getDateDelivered())) {
+                if(now.isAfter(shippment.getDateDelivered())) {
+                    System.out.println("Biến Now:" + now);
+                    System.out.println("Biến DateDeliver:" + shippment.getDateDelivered());
                     shippment.setStatus(Status_Shipment.CANCELLED);
+                    shippment.setDateCancel(LocalDateTime.now());
                     shipmentRepository.save(shippment);
                     Payment payment = shippment.getPayment();
                     Orders orders = payment.getOrder();
