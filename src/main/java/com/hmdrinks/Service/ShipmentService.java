@@ -705,7 +705,7 @@ public class ShipmentService {
         LocalDateTime now  = LocalDateTime.now();
         for(Shippment shippment : shippmentList)
         {
-            if(shippment.getStatus() == Status_Shipment.SHIPPING)
+            if(shippment.getStatus() == Status_Shipment.SHIPPING && shippment.getUser() != null)
             {
                 if(now.isAfter(shippment.getDateDelivered())) {
                     Payment payment = shippment.getPayment();
@@ -798,6 +798,7 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Shipment is not waiting");
         }
         shippment.setUser(user);
+        shippment.setDateDelivered(LocalDateTime.now().plusMinutes(25));
         shipmentRepository.save(shippment);
         Payment payment = shippment.getPayment();
         Orders orders = payment.getOrder();
