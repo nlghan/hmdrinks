@@ -48,7 +48,11 @@ const Menu = () => {
     const { addToCart } = useCart();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
     const [productRatings, setProductRatings] = useState({}); // State để lưu trữ rating cho từng sản phẩm
+
+    const [sortOption, setSortOption] = useState("");
+
 
     useEffect(() => {
         window.scrollTo(0, 0); // Scroll to the top of the page
@@ -90,21 +94,23 @@ const Menu = () => {
                 const data = await response.json();
                 const productList = searchTerm ? data.productResponseList : (selectedCategoryId ? data.responseList : data.productResponses);
 
-                const productsWithDetails = await Promise.all(productList.map(async (product) => {
-                    try {
-                        const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${product.proId}`);
-                        const variantData = await variantResponse.json();
-                        const variant = variantData.responseList[0];
-                        const price = variant?.price || 'N/A';
-                        const size = variant?.size || 'N/A';
-                        const stock = variant?.stock || 0;
+                // Lấy chi tiết từ listProductVariants ở vị trí 0 và log ra console
+                const productsWithDetails = productList.map((product) => {
+                    const firstVariant = product.listProductVariants?.[0] || {};
+                    const variantDetails = {
+                        size: firstVariant.size,
+                        price: firstVariant.price,
+                        stock: firstVariant.stock
+                    };
 
-                        return { ...product, price, size, stock };
-                    } catch (variantError) {
-                        console.error(`Error fetching variant for product ${product.proId}:`, variantError);
-                        return { ...product, price: 'N/A', size: 'N/A', stock: 0 };
-                    }
-                }));
+                    console.log("Chi tiết sản phẩm:", {
+                        id: product.id,
+                        name: product.name,
+                        price: variantDetails.price || 'Không có giá'
+                    });
+
+                    return { ...product, variantDetails };
+                });
 
                 setProducts(productsWithDetails);
                 setTotalPages(data.totalPage);
@@ -117,6 +123,9 @@ const Menu = () => {
 
         fetchProducts();
     }, [currentPage, selectedCategoryId, searchTerm]);
+
+
+
 
     // Fetch categories from API
     useEffect(() => {
@@ -171,12 +180,19 @@ const Menu = () => {
 
     // Handle adding the product to the cart with size and stock
     const handleAddToCart = (product) => {
-        const token = getCookie('access_token')
+        const token = getCookie('access_token');
         const userId = getUserIdFromToken(token); // Hàm lấy userId từ token
         const quantity = 1; // Đặt số lượng mặc định là 1
-        const { proId, proName, price, size, stock } = product;
-
-
+        const { proId, proName, variantDetails, productImageResponseList } = product;
+    
+        // Kiểm tra nếu không có variant hoặc không có giá
+        if (!variantDetails || !variantDetails.price) {
+            console.error('Không thể thêm sản phẩm do thiếu thông tin chi tiết.');
+            return;
+        }
+    
+        const { size, price, stock } = variantDetails;
+    
         // Kiểm tra xem userId có tồn tại hay không
         if (!userId) {
             setShowLoginPrompt(true); // Hiện thông báo yêu cầu đăng nhập
@@ -190,7 +206,7 @@ const Menu = () => {
                 }, 2000);
                 return;
             }
-
+    
             // Thêm sản phẩm vào giỏ hàng
             addToCart({
                 productId: proId,
@@ -198,15 +214,11 @@ const Menu = () => {
                 price: price,
                 size: size,
                 quantity: quantity,
-                image: product.productImageResponseList.length > 0
-                    ? product.productImageResponseList[0].linkImage
-                    : backgroundImage,
+                image: productImageResponseList?.[0]?.linkImage || backgroundImage,
             });
         }
-
-
     };
-
+    
 
     const handleProductCardClick = (product) => {
         navigate(`/product/${product.proId}`, { state: { product } });
@@ -249,6 +261,94 @@ const Menu = () => {
     useEffect(() => {
         fetchRating(); // Gọi fetchRating khi component được mount
     }, []);
+
+    const handleFilterChange = async (filterType) => {
+        let sortOrder;
+        let filterCode;
+    
+        switch (filterType) {
+            case 'priceAsc':
+                filterCode = []; // Không lọc theo danh mục
+                sortOrder = 1;   // Sắp xếp tăng dần
+                break;
+            case 'priceDesc':
+                filterCode = [];
+                sortOrder = 2;  // Sắp xếp giảm dần
+                break;
+            case 'newest':
+                filterCode = [];
+                sortOrder = 3;   // Sắp xếp theo ngày tạo mới nhất
+                break;
+            case 'ratingAsc':
+                filterCode = [];
+                sortOrder = 4;   // Sắp xếp đánh giá tăng dần
+                break;
+            case 'ratingDesc':
+                filterCode = [];
+                sortOrder = 5;   // Sắp xếp đánh giá giảm dần
+                break;
+            default:
+                filterCode = [];
+                sortOrder = 0;   // Không sắp xếp
+                break;
+        }
+    
+        try {
+            const response = await fetch('http://localhost:1010/api/product/filter-product', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    c: -1, // code cho biết không lọc theo danh mục
+                    p: filterCode, // code lọc cụ thể nếu cần
+                    o: sortOrder // chỉ định thứ tự sắp xếp
+                }),
+            });
+        
+            if (response.ok) {
+                const data = await response.json();
+        
+                // Lấy danh sách sản phẩm và thêm ảnh cho từng sản phẩm
+                const products = await Promise.all(data.productResponseList.map(async (product) => {
+                    // Nếu o là 1, đảo ngược danh sách variants
+                    let variants = product.listProductVariants;
+                    if (sortOrder === 1) {
+                        variants = [...variants].reverse(); // Đảo ngược phiên bản sản phẩm nếu cần
+                    }
+        
+                    // Lấy thông tin của phiên bản đầu tiên sau khi đảo ngược (nếu có)
+                    const firstVariant = variants[0] || {}; // Nếu không có variant thì tạo đối tượng rỗng
+        
+                
+        
+                    return {
+                        ...product,
+                        variantDetails: {
+                            size: firstVariant.size || 'Không có kích thước',
+                            price: firstVariant.price || 'Không có giá',
+                            stock: firstVariant.stock || 0
+                        },
+                        
+                    };
+                }));
+        
+                // Cập nhật danh sách sản phẩm với thông tin ảnh
+                setProducts(products);
+            }
+        
+         else {
+                console.error("Error fetching filtered products");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+    
+    
+    
+    
+
 
     return (
         <>
@@ -373,7 +473,28 @@ const Menu = () => {
                 {/* Product listing */}
                 <div className="product-listing">
                     <div className="filter">
-                        <div></div>
+                        <div className="filter">
+                            <select
+                                onChange={(e) => handleFilterChange(e.target.value)}
+                                style={{
+                                    padding: '8px',
+                                    borderRadius: '5px',
+                                    backgroundColor: '#E15959',
+                                    color: 'white',
+                                    border: 'none',
+                                    outline: 'none',
+                                    cursor: 'pointer',
+                                    marginBottom: '20px'
+                                }}
+                            >
+                                <option value="" disabled selected>Chọn bộ lọc</option>
+                                <option value="priceAsc">Giá thấp đến cao</option>
+                                <option value="priceDesc">Giá cao đến thấp</option>
+                                <option value="newest">Ngày mới nhất</option>
+                                <option value="ratingAsc">Rating thấp đến cao</option>
+                                <option value="ratingDesc">Rating cao đến thấp</option>
+                            </select>
+                        </div>
                         {hasProducts && (
                             <div className="menu-product-pagination">
                                 {/* Previous Button */}
@@ -414,6 +535,7 @@ const Menu = () => {
                         <LoadingAnimation />
                     ) : (
                         <div className="products zoomIn ">
+
                             {hasProducts ? (
                                 filteredProducts.map((product) => (
                                     <ProductCard
@@ -422,8 +544,8 @@ const Menu = () => {
                                         product={{
                                             proId: product.proId,
                                             name: product.proName,
-                                            size: product.size,
-                                            price: `${product.price}`,
+                                            size: product.variantDetails?.size,
+                                            price: `${product.variantDetails?.price}`,
                                             image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
                                             averageRating: productRatings[product.proId] || 0, // Truyền rating vào ProductCard
                                         }}

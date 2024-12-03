@@ -81,6 +81,7 @@ function Orders() {
             });
             const data = await response.json();
             return {
+                amount: data.amount,
                 paymentMethod: data.paymentMethod || 'Unknown',
                 statusPayment: data.statusPayment || 'Unknown',
             };
@@ -96,12 +97,12 @@ function Orders() {
     const fetchShipments = async (page, status = 'all') => {
         const token = getCookie('access_token');
         setLoading(true);
-
+    
         let url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=5`;
         if (status !== 'all') {
             url = `http://localhost:1010/api/shipment/view/listByStatus?page=${page}&limit=5&status=${status}`;
         }
-
+    
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -111,28 +112,32 @@ function Orders() {
                 },
             });
             const data = await response.json();
-            setTotalOrders(data.total)
+            setTotalOrders(data.total);
             const shipmentsData = data.listShipment || [];
             const total = data.totalPage || 1;
-
+    
             const updatedShipments = await Promise.all(
                 shipmentsData.map(async (shipment) => {
+                    // Fetch shipper name
                     const shipperName = shipment.shipperId
                         ? await fetchShipperName(shipment.shipperId, token)
                         : 'Unknown';
+                    
+                    // Fetch payment info and amount
                     const paymentInfo = shipment.paymentId
                         ? await fetchPaymentInfo(shipment.paymentId, token)
-                        : { paymentMethod: 'Unknown', statusPayment: 'Unknown' };
-
+                        : { paymentMethod: 'Unknown', statusPayment: 'Unknown', amount: 0 }; // Default amount if not found
+    
                     return {
                         ...shipment,
                         shipperName,
+                        amount: paymentInfo.amount, // Lấy giá trị amount
                         paymentMethod: paymentInfo.paymentMethod,
                         statusPayment: paymentInfo.statusPayment,
                     };
                 })
             );
-
+    
             setShipments(updatedShipments);
             setTotalPages(total);
         } catch (error) {
@@ -141,6 +146,14 @@ function Orders() {
             setLoading(false);
         }
     };
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(parseFloat(price));
+    };
+    
 
     useEffect(() => {
         fetchShipments(currentPage, selectedStatus);
@@ -296,12 +309,14 @@ function Orders() {
                                     <th>Khách Hàng</th>
                                     <th>Điện Thoại</th>
                                     <th>Địa Chỉ</th>
+                                    <th>Đơn Giá (VND)</th>
                                     <th>Loại Thanh Toán</th>
                                     <th>Trạng Thái</th>
                                     <th>Ngày Đặt</th>
                                     <th>Ngày Giao</th>
+                                    <th>Ngày Hủy</th>
                                     <th>Người Giao</th>
-                                    <th>Trạng Thái Đơn</th>
+                                    <th>Trạng Thái</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -317,10 +332,12 @@ function Orders() {
                                             <td>{shipment.customerName}</td>
                                             <td>{shipment.phoneNumber}</td>
                                             <td>{shipment.address}</td>
+                                            <td>{formatPrice(shipment.amount)}</td>
                                             <td>{shipment.paymentMethod}</td>
                                             <td>{shipment.statusPayment}</td>
                                             <td>{shipment.dateCreated}</td>
                                             <td>{shipment.dateShipped}</td>
+                                            <td>{shipment.dateCancelled}</td>
                                             <td>{shipment.shipperName}</td>
                                             <td>
                                                 <select
@@ -399,7 +416,7 @@ function Orders() {
                             <h2>Danh Sách Đơn Hoàn Tiền</h2>
                         </div>
                         <div className="table-container">
-                            <table className="table-orders">
+                            <table className="table-orders-refund">
                                 <thead>
                                     <tr>
                                         <th>Mã Đơn Thanh Toán</th>
@@ -421,7 +438,7 @@ function Orders() {
                                                 <td>{refund.refundId}</td>
                                                 <td>{refund.orderId}</td>
                                                 <td>{refund.paymentMethod}</td>
-                                                <td>{refund.amount}</td>
+                                                <td>{formatPrice(refund.amount)} VND</td>
                                                 <td>{refund.refunded}</td>
                                                 <td>
                                                     <button onClick={() => updateRefund(refund.refundId)}>

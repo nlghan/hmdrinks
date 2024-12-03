@@ -34,66 +34,74 @@ const ShipmentDetail = () => {
         }
     };
 
-   
-        const fetchShipmentDetail = async () => {
-            setLoading(true);
-            setError(null);
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', {
+            currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(parseFloat(price));
+    };
 
-            const token = document.cookie.split('; ').find(row => row.startsWith('access_token='))?.split('=')[1];
-            if (!token) {
-                setError('Vui lòng đăng nhập lại.');
-                setLoading(false);
-                return;
-            }
 
-            try {
-                // Lấy chi tiết shipment
-                const shipmentResponse = await axios.get(
-                    `${import.meta.env.VITE_API_BASE_URL}/shipment/view/${shipmentId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                const shipmentData = shipmentResponse.data;
-                setShipment(shipmentData);
+    const fetchShipmentDetail = async () => {
+        setLoading(true);
+        setError(null);
 
-                // Lấy thông tin thanh toán
-                const paymentResponse = await axios.get(
-                    `${import.meta.env.VITE_API_BASE_URL}/payment/view/${shipmentData.paymentId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                const paymentData = paymentResponse.data;
-                setPayment(paymentData);
+        const token = document.cookie.split('; ').find(row => row.startsWith('access_token='))?.split('=')[1];
+        if (!token) {
+            setError('Vui lòng đăng nhập lại.');
+            setLoading(false);
+            return;
+        }
 
-                // Lấy chi tiết đơn hàng
-                const orderResponse = await axios.get(
-                    `${import.meta.env.VITE_API_BASE_URL}/orders/detail-item/${paymentData.orderId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                const orderData = orderResponse.data;
-                setOrder(orderData);
+        try {
+            // Lấy chi tiết shipment
+            const shipmentResponse = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/shipment/view/${shipmentId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const shipmentData = shipmentResponse.data;
+            setShipment(shipmentData);
 
-                setLoading(false);
-            } catch (err) {
-                console.error('Error fetching data:', err);
-                setError('Không thể tải thông tin.');
-                setLoading(false);
-            }
-        };
+            // Lấy thông tin thanh toán
+            const paymentResponse = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/payment/view/${shipmentData.paymentId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const paymentData = paymentResponse.data;
+            setPayment(paymentData);
 
-        useEffect(() => {
-            fetchShipmentDetail();
-        }, [shipmentId]);
+            // Lấy chi tiết đơn hàng
+            const orderResponse = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/orders/detail-item/${paymentData.orderId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const orderData = orderResponse.data;
+            setOrder(orderData);
+
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching data:', err);
+            setError('Không thể tải thông tin.');
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchShipmentDetail();
+    }, [shipmentId]);
 
     if (loading) {
         return <LoadingAnimation />;
@@ -120,10 +128,7 @@ const ShipmentDetail = () => {
             if (newStatus === 'SUCCESS') {
                 const response = await axios.post(
                     'http://localhost:1010/api/shipment/activate/success',
-                    {
-                        userId,
-                        shipmentId,
-                    },
+                    { userId, shipmentId },
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -136,10 +141,7 @@ const ShipmentDetail = () => {
             } else if (newStatus === 'CANCELLED') {
                 const response = await axios.post(
                     'http://localhost:1010/api/shipment/activate/cancel',
-                    {
-                        userId,
-                        shipmentId,
-                    },
+                    { userId, shipmentId },
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -148,6 +150,19 @@ const ShipmentDetail = () => {
                     }
                 );
                 console.log('API response (CANCELLED):', response.data);
+                fetchShipmentDetail(); // Làm mới dữ liệu
+            } else if (newStatus === 'SHIPPING') {
+                const response = await axios.post(
+                    'http://localhost:1010/api/shipment/activate/shipping',
+                    { userId, shipmentId },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log('API response (SHIPPING):', response.data);
                 fetchShipmentDetail(); // Làm mới dữ liệu
             } else {
                 const response = await axios.put(
@@ -169,18 +184,16 @@ const ShipmentDetail = () => {
     };
     
 
-
-
     return (
         <>
             <NavbarShipper currentPage="Chi Tiết Đơn Hàng" />
             <div className="shipment-detail-container" >
-            <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between'}}>
-                            <button className="btn-back" onClick={() => navigate(-1)}>
-                                Quay lại
-                            </button>
+                <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <button className="btn-back" onClick={() => navigate(-1)}>
+                        Quay lại
+                    </button>
 
-                        </div>
+                </div>
 
 
                 {loading ? (
@@ -199,12 +212,16 @@ const ShipmentDetail = () => {
                             <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>
                             <p><strong>Ngày tạo:</strong> {shipment?.dateCreated}</p>
                             <p><strong>Ghi chú:</strong> {shipment?.notes || 'Không có ghi chú.'}</p>
+                            {shipment?.status === 'CANCELLED' && shipment?.dateCancelled && (
+                                <p><strong>Ngày hủy đơn:</strong> {shipment?.dateCancelled}</p>
+                            )}
+
                             <h2>Thông Tin Thanh Toán</h2>
                             <p><strong>Phương thức thanh toán:</strong> {payment?.paymentMethod}</p>
                             <p><strong>Trạng thái thanh toán:</strong> {payment?.statusPayment}</p>
 
-                            
-                            <p><strong>Tổng tiền:</strong> {payment?.amount} VND (Bao gồm phí ship)</p>
+
+                            <p><strong>Tổng tiền:</strong> {formatPrice(payment?.amount)} VND (Bao gồm phí ship)</p>
                             <ul className="order-items-list">
                                 {order?.listItemOrders.map(item => (
                                     <li key={item.cartItemId} className="order-item">
@@ -212,7 +229,7 @@ const ShipmentDetail = () => {
                                         <p><strong>Kích cỡ:</strong> {item.size}</p>
                                         <p><strong>Giá:</strong> {item.priceItem} VND</p>
                                         <p><strong>Số lượng:</strong> {item.quantity}</p>
-                                        <p><strong>Thành tiền:</strong> {item.totalPrice} VND</p>
+                                        <p><strong>Thành tiền:</strong> {formatPrice(item.totalPrice)} VND</p>
                                     </li>
                                 ))}
                             </ul>
@@ -231,6 +248,7 @@ const ShipmentDetail = () => {
                                             backgroundColor:
                                                 shipment.status === 'SUCCESS' ? '#6fb380' :
                                                     shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
+                                                    shipment.status === 'WAITING' ? 'pink':
                                                         shipment.status === 'CANCELLED' ? 'red' : 'pink', // Màu nền tùy thuộc vào trạng thái
                                             color: 'white',  // Đảm bảo chữ màu trắng
                                             border:
@@ -242,7 +260,9 @@ const ShipmentDetail = () => {
                                         <option value="CANCELLED">Đã hủy</option>
                                         <option value="SHIPPING">Đang giao</option>
                                         <option value="SUCCESS">Hoàn thành</option>
-                           
+                                        <option value="WAITING">Đang chờ</option>
+
+
                                     </select>
 
                                 </div>
@@ -250,7 +270,7 @@ const ShipmentDetail = () => {
 
                         </div>
 
-                        
+
                     </>
                 )}
             </div>

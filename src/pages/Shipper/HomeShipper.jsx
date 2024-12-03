@@ -38,32 +38,38 @@ const HomeShipper = () => {
     const fetchData = async (page, status = selectedStatus) => {
         setLoading(true);
         setError(null);
-    
+        
         const token = getCookie('access_token');
         if (!token) {
             setError('Vui lòng đăng nhập lại.');
             setLoading(false);
             return;
         }
+        
+        let url = `http://localhost:1010/api/shipment/shipper/listShippment`;
+        const params = { page, limit, status };
     
-        const userId = getUserIdFromToken(token);
-        if (!userId) {
-            setError('Không thể xác định UserId.');
-            setLoading(false);
-            return;
+        // Nếu trạng thái không phải là 'WAITING', thêm userId vào params
+        if (status !== 'WAITING') {
+            const userId = getUserIdFromToken(token);
+            if (!userId) {
+                setError('Không thể xác định UserId.');
+                setLoading(false);
+                return;
+            }
+            params.userId = userId;
+        } else {
+            url = `http://localhost:1010/api/shipment/view/listByStatus`;
         }
-    
+        
         try {
-            const response = await axios.get(
-                `http://localhost:1010/api/shipment/shipper/listShippment`,
-                {
-                    params: { page, limit, userId, status }, // Add status to params
-                    headers: {
-                        Accept: '*/*',
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await axios.get(url, {
+                params,
+                headers: {
+                    Accept: '*/*',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
     
             const { listShipment, totalPage } = response.data;
             setData(listShipment || []);
@@ -75,6 +81,8 @@ const HomeShipper = () => {
             setLoading(false);
         }
     };
+    
+    
     
     const handleStatusChange = (status) => {
         setSelectedStatus(status);
@@ -121,11 +129,17 @@ const HomeShipper = () => {
             <NavbarShipper currentPage="Trang Chủ" />
             <div className="shipper-home-container">
                 <div className="side-menu-shipper">
+                <button
+                        className={`side-menu-shipper ${selectedStatus === 'WAITING' ? 'active' : ''}`}
+                        onClick={() => handleStatusChange('WAITING')}
+                    >
+                        Đơn hàng cần giao
+                    </button>
                     <button
                         className={`side-menu-shipper ${selectedStatus === 'SHIPPING' ? 'active' : ''}`}
                         onClick={() => handleStatusChange('SHIPPING')}
                     >
-                        Đơn hàng cần giao
+                        Đơn hàng được phân công
                     </button>
                     <button
                         className={`side-menu-shipper ${selectedStatus === 'SUCCESS' ? 'active' : ''}`}
@@ -181,11 +195,12 @@ const HomeShipper = () => {
                                         </button>
                                     </div>
                                     <div className="shipment-body">
-                                        <p><strong>Customer:</strong> {shipment.customerName}</p>
-                                        <p><strong>Address:</strong> {shipment.address}</p>
-                                        <p><strong>Phone:</strong> {shipment.phoneNumber}</p>
-                                        <p><strong>Status:</strong> {shipment.status}</p>
-                                        <p><strong>Created At:</strong> {shipment.dateCreated}</p>
+                                        <p><strong>Tên khách hàng:</strong> {shipment.customerName}</p>
+                                        <p><strong>Địa chỉ:</strong> {shipment.address}</p>
+                                        <p><strong>Số điện thoại:</strong> {shipment.phoneNumber}</p>
+                                        <p><strong>Trạng thái đơn:</strong> {shipment.status}</p>
+                                        <p><strong>Ngày nhận đơn:</strong> {shipment.dateCreated}</p>
+                                        
                                     </div>
 
                                 </li>
