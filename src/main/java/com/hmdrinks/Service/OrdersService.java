@@ -426,16 +426,19 @@ public class OrdersService {
             }
             Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
             if (shipment != null) {
-                if (shipment.getStatus() == Status_Shipment.SUCCESS || shipment.getStatus() == Status_Shipment.SHIPPING) {
+                if (shipment.getStatus() == Status_Shipment.SUCCESS || (shipment.getStatus() == Status_Shipment.SHIPPING && shipment.getUser() != null) ) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed");
                 }
                 if (shipment.getStatus() == Status_Shipment.WAITING) {
 
                     if (payment.getStatus() == Status_Payment.COMPLETED) {
                         payment.setStatus(Status_Payment.REFUND);
+                        payment.setDateRefunded(LocalDateTime.now());
+                        payment.setIsRefund(false);
                         paymentRepository.save(payment);
                     }
                     shipment.setStatus(Status_Shipment.CANCELLED);
+                    shipment.setDateCancel(LocalDateTime.now());
                     shipmentRepository.save(shipment);
                 }
             } else {
