@@ -426,8 +426,6 @@ public class OrdersService {
             }
             Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
             if (shipment != null) {
-
-                System.out.println("Shipment initial status: " + shipment.getStatus());
                 if (shipment.getStatus() == Status_Shipment.SUCCESS || shipment.getStatus() == Status_Shipment.SHIPPING) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Order cannot be cancelled as shipment is in progress or completed");
                 }
@@ -435,10 +433,10 @@ public class OrdersService {
 
                     if (payment.getStatus() == Status_Payment.COMPLETED) {
                         payment.setStatus(Status_Payment.REFUND);
-                        paymentRepository.save(payment); // Lưu payment sau khi cập nhật trạng thái REFUND
+                        paymentRepository.save(payment);
                     }
                     shipment.setStatus(Status_Shipment.CANCELLED);
-                    shipmentRepository.save(shipment); // Lưu shipment sau khi cập nhật trạng thái CANCELLED
+                    shipmentRepository.save(shipment);
                 }
             } else {
                 System.out.println("Shipment not found or already deleted");

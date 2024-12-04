@@ -358,7 +358,7 @@ public class ZaloPayService {
                 String note = "";
                 if(!status_assign)
                 {
-                    shippment.setDateDelivered(null);
+                    shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                     shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
                 }

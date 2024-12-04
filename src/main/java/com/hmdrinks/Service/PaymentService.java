@@ -201,8 +201,6 @@ public class PaymentService {
         }
         return true;
     }
-
-
     @Transactional
     public ResponseEntity<?> createPaymentMomo(int orderId1) {
         try {
@@ -290,7 +288,7 @@ public class PaymentService {
                 String note = "";
                 if(!status_assign)
                 {
-                    shippment.setDateDelivered(null);
+                    shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                     shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
 
@@ -516,7 +514,7 @@ public class PaymentService {
                 String note = "";
                 if(!status_assign)
                 {
-                    shippment.setDateDelivered(null);
+                    shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                     shipmentRepository.save(shippment);
                     note = "Hiện không thể giao hàng";
                 }
@@ -710,7 +708,7 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
-                shippment.setDateDelivered(null);
+                shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                 shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
@@ -851,7 +849,7 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
-                shippment.setDateDelivered(null);
+                shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                 shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
@@ -973,7 +971,7 @@ public class PaymentService {
             boolean status = assignShipments(shippment.getPayment().getOrder().getOrderId());
             if(!status)
             {
-                shippment.setDateDelivered(null);
+                shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                 shipmentRepository.save(shippment);
             }
 
@@ -1163,7 +1161,7 @@ public class PaymentService {
             String note = "";
             if(!status_assign)
             {
-                shippment.setDateDelivered(null);
+                shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                 shipmentRepository.save(shippment);
                 note = "Hiện không thể giao hàng";
             }
@@ -1237,7 +1235,7 @@ public class PaymentService {
         boolean status = assignShipments(orderId);
         if(!status)
         {
-            shippment.setDateDelivered(null);
+            shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
             shipmentRepository.save(shippment);
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDPaymentResponse(
@@ -1452,7 +1450,7 @@ public class PaymentService {
                 boolean status1 = assignShipments(shippment.getPayment().getOrder().getOrderId());
                 if(!status1)
                 {
-                    shippment.setDateDelivered(null);
+                    shippment.setDateDelivered(LocalDateTime.now().plusMinutes(30));
                     shipmentRepository.save(shippment);
                 }
             }

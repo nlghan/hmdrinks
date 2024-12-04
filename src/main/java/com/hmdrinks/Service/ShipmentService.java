@@ -707,6 +707,36 @@ public class ShipmentService {
         LocalDateTime now  = LocalDateTime.now();
         for(Shippment shippment : shippmentList)
         {
+            if(shippment.getUser() == null && shippment.getStatus() == Status_Shipment.WAITING)
+            {
+                LocalDateTime time_create = shippment.getDateCreated().plusHours(1);
+                if(now.isAfter(time_create))
+                {
+                    Payment payment = shippment.getPayment();
+                    Orders orders = payment.getOrder();
+                    if(payment.getPaymentMethod() == Payment_Method.CASH)
+                    {
+                        payment.setStatus(Status_Payment.FAILED);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                        orders.setDateCanceled(LocalDateTime.now());
+                        orderRepository.save(orders);
+                    }
+                    if(payment.getPaymentMethod() == Payment_Method.CREDIT && payment.getStatus() == Status_Payment.COMPLETED)
+                    {
+                        payment.setStatus(Status_Payment.REFUND);
+                        payment.setDateRefunded(LocalDateTime.now());
+                        payment.setIsRefund(false);
+                        paymentRepository.save(payment);
+                        orders.setStatus(Status_Order.CANCELLED);
+                        orders.setDateCanceled(LocalDateTime.now());
+                        orderRepository.save(orders);
+                    }
+                    shippment.setStatus(Status_Shipment.CANCELLED);
+                    shippment.setDateCancel(LocalDateTime.now());
+                    shipmentRepository.save(shippment);
+                }
+            }
             if(shippment.getStatus() == Status_Shipment.SHIPPING && shippment.getUser() != null)
             {
                 if(now.isAfter(shippment.getDateDelivered())) {
@@ -747,8 +777,6 @@ public class ShipmentService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-
-        User shipper = shipment.getUser();
         Payment payment = paymentRepository.findByPaymentId(shipment.getPayment().getPaymentId());
         Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
         User customer = orders.getUser();
