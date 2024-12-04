@@ -274,7 +274,7 @@ public class UserService {
     }
 
     public ResponseEntity<?> AcceptOTP(String email, int OTP) {
-        String newPass = "pass12345";
+        String newPass = "Pass12345@";
         OTP otp = otpRepository.findOTP(email, String.valueOf(OTP));
         User users = userRepository.findByEmail(email);
         if (otp != null && OTP == Integer.parseInt(otp.getOtp())) {

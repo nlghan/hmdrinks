@@ -893,5 +893,67 @@ public class ShipmentService {
                 responses
         ));
     }
+    @Transactional
+    public TotalSearchShipmentResponse searchShipment(String keyword, String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+
+        if (limit >= 100) limit = 100;
+
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Shippment> shipments = shipmentRepository.findByUserNameContaining(keyword, pageable);
+        List<CRUDShipmentResponse> responses = new ArrayList<>();
+
+        for (Shippment shipment : shipments) {
+            User shipper = shipment.getUser();
+            Integer shipperId = (shipper != null) ? shipper.getUserId() : null;
+            String shipperName = (shipper != null) ? shipper.getFullName() : "Unknown Shipper";
+
+            Payment payment = paymentRepository.findByPaymentId(shipment.getPayment().getPaymentId());
+            if (payment == null || payment.getOrder() == null) {
+                continue;
+            }
+
+            Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
+            User customer = userRepository.findByUserId(orders.getUser().getUserId());
+
+            String customerName = (customer != null) ? customer.getFullName() : "Unknown Customer";
+            String customerAddress = (customer != null)
+                    ? (customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity())
+                    : "Unknown Address";
+            String customerPhone = (customer != null) ? customer.getPhoneNumber() : "Unknown Phone";
+            String customerEmail = (customer != null) ? customer.getEmail() : "Unknown Email";
+
+            CRUDShipmentResponse response = new CRUDShipmentResponse(
+                    shipment.getShipmentId(),
+                    shipperName,
+                    orders.getOrderDate(),
+                    shipment.getDateDeleted(),
+                    shipment.getDateDelivered(),
+                    shipment.getDateShip(),
+                    shipment.getDateCancel(),
+                    shipment.getIsDeleted(),
+                    shipment.getStatus(),
+                    shipment.getPayment().getPaymentId(),
+                    shipperId,
+                    customerName,
+                    customerAddress,
+                    customerPhone,
+                    customerEmail,
+                    orders.getOrderId()
+            );
+
+            responses.add(response);
+        }
+
+        return new TotalSearchShipmentResponse(
+                page,
+                shipments.getTotalPages(),
+                limit,
+                responses
+        );
+    }
+
+
 
 }

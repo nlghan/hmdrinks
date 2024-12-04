@@ -7,6 +7,8 @@ import com.hmdrinks.Enum.Status_Shipment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -15,7 +17,8 @@ public interface ShipmentRepository extends JpaRepository<Shippment, Integer> {
    Shippment findByShipmentIdAndIsDeletedFalse(int shipmentId);
    List<Shippment> findByStatus(Status_Shipment status);
    Shippment findByPaymentPaymentIdAndIsDeletedFalse(int paymentId);
-
+   @Query("SELECT s FROM Shippment s JOIN s.user u WHERE u.fullName LIKE %:keyword%")
+   Page<Shippment> findByUserNameContaining(@Param("keyword") String keyword, Pageable pageable);
    Shippment findByPaymentPaymentId(int paymentId);
    Shippment findByUserUserIdAndShipmentId(int userId, int shipmentId);
    Page<Shippment> findAll(Pageable pageable);

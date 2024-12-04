@@ -111,5 +111,11 @@ public class ShipmentController {
     public ResponseEntity<?> getOneShipmentByOrderId(@PathVariable int orderId) {
         return shipmentService.getInfoShipmentByOrderId(orderId);
     }
+    @GetMapping(value = "/search-shipment")
+    public ResponseEntity<?> searchShipment(@RequestParam(name = "keyword") String keyword,
+                                            @RequestParam(name = "page") String page,
+                                            @RequestParam(name = "limit") String limit) {
+        return ResponseEntity.ok(shipmentService.searchShipment(keyword, page, limit));
+    }
 
 }
