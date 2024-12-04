@@ -16,6 +16,13 @@ function Orders() {
     const [loadingRefunds, setLoadingRefunds] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
+
+    const [cancleOrders, setCancleOrders] = useState([]); // Danh sách yêu cầu hủy đơn
+    const [loadingCancle, setLoadingCancle] = useState(true); // Trạng thái tải dữ liệu
+
+   
+
+
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -101,7 +108,7 @@ function Orders() {
     const fetchShipments = async (page, status = 'all', keyword = '') => {
         const token = getCookie('access_token');
         setLoading(true);
-    
+
         let url = '';
         if (keyword) {
             url = `http://localhost:1010/api/shipment/search-shipment?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=5`;
@@ -110,7 +117,7 @@ function Orders() {
         } else {
             url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=5`;
         }
-    
+
         try {
             const response = await fetch(url, {
                 method: 'GET',
@@ -120,22 +127,22 @@ function Orders() {
                 },
             });
             const data = await response.json();
-            
+
             // Handle the response data based on whether it's a search result or normal list
             const shipmentsData = keyword ? data.listShipment : (data.listShipment || []);
             setTotalOrders(data.total || shipmentsData.length);
-            
+
             const updatedShipments = await Promise.all(
                 shipmentsData.map(async (shipment) => {
                     const shipperName = shipment.shipperId
                         ? await fetchShipperName(shipment.shipperId, token)
                         : 'Unknown';
-                    
+
                     // Fetch payment info and amount
                     const paymentInfo = shipment.paymentId
                         ? await fetchPaymentInfo(shipment.paymentId, token)
                         : { paymentMethod: 'Unknown', statusPayment: 'Unknown', amount: 0 }; // Default amount if not found
-    
+
                     return {
                         ...shipment,
                         shipperName,
@@ -145,7 +152,7 @@ function Orders() {
                     };
                 })
             );
-    
+
             setShipments(updatedShipments);
             setTotalPages(data.totalPage || 1);
         } catch (error) {
@@ -161,7 +168,7 @@ function Orders() {
             maximumFractionDigits: 0,
         }).format(parseFloat(price));
     };
-    
+
 
     useEffect(() => {
         fetchShipments(currentPage, selectedStatus, searchTerm.trim());
@@ -243,7 +250,7 @@ function Orders() {
 
     const updateRefund = async (refundId) => {
         const token = getCookie('access_token');  // Get token from the cookie
-    
+
         try {
             const response = await fetch('http://localhost:1010/api/admin/activate/refund', {
                 method: 'PUT',
@@ -256,7 +263,7 @@ function Orders() {
                     id: refundId,  // Send the refund ID to activate it
                 }),
             });
-    
+
             // Check if the response is JSON or plain text
             const contentType = response.headers.get('Content-Type');
             if (contentType && contentType.includes('application/json')) {
@@ -270,14 +277,14 @@ function Orders() {
                 const message = await response.text();
                 console.log('Refund activated:', message);
             }
-    
+
         } catch (error) {
             fetchRefundOrders();  // Refresh the refund list after activation
             console.error('Error activating refund:', error);
             alert('Error activating refund');
         }
     };
-    
+
 
     const handleInputChange = debounce((event, newInputValue) => {
         setSearchTerm(newInputValue);
@@ -290,6 +297,104 @@ function Orders() {
             fetchShipments(currentPage, selectedStatus, trimmedValue);
         }
     }, 500);
+
+    const fetchCancelOrders = async () => {
+        setLoadingCancle(true); // Bắt đầu tải dữ liệu
+        const token = getCookie('access_token'); // Lấy token từ cookie
+    
+        try {
+            // Gửi yêu cầu GET để lấy danh sách hủy đơn
+            const response = await fetch('http://localhost:1010/api/orders/list-cancel-reason', {
+                method: 'GET',
+                headers: {
+                    Accept: '*/*',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            // Chuyển đổi phản hồi thành JSON
+            const data = await response.json();
+    
+            // Kiểm tra nếu có dữ liệu trả về và cập nhật danh sách đơn hủy
+            if (data && data.list) {
+                setCancleOrders(data.list);
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách yêu cầu hủy đơn:', error);
+        } finally {
+            setLoadingCancle(false); // Kết thúc tải dữ liệu
+        }
+    };
+    
+    // Sử dụng useEffect để gọi fetchCancelOrders khi component mount
+    useEffect(() => {
+        fetchCancelOrders(); // Gọi hàm fetch khi component mount
+    }, []);
+
+
+    const acceptCancel = async (orderId) => {
+        const token = getCookie('access_token');  // Lấy token từ cookie
+    
+        try {
+            const response = await fetch('http://localhost:1010/api/orders/reason-cancel/accept', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: orderId }),
+            });
+    
+             // Kiểm tra xem phản hồi có phải là chuỗi "Success" hay không
+             const data = await response.text(); // Đọc phản hồi như văn bản (text)
+            
+             // Kiểm tra nếu phản hồi là "Success"
+             if (response.ok && data === 'Success') {
+                console.log('Yêu cầu hủy đơn đã được chấp nhận:', data);
+                // Gọi lại fetchCancelOrders để cập nhật danh sách sau khi thao tác thành công
+                fetchCancelOrders();
+            } else {
+                console.error('Lỗi khi chấp nhận yêu cầu hủy đơn:', data.message || 'Không xác định');
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối khi chấp nhận yêu cầu hủy đơn:', error);
+        }
+    };
+    
+    // Hàm xử lý từ chối yêu cầu hủy đơn
+    const rejectCancel = async (orderId) => {
+        const token = getCookie('access_token');  // Lấy token từ cookie
+    
+        try {
+            const response = await fetch('http://localhost:1010/api/orders/reason-cancel/reject', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: orderId }),
+            });
+    
+            // Kiểm tra xem phản hồi có phải là chuỗi "Success" hay không
+            const data = await response.text(); // Đọc phản hồi như văn bản (text)
+            
+            // Kiểm tra nếu phản hồi là "Success"
+            if (response.ok && data === 'Success') {
+                console.log('Yêu cầu hủy đơn đã bị từ chối:', data);
+                fetchCancelOrders(); // Gọi lại fetchCancelOrders để cập nhật danh sách yêu cầu hủy đơn
+            } else {
+                console.error('Lỗi khi từ chối yêu cầu hủy đơn:', data || 'Không xác định');
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối khi từ chối yêu cầu hủy đơn:', error);
+        }
+    };
+    
+    
+    
+
 
     return (
         <div className="orders-table">
@@ -435,6 +540,50 @@ function Orders() {
                         </div>
                     </div>
 
+                    <div className="refund-orders-box">
+                        <div className="header-orders-box">
+                            <h2>Danh Sách Yêu Cầu Hủy Đơn</h2>
+                        </div>
+                        <div className="table-container">
+                            <table className="table-orders-refund">
+                                <thead>
+                                    <tr>
+                                        <th>Mã Đơn Hàng</th>
+                                        <th>Mã Người Dùng</th>
+                                        <th>Lý Do Hủy Đơn</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loadingCancle ? (
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: 'center' }}>Đang tải dữ liệu...</td>
+                                        </tr>
+                                    ) : cancleOrders.length > 0 ? (
+                                        cancleOrders.map((order) => (
+                                            <tr key={order.orderId}>
+                                                <td>{order.orderId}</td>
+                                                <td>{order.userId}</td>
+                                                <td>{order.cancelReason}</td>
+                                                <td>
+                                                <button onClick={() => acceptCancel(order.orderId)}>
+                                                        <i className="ti-check" style={{ color: 'blue', fontSize: '20px' }}></i> {/* Edit icon */}
+                                                    </button>
+                                                    <button style={{marginLeft:'10px'}} onClick={() => rejectCancel(order.orderId)}>
+                                                        <i className="ti-close" style={{ color: 'red', fontSize: '20px' }}></i> {/* Edit icon */}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: 'center' }}>Không có yêu cầu hủy đơn.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
 
                     {/* Bảng Danh Sách Đơn Hoàn Tiền */}
@@ -489,7 +638,7 @@ function Orders() {
 
             </div>
         </div>
-        
+
 
     );
 }

@@ -171,9 +171,20 @@ const Cart = () => {
 
 
     const handleCheckoutClick = () => {
-        handleCheckout();  // Call handleCheckout when user clicks "Checkout"
-        setIsLoading(true);
+        // Kiểm tra nếu giỏ hàng có sản phẩm có số lượng = 0
+        const hasOutOfStockItems = groupedItems.some(group =>
+            group.items.some(item => item.quantity === 0)
+        );
+    
+        if (hasOutOfStockItems) {
+            // Hiển thị thông báo yêu cầu xóa sản phẩm có số lượng 0
+            alert("Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.");
+        } else {
+            handleCheckout();
+            setIsLoading(true)
+        }
     };
+    
 
     const handleQuantityChange = (itemId, newQuantity) => {
         if (newQuantity > 0) {
@@ -301,6 +312,7 @@ const Cart = () => {
                                                             <tr
                                                                 key={subIndex}
                                                                 onClick={() => handleRowClick(item.cartItemId)}
+                                                                className={item.quantity === 0 ? 'out-of-stock' : ''}  // Thêm class nếu số lượng = 0
                                                             >
                                                                 {subIndex === 0 && (
                                                                     <>
@@ -315,9 +327,7 @@ const Cart = () => {
                                                                     {item.size}
                                                                 </td>
                                                                 <td>
-
                                                                     <div style={{ display: 'flex' }}>
-                                                                        {/* Thay thế nút tăng giảm bằng input */}
                                                                         <button
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
@@ -378,8 +388,6 @@ const Cart = () => {
                                                                         </button>
                                                                     </div>
                                                                 </td>
-
-
 
                                                                 {subIndex === 0 && (
                                                                     <td rowSpan={group.items.length}>{formatCurrency(totalPrice)}</td>
