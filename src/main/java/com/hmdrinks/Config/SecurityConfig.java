@@ -79,6 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/cate/view/**", "/api/cate/list-category").permitAll()
                         .requestMatchers("/api/product/list-review").permitAll()
                         .requestMatchers("/api/post/view/**").permitAll()
+                        .requestMatchers("/api/product/list-rating").permitAll()
                         .requestMatchers("/api/report/**").permitAll()
                         .requestMatchers("/api/product/filter-product").permitAll()
                         .requestMatchers("/api/product/list-rating").permitAll()
