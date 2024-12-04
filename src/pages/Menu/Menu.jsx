@@ -52,6 +52,7 @@ const Menu = () => {
     const [productRatings, setProductRatings] = useState({}); // State để lưu trữ rating cho từng sản phẩm
 
     const [sortOption, setSortOption] = useState("");
+    const [currentFilterType, setCurrentFilterType] = useState('');
 
 
     useEffect(() => {
@@ -89,11 +90,11 @@ const Menu = () => {
                     : selectedCategoryId
                         ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
                         : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
-
+    
                 const response = await fetch(url);
                 const data = await response.json();
                 const productList = searchTerm ? data.productResponseList : (selectedCategoryId ? data.responseList : data.productResponses);
-
+    
                 // Lấy chi tiết từ listProductVariants ở vị trí 0 và log ra console
                 const productsWithDetails = productList.map((product) => {
                     const firstVariant = product.listProductVariants?.[0] || {};
@@ -102,16 +103,16 @@ const Menu = () => {
                         price: firstVariant.price,
                         stock: firstVariant.stock
                     };
-
+    
                     console.log("Chi tiết sản phẩm:", {
                         id: product.id,
                         name: product.name,
                         price: variantDetails.price || 'Không có giá'
                     });
-
+    
                     return { ...product, variantDetails };
                 });
-
+    
                 setProducts(productsWithDetails);
                 setTotalPages(data.totalPage);
             } catch (error) {
@@ -120,9 +121,10 @@ const Menu = () => {
                 setLoading(false);
             }
         };
-
+    
         fetchProducts();
-    }, [currentPage, selectedCategoryId, searchTerm]);
+    }, [currentPage, selectedCategoryId, searchTerm, currentFilterType]); // Cập nhật khi bộ lọc thay đổi
+    
 
 
 
@@ -145,7 +147,9 @@ const Menu = () => {
     // Handle product page change
     const handleProductPageChange = (page) => {
         setCurrentPage(page);
+        handleFilterChange(currentFilterType, page); // Gọi lại API với bộ lọc hiện tại
     };
+    
 
     // Handle category page change
     const handleCategoryPageChange = (page) => {
@@ -184,15 +188,15 @@ const Menu = () => {
         const userId = getUserIdFromToken(token); // Hàm lấy userId từ token
         const quantity = 1; // Đặt số lượng mặc định là 1
         const { proId, proName, variantDetails, productImageResponseList } = product;
-    
+
         // Kiểm tra nếu không có variant hoặc không có giá
         if (!variantDetails || !variantDetails.price) {
             console.error('Không thể thêm sản phẩm do thiếu thông tin chi tiết.');
             return;
         }
-    
+
         const { size, price, stock } = variantDetails;
-    
+
         // Kiểm tra xem userId có tồn tại hay không
         if (!userId) {
             setShowLoginPrompt(true); // Hiện thông báo yêu cầu đăng nhập
@@ -206,7 +210,7 @@ const Menu = () => {
                 }, 2000);
                 return;
             }
-    
+
             // Thêm sản phẩm vào giỏ hàng
             addToCart({
                 productId: proId,
@@ -218,7 +222,7 @@ const Menu = () => {
             });
         }
     };
-    
+
 
     const handleProductCardClick = (product) => {
         navigate(`/product/${product.proId}`, { state: { product } });
@@ -262,37 +266,52 @@ const Menu = () => {
         fetchRating(); // Gọi fetchRating khi component được mount
     }, []);
 
-    const handleFilterChange = async (filterType) => {
-        let sortOrder;
+    
+    const [sortOrder, setSortOrder] = useState(() => {
+        // Lấy giá trị từ localStorage nếu có, nếu không thì gán giá trị mặc định là 0
+        const savedSortOrder = localStorage.getItem('sortOrder');
+        return savedSortOrder ? parseInt(savedSortOrder) : 0;
+    });
+
+    const handleFilterChange = async (filterType, page = 1, limit = 8) => {
+        setCurrentFilterType(filterType); // Cập nhật bộ lọc hiện tại
+    
+        let newSortOrder;
         let filterCode;
     
         switch (filterType) {
             case 'priceAsc':
-                filterCode = []; // Không lọc theo danh mục
-                sortOrder = 1;   // Sắp xếp tăng dần
+                filterCode = [];
+                newSortOrder = 1; // Sắp xếp tăng dần
                 break;
             case 'priceDesc':
                 filterCode = [];
-                sortOrder = 2;  // Sắp xếp giảm dần
+                newSortOrder = 2; // Sắp xếp giảm dần
                 break;
             case 'newest':
                 filterCode = [];
-                sortOrder = 3;   // Sắp xếp theo ngày tạo mới nhất
+                newSortOrder = 3; // Sắp xếp theo ngày tạo mới nhất
                 break;
             case 'ratingAsc':
                 filterCode = [];
-                sortOrder = 4;   // Sắp xếp đánh giá tăng dần
+                newSortOrder = 5; // Sắp xếp đánh giá tăng dần
                 break;
             case 'ratingDesc':
                 filterCode = [];
-                sortOrder = 5;   // Sắp xếp đánh giá giảm dần
+                newSortOrder = 4; // Sắp xếp đánh giá giảm dần
                 break;
             default:
-                filterCode = [];
-                sortOrder = 0;   // Không sắp xếp
+                
                 break;
         }
-    
+
+        // Chỉ lưu lại sortOrder vào localStorage nếu nó thay đổi
+        if (newSortOrder !== sortOrder) {
+            localStorage.setItem('sortOrder', newSortOrder);
+            setSortOrder(newSortOrder);
+        }
+
+        // Gọi lại API khi bộ lọc thay đổi hoặc khi người dùng chuyển trang
         try {
             const response = await fetch('http://localhost:1010/api/product/filter-product', {
                 method: 'POST',
@@ -300,28 +319,28 @@ const Menu = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    c: -1, // code cho biết không lọc theo danh mục
-                    p: filterCode, // code lọc cụ thể nếu cần
-                    o: sortOrder // chỉ định thứ tự sắp xếp
+                    c: selectedCategoryId || -1,
+                    p: filterCode,
+                    o: newSortOrder,
+                    page: page,
+                    limit: limit
                 }),
             });
-        
+    
             if (response.ok) {
                 const data = await response.json();
-        
+                
                 // Lấy danh sách sản phẩm và thêm ảnh cho từng sản phẩm
                 const products = await Promise.all(data.productResponseList.map(async (product) => {
-                    // Nếu o là 1, đảo ngược danh sách variants
+                    // Nếu sortOrder là 1, đảo ngược danh sách variants
                     let variants = product.listProductVariants;
-                    if (sortOrder === 1) {
+                    if (newSortOrder === 1) {
                         variants = [...variants].reverse(); // Đảo ngược phiên bản sản phẩm nếu cần
                     }
-        
+    
                     // Lấy thông tin của phiên bản đầu tiên sau khi đảo ngược (nếu có)
                     const firstVariant = variants[0] || {}; // Nếu không có variant thì tạo đối tượng rỗng
-        
-                
-        
+    
                     return {
                         ...product,
                         variantDetails: {
@@ -329,25 +348,31 @@ const Menu = () => {
                             price: firstVariant.price || 'Không có giá',
                             stock: firstVariant.stock || 0
                         },
-                        
                     };
                 }));
-        
+    
                 // Cập nhật danh sách sản phẩm với thông tin ảnh
                 setProducts(products);
-            }
-        
-         else {
+                setTotalPages(data.totalPages);
+                setCurrentPage(data.currentPage);
+            } else {
                 console.error("Error fetching filtered products");
             }
         } catch (error) {
             console.error("Error:", error);
         }
     };
+
+    useEffect(() => {
+        // Khi component load, gọi lại dữ liệu với sortOrder đã lưu từ localStorage
+        if (sortOrder !== null) {
+            handleFilterChange(currentFilterType, currentPage);
+        }
+    }, [sortOrder, selectedCategoryId, currentPage]);
     
     
     
-    
+
 
 
     return (
@@ -475,7 +500,8 @@ const Menu = () => {
                     <div className="filter">
                         <div className="filter">
                             <select
-                                onChange={(e) => handleFilterChange(e.target.value)}
+                                 onChange={(e) => handleFilterChange(e.target.value)}
+                                 value={currentFilterType}
                                 style={{
                                     padding: '8px',
                                     borderRadius: '5px',
@@ -496,35 +522,32 @@ const Menu = () => {
                             </select>
                         </div>
                         {hasProducts && (
-                            <div className="menu-product-pagination">
-                                {/* Previous Button */}
-
-                                <span
-                                    className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
-                                    onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
-                                >
-                                    {'<'}
-                                </span>
-
-                                {/* Pagination Dots */}
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <span
-                                        key={index + 1}
-                                        className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
-                                        onClick={() => handleProductPageChange(index + 1)}
-                                    >
-                                        •
-                                    </span>
-                                ))}
-
-                                {/* Next Button */}
-                                <span
-                                    className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
-                                    onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
-                                >
-                                    {'>'}
-                                </span>
-                            </div>
+                           <div className="menu-product-pagination">
+                           <span
+                               className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
+                               onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
+                           >
+                               {'<'}
+                           </span>
+                       
+                           {Array.from({ length: totalPages }, (_, index) => (
+                               <span
+                                   key={index + 1}
+                                   className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
+                                   onClick={() => handleProductPageChange(index + 1)}
+                               >
+                                   •
+                               </span>
+                           ))}
+                       
+                           <span
+                               className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
+                               onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
+                           >
+                               {'>'}
+                           </span>
+                       </div>
+                       
 
                         )}
 
@@ -534,30 +557,35 @@ const Menu = () => {
                     {loading ? (
                         <LoadingAnimation />
                     ) : (
-                        <div className="products zoomIn ">
-
-                            {hasProducts ? (
-                                filteredProducts.map((product) => (
+                        <div className="products zoomIn">
+                        {hasProducts ? (
+                            filteredProducts.map((product) => {
+                                // Lấy biến thể đầu tiên từ listProductVariants nếu có
+                                const firstVariant = product.listProductVariants?.[0] || {};
+                                
+                                return (
                                     <ProductCard
                                         key={product.proId}
                                         className={"zoom-in"}
                                         product={{
                                             proId: product.proId,
                                             name: product.proName,
-                                            size: product.variantDetails?.size,
-                                            price: `${product.variantDetails?.price}`,
+                                            size: product.variantDetails?.size || firstVariant.size,
+                                            price: product.variantDetails?.price || firstVariant.price || 'N/A',
                                             image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
-                                            averageRating: productRatings[product.proId] || 0, // Truyền rating vào ProductCard
+                                            averageRating: productRatings[product.proId] || 0,
                                         }}
-                                        isFavorited={favoritedProIds.includes(product.proId)} // Check if product is favorited
+                                        isFavorited={favoritedProIds.includes(product.proId)}
                                         onClick={() => handleProductCardClick(product)}
-                                        onAddToCart={() => handleAddToCart(product)} // Use handleAddToCart for correct cart addition
+                                        onAddToCart={() => handleAddToCart(product)}
                                     />
-                                ))
-                            ) : (
-                                <p>No products found matching your search.</p>
-                            )}
-                        </div>
+                                );
+                            })
+                        ) : (
+                            <p>No products found matching your search.</p>
+                        )}
+                    </div>
+                    
                     )}
                     {showError && (
                         <div className="error-animation">
