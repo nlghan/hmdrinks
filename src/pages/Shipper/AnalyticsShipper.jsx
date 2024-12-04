@@ -81,7 +81,7 @@ const AnalyticsShipper = () => {
         <div className="ship-cards-container">
 
           <GaugeCard
-            percentage={percentages[0]}
+            percentage={percentages[0].toFixed(1)}
             width='350px'
             height='150px'
             data="⏳ ĐANG CHỜ"
@@ -90,7 +90,7 @@ const AnalyticsShipper = () => {
             backgroundColor="#FFF5E6"
           />
           <GaugeCard
-            percentage={percentages[1]}
+            percentage={percentages[1].toFixed(1)}
             width='350px'
             height='150px'
             data="🚚 ĐANG GIAO"
@@ -99,7 +99,7 @@ const AnalyticsShipper = () => {
             backgroundColor="#E6F7FF"
           />
           <GaugeCard
-            percentage={percentages[2]}
+            percentage={percentages[2].toFixed(1)}
             width='350px'
             height='150px'
             data="✅ ĐÃ GIAO"
@@ -108,7 +108,7 @@ const AnalyticsShipper = () => {
             backgroundColor="#F0FFF0"
           />
           <GaugeCard
-            percentage={percentages[3]}
+            percentage={percentages[3].toFixed(1)}
             width='350px'
             height='150px'
             data="❌ HỦY ĐƠN"
