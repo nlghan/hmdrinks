@@ -16,9 +16,10 @@ const MyOrderDetail = () => {
     const [payment, setPayment] = useState(null);
     const [order, setOrder] = useState(null);
     const location = useLocation();
-    const { dateDelivered } = location.state || {}; 
+    const { dateDelivered } = location.state || {};
     console.log("ngày đặt hàng", dateDelivered)
-    const [cancelError, setCancelError] = useState(null); 
+    const [cancelError, setCancelError] = useState(null);
+    const [cancelReason, setCancelReason] = useState(''); // Trạng thái lưu lý do hủy đơn
 
     const navigate = useNavigate();
     const getCookie = (name) => {
@@ -91,7 +92,7 @@ const MyOrderDetail = () => {
             setLoading(false);
         } catch (err) {
             console.error('Error fetching data:', err);
-            setError('Không thể tải thông tin.');
+            setCancelError('Không thể tải thông tin.');
             setLoading(false);
         }
     };
@@ -108,63 +109,7 @@ const MyOrderDetail = () => {
         return <ErrorMessage message={error} />;
     }
 
-    const handleStatusChange = async (shipmentId, newStatus) => {
-        const token = getCookie('access_token');
-        if (!token) {
-            setError('Vui lòng đăng nhập lại.');
-            return;
-        }
 
-        // Nếu trạng thái được chọn là "SUCCESS", gọi API
-        if (newStatus === 'SUCCESS') {
-            const userId = getUserIdFromToken(token);
-            if (!userId) {
-                setError('Không thể xác định UserId.');
-                return;
-            }
-
-            try {
-                const response = await axios.post(
-                    'http://localhost:1010/api/shipment/activate/success',
-                    {
-                        userId,
-                        shipmentId, // Đảm bảo shipmentId được truyền vào
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                );
-                console.log('API response:', response.data);
-                // Sau khi cập nhật, refresh lại dữ liệu
-                fetchShipmentDetail();
-            } catch (error) {
-                console.error('Error calling success API:', error);
-                setError('Không thể cập nhật trạng thái thành công.');
-            }
-        } else {
-            // Xử lý các trạng thái khác như "SHIPPING" hay "CANCELLED" nếu cần
-            try {
-                const response = await axios.put(
-                    `${import.meta.env.VITE_API_BASE_URL}/shipment/update-status/${shipmentId}`,
-                    { status: newStatus },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                console.log('Status updated:', response.data);
-                // Refresh the data after status change
-                fetchData(currentPage);
-            } catch (error) {
-                console.error('Error updating status:', error);
-                setError('Không thể cập nhật trạng thái.');
-            }
-        }
-    };
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', {
@@ -174,31 +119,37 @@ const MyOrderDetail = () => {
         }).format(parseFloat(price));
     };
 
-    const handleCancelOrder = async () => {
+
+
+    const handleCancelOrder = async (cancelReason) => {
+        // Kiểm tra lý do hủy đơn
+        if (!cancelReason) {
+            setCancelError('Vui lòng chọn lý do hủy đơn.');
+            return;
+        }
+
+        // Kiểm tra token
         const token = getCookie('access_token');
         if (!token) {
             setError('Vui lòng đăng nhập lại.');
             return;
         }
 
+        // Lấy userId từ token
         const userId = getUserIdFromToken(token);
         if (!userId) {
             setError('Không thể xác định UserId.');
             return;
         }
 
-        // Check if the shipment is in progress or completed
-        if (shipment.status === 'SHIPPING' || shipment.status === 'SUCCESS') {
-            setCancelError('Đơn hàng không thể hủy vì đang vận chuyển hoặc đã hoàn thành.');
-            return;
-        }
-
         try {
-            const response = await axios.put(
-                'http://localhost:1010/api/orders/cancel-order',
+            // Gửi yêu cầu hủy đơn
+            const response = await axios.post(
+                'http://localhost:1010/api/orders/reason-cancel',
                 {
                     orderId: order.orderId,
                     userId,
+                    cancelReason
                 },
                 {
                     headers: {
@@ -208,24 +159,27 @@ const MyOrderDetail = () => {
                 }
             );
             console.log('Order canceled:', response.data);
-            fetchShipmentDetail(); // Refresh shipment details
+            setCancelError(null); // Reset lỗi hủy đơn
+            fetchShipmentDetail(); // Cập nhật thông tin đơn hàng
         } catch (error) {
             console.error('Error canceling order:', error);
-            setError('Không thể hủy đơn.');
+            setCancelError('Chỉ được gửi yêu cầu hủy đơn một lần');
         }
     };
+
+
 
 
     return (
         <>
             <Navbar currentPage="Chi Tiết Đơn Hàng" />
             <div className="shipment-detail-container">
-            <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <button className="btn-back" onClick={() => navigate(-1)}>
-                                Quay lại
-                            </button>
+                <div className="shipment-actions" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <button className="btn-back" onClick={() => navigate(-1)}>
+                        Quay lại
+                    </button>
 
-                        </div>
+                </div>
 
                 {loading ? (
                     <div>Đang tải...</div>
@@ -242,7 +196,7 @@ const MyOrderDetail = () => {
                             <p><strong>Số điện thoại:</strong> {shipment?.phoneNumber}</p>
                             <p><strong>Mã đơn giao:</strong> {shipment?.shipmentId}</p>
                             <p><strong>Ngày đặt hàng:</strong> {dateDelivered}</p>
-                            <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>    
+                            <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>
                             <p><strong>Ngày giao hàng:</strong> {shipment?.dateShipped}</p>
                             <p><strong>Ghi chú:</strong> {shipment?.notes || 'Không có ghi chú.'}</p>
                             <h2>Thông Tin Thanh Toán</h2>
@@ -264,24 +218,40 @@ const MyOrderDetail = () => {
                             </ul>
 
                             {cancelError && <div className="error-message">{cancelError}</div>}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <button
-                                    className="btn-deliver"
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', gap: '10px' }}>
+                                <select
+                                    id="cancelReason"
                                     style={{
                                         width: '100%',
-                                        backgroundColor: 'red',
-                                        color: 'white',
-                                        border: shipment.status === 'CANCELLED' ? '2px solid red' : 'none',
+                                        padding: '10px',
+                                        borderRadius: '4px',
+                                        border: '1px solid #ccc',
+                                        backgroundColor: '#fff',
                                     }}
-                                    onClick={handleCancelOrder}
-                                    disabled={shipment.status === 'SHIPPING' || shipment.status === 'SUCCESS'} // Disable if shipment is in progress or completed
+                                    value={cancelReason}  // Đồng bộ giá trị với cancelReason trong state
+                                    onChange={(e) => {
+                                        setCancelReason(e.target.value);  // Cập nhật giá trị khi người dùng chọn lý do
+                                        handleCancelOrder(e.target.value);  // Gọi hàm xử lý hủy đơn khi chọn lý do
+                                    }}
+                                    disabled={cancelReason !== ''} // Vô hiệu hóa dropdown khi lý do đã được chọn
                                 >
-                                    Hủy đơn
-                                </button>
+                                    <option value="" disabled>Chọn lý do hủy đơn</option>
+                                    <option value="CHANGED_MY_MIND">Đổi ý không muốn mua nữa</option>
+                                    <option value="FOUND_CHEAPER_ELSEWHERE">Tìm thấy giá rẻ hơn ở nơi khác</option>
+                                    <option value="ORDERED_BY_MISTAKE">Đặt nhầm sản phẩm</option>
+                                    <option value="DELIVERY_TOO_SLOW">Giao hàng quá chậm</option>
+                                    <option value="WRONG_PRODUCT_SELECTED">Chọn nhầm sản phẩm</option>
+                                    <option value="NOT_NEEDED_ANYMORE">Không cần sản phẩm nữa</option>
+                                    <option value="PAYMENT_ISSUES">Gặp vấn đề khi thanh toán</option>
+                                    <option value="PREFER_DIFFERENT_STORE">Thích mua ở cửa hàng khác hơn</option>
+                                    <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
+                                    <option value="OTHER_REASON">Lý do khác</option>
+                                </select>
                             </div>
+
                         </div>
 
-                        
+
                     </>
                 )}
             </div>

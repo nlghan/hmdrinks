@@ -478,6 +478,29 @@ const MyOrder = () => {
         window.scrollTo(0, 0);
     };
 
+    const handleCancelOrder = async (orderId) => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+        try {
+            const response = await axios.put(
+                'http://localhost:1010/api/orders/cancel-order',
+                { orderId, userId },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            alert('Order cancelled successfully');
+            console.log(response.data);
+            fetchWaitingList();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to cancel order');
+        }
+    };
+
 
 
     const renderContent = () => {
@@ -579,7 +602,7 @@ const MyOrder = () => {
                                             <li key={order.orderId} className="my-orders-item">
                                                 <div
                                                     className="my-orders-item-header"
-                                                    style={{ background: '#7cc58d' }}
+                                                    style={{ background: 'rgb(194 229 182)' }}
                                                 >
                                                     <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
                                                     {/* <button
@@ -609,14 +632,16 @@ const MyOrder = () => {
                                                     <button
                                                         className="shipping-status-button"
                                                         style={{
-                                                            background: 'aliceblue',
+                                                            background: 'red',
                                                             padding: '10px',
                                                             borderRadius: '4px',
-                                                            color: '#000',
-                                                        }}
-    
+                                                            color: 'white',
+                                                            marginRight:'5px',
+                                                            marginBottom:'5px'
+                                                        }}   
+                                                        onClick={() => handleCancelOrder(order.orderId)} 
                                                     >
-                                                        ĐANG CHỜ SHIPPER NHẬN ĐƠN
+                                                        HỦY ĐƠN
                                                     </button>
                                                 </div>
                                             </li>

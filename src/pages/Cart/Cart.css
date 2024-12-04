@@ -287,3 +287,14 @@
         font-size: 14px; /* Smaller buttons */
     }
 }
+
+.out-of-stock {
+    background-color: #f0f0f0; /* Màu xám cho các sản phẩm hết hàng */
+    color: #888; /* Thay đổi màu chữ nếu cần */
+    text-decoration: line-through; /* Gạch ngang chữ */
+}
+
+.out-of-stock td {
+    color: #888; /* Đảm bảo màu chữ trong các ô cũng đổi thành màu xám */
+    text-decoration: line-through; /* Gạch ngang chữ trong các ô */
+}
