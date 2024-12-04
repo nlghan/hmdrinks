@@ -892,8 +892,19 @@ public class OrdersService {
         if (orders == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         }
-        orders.setCancelReason(req.getCancelReason());
-        orderRepository.save(orders);
+        if(orders.getIsCancelReason() != null && orders.getIsCancelReason())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is accept");
+        }
+        if(orders.getIsCancelReason() != null && !orders.getIsCancelReason())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order is reject");
+        }
+        if(orders.getIsCancelReason() == null)
+        {
+            orders.setCancelReason(req.getCancelReason());
+            orderRepository.save(orders);
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -988,7 +999,7 @@ public class OrdersService {
         }
         orders.setIsCancelReason(false);
         orders.setDateCanceled(LocalDateTime.now());
-        orders.setStatus(Status_Order.CANCELLED);
+        orders.setStatus(Status_Order.CONFIRMED);
         orderRepository.save(orders);
         return ResponseEntity.ok("Success");
     }
