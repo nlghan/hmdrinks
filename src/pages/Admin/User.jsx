@@ -9,6 +9,9 @@ import FormAddUser from '../../components/Form/FormAddUser';
 import FormDetailsUser from '../../components/Form/FormDetailsUser';
 import FormUpdateUser from '../../components/Form/FormUpdateUser';
 import GaugeCard from '../../components/Card/GaugeCardRes';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import debounce from 'lodash/debounce';
 
 
 const User = () => {
@@ -33,7 +36,7 @@ const User = () => {
     const [totalUsers, setTotalUsers] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(7);
     const [totalPage, setTotalPage] = useState(1);
     const boxRef = useRef(null);
     const [selectedType, setSelectedType] = useState('all');
@@ -70,65 +73,69 @@ const User = () => {
     };
 
 
-    const fetchUsers = async (page, limit, role = 'all') => {
+    const fetchUsers = async (page, limit, role = 'all', keyword = '') => {
         try {
             const token = getCookie('access_token');
             if (!token) {
                 setError("Bạn cần đăng nhập để xem thông tin này.");
                 return;
             }
-
+    
             const userId = getUserIdFromToken(token);
             if (!userId) {
                 setError("Không thể lấy userId từ token.");
                 return;
             }
-
+    
+            console.log('Keyword:', keyword);
+            console.log('Page:', page);
+            console.log('Limit:', limit);
+    
             let url = '';
-
-            // Check if the role is 'all', then use the first API for all users
-            if (role === 'all') {
+            if (keyword) {
+                url = `http://localhost:1010/api/admin/search-user?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`;
+            } else if (role === 'all') {
                 url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
             } else {
-                // Otherwise, fetch users based on the specific role (ADMIN, USER, SHIPPER, etc.)
                 url = `http://localhost:1010/api/admin/listUser-role?page=${page}&limit=${limit}&role=${role}`;
             }
-
+    
+            console.log('Fetching URL:', url);
+    
             const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             console.log('Response data:', response.data);
-
-            const data = response.data;
-            setTotal(data.total)
-            const userData = data.detailUserResponseList;
-
-            // Check if the userData is empty
-            if (!userData || userData.length === 0) {
-                // setError("Không tìm thấy người dùng với tiêu chí tìm kiếm.");
-                setUsers([]); // Clear users list if empty
-                return; // Exit early if no users found
-            }
-
-            setUsers(userData);
-            setCurrentPage(data.currentPage);
-            setTotalPage(data.totalPage);
-            setLimit(data.limit);
-
+    
+            // Kiểm tra cấu trúc trả về
+            const data = keyword ? response.data.body : response.data;
+    
+            const userData = data.detailUserResponseList || [];
+            setUsers(userData); // Cập nhật danh sách người dùng
+            console.log('Updated users:', userData);
+    
+            // Cập nhật các state khác
+            setCurrentPage(data.currentPage || 1);
+            setTotalPage(data.totalPage || 1);
+            setLimit(data.limit || limit);
+            setTotal(data.total || userData.length); // Tổng số người dùng
+    
+            // Xử lý trạng thái switch (isDelete)
             const initialSwitchStates = {};
             userData.forEach(user => {
                 initialSwitchStates[user.userId] = user.isDelete === false;
             });
             setSwitches(initialSwitchStates);
-
+    
         } catch (error) {
             console.error('Error fetching users:', error);
             setError("Không thể lấy thông tin người dùng.");
         }
     };
+    
 
 
     const fetchTotalCounts = async () => {
@@ -139,7 +146,7 @@ const User = () => {
                 console.log("No access token found.");
                 return;
             }
-    
+
             const firstPageUrl = `http://localhost:1010/api/admin/listUser?page=1&limit=${limit}`; // Lấy trang đầu tiên
             console.log("Fetching first page:", firstPageUrl);
             const firstPageResponse = await axios.get(firstPageUrl, {
@@ -147,11 +154,11 @@ const User = () => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             const totalPages = firstPageResponse.data.totalPage; // Lấy tổng số trang
             console.log('Total Pages:', totalPages); // Kiểm tra tổng số trang
             let allUsers = [];
-    
+
             // Lặp qua tất cả các trang để lấy dữ liệu
             for (let page = 1; page <= totalPages; page++) {
                 const url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
@@ -164,40 +171,41 @@ const User = () => {
                 console.log(`Response for page ${page}:`, response.data); // Kiểm tra phản hồi cho từng trang
                 allUsers = allUsers.concat(response.data.detailUserResponseList || []);
             }
-    
+
             // Tính toán số lượng người dùng theo vai trò
             const adminCount = allUsers.filter(user => user.role === 'ADMIN').length;
             const customerCount = allUsers.filter(user => user.role === 'CUSTOMER').length;
             const shipperCount = allUsers.filter(user => user.role === 'SHIPPER').length;
             const totalUsers = allUsers.length;
-    
+
             setAdminCount(adminCount);
             setCustomerCount(customerCount);
             setShipperCount(shipperCount);
-    
+
             // Tính toán phần trăm
             const adminPercentage = totalUsers ? ((adminCount / totalUsers) * 100).toFixed(0) : 0;
             const customerPercentage = totalUsers ? ((customerCount / totalUsers) * 100).toFixed(0) : 0;
             const shipperPercentage = totalUsers ? ((shipperCount / totalUsers) * 100).toFixed(0) : 0;
-    
+
             setAdminPercentage(adminPercentage);
             setCustomerPercentage(customerPercentage);
             setShipperPercentage(shipperPercentage);
-    
+
         } catch (error) {
             console.error('Error fetching total counts:', error);
             setError("Không thể lấy thông tin tổng số lượng người dùng.");
             console.log("Error details:", error.response ? error.response.data : error.message);
         }
     };
-    
+
     useEffect(() => {
         fetchTotalCounts(); // Gọi hàm fetchTotalCounts khi component được mount
     }, []);
 
     useEffect(() => {
-        fetchUsers(currentPage, limit);
-    }, [currentPage]);
+        fetchUsers(currentPage, limit, selectedType, searchTerm.trim());
+    }, [currentPage, limit, selectedType, searchTerm]);
+
 
     const handlePageChange = (newPage) => {
         console.log(`Attempting to change to page: ${newPage}`);
@@ -326,10 +334,24 @@ const User = () => {
         setUserToUpdate(null);
     };
 
-    const handleSearchChange = (event) => {
-        const value = event.target.value;
-        setSearchTerm(value);
-    };
+    const handleSearchChange = debounce((value) => {
+        fetchUsers(currentPage, limit, selectedType, value.trim());
+    }, 500);
+
+    const handleInputChange = debounce((event, newInputValue) => {
+        setSearchTerm(newInputValue);
+        const trimmedValue = newInputValue.trim();
+        if (trimmedValue === '') {
+            // Nếu input trống, gọi API lấy toàn bộ danh sách
+            fetchUsers(currentPage, limit, selectedType);
+        } else {
+            fetchUsers(currentPage, limit, selectedType, trimmedValue);
+        }
+    }, 500);
+
+
+
+
     const filteredUsers = users.filter(user =>
         user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -357,13 +379,21 @@ const User = () => {
                     <div className="user-box">
                         <div className="header-user-box">
                             <h2>Danh Sách Người Dùng ({total})</h2>
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm người dùng..."
-                                className="search-user-input"
-                                onChange={handleSearchChange}
-                                id="search-user"
-
+                            <Autocomplete
+                                freeSolo
+                                options={Array.isArray(users) ? users.map((user) => user.userName) : []}
+                                // Assuming userName is the field to search
+                                inputValue={searchTerm}
+                                onInputChange={handleInputChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Tìm kiếm người dùng..."
+                                        variant="outlined"
+                                        className="search-user-input"
+                                    />
+                                )}
+                                style={{ width: '400px', borderRadius: '20px' }} // Adjust size as needed
                             />
                             <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '400px', borderRadius: '20px' }}>
                                 <option value="all">Tất cả</option>
@@ -388,7 +418,7 @@ const User = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
+                                {users.length > 0 ? users.map((user, index) => (
                                     <tr key={user.userId}>
                                         <td>{(currentPage - 1) * limit + index + 1}</td>
                                         <td>{user.userName}</td>

@@ -6,6 +6,9 @@ import FormAddPost from '../../components/Form/FormAddPost';
 import FormDetailsPost from '../../components/Form/FormDetailsPost';
 import FormUpdatePost from '../../components/Form/FormUpdatePost';
 import pLimit from 'p-limit';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import debounce from 'lodash/debounce';
 
 const News = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -257,7 +260,7 @@ const News = () => {
 
         }
     };
-    
+
 
 
     useEffect(() => {
@@ -305,9 +308,16 @@ const News = () => {
         return paginationNumbers;
     };
 
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value); // Cập nhật từ khóa tìm kiếm
-    };
+    const handleSearchChange = debounce((value) => {
+        fetchPosts(value.trim()); // Call fetchPosts with the search term
+    }, 500);
+
+    const handleInputChange = debounce((event, newInputValue) => {
+        setSearchTerm(newInputValue);
+        handleSearchChange(newInputValue); // Trigger search on input change
+    }, 500);
+
+
 
     // Filtering posts based on search term
     const filteredPosts = posts.filter((post) =>
@@ -583,13 +593,20 @@ const News = () => {
                         <div className="post-table">
                             <div className="header-post-table">
                                 <h2>Danh sách bài đăng ({total})</h2>
-                                <input
-                                    type="text"
-                                    placeholder="Tìm kiếm bài đăng..."
-                                    className="search-post-admin-input"
-                                    id="search-user"
-                                    value={searchTerm} // Gắn giá trị từ state
-                                    onChange={handleSearchChange} // Gọi hàm xử lý khi thay đổi từ khóa tìm kiếm
+                                <Autocomplete
+                                    freeSolo
+                                    options={Array.isArray(posts) ? posts.map((post) => post.title) : []} // Assuming title is the field to search
+                                    inputValue={searchTerm}
+                                    onInputChange={handleInputChange}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tìm kiếm bài đăng..."
+                                            variant="outlined"
+                                            className="search-post-admin-input"
+                                        />
+                                    )}
+                                    style={{ width: '1500px', borderRadius: '20px', marginLeft: '750px', marginRight: '-750px' }} // Adjust size as needed
                                 />
                                 <select value={selectedType} onChange={handleTypeChange} className="type-select" style={{ width: '11.5%', borderRadius: '20px' }}>
                                     <option value="all">Tất cả</option>
@@ -760,12 +777,23 @@ const News = () => {
                     <div className="user-voucher-table">
                         <div className="header-post-table">
                             <h2>Danh sách voucher ({totalV})</h2>
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm voucher..."
-                                className="search-post-admin-input"
-                                value={voucherSearchTerm}
-                                onChange={handleVoucherSearch}
+                            <Autocomplete
+                                freeSolo
+                                options={Array.isArray(allVouchers) ? allVouchers.map((voucher) => voucher.key) : []} // Assuming 'key' is the field to search
+                                inputValue={voucherSearchTerm}
+                                onInputChange={(event, newInputValue) => {
+                                    setVoucherSearchTerm(newInputValue);
+                                    handleVoucherSearch(newInputValue); // Call your search handler
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        placeholder="Tìm kiếm voucher..."
+                                        variant="outlined"
+                                        className="search-post-admin-input1"
+                                    />
+                                )}
+                                style={{ width: '1000px', borderRadius: '20px', marginLeft: '900px' }} // Adjusted position to the left
                             />
                         </div>
                         <div className="table-wrapper">

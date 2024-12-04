@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './Orders.css';
 import Header from '../../components/Header/Header';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import debounce from 'lodash/debounce';
 
 function Orders() {
     const [shipments, setShipments] = useState([]);
@@ -11,6 +14,7 @@ function Orders() {
     const [selectedStatus, setSelectedStatus] = useState('all'); // Trạng thái đã chọn
     const [refundOrders, setRefundOrders] = useState([]); // Danh sách đơn hàng hoàn tiền
     const [loadingRefunds, setLoadingRefunds] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -94,13 +98,17 @@ function Orders() {
         }
     };
 
-    const fetchShipments = async (page, status = 'all') => {
+    const fetchShipments = async (page, status = 'all', keyword = '') => {
         const token = getCookie('access_token');
         setLoading(true);
     
-        let url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=5`;
-        if (status !== 'all') {
+        let url = '';
+        if (keyword) {
+            url = `http://localhost:1010/api/shipment/search-shipment?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=5`;
+        } else if (status !== 'all') {
             url = `http://localhost:1010/api/shipment/view/listByStatus?page=${page}&limit=5&status=${status}`;
+        } else {
+            url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=5`;
         }
     
         try {
@@ -112,13 +120,13 @@ function Orders() {
                 },
             });
             const data = await response.json();
-            setTotalOrders(data.total);
-            const shipmentsData = data.listShipment || [];
-            const total = data.totalPage || 1;
-    
+            
+            // Handle the response data based on whether it's a search result or normal list
+            const shipmentsData = keyword ? data.listShipment : (data.listShipment || []);
+            setTotalOrders(data.total || shipmentsData.length);
+            
             const updatedShipments = await Promise.all(
                 shipmentsData.map(async (shipment) => {
-                    // Fetch shipper name
                     const shipperName = shipment.shipperId
                         ? await fetchShipperName(shipment.shipperId, token)
                         : 'Unknown';
@@ -139,7 +147,7 @@ function Orders() {
             );
     
             setShipments(updatedShipments);
-            setTotalPages(total);
+            setTotalPages(data.totalPage || 1);
         } catch (error) {
             console.error('Error fetching shipments:', error);
         } finally {
@@ -156,10 +164,9 @@ function Orders() {
     
 
     useEffect(() => {
-        fetchShipments(currentPage, selectedStatus);
+        fetchShipments(currentPage, selectedStatus, searchTerm.trim());
         fetchRefundOrders();
-
-    }, [currentPage, selectedStatus]);
+    }, [currentPage, selectedStatus, searchTerm]);
 
     const getPaginationNumbers = () => {
         let numbers = [];
@@ -272,6 +279,17 @@ function Orders() {
     };
     
 
+    const handleInputChange = debounce((event, newInputValue) => {
+        setSearchTerm(newInputValue);
+        const trimmedValue = newInputValue.trim();
+        if (trimmedValue === '') {
+            // If input is empty, fetch all shipments
+            fetchShipments(currentPage, selectedStatus);
+        } else {
+            // If there's a search term, fetch filtered shipments
+            fetchShipments(currentPage, selectedStatus, trimmedValue);
+        }
+    }, 500);
 
     return (
         <div className="orders-table">
@@ -282,16 +300,25 @@ function Orders() {
                     <div className="orders-box">
                         <div className="header-orders-box">
                             <h2>Danh Sách Đơn Hàng ({totalOrders})</h2>
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm đơn hàng..."
-                                className="search-orders-input"
-                                id="search-orders"
+                            <Autocomplete
+                                freeSolo
+                                options={Array.isArray(shipments) ? shipments.map((shipment) => shipment.customerName) : []}
+                                inputValue={searchTerm}
+                                onInputChange={handleInputChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Tìm kiếm đơn hàng theo tên..."
+                                        variant="outlined"
+                                        className="search-orders-input"
+                                    />
+                                )}
+                                style={{ width: '1000px', borderRadius: '20px', marginLeft: '200px', marginRight: '-1300px' }}
                             />
                             <select
                                 className="type-select"
                                 style={{ width: '200px', borderRadius: '50px' }}
-                                onChange={handleFilterChange} // Kích hoạt lọc khi chọn
+                                onChange={handleFilterChange}
                             >
                                 <option value="all">Tất cả</option>
                                 <option value="WAITING">Chờ xử lý</option>
