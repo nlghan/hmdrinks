@@ -55,7 +55,7 @@ const MyOrderDetail = () => {
         try {
             // Lấy chi tiết shipment
             const shipmentResponse = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/shipment/view/${shipmentId}`,
+                `${import.meta.env.VITE_API_BASE_URL}/shipment/view/order/${shipmentId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -195,9 +195,9 @@ const MyOrderDetail = () => {
                             <p><strong>Địa chỉ giao hàng:</strong> {shipment?.address}</p>
                             <p><strong>Số điện thoại:</strong> {shipment?.phoneNumber}</p>
                             <p><strong>Mã đơn giao:</strong> {shipment?.shipmentId}</p>
-                            <p><strong>Ngày đặt hàng:</strong> {dateDelivered}</p>
+                            <p><strong>Ngày đặt hàng:</strong> {shipment?.dateCreated}</p>
                             <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>
-                            <p><strong>Ngày giao hàng:</strong> {shipment?.dateShipped}</p>
+                            {/* <p><strong>Ngày hủy đơn:</strong> {shipment?.dateCancelled}</p> */}
                             <p><strong>Ghi chú:</strong> {shipment?.notes || 'Không có ghi chú.'}</p>
                             <h2>Thông Tin Thanh Toán</h2>
                             <p><strong>Phương thức thanh toán:</strong> {payment?.paymentMethod}</p>
@@ -218,36 +218,41 @@ const MyOrderDetail = () => {
                             </ul>
 
                             {cancelError && <div className="error-message">{cancelError}</div>}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', gap: '10px' }}>
-                                <select
-                                    id="cancelReason"
-                                    style={{
-                                        width: '100%',
-                                        padding: '10px',
-                                        borderRadius: '4px',
-                                        border: '1px solid #ccc',
-                                        backgroundColor: '#fff',
-                                    }}
-                                    value={cancelReason}  // Đồng bộ giá trị với cancelReason trong state
-                                    onChange={(e) => {
-                                        setCancelReason(e.target.value);  // Cập nhật giá trị khi người dùng chọn lý do
-                                        handleCancelOrder(e.target.value);  // Gọi hàm xử lý hủy đơn khi chọn lý do
-                                    }}
-                                    disabled={cancelReason !== ''} // Vô hiệu hóa dropdown khi lý do đã được chọn
-                                >
-                                    <option value="" disabled>Chọn lý do hủy đơn</option>
-                                    <option value="CHANGED_MY_MIND">Đổi ý không muốn mua nữa</option>
-                                    <option value="FOUND_CHEAPER_ELSEWHERE">Tìm thấy giá rẻ hơn ở nơi khác</option>
-                                    <option value="ORDERED_BY_MISTAKE">Đặt nhầm sản phẩm</option>
-                                    <option value="DELIVERY_TOO_SLOW">Giao hàng quá chậm</option>
-                                    <option value="WRONG_PRODUCT_SELECTED">Chọn nhầm sản phẩm</option>
-                                    <option value="NOT_NEEDED_ANYMORE">Không cần sản phẩm nữa</option>
-                                    <option value="PAYMENT_ISSUES">Gặp vấn đề khi thanh toán</option>
-                                    <option value="PREFER_DIFFERENT_STORE">Thích mua ở cửa hàng khác hơn</option>
-                                    <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
-                                    <option value="OTHER_REASON">Lý do khác</option>
-                                </select>
-                            </div>
+                            {payment?.statusPayment !== 'FAILED' && payment?.statusPayment !== 'REFUND' ? (
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', gap: '10px' }}>
+                                    <select
+                                        id="cancelReason"
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            borderRadius: '4px',
+                                            border: '1px solid #ccc',
+                                            backgroundColor: '#fff',
+                                        }}
+                                        value={cancelReason}
+                                        onChange={(e) => {
+                                            setCancelReason(e.target.value);
+                                            handleCancelOrder(e.target.value);
+                                        }}
+                                        disabled={cancelReason !== ''}
+                                    >
+                                        <option value="" disabled>Chọn lý do hủy đơn</option>
+                                        <option value="CHANGED_MY_MIND">Đổi ý không muốn mua nữa</option>
+                                        <option value="FOUND_CHEAPER_ELSEWHERE">Tìm thấy giá rẻ hơn ở nơi khác</option>
+                                        <option value="ORDERED_BY_MISTAKE">Đặt nhầm sản phẩm</option>
+                                        <option value="DELIVERY_TOO_SLOW">Giao hàng quá chậm</option>
+                                        <option value="WRONG_PRODUCT_SELECTED">Chọn nhầm sản phẩm</option>
+                                        <option value="NOT_NEEDED_ANYMORE">Không cần sản phẩm nữa</option>
+                                        <option value="PAYMENT_ISSUES">Gặp vấn đề khi thanh toán</option>
+                                        <option value="PREFER_DIFFERENT_STORE">Thích mua ở cửa hàng khác hơn</option>
+                                        <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
+                                        <option value="OTHER_REASON">Lý do khác</option>
+                                    </select>
+                                </div>
+                            ) : (
+                                <p style={{ color: 'red', fontWeight: 'bold' }}></p>
+                            )}
+
 
                         </div>
 

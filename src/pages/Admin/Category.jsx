@@ -19,7 +19,7 @@ const Category = () => {
     const [categoryImagePreview, setCategoryImagePreview] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [sortOrder, setSortOrder] = useState('desc'); // Mặc định sắp xếp mới nhất trước
+    const [sortOrder, setSortOrder] = useState('asc'); // Mặc định sắp xếp mới nhất trước
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
@@ -525,14 +525,14 @@ const Category = () => {
                                     )}
                                     style={{ width: '400px', marginRight: '16px' }} // Điều chỉnh kích thước nếu cần
                                 />
-                                <select
+                                {/* <select
                                     value={sortOrder}
                                     onChange={handleSortChange}
                                     className="sort-select"
                                 >
                                     <option value="desc">Sắp xếp theo mới nhất</option>
                                     <option value="asc">Sắp xếp theo cũ nhất</option>
-                                </select>
+                                </select> */}
                             </div>
                         </div>
                         <table>
@@ -544,6 +544,7 @@ const Category = () => {
                                     <th>Trạng thái</th>
                                     <th>Ngày tạo</th>
                                     <th>Ngày cập nhật</th>
+                                    <th>Ngày xóa</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -575,6 +576,12 @@ const Category = () => {
                                             <td>
                                                 {category.dateUpdated
                                                     ? new Date(category.dateUpdated).toLocaleDateString('vi-VN')
+                                                    : ''
+                                                }
+                                            </td>
+                                            <td>
+                                                {category.dateDeleted
+                                                    ? new Date(category.dateDeleted).toLocaleDateString('vi-VN')
                                                     : ''
                                                 }
                                             </td>
