@@ -436,12 +436,16 @@ public class ProductService {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("category not exists");
             }
         }
-        for (Integer id : req.getP()) {
-            Product product = productRepository.findByProIdAndIsDeletedFalse(id);
-            if (product == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
+        if(req.getP() != null && !req.getP().isEmpty())
+        {
+            for (Integer id : req.getP() ) {
+                Product product = productRepository.findByProIdAndIsDeletedFalse(id);
+                if (product == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("product not exists");
+                }
             }
         }
+
         if (req.getO() <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("o must be greater than 0");
         }
