@@ -189,7 +189,7 @@ public class ZaloPayService {
         order.put("amount", total);
         order.put("description", "HMDrinks - Payment for the order #" + transId);
         order.put("bank_code", "");
-        order.put("callback_url", "https://e017-14-186-74-32.ngrok-free.app/payment-online-status/");
+        order.put("callback_url", "https://7853-171-232-181-39.ngrok-free.app/payment-online-status/");
         order.put("embed_data", "{\"redirecturl\":\"http://localhost:5173/payment-online-status\"}");
         order.put("item", "[]");
 

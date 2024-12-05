@@ -238,12 +238,15 @@ public class AdminService {
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Product> productList = productRepository.findByProNameContaining(keyword, pageable);
+
+        // Đếm tổng số sản phẩm
+        int total = (int) productList.getTotalElements();
+
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
-            if(currentProImg != null && !currentProImg.trim().isEmpty())
-            {
+            if (currentProImg != null && !currentProImg.trim().isEmpty()) {
                 String[] imageEntries1 = currentProImg.split(", ");
                 for (String imageEntry : imageEntries1) {
                     String[] parts = imageEntry.split(": ");
@@ -253,7 +256,7 @@ public class AdminService {
                 }
             }
             List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
-                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                    .orElse(Collections.emptyList())
                     .stream()
                     .map(variant -> new CRUDProductVarResponse(
                             variant.getVarId(),
@@ -281,8 +284,9 @@ public class AdminService {
                     variantResponses
             ));
         }
-        return new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList);
+        return new TotalSearchProductResponse(page, productList.getTotalPages(), limit, total, crudProductResponseList);
     }
+
 
     public GetProductVariantFromProductIdResponse getAllProductVariantFromProduct(int id) {
         Product product = productRepository.findByProId(id);
