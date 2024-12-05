@@ -122,11 +122,9 @@ public class VoucherService {
             {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Number must be greater than 0");
             }
-            int totalVoucherUserBefore = 0;
+
             List<UserVoucher> userVoucherList = userVoucherRepository.findByVoucherVoucherId(req.getVoucherId());
-            for(UserVoucher userVoucher : userVoucherList){
-                totalVoucherUserBefore = totalVoucherUserBefore + 1 ;
-            }
+            int totalVoucherUserBefore = userVoucherList.size();
             int currentVoucher = req.getNumber() - totalVoucherUserBefore;
             if(currentVoucher < 0)
             {
@@ -174,11 +172,9 @@ public class VoucherService {
             if(req.getEndDate().isBefore(createPost)){
                 return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("End date must be greater than post creation date");
             }
-            int totalVoucherUserBefore = 0;
+
             List<UserVoucher> userVoucherList = userVoucherRepository.findByVoucherVoucherId(req.getVoucherId());
-            for(UserVoucher userVoucher : userVoucherList){
-                totalVoucherUserBefore = totalVoucherUserBefore + 1 ;
-            }
+            int totalVoucherUserBefore = userVoucherList.size();
             int currentVoucher = req.getNumber() - totalVoucherUserBefore;
             if(currentVoucher < 0)
             {
