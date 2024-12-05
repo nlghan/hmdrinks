@@ -297,13 +297,16 @@ public class ProductService {
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
         Pageable pageable = PageRequest.of(page - 1, limit);
+
+        // Lấy danh sách sản phẩm và tổng số phần tử
         Page<Product> productList = productRepository.findByProNameContainingAndIsDeletedFalse(keyword, pageable);
+        int total = (int) productList.getTotalElements(); // Đếm tổng số sản phẩm
+
         List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
         for (Product product1 : productList) {
             List<ProductImageResponse> productImageResponses = new ArrayList<>();
             String currentProImg = product1.getListProImg();
-            if(currentProImg != null && !currentProImg.trim().isEmpty())
-            {
+            if (currentProImg != null && !currentProImg.trim().isEmpty()) {
                 String[] imageEntries1 = currentProImg.split(", ");
                 for (String imageEntry : imageEntries1) {
                     String[] parts = imageEntry.split(": ");
@@ -312,6 +315,7 @@ public class ProductService {
                     productImageResponses.add(new ProductImageResponse(stt, url));
                 }
             }
+
             List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
                     .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
                     .stream()
@@ -341,7 +345,9 @@ public class ProductService {
                     variantResponses
             ));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new TotalSearchProductResponse(page, productList.getTotalPages(), limit, crudProductResponseList));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new TotalSearchProductResponse(page, productList.getTotalPages(), limit, total, crudProductResponseList));
     }
 
     @Transactional
