@@ -198,6 +198,10 @@ public class ShipmentService {
                         payment.setStatus(Status_Payment.REFUND);
                         payment.setDateRefunded(LocalDateTime.now());
                         payment.setIsRefund(false);
+                        if(payment.getAmount() == 0.0)
+                        {
+                            payment.setIsRefund(true);
+                        }
                         paymentRepository.save(payment);
                         orders.setDateCanceled(LocalDateTime.now());
                         orders.setStatus(Status_Order.CANCELLED);
@@ -226,6 +230,10 @@ public class ShipmentService {
             payment.setStatus(Status_Payment.REFUND);
             payment.setDateRefunded(LocalDateTime.now());
             payment.setIsRefund(false);
+            if(payment.getAmount() == 0.0)
+            {
+                payment.setIsRefund(true);
+            }
             paymentRepository.save(payment);
             Orders orders = payment.getOrder();
             orders.setDateCanceled(LocalDateTime.now());
@@ -308,6 +316,10 @@ public class ShipmentService {
                 payment.setStatus(Status_Payment.REFUND);
                 payment.setDateRefunded(LocalDateTime.now());
                 payment.setIsRefund(false);
+                if(payment.getAmount() == 0.0)
+                {
+                    payment.setIsRefund(true);
+                }
                 paymentRepository.save(payment);
             }
             if (payment.getPaymentMethod() == Payment_Method.CASH
@@ -678,9 +690,8 @@ public class ShipmentService {
         {
 
         }
-        User customer = payment.getOrder().getUser();
+        User customer = order.getUser();
         Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
-        User shipper = shipment.getUser();
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDShipmentResponse(
                 shipment.getShipmentId(),
                 shipment.getUser() != null ? shipment.getUser().getFullName() : null,

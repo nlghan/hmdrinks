@@ -639,7 +639,6 @@ public class OrdersService {
             {
                 continue;
             }
-            Voucher voucher = null;
             CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
                     order.getOrderId(),
                     order.getAddress(),
@@ -657,7 +656,7 @@ public class OrdersService {
                     order.getStatus(),
                     order.getTotalPrice(),
                     order.getUser().getUserId(),
-                    voucher != null ? voucher.getVoucherId() : null
+                    order.getVoucher() != null ? order.getVoucher().getVoucherId() : null
             );
             createOrdersResponses.add(createOrdersResponse);
         }
@@ -671,12 +670,25 @@ public class OrdersService {
         List<CreateOrdersResponse> createOrdersResponses = new ArrayList<>();
         for(Orders order: orders)
         {
-            Payment payment = order.getPayment();
-            if (payment != null && "REFUND".equals(payment.getStatus()))
+            if(order.getStatus() != Status_Order.CANCELLED)
             {
                 continue;
             }
-            Voucher voucher = null;
+
+            Payment payment = order.getPayment();
+            if(payment != null && payment.getStatus() == Status_Payment.REFUND && payment.getPaymentMethod() == Payment_Method.CREDIT)
+            {
+                continue;
+            }
+            if(payment != null)
+            {
+                Shippment shippment = payment.getShipment();
+                if(shippment != null && shippment.getStatus() == Status_Shipment.SUCCESS)
+                {
+                    continue;
+                }
+            }
+
             CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
                     order.getOrderId(),
                     order.getAddress(),
@@ -694,7 +706,7 @@ public class OrdersService {
                     order.getStatus(),
                     order.getTotalPrice(),
                     order.getUser().getUserId(),
-                    voucher != null ? voucher.getVoucherId() : null
+                    order.getVoucher() != null ? order.getVoucher().getVoucherId() : null
             );
             createOrdersResponses.add(createOrdersResponse);
         }
@@ -736,7 +748,7 @@ public class OrdersService {
                     order.getStatus(),
                     order.getTotalPrice(),
                     order.getUser().getUserId(),
-                    voucher != null ? voucher.getVoucherId() : null
+                    order.getVoucher() != null ? order.getVoucher().getVoucherId() : null
             );
 
             CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
@@ -773,7 +785,6 @@ public class OrdersService {
             {
                 continue;
             }
-            Voucher voucher = null;
             CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
                     order.getOrderId(),
                     order.getAddress(),
@@ -791,7 +802,7 @@ public class OrdersService {
                     order.getStatus(),
                     order.getTotalPrice(),
                     order.getUser().getUserId(),
-                    voucher != null ? voucher.getVoucherId() : null
+                    order.getVoucher() != null ? order.getVoucher().getVoucherId() : null
             );
 
             CRUDPaymentResponse crudPaymentResponse = new CRUDPaymentResponse(
@@ -869,7 +880,7 @@ public class OrdersService {
                     shipment.getPayment().getPaymentId(),
                     shipper != null ? shipper.getUserId() : null,
                     customer.getFullName(),
-                    customer.getStreet() + ", " + customer.getWard() + ", " + customer.getDistrict() + ", " + customer.getCity(),
+                    order.getAddress(),
                     customer.getPhoneNumber(),
                     customer.getEmail(),
                     order.getOrderId()
@@ -964,7 +975,14 @@ public class OrdersService {
             {
                 payment.setStatus(Status_Payment.REFUND);
                 payment.setDateRefunded(LocalDateTime.now());
-                payment.setIsRefund(false);
+                if(payment.getAmount() == 0.0)
+                {
+                    payment.setIsRefund(true);
+                }
+                else
+                {
+                    payment.setIsRefund(false);
+                }
                 paymentRepository.save(payment);
             }
             if (payment.getPaymentMethod() == Payment_Method.CASH) {
