@@ -399,7 +399,6 @@ function Orders() {
     return (
         <div className="orders-table">
             <Header title="Đơn Hàng" />
-
             <div className="orders-table-row">
                 <div className="orders-main-section">
                     <div className="orders-box">
@@ -475,12 +474,13 @@ function Orders() {
                                                 <select
                                                     id='select-status'
                                                     value={shipment.status}
-                                                    onChange={(e) =>
-                                                        handleStatusChange(
-                                                            shipment.shipmentId,
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    disabled
+                                                    // onChange={(e) =>
+                                                    //     handleStatusChange(
+                                                    //         shipment.shipmentId,
+                                                    //         e.target.value
+                                                    //     )
+                                                    // }
                                                     style={{
 
                                                         backgroundColor: getSelectBackgroundColor(

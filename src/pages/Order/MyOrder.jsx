@@ -532,7 +532,7 @@ const MyOrder = () => {
                                                 <button
                                                     className="btn-view-details-ship"
                                                     onClick={() =>
-                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                        navigate(`/my-order-detail/${order.orderId}`, {
                                                             state: { dateDelivered: order.dateOders },
                                                         })
                                                     }
@@ -605,16 +605,16 @@ const MyOrder = () => {
                                                     style={{ background: 'rgb(194 229 182)' }}
                                                 >
                                                     <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                                    {/* <button
+                                                    <button
                                                         className="btn-view-details-ship"
                                                         onClick={() =>
-                                                            navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                            navigate(`/my-order-detail/${order.orderId}`, {
                                                                 state: { dateDelivered: order.dateOders },
                                                             })
                                                         }
                                                     >
                                                         Chi tiết
-                                                    </button> */}
+                                                    </button>
                                                 </div>
                                                 <div className="my-orders-item-content">
                                                     <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
@@ -678,7 +678,16 @@ const MyOrder = () => {
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-
+                                            <button
+                                                        className="btn-view-details-ship"
+                                                        onClick={() =>
+                                                            navigate(`/my-order-detail/${order.orderId}`, {
+                                                                state: { dateDelivered: order.dateOders },
+                                                            })
+                                                        }
+                                                    >
+                                                        Chi tiết
+                                                    </button>
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
@@ -780,7 +789,7 @@ const MyOrder = () => {
                                         <li key={refund.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#f3d2f1' }}>
                                                 <p><strong>Mã đơn hàng:</strong> {refund.orderId}</p>
-                                                {/* <button
+                                                <button
                                                     className="btn-view-details-ship"
                                                     onClick={() =>
                                                         navigate(`/my-order-detail/${refund.orderId}`, {
@@ -789,7 +798,7 @@ const MyOrder = () => {
                                                     }
                                                 >
                                                     Chi tiết
-                                                </button> */}
+                                                </button>
                                             </div>
                                             <div className="my-refunds-item-content">
                                                 <p><strong>Địa chỉ:&nbsp;</strong> {refund.address}</p>
@@ -798,7 +807,7 @@ const MyOrder = () => {
                                                 <p><strong>Số tiền đã thanh toán (gồm ship):&nbsp;</strong> {formatPrice(refund.payment?.amount)} VND</p>
                                                 <p><strong>Phương thức thanh toán:&nbsp;</strong> {refund.payment?.paymentMethod}</p>
                                                 <p><strong>Trạng thái hoàn tiền:&nbsp; </strong> {refund.payment?.refunded}</p>
-                                                <p><strong>Ngày hoàn tiền:&nbsp;</strong> {refund.payment?.dateRefund}</p>
+                                                {/* <p><strong>Ngày hoàn tiền:&nbsp;</strong> {refund.payment?.dateRefund}</p> */}
                                             </div>
 
                                         </li>
