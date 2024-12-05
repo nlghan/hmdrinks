@@ -90,7 +90,7 @@ const Contact = () => {
       }
     }
   };
-  
+
 
   // Thêm refs
   const contactInfoRef = useRef(null);
@@ -140,8 +140,8 @@ const Contact = () => {
             <div className="contact-success-icon">
               <div className="contact-success-icon-circle">
                 <svg className="contact-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                  <circle className="contact-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                  <path className="contact-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  <circle className="contact-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                  <path className="contact-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                 </svg>
               </div>
             </div>
@@ -151,22 +151,22 @@ const Contact = () => {
         </div>
       )}
       {showLoginPrompt && (
-                <div className="login-modal">
-                  <div className="login-modal-content">
-                    <p>Bạn cần đăng nhập để liên hệ với chúng tôi.</p>
-                    <a href="/login">Đăng nhập</a>
-                    <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
-                  </div>
-                </div>
-              )}
+        <div className="login-modal">
+          <div className="login-modal-content">
+            <p>Bạn cần đăng nhập để liên hệ với chúng tôi.</p>
+            <a href="/login">Đăng nhập</a>
+            <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+          </div>
+        </div>
+      )}
       {showError && (
         <div className="contact-error-animation">
           <div className="contact-error-modal">
             <div className="contact-error-icon">
               <div className="error-icon-circle">
                 <svg className="contact-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                  <circle className="contact-cross-circle" cx="26" cy="26" r="25" fill="none"/>
-                  <path className="contact-cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36"/>
+                  <circle className="contact-cross-circle" cx="26" cy="26" r="25" fill="none" />
+                  <path className="contact-cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
                 </svg>
               </div>
             </div>
@@ -186,12 +186,13 @@ const Contact = () => {
           </div>
         </div>
       )}
+
       <div className="contact-main">
-        
+
         <div className="contact-section">
-          
+
           <div className="contact-info" ref={contactInfoRef}>
-            
+
             <h2>Thông Tin Liên Hệ</h2>
             <div className="contact-info-item" ref={el => contactItemRefs.current[0] = el}>
               <i className="ti-mobile"></i>
@@ -277,8 +278,9 @@ const Contact = () => {
               </div>
               <button type="submit" className="contact-submit-btn1" ref={el => formGroupRefs.current[4] = el} >Gửi Ngay</button>
 
-              
+
             </form>
+
           </div>
         </div>
       </div>

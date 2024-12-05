@@ -168,24 +168,31 @@ const Category = () => {
                 return;
             }
 
-            // Find the category in the current categories state
+            // Tìm category trong state hiện tại
             const categoryToUpdate = categories.find(category => category.cateId === cateId);
             if (!categoryToUpdate) {
                 console.error("No category found with the given cateId:", cateId);
                 return;
             }
 
-            // Determine the correct API endpoint based on isDeleted status
+            // Cập nhật UI ngay lập tức
+            setCategories(prevCategories =>
+                prevCategories.map(category =>
+                    category.cateId === cateId
+                        ? { ...category, isDeleted: !category.isDeleted }
+                        : category
+                )
+            );
+
+            // Xác định endpoint dựa trên trạng thái mới
             const apiUrl = categoryToUpdate.isDeleted
                 ? `${import.meta.env.VITE_API_BASE_URL}/cate/enable`
                 : `${import.meta.env.VITE_API_BASE_URL}/cate/disable`;
 
-            const newIsDeletedStatus = !categoryToUpdate.isDeleted;
-
-            // Send the request to enable or disable the category
+            // Gọi API
             const response = await axios.put(
                 apiUrl,
-                { id: cateId }, // Send the cateId in the request body
+                { id: cateId },
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -194,29 +201,28 @@ const Category = () => {
                 }
             );
 
-            // If the API call is successful, update the local state
-            if (response.status === 200) {
-                setCategories((prevCategories) =>
-                    prevCategories.map((category) =>
+            // Nếu API call thất bại, hoàn tác thay đổi UI
+            if (response.status !== 200) {
+                setCategories(prevCategories =>
+                    prevCategories.map(category =>
                         category.cateId === cateId
-                            ? {
-                                ...category,
-                                isDeleted: newIsDeletedStatus,
-                                // Optionally, you can add a dateDeleted field if needed
-                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
-                            }
+                            ? { ...category, isDeleted: categoryToUpdate.isDeleted }
                             : category
                     )
                 );
-                console.log(
-                    `Category with ID ${cateId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
-                );
-                fetchCategories(currentPage);
-            } else {
                 setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
             }
+
         } catch (error) {
             console.error("Error changing category status:", error);
+            // Hoàn tác thay đổi UI nếu có lỗi
+            setCategories(prevCategories =>
+                prevCategories.map(category =>
+                    category.cateId === cateId
+                        ? { ...category, isDeleted: !category.isDeleted }
+                        : category
+                )
+            );
             setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
         }
     };

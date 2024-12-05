@@ -293,3 +293,16 @@
     text-align: center; /* Căn giữa chữ */
 }
 
+.table-container {
+    max-height: 650px;
+    overflow-y: auto;
+}
+
+/* Để giữ header cố định khi cuộn */
+.table-container table thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+

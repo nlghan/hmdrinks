@@ -63,6 +63,8 @@ const Product = () => {
     const [priceHistory, setPriceHistory] = useState({ oldPrice: null, newPrice: null }); // State để lưu giá lịch sử
     const [showPriceHistoryModal, setShowPriceHistoryModal] = useState(false); // State để kiểm soát hiển thị modal
 
+    const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
@@ -247,7 +249,7 @@ const Product = () => {
                     const images = await fetchProductImages(product.proId);
 
                     console.log("Fetched variants for product:", product.proId, variants);  // Log biến thể của sản phẩm
-                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản ph��m
+                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản phm
 
                     return { ...product, variants, images };
                 }));
@@ -389,21 +391,32 @@ const Product = () => {
                 return;
             }
 
-            // Find the product in the current products state
             const productToUpdate = products.find(product => product.proId === productId);
             if (!productToUpdate) {
                 console.error("No product found with the given productId:", productId);
                 return;
             }
 
-            // Determine the correct API endpoint based on isDeleted status
-            const apiUrl = productToUpdate.deleted
-                ? `${import.meta.env.VITE_API_BASE_URL}/product/enable`
-                : `${import.meta.env.VITE_API_BASE_URL}/product/disable`;
-
             const newIsDeletedStatus = !productToUpdate.deleted;
 
-            // Send the request to enable or disable the product
+            // Cập nhật UI ngay lập tức
+            setProducts((prevProducts) =>
+                prevProducts.map((product) =>
+                    product.proId === productId
+                        ? {
+                            ...product,
+                            deleted: newIsDeletedStatus,
+                            dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                        }
+                        : product
+                )
+            );
+
+            // Sau đó mới gọi API
+            const apiUrl = newIsDeletedStatus
+                ? `${import.meta.env.VITE_API_BASE_URL}/product/disable`
+                : `${import.meta.env.VITE_API_BASE_URL}/product/enable`;
+
             const response = await axios.put(
                 apiUrl,
                 { id: productId },
@@ -415,29 +428,25 @@ const Product = () => {
                 }
             );
 
-            // If the API call is successful, update the local state
-            if (response.status === 200) {
+            // Nếu API thất bại thì rollback state
+            if (response.status !== 200) {
+                setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+                // Rollback state
                 setProducts((prevProducts) =>
                     prevProducts.map((product) =>
                         product.proId === productId
                             ? {
                                 ...product,
-                                deleted: newIsDeletedStatus,
-                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                                deleted: !newIsDeletedStatus,
+                                dateDeleted: !newIsDeletedStatus ? new Date().toISOString() : null,
                             }
                             : product
                     )
                 );
-                console.log(
-                    `Product with ID ${productId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
-                );
-                fetchProducts();
-            } else {
-                setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
             }
         } catch (error) {
             console.error("Error changing product status:", error);
-            setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+
         }
     };
 
@@ -461,9 +470,20 @@ const Product = () => {
     };
 
     // Hàm để xử lý khi người dùng hover vào biến thể
-    const handleVariantHover = (variant) => {
+    const handleVariantHover = (variant, event) => {
         setSelectedVariant(variant); // Lưu biến thể được chọn
         fetchPriceHistory(variant.varId); // Gọi API để lấy giá lịch sử
+
+        // Lấy vị trí của phần tử size
+        const sizeElement = event.currentTarget.querySelector('.size');
+        const rect = sizeElement.getBoundingClientRect();
+
+        // Cập nhật vị trí của modal
+        setModalPosition({
+            top: rect.top + window.scrollY,
+            left: rect.left + window.scrollX + rect.width
+        });
+
         setShowPriceHistoryModal(true); // Hiển thị modal
     };
 
@@ -647,11 +667,11 @@ const Product = () => {
 
                                             <td>
                                                 {product.variants && product.variants.length > 0 ? (
-                                                    <ul>
+                                                    <ul >
                                                         {product.variants.map(variant => (
                                                             <li 
                                                                 key={variant.varId} 
-                                                                onMouseEnter={() => handleVariantHover(variant)} // Hiển thị modal khi hover
+                                                                onMouseEnter={(event) => handleVariantHover(variant, event)} // Pass event to get position
                                                                 onMouseLeave={handleMouseLeave} // Ẩn modal khi không hover
                                                             >
                                                                 <span className="size">{variant.size}</span>
@@ -730,19 +750,26 @@ const Product = () => {
 
                 {/* Hiển thị form nhỏ khi có biến thể được chọn */}
                 {showPriceHistoryModal && selectedVariant && (
-                <div className="price-history-modal" style={{ position: 'absolute', right: '600px', top: '10px', zIndex: 1000}}>
-                     <h4>Bảng giá cập nhật cho size {selectedVariant.size}</h4>
-                    {priceHistory.oldPrice === null && priceHistory.newPrice === null ? (
-                        <p>Chưa có cập nhật giá</p> // Hiển thị thông báo nếu cả giá cũ và giá mới đều là null
-                    ) : (
-                        <>
-                            <p>Giá cũ: {priceHistory.oldPrice !== null ? `${priceHistory.oldPrice} VND` : 'Không có dữ liệu'}</p>
-                            <p>Giá mới: {priceHistory.newPrice !== null ? `${priceHistory.newPrice} VND` : 'Không có dữ liệu'}</p>
-                        </>
-                    )}
-                    {/* <button onClick={() => setShowPriceHistoryModal(false)}>Đóng</button> */}
-                </div>
-            )}
+                    <div 
+                        className="price-history-modal" 
+                        style={{ 
+                            position: 'absolute', 
+                            top: `${modalPosition.top}px`, 
+                            left: `${modalPosition.left}px`, 
+                            zIndex: 1000 
+                        }}
+                    >
+                        <h4>Bảng giá cập nhật cho size {selectedVariant.size}</h4>
+                        {priceHistory.oldPrice === null && priceHistory.newPrice === null ? (
+                            <p>Chưa có cập nhật giá</p>
+                        ) : (
+                            <>
+                                <p>Giá cũ: {priceHistory.oldPrice !== null ? `${priceHistory.oldPrice} VND` : 'Không có dữ liệu'}</p>
+                                <p>Giá mới: {priceHistory.newPrice !== null ? `${priceHistory.newPrice} VND` : 'Không có dữ liệu'}</p>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
