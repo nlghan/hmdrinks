@@ -14,7 +14,7 @@ const Cart = () => {
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-
+    const [showErrorOutStock, setShowErrorOutStock] = useState(false);
 
 
     const handleNoteChange = (event) => {
@@ -175,16 +175,18 @@ const Cart = () => {
         const hasOutOfStockItems = groupedItems.some(group =>
             group.items.some(item => item.quantity === 0)
         );
-    
+
         if (hasOutOfStockItems) {
-            // Hiển thị thông báo yêu cầu xóa sản phẩm có số lượng 0
-            alert("Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.");
+            setShowErrorOutStock(true);
+            setTimeout(() => {
+                setShowErrorOutStock(false);
+            }, 2000);
         } else {
             handleCheckout();
             setIsLoading(true)
         }
     };
-    
+
 
     const handleQuantityChange = (itemId, newQuantity) => {
         if (newQuantity > 0) {
@@ -462,6 +464,22 @@ const Cart = () => {
                                 </div>
                             </div>
                         )}
+                        {showErrorOutStock && (
+                            <div className="error-animation">
+                                <div className="error-modal">
+                                    <div className="error-icon">
+                                        <div className="error-icon-circle">
+                                            <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                                <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.!</h3>                                
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </div>
             </div>

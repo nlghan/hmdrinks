@@ -778,7 +778,10 @@ export const CartProvider = ({ children }) => {
 
             if (quantityToAdd === 0) {
                 console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
-                alert(`Không thể nhập số lượng là 0!`);
+                setShowErrorValue(true);
+                setTimeout(() => {
+                    setShowErrorValue(false);
+                }, 2000);
 
                 // Khôi phục số lượng cũ
                 setCartItems(prevItems =>

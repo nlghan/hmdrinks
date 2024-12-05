@@ -68,7 +68,7 @@ const Analytics = () => {
             <Header isMenuOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} title="Analytics" />
             <div className="analytics-row1">
                 <GaugeCard
-                    percentage={percentages[0]} // Phần trăm cho trạng thái WAITING
+                    percentage={percentages[0].toFixed(1)} // Phần trăm cho trạng thái WAITING
                     width='280px'
                     height='180px'
                     data="⏳ĐANG CHỜ"
@@ -77,7 +77,7 @@ const Analytics = () => {
                     backgroundColor="#FFF5E6" // Light Pastel Orange
                 />
                 <GaugeCard
-                    percentage={percentages[1]} // Phần trăm cho trạng thái SHIPPING
+                    percentage={percentages[1].toFixed(1)} // Phần trăm cho trạng thái SHIPPING
                     width='280px'
                     height='180px'
                     data="🚚 ĐANG GIAO"
@@ -86,7 +86,7 @@ const Analytics = () => {
                     backgroundColor="#E6F7FF" // Light Pastel Blue
                 />
                 <GaugeCard
-                    percentage={percentages[2]} // Phần trăm cho trạng thái SUCCESS
+                    percentage={percentages[2].toFixed(1)} // Phần trăm cho trạng thái SUCCESS
                     width='280px'
                     height='180px'
                     data="✅ ĐÃ GIAO"
@@ -95,7 +95,7 @@ const Analytics = () => {
                     backgroundColor="#F0FFF0" // Light Pastel Green
                 />
                 <GaugeCard
-                    percentage={percentages[3]} // Phần trăm cho trạng thái CANCELLED
+                    percentage={percentages[3].toFixed(1)} // Phần trăm cho trạng thái CANCELLED
                     width='280px'
                     height='180px'
                     data="❌ HỦY ĐƠN"
