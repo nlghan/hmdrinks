@@ -385,11 +385,13 @@ button[type="submit"] {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .contact-success-modal {
@@ -399,6 +401,9 @@ button[type="submit"] {
   text-align: center;
   animation: modalSlideIn 0.5s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
 }
 
 .contact-success-modal h3 {
@@ -459,11 +464,11 @@ button[type="submit"] {
 @keyframes modalSlideIn {
   0% {
     opacity: 0;
-    transform: translateY(-60px);
+    transform: translate(-50%, -60%);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
 }
 
@@ -480,11 +485,13 @@ button[type="submit"] {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .contact-error-modal {
@@ -494,6 +501,9 @@ button[type="submit"] {
   text-align: center;
   animation: modalSlideIn 0.5s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
 }
 
 .contact-error-modal h3 {
@@ -572,11 +582,13 @@ button[type="submit"] {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .contact-loading-modal {
@@ -586,6 +598,9 @@ button[type="submit"] {
   text-align: center;
   animation: modalSlideIn 0.5s ease-out;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
 }
 
 .contact-loading-modal h3 {

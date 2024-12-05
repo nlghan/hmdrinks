@@ -247,7 +247,7 @@ const Product = () => {
                     const images = await fetchProductImages(product.proId);
 
                     console.log("Fetched variants for product:", product.proId, variants);  // Log biến thể của sản phẩm
-                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản ph��m
+                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản phm
 
                     return { ...product, variants, images };
                 }));
@@ -389,21 +389,32 @@ const Product = () => {
                 return;
             }
 
-            // Find the product in the current products state
             const productToUpdate = products.find(product => product.proId === productId);
             if (!productToUpdate) {
                 console.error("No product found with the given productId:", productId);
                 return;
             }
 
-            // Determine the correct API endpoint based on isDeleted status
-            const apiUrl = productToUpdate.deleted
-                ? `${import.meta.env.VITE_API_BASE_URL}/product/enable`
-                : `${import.meta.env.VITE_API_BASE_URL}/product/disable`;
-
             const newIsDeletedStatus = !productToUpdate.deleted;
 
-            // Send the request to enable or disable the product
+            // Cập nhật UI ngay lập tức
+            setProducts((prevProducts) =>
+                prevProducts.map((product) =>
+                    product.proId === productId
+                        ? {
+                            ...product,
+                            deleted: newIsDeletedStatus,
+                            dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                        }
+                        : product
+                )
+            );
+
+            // Sau đó mới gọi API
+            const apiUrl = newIsDeletedStatus
+                ? `${import.meta.env.VITE_API_BASE_URL}/product/disable`
+                : `${import.meta.env.VITE_API_BASE_URL}/product/enable`;
+
             const response = await axios.put(
                 apiUrl,
                 { id: productId },
@@ -415,29 +426,25 @@ const Product = () => {
                 }
             );
 
-            // If the API call is successful, update the local state
-            if (response.status === 200) {
+            // Nếu API thất bại thì rollback state
+            if (response.status !== 200) {
+                setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+                // Rollback state
                 setProducts((prevProducts) =>
                     prevProducts.map((product) =>
                         product.proId === productId
                             ? {
                                 ...product,
-                                deleted: newIsDeletedStatus,
-                                dateDeleted: newIsDeletedStatus ? new Date().toISOString() : null,
+                                deleted: !newIsDeletedStatus,
+                                dateDeleted: !newIsDeletedStatus ? new Date().toISOString() : null,
                             }
                             : product
                     )
                 );
-                console.log(
-                    `Product with ID ${productId} is now ${newIsDeletedStatus ? 'disabled' : 'enabled'}.`
-                );
-                fetchProducts();
-            } else {
-                setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
             }
         } catch (error) {
             console.error("Error changing product status:", error);
-            setError("Không thể thay đổi trạng thái sản phẩm. Vui lòng thử lại.");
+
         }
     };
 

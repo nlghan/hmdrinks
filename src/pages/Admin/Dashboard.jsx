@@ -202,44 +202,46 @@ const Dashboard = () => {
 
                     <div className="orders-box-dash">
                         <h2>Đơn Hàng Gần Đây</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Số thứ tự</th>
-                                    <th>Tên Khách Hàng</th>
-                                    <th>Số Điện Thoại</th>
-                                    <th>Trạng Thái</th>
-                                    <th>Ngày Đặt</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {shipments.length > 0 ? (
-                                    shipments
-                                        .sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
-                                        .map((shipment, index) => (
-                                            <tr key={shipment.shipmentId}>
-                                                <td>{index + 1}</td>
-                                                <td>{shipment.customerName}</td>
-                                                <td>{shipment.phoneNumber}</td>
-                                                <td className={`dash-status-${shipment.status.toLowerCase()}`}>
-                                                    {shipment.status === 'WAITING' ? 'Đang chờ' :
-                                                        shipment.status === 'SHIPPING' ? 'Đang giao' :
-                                                            shipment.status === 'SUCCESS' ? 'Thành công' :
-                                                                shipment.status === 'CANCELLED' ? 'Thất bại' :
-                                                                    shipment.status}
-                                                </td>
-                                                <td>{shipment.dateCreated}</td>
-                                            </tr>
-                                        ))
-                                ) : (
+                        <div className="table-container">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td colSpan="5" style={{ textAlign: 'center' }}>
-                                            Không có đơn hàng nào.
-                                        </td>
+                                        <th>Số thứ tự</th>
+                                        <th>Tên Khách Hàng</th>
+                                        <th>Số Điện Thoại</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Ngày Đặt</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {shipments.length > 0 ? (
+                                        shipments
+                                            .sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
+                                            .map((shipment, index) => (
+                                                <tr key={shipment.shipmentId}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{shipment.customerName}</td>
+                                                    <td>{shipment.phoneNumber}</td>
+                                                    <td className={`dash-status-${shipment.status.toLowerCase()}`}>
+                                                        {shipment.status === 'WAITING' ? 'Đang chờ' :
+                                                            shipment.status === 'SHIPPING' ? 'Đang giao' :
+                                                                shipment.status === 'SUCCESS' ? 'Thành công' :
+                                                                    shipment.status === 'CANCELLED' ? 'Thất bại' :
+                                                                        shipment.status}
+                                                    </td>
+                                                    <td>{shipment.dateCreated}</td>
+                                                </tr>
+                                            ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" style={{ textAlign: 'center' }}>
+                                                Không có đơn hàng nào.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

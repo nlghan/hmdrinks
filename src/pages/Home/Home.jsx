@@ -162,7 +162,7 @@ const Home = () => {
 
     const handleViewMore = () => {
         navigate('/post', { replace: true }); // Điều hướng mà không lưu lịch sử vị trí
-    };    
+    };
 
     const handlePrevBanner = () => {
         setCurrentBannerIndex((prevIndex) => (prevIndex - 1 + banners.length) % banners.length);
@@ -435,6 +435,7 @@ const Home = () => {
                 </div>
 
                 <div className="contact-form" ref={contactFormRef}>
+
                     <h2 id='contact-home'>Góp Ý Của Bạn</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="contact-form-group" ref={el => formGroupRefs.current[0] = el}>
@@ -484,6 +485,58 @@ const Home = () => {
 
 
                     </form>
+                    {showSuccess && (
+                        <div className="contact-success-animation">
+                            <div className="contact-success-modal">
+                                <div className="contact-success-icon">
+                                    <div className="contact-success-icon-circle">
+                                        <svg className="contact-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="contact-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="contact-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3>Gửi thành công!</h3>
+                                <p>Chúng tôi sẽ liên hệ với bạn sớm nhất có thể.</p>
+                            </div>
+                        </div>
+                    )}
+                    {showLoginPrompt && (
+                        <div className="login-modal">
+                            <div className="login-modal-content">
+                                <p>Bạn cần đăng nhập để liên hệ với chúng tôi.</p>
+                                <a href="/login">Đăng nhập</a>
+                                <button onClick={() => setShowLoginPrompt(false)}>Đóng</button>
+                            </div>
+                        </div>
+                    )}
+                    {showError && (
+                        <div className="contact-error-animation">
+                            <div className="contact-error-modal">
+                                <div className="contact-error-icon">
+                                    <div className="error-icon-circle">
+                                        <svg className="contact-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="contact-cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="contact-cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3>Gửi thất bại!</h3>
+                                <p>Có lỗi xảy ra, vui lòng thử lại.</p>
+                            </div>
+                        </div>
+                    )}
+                    {isLoading && (
+                        <div className="contact-loading-animation">
+                            <div className="contact-loading-modal">
+                                <div className="contact-loading-spinner">
+                                    <div className="contact-spinner"></div>
+                                </div>
+                                <h3>Đang xử lý...</h3>
+                                <p>Vui lòng đợi trong giây lát</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
 
