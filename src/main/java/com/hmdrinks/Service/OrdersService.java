@@ -94,7 +94,7 @@ public class OrdersService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found cart");
         }
 
-        if (cart.getStatus() != Status_Cart.NEW) {
+        if (cart.getStatus() == Status_Cart.COMPLETED) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Not allowed to add order");
         }
 
@@ -1158,5 +1158,61 @@ public class OrdersService {
         orders.setStatus(Status_Order.CONFIRMED);
         orderRepository.save(orders);
         return ResponseEntity.ok("Success");
+    }
+
+    @Transactional
+    public ResponseEntity<?> restoreOrder(int orderId) {
+        Orders orders = orderRepository.findByOrderIdAndIsDeletedFalse(orderId);
+        if (orders == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Cart cart_restore = cartRepository.findByUserUserIdAndStatus(orders.getUser().getUserId(),Status_Cart.RESTORE);
+        if(cart_restore != null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Restore already exists");
+        }
+        Cart cart = orders.getOrderItem().getCart();
+        Cart newCart = new Cart();
+        User user = orders.getUser();
+        newCart.setTotalPrice(0);
+        newCart.setTotalProduct(0);
+        newCart.setStatus(Status_Cart.RESTORE);
+        newCart.setUser(cart.getUser());
+        cartRepository.save(newCart);
+        List<CartItem> cartItems = cart.getCartItems();
+        double price = 0.0;
+        int quantity = 0;
+        for (CartItem cartItem : cartItems) {
+            CartItem newCartItem = new CartItem();
+            newCartItem.setQuantity(cartItem.getQuantity());
+            newCartItem.setIsDeleted(false);
+            newCartItem.setProductVariants(cartItem.getProductVariants());
+            newCartItem.setCart(newCart);
+            newCartItem.setTotalPrice(newCartItem.getQuantity() * newCartItem.getProductVariants().getPrice());
+            cartItemRepository.save(newCartItem);
+            if (newCartItem.getProductVariants().getStock() == 0) {
+                newCartItem.setQuantity(0);
+                newCartItem.setTotalPrice(0);
+                cartItemRepository.save(newCartItem);
+            }
+            if (newCartItem.getProductVariants().getStock() < newCartItem.getQuantity()) {
+                newCartItem.setQuantity(1);
+                newCartItem.setTotalPrice(newCartItem.getQuantity() * newCartItem.getProductVariants().getPrice());
+                cartItemRepository.save(newCartItem);
+            }
+            quantity += newCartItem.getQuantity();
+            price += newCartItem.getQuantity() * newCartItem.getProductVariants().getPrice();
+        }
+        newCart.setTotalPrice(price);
+        newCart.setTotalProduct(quantity);
+        cartRepository.save(newCart);
+
+        return ResponseEntity.ok(new CreateNewCartResponse(
+                newCart.getCartId(),
+                newCart.getTotalPrice(),
+                newCart.getTotalProduct(),
+                newCart.getUser().getUserId(),
+                newCart.getStatus()
+        ));
     }
 }

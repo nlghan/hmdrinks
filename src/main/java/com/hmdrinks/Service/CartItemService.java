@@ -306,12 +306,21 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
+        cartRepository.save(cart);
+        if(cart.getTotalProduct() == 0 && cart.getStatus() == Status_Cart.RESTORE)
+        {
+            cart.setTotalProduct(0);
+            cart.setTotalPrice(0);
+            cart.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
                 Present_Quantity,
                 Present_TotalPrice
         ));
     }
 
+    @Transactional
     public ResponseEntity<?> deleteOneItem(DeleteOneCartItemReq req)
     {
         CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
@@ -332,6 +341,13 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
+        if(cart.getTotalProduct() == 0 && cart.getStatus() == Status_Cart.RESTORE)
+        {
+            cart.setTotalProduct(0);
+            cart.setTotalPrice(0);
+            cart.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(new DeleteCartItemResponse(
                 "Delete item success"
         ));
@@ -339,6 +355,21 @@ public class CartItemService {
 
     public ResponseEntity<?> deleteAllCartItem(DeleteAllCartItemReq req)
     {
+        Cart cart_restore = cartRepository.findByUserUserIdAndStatus(req.getCartId(), Status_Cart.RESTORE);
+        if(cart_restore != null)
+        {
+            List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(req.getCartId());
+            for(CartItem cartItem2: cartItemList)
+            {
+                cartItemRepository.delete(cartItem2);
+            }
+            cart_restore.setTotalProduct(0);
+            cart_restore.setTotalPrice(0);
+            cart_restore.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart_restore);
+        }
+
+        ///
         Cart cart = cartRepository.findByCartIdAndStatus(req.getCartId(),Status_Cart.NEW);
         if(cart == null)
         {

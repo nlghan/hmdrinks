@@ -42,6 +42,15 @@ public class OrdersController {
         return ResponseEntity.ok(ordersService.addOrder(req));
     }
 
+    @PostMapping(value = "/restore")
+    public ResponseEntity<?> restoreOrder(@RequestBody ConfirmCancelOrderReq  req,HttpServletRequest httpRequest) {
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+        return ordersService.restoreOrder(req.getOrderId());
+    }
+
     @PostMapping(value = "/confirm")
     public ResponseEntity<?> createVoucher1(@RequestBody ConfirmCancelOrderReq req,HttpServletRequest httpRequest){
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
