@@ -492,25 +492,22 @@ public class OrdersService {
     }
 
     @Transactional
-    public ResponseEntity<?> listHistoryOrder(int userId){
+    public ResponseEntity<?> listHistoryOrder(int userId) {
         User user = userRepository.findByUserIdAndIsDeletedFalse(userId);
-        if(user == null)
-        {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
+
         List<Orders> orders = orderRepository.findAllByUserUserId(userId);
         List<HistoryOrderResponse> historyOrderResponses = new ArrayList<>();
         Voucher voucher = null;
-        for(Orders order: orders)
-        {
-            if(order.getStatus() == Status_Order.CONFIRMED)
-            {
+
+        for (Orders order : orders) {
+            if (order.getStatus() == Status_Order.CONFIRMED) {
                 Payment payment = order.getPayment();
-                if(payment != null)
-                {
+                if (payment != null) {
                     Shippment shipment = shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId());
-                    if(shipment != null && shipment.getStatus() == Status_Shipment.SUCCESS)
-                    {
+                    if (shipment != null && shipment.getStatus() == Status_Shipment.SUCCESS) {
                         CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
                                 order.getOrderId(),
                                 order.getAddress(),
@@ -551,14 +548,24 @@ public class OrdersService {
                                 customer.getEmail(),
                                 order.getOrderId()
                         );
-                        historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse,crudShipmentResponse));
+                        historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse, crudShipmentResponse));
                     }
                 }
             }
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ListAllHistoryOrderResponse(userId,historyOrderResponses.size(),historyOrderResponses));
+        historyOrderResponses.sort((h1, h2) -> {
+            if (h1.getShipment().getDateShipped() != null && h2.getShipment().getDateShipped() != null) {
+                return h2.getShipment().getDateShipped().compareTo(h1.getShipment().getDateShipped());
+            }
+
+            return h2.getOrder().getDateCreated().compareTo(h1.getOrder().getDateCreated());
+        });
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ListAllHistoryOrderResponse(userId, historyOrderResponses.size(), historyOrderResponses));
     }
+
 
     @Transactional
     public  ResponseEntity<?> fetchOrdersAwaitingPayment(int userId)
