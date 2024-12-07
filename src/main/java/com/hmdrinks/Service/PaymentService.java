@@ -1579,6 +1579,12 @@ public class PaymentService {
                 orders.setDateCanceled(LocalDateTime.now());
                 orders.setStatus(Status_Order.CANCELLED);
                 orderRepository.save(orders);
+                Voucher voucher = orders.getVoucher();
+                if(voucher != null) {
+                    UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(orders.getUser().getUserId(), voucher.getVoucherId());
+                    userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                    userVoucherRepository.save(userVoucher);
+                }
             }
         }
         return ResponseEntity.ok().build();
