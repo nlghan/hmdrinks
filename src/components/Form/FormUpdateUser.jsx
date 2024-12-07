@@ -152,6 +152,15 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
         }
 
     };
+    const getRoleText = (role) => {
+        const roleMap = {
+            'ADMIN': 'Quản trị viên',
+            'CUSTOMER': 'Khách hàng',
+            'SHIPPER': 'Nhân viên'
+        };
+        
+        return roleMap[role] || role;
+    };
 
     return (
         <div className="form-update-user">
@@ -168,7 +177,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                         )}
                     </div>
                     <div className="form-update-user-role">
-                        <span>{formData.role}</span>
+                        <span>{getRoleText(formData.role)}</span>
                     </div>
                     {error && <div className="error-message" style={{padding: '0px'}}>{error}</div>}
                     {successMessage && <div className="success-message1">{successMessage}</div>}
@@ -214,8 +223,8 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
                     <div className="form-update-detail-row">
                         <label>Vai trò:</label>
                         <select name="role" value={formData.role} onChange={handleChange}>
-                            <option value="CUSTOMER">CUSTOMER</option>
-                            <option value="SHIPPER">SHIPPER</option>
+                            <option value="CUSTOMER">Khách hàng</option>
+                            <option value="SHIPPER">Nhân viên</option>
                         </select>
                     </div>
                 </form>

@@ -21,7 +21,7 @@ const FormListVoucher = ({ vouchers, onClose }) => {
                                 <tr key={index}>
                                     <td>{voucher.voucherId}</td>
                                     <td>{voucher.key}</td>
-                                    <td>{voucher.status}</td>
+                                    <td>{voucher.status === 'INACTIVE' ? 'Chưa sử dụng' : 'Đã sử dụng'}</td>
                                 </tr>
                             ))
                         ) : (

@@ -358,6 +358,16 @@ const User = () => {
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const getRoleText = (role) => {
+        const roleMap = {
+            'ADMIN': 'Quản trị viên',
+            'CUSTOMER': 'Khách hàng',
+            'SHIPPER': 'Nhân viên'
+        };
+        
+        return roleMap[role] || role;
+    };
+
     return (
         <div className="user-table">
             <Header isMenuOpen={isMenuOpen} toggleMenu={() => setIsMenuOpen(!isMenuOpen)} title="Tài khoản" />
@@ -423,7 +433,7 @@ const User = () => {
                                         <td>{(currentPage - 1) * limit + index + 1}</td>
                                         <td>{user.userName}</td>
                                         <td>{user.fullName}</td>
-                                        <td>{user.role}</td>
+                                        <td>{getRoleText(user.role)}</td>
                                         <td>
                                             <label className="switch">
                                                 <input
@@ -493,7 +503,7 @@ const User = () => {
                         percentage={adminPercentage}
                         width='300px'
                         height='150px'
-                        data="ADMIN"
+                        data="Quản lý"
                         number1={adminCount}
                         description="người dùng"
                         color='#ffffff'
@@ -503,7 +513,7 @@ const User = () => {
                         percentage={customerPercentage}
                         width='300px'
                         height='150px'
-                        data="CUSTOMER"
+                        data="Khách"
                         number1={customerCount}
                         description="người dùng"
                         color='#ffffff'
@@ -513,7 +523,7 @@ const User = () => {
                         percentage={shipperPercentage}
                         width='300px'
                         height='150px'
-                        data="SHIPPER"
+                        data="Nhân viên"
                         number1={shipperCount}
                         description="người dùng"
                         color='#ffffff'

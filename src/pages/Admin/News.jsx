@@ -580,6 +580,16 @@ const News = () => {
 
         fetchAllVouchers();
     }, []); // Empty dependency array means this runs once when component mounts
+    
+    const getPostTypeText = (type) => {
+        const typeMap = {
+            'EVENT': 'Sự kiện',
+            'DISCOUNT': 'Giảm giá',
+            'NEW': 'Món mới'
+        };
+        
+        return typeMap[type] || type;
+    };
 
     return (
 
@@ -652,7 +662,7 @@ const News = () => {
                                         <th>Trạng thái</th>
                                         <th>Mã voucher</th>
                                         {/* <th>Giảm giá</th> */}
-                                        <th>Trạng thái</th>
+                                        {/* <th>Trạng thái</th> */}
                                         <th>Ngày bắt đầu</th>
                                         <th>Ngày kết thúc</th>
                                         <th></th>
@@ -663,7 +673,7 @@ const News = () => {
                                         <tr key={post.postId}>
                                             <td>{(currentPage - 1) * limit + index + 1}</td>
                                             <td>{post.title}</td>
-                                            <td>{post.typePost}</td>
+                                            <td>{getPostTypeText(post.typePost)}</td>
                                             <td>
                                                 {post.url ? <img src={post.url} alt="Post Banner" style={{ width: '100px', height: '100px' }} /> : 'No Image'}
                                             </td>
@@ -683,14 +693,14 @@ const News = () => {
                                             <td>{post.voucher ? post.voucher.key : ''}</td>
                                             {/* <td>{post.voucher && post.voucher.discount !== 0 ? post.voucher.discount : ''}</td> */}
 
-                                            <td>
-                                                {/* Check if all voucher fields are empty and display empty string if so */}
+                                            {/* <td>
                                                 {post.voucher && (
                                                     post.voucher.key === '' &&
                                                     (post.voucher.discount === 0 || post.voucher.discount === '') &&
                                                     (post.voucher.startDate === '2024-11-12 07:01:29' && post.voucher.endDate === '2024-11-12 08:01:29')
                                                 ) ? '' : post.voucher ? post.voucher.status : ''}
-                                            </td>
+                                            </td> */}
+                                            
 
                                             <td>
                                                 {post.voucher && post.voucher.startDate === '2024-11-12 07:01:29' && post.voucher.endDate === '2024-11-12 08:01:29'
@@ -830,7 +840,7 @@ const News = () => {
                                                         <td>{voucher.number || 0}</td>
                                                         <td>{formatDate(voucher.startDate)}</td>
                                                         <td>{formatDate(voucher.endDate)}</td>
-                                                        <td>{voucher.status}</td>
+                                                        <td>{voucher.status === 'ACTIVE' ? 'Đang hoạt động' : 'Đã hết hạn'}</td>                                                        
                                                     </tr>
                                                 ))
                                         ) : (

@@ -7,6 +7,7 @@ import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
 import FormAddProduct from '../../components/Form/FormAddProduct';
 import FormUpdateProduct from '../../components/Form/FormUpdateProduct';
+import FormDetailsProduct from '../../components/Form/FormDetailsProduct';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import './Product.css';
@@ -50,6 +51,7 @@ const Product = () => {
     const [isFormVisible, setIsFormVisible] = useState(false); // State for add form visibility
     const [isUpdateFormVisible, setIsUpdateFormVisible] = useState(false); // State for update form visibility
     const [selectedProduct, setSelectedProduct] = useState(null); // State for the product to update
+    const [isDetailsFormVisible, setIsDetailsFormVisible] = useState(false); // State for details form visibility
 
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOptions, setSearchOptions] = useState([]);
@@ -235,7 +237,7 @@ const Product = () => {
                 console.log("No product data found in response");  // Log nếu không tìm thấy dữ liệu sản phẩm
                 return;
             }
-            
+
 
 
             console.log("Parsed product data:", productData);  // Log dữ liệu sản phẩm đã được phân tích
@@ -261,7 +263,7 @@ const Product = () => {
                 const activeIds = updatedProducts.filter(product => !product.deleted).map(product => product.proId);
                 setActiveProducts("delete: " + activeIds);
 
-                setTotalPages(response.data.totalPage||response.data.body.totalPage || 1);
+                setTotalPages(response.data.totalPage || response.data.body.totalPage || 1);
                 setTotal(response.data.total)
             } else {
                 setProducts([]);
@@ -493,6 +495,12 @@ const Product = () => {
         setSelectedVariant(null); // Đặt lại biến thể đã chọn
     };
 
+    // Thêm hàm handleDetailsClick
+    const handleDetailsClick = (product) => {
+        setSelectedProduct(product);
+        setIsDetailsFormVisible(true);
+    };
+
     if (loading) {
         return <LoadingAnimation />;
     }
@@ -652,13 +660,16 @@ const Product = () => {
                                                     <p>Đang tải hình ảnh...</p>
                                                 )}
                                             </td>
-                                            <td>{product.description}</td>
+                                            <td>{product.description.length > 20 
+                                                ? `${product.description.substring(0, 20)}...` 
+                                                : product.description}
+                                            </td>
                                             <td>
                                                 <label className="pro-switch">
                                                     <input
                                                         type="checkbox"
                                                         checked={product.deleted === false} // Checkbox sẽ checked nếu isDeleted là false
-                                                        onChange={() => handleSwitchChange(product.proId)}                                
+                                                        onChange={() => handleSwitchChange(product.proId)}
                                                     />
                                                     <span className="pro-slider round"></span>
                                                 </label>
@@ -669,8 +680,8 @@ const Product = () => {
                                                 {product.variants && product.variants.length > 0 ? (
                                                     <ul >
                                                         {product.variants.map(variant => (
-                                                            <li 
-                                                                key={variant.varId} 
+                                                            <li
+                                                                key={variant.varId}
                                                                 onMouseEnter={(event) => handleVariantHover(variant, event)} // Pass event to get position
                                                                 onMouseLeave={handleMouseLeave} // Ẩn modal khi không hover
                                                             >
@@ -687,12 +698,12 @@ const Product = () => {
 
                                             <td className='pro-action'>
                                                 <div className='gr-btn-pro'>
+                                                    <div id="btn-pro-det" onClick={() => handleDetailsClick(product)}>
+                                                        <i className="ti-info-alt" style={{ color: 'violet'}}></i> {/* Themify icon for updating */}
+                                                    </div>
                                                     <div id="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
                                                         <i className="ti-pencil"></i> {/* Themify icon for updating */}
                                                     </div>
-                                                    {/* <div id="btn-pro-clear" onClick={() => {  }}>
-                                                        <i className="ti-trash"></i> {}
-                                                    </div> */}
                                                 </div>
 
                                             </td>
@@ -750,13 +761,13 @@ const Product = () => {
 
                 {/* Hiển thị form nhỏ khi có biến thể được chọn */}
                 {showPriceHistoryModal && selectedVariant && (
-                    <div 
-                        className="price-history-modal" 
-                        style={{ 
-                            position: 'absolute', 
-                            top: `${modalPosition.top}px`, 
-                            left: `${modalPosition.left}px`, 
-                            zIndex: 1000 
+                    <div
+                        className="price-history-modal"
+                        style={{
+                            position: 'absolute',
+                            top: `${modalPosition.top}px`,
+                            left: `${modalPosition.left}px`,
+                            zIndex: 1000
                         }}
                     >
                         <h4>Bảng giá cập nhật cho size {selectedVariant.size}</h4>
@@ -769,6 +780,13 @@ const Product = () => {
                             </>
                         )}
                     </div>
+                )}
+
+                {isDetailsFormVisible && selectedProduct && (
+                    <FormDetailsProduct 
+                        product={selectedProduct} 
+                        onClose={() => setIsDetailsFormVisible(false)}
+                    />
                 )}
             </div>
         </div>

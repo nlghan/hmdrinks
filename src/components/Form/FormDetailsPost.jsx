@@ -77,7 +77,8 @@ const FormDetailsPost = ({ postId, onClose }) => {
     return (
         <div className="form-details-post-container" sttyle={{height: '1000px'}}>
             <div className="form-details-post-header">
-                <h2 className="form-details-post-title">Chi Tiết Bài Đăng</h2><button
+                <h2 className="form-details-post-title">Chi Tiết Bài Đăng</h2>
+                <button
                     onClick={onClose}
                     style={{
                         height: '35px',

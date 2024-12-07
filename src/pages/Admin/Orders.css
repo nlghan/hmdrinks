@@ -13,24 +13,27 @@
     padding-left: 70px;
 }
 
-.orders-table-row{
+.orders-table-row {
     display: flex;
-    justify-content: space-between;   
+    justify-content: space-between;
     z-index: 1;
     margin-left: 10px;
     height: 100%;
 }
 
 .orders-box {
-    min-height: 750px; /* Prevents shrinking */
+    min-height: 750px;
+    /* Prevents shrinking */
     padding: 20px;
     box-sizing: border-box;
-    transition: all 0.3s ease-in-out; /* Smooth transition */
+    transition: all 0.3s ease-in-out;
+    /* Smooth transition */
     position: relative;
     width: 99%;
     margin-top: 0px;
     margin-left: -8px;
 }
+
 .orders-box {
     flex: 1;
     margin-top: 30px;
@@ -38,38 +41,41 @@
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .orders-box h2 {
+}
+
+.orders-box h2 {
     margin-bottom: 10px;
-  }
-  
-  .orders-box table {
+}
+
+.orders-box table {
     width: 100%;
     border-collapse: collapse;
-  }
-  
-  .orders-box table th,
-  .orders-box table td {
+}
+
+.orders-box table th,
+.orders-box table td {
     border: 1px solid #ffffff;
     padding: 8px;
     text-align: left;
     border: none;
-  }
-  
-  .orders-box table th {
+}
+
+.orders-box table th {
     background-color: #ffffff;
-  }
-  
-  .orders-box table td {
+}
+
+.orders-box table td {
     padding: 8px;
     text-align: left;
     border: none;
-  }
+}
 
 .table-orders {
-    width: 99%;
-    table-layout: fixed; /* Fixed table layout */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+    /* Quan trọng: giúp các cột có độ rộng cố định */
 }
 
 .table-orders th,
@@ -114,78 +120,124 @@
     border-radius: 20px;
     border: 1px solid #ddd;
 }
+
 .table-orders {
-    width: 100%; /* Makes the table take up the full width of the container */
-    border-collapse: collapse; /* Ensures borders are merged into one line */
-    margin-top: 20px; /* Adds margin to the top of the table */
-    
+    width: 100%;
+    /* Makes the table take up the full width of the container */
+    border-collapse: collapse;
+    /* Ensures borders are merged into one line */
+    margin-top: 20px;
+    /* Adds margin to the top of the table */
+
 }
 
-.table-orders th, .table-orders td {
-    padding: 12px 15px; /* Adds padding inside table cells for better spacing */
-    text-align: left; /* Aligns text to the left within the cells */
-    border-bottom: 1px solid #ddd; /* Adds a light gray border between rows */
+.table-orders th,
+.table-orders td {
+    padding: 12px 15px;
+    /* Adds padding inside table cells for better spacing */
+    text-align: left;
+    /* Aligns text to the left within the cells */
+    border-bottom: 1px solid #ddd;
+    /* Adds a light gray border between rows */
 }
 
 .table-orders th {
-    background-color: #f4f4f4; /* Light gray background color for table headers */
-    font-weight: bold; /* Makes the header text bold */
-    color: #333; /* Dark color for text in headers */
+    background-color: #f4f4f4;
+    /* Light gray background color for table headers */
+    font-weight: bold;
+    /* Makes the header text bold */
+    color: #333;
+    /* Dark color for text in headers */
 }
 
-/* Set specific widths for each column */
-.table-orders th:nth-child(1), .table-orders td:nth-child(1) {
-    width: 7%; /* Width for the STT (Index) column */
+.table-orders th:nth-child(1),
+.table-orders td:nth-child(1) {
+    /* Mã Đơn Giao */
+    width: 10%;
 }
 
-.table-orders th:nth-child(2), .table-orders td:nth-child(2) {
-    width: 7%; /* Width for the Mã Đơn Hàng (Order Code) column */
+.table-orders th:nth-child(2),
+.table-orders td:nth-child(2) {
+    /* Mã Đơn Hàng */
+    width: 10%;
 }
 
-.table-orders th:nth-child(3), .table-orders td:nth-child(3) {
-    width: 8%; /* Width for the Mã Đơn Hàng (Order Code) column */
+.table-orders th:nth-child(3),
+.table-orders td:nth-child(3) {
+    /* Khách Hàng */
+    width: 10%;
 }
 
-
-
-.table-orders th:nth-child(4), .table-orders td:nth-child(4) {
-    width: 8%; /* Width for the Email column */
+.table-orders th:nth-child(4),
+.table-orders td:nth-child(4) {
+    /* Điện Thoại */
+    width: 12%;
 }
 
-.table-orders th:nth-child(5), .table-orders td:nth-child(5) {
-    width: 13%; /* Width for the Điện Thoại (Phone Number) column */
+.table-orders th:nth-child(5),
+.table-orders td:nth-child(5) {
+    /* Đơn Giá */
+    width: 10%;
 }
 
-.table-orders th:nth-child(6), .table-orders td:nth-child(6) {
-    width: 8%; /* Width for the Địa Chỉ (Address) column */
+.table-orders th:nth-child(6),
+.table-orders td:nth-child(6) {
+    /* Loại Thanh Toán */
+    width: 12%;
 }
 
-.table-orders th:nth-child(7), .table-orders td:nth-child(7) {
-    width: 8%; /* Width for the Ngày Đặt (Order Date) column */
+.table-orders th:nth-child(7),
+.table-orders td:nth-child(7) {
+    /* Trạng Thái Thanh Toán */
+    width: 10%;
 }
 
-.table-orders th:nth-child(8), .table-orders td:nth-child(8) {
-    width: 7%; /* Width for the Ngày Giao (Delivery Date) column */
+.table-orders th:nth-child(8),
+.table-orders td:nth-child(8) {
+    /* Ngày Đặt */
+    width: 10%;
 }
 
-.table-orders th:nth-child(9), .table-orders td:nth-child(9) {
-    width: 6%; /* Width for the Trạng Thái (Status) column */
+.table-orders th:nth-child(9),
+.table-orders td:nth-child(9) {
+    /* Ngày Giao */
+    width: 10%;
 }
-.table-orders th:nth-child(10), .table-orders td:nth-child(10) {
-    width: 6%; /* Width for the Trạng Thái (Status) column */
+
+.table-orders th:nth-child(10),
+.table-orders td:nth-child(10) {
+    /* Ngày Hủy */
+    width: 10%;
 }
-.table-orders th:nth-child(11), .table-orders td:nth-child(1) {
-    width: 6%; /* Width for the Trạng Thái (Status) column */
+
+.table-orders th:nth-child(11),
+.table-orders td:nth-child(11) {
+    /* Người Giao */
+    width: 10%;
+}
+
+.table-orders th:nth-child(12),
+.table-orders td:nth-child(12) {
+    /* Trạng Thái */
+    width: 10%;
+}
+
+.table-orders th:nth-child(13),
+.table-orders td:nth-child(13) {
+    /* Thao tác */
+    width: 8%;
 }
 
 /* Styling for rows */
 .table-orders tr:nth-child(even) {
-    background-color: #f9f9f9; /* Light gray background for every even row */
-    
+    background-color: #f9f9f9;
+    /* Light gray background for every even row */
+
 }
 
 .table-orders tr:hover {
-    background-color: #f1f1f1; /* Slightly darker background color when hovering over a row */
+    background-color: #f1f1f1;
+    /* Slightly darker background color when hovering over a row */
 }
 
 /* Basic styling for the select dropdown */
@@ -207,23 +259,30 @@
 
 /* Custom styles for each status */
 #select-status option[value='WAITING'] {
-    background-color: #ffffff; /* Yellow for WAITING */
-    color:black;
+    background-color: #ffffff;
+    /* Yellow for WAITING */
+    color: black;
 }
 
 #select-status option[value='SHIPPING'] {
-    background-color: #ffffff;; /* Blue for SHIPPING */
-    color:black;
+    background-color: #ffffff;
+    ;
+    /* Blue for SHIPPING */
+    color: black;
 }
 
 #select-status option[value='SUCCESS'] {
-    background-color: #ffffff;; /* Green for SUCCESS */
-    color:black;
+    background-color: #ffffff;
+    ;
+    /* Green for SUCCESS */
+    color: black;
 }
 
 #select-status option[value='CANCELLED'] {
-    background-color: #ffffff;; /* Red for CANCELLED */
-    color:black;
+    background-color: #ffffff;
+    ;
+    /* Red for CANCELLED */
+    color: black;
 }
 
 
@@ -279,8 +338,10 @@
 }
 
 .refund-orders-box .table-container {
-    max-height: 250px; /* Limit height to show 5 rows */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: 250px;
+    /* Limit height to show 5 rows */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
     border: 1px solid #ddd;
     border-radius: 4px;
 }
@@ -341,21 +402,30 @@
 
 .table-orders-refund {
     width: 100%;
-    table-layout: fixed; /* Cố định độ rộng các cột */
-    border-collapse: collapse; /* Gộp các đường viền của các ô trong bảng */
+    table-layout: fixed;
+    /* Cố định độ rộng các cột */
+    border-collapse: collapse;
+    /* Gộp các đường viền của các ô trong bảng */
 }
 
-.table-orders-refund th, .table-orders-refund td {
-    padding: 10px; /* Thêm khoảng cách trong các ô */
-    text-align: center; /* Căn giữa nội dung trong các ô */
-    border: 1px solid #ddd; /* Thêm đường viền nhẹ */
+.table-orders-refund th,
+.table-orders-refund td {
+    padding: 10px;
+    /* Thêm khoảng cách trong các ô */
+    text-align: center;
+    /* Căn giữa nội dung trong các ô */
+    border: 1px solid #ddd;
+    /* Thêm đường viền nhẹ */
 }
 
 .table-orders-refund th {
-    background-color: #f2f2f2; /* Màu nền cho tiêu đề cột */
+    background-color: #f2f2f2;
+    /* Màu nền cho tiêu đề cột */
 }
 
 /* Tùy chọn cho các cột để tạo độ rộng đều nhau */
-.table-orders-refund td, .table-orders-refund th {
-    width: 16.66%; /* Đảm bảo mỗi cột chiếm 1/6 tổng chiều rộng */
+.table-orders-refund td,
+.table-orders-refund th {
+    width: 16.66%;
+    /* Đảm bảo mỗi cột chiếm 1/6 tổng chiều rộng */
 }

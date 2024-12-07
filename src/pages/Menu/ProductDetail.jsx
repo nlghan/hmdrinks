@@ -235,6 +235,7 @@ const ProductDetail = () => {
     };
 
     const handleAddToCart = async () => {
+        
         const token = getCookie('access_token')
         const userId = getUserIdFromToken(token); // Hàm lấy userId từ token
         if (!userId) {
@@ -249,6 +250,7 @@ const ProductDetail = () => {
             }, 2000);
             return;
         }
+       
 
         const { status, message } = await addToCart({
             productId: product.proId,
@@ -259,15 +261,20 @@ const ProductDetail = () => {
             image: product.productImageResponseList[currentImageIndex].linkImage,
         });
 
+        console.log('showError', showError)
+        console.log('showSuccess', showSuccess)
+
         // Kiểm tra nếu API trả về lỗi 400
         if (status === 400) {
             setShowError(true);
+            console.log('kiểm tra lỗi', showError)
             setMessage(message || "Đã đạt giới hạn số lượng cho sản phẩm này!");
             setTimeout(() => {
                 setShowError(false);
             }, 2000);
             return; // Dừng lại nếu có lỗi 400
         }
+        
         // Nếu thành công
         setShowSuccess(true);
         setMessage(message);
@@ -613,7 +620,7 @@ const ProductDetail = () => {
                             <span className="product-stock">Còn lại: {stock > 0 ? stock : '0'} sản phẩm</span>
 
                             <div className="product-size">
-                                <span>Chọn size:</span>
+                                <span>Chọn kich thước:</span>
                                 <div className="size-options">
                                     {['S', 'M', 'L'].map(size => (
                                         <button

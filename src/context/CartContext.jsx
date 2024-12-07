@@ -289,10 +289,10 @@ export const CartProvider = ({ children }) => {
 
             if (response.ok) {
                 console.log('Item added to cart successfully:', data);
-                // Show alert for successful addition to cart
-                // alert(`${product.name} đã được thêm vào giỏ hàng!`);
-
-                // Update cart items
+                setShowSuccess(true);
+                setTimeout(() => {
+                    setShowSuccess(false);
+                }, 2000);
                 setCartItems((prevItems) => {
                     const itemExists = prevItems.find(item => item.productId === product.productId && item.size === product.size);
                     if (itemExists) {
@@ -518,20 +518,20 @@ export const CartProvider = ({ children }) => {
     const decrease = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (!cartItemId) {
             console.error('No cart item ID provided.');
             return;
         }
-    
+
         // Tìm sản phẩm trong giỏ hàng
         const cartItem = cartItems.find(item => item.cartItemId === cartItemId);
-    
+
         if (!cartItem) {
             console.error('Cart item not found.');
             return;
         }
-    
+
         if (cartItem.quantity > 1) {
             // Giảm số lượng nếu lớn hơn 1
             try {
@@ -548,9 +548,9 @@ export const CartProvider = ({ children }) => {
                         quantity: 1, // Giảm số lượng 1 đơn vị
                     }),
                 });
-    
+
                 const data = await response.json();
-    
+
                 if (response.ok) {
                     setCartItems(prevItems => {
                         const updatedItems = prevItems.map(item =>
@@ -558,11 +558,11 @@ export const CartProvider = ({ children }) => {
                                 ? { ...item, quantity: item.quantity - 1 }
                                 : item
                         );
-    
+
                         // Tính lại tổng số lượng sau khi giảm
                         const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
                         setTotalOfCart(updatedTotalOfCart);
-    
+
                         return updatedItems;
                     });
                 } else {
@@ -586,19 +586,19 @@ export const CartProvider = ({ children }) => {
                         cartItemId: cartItemId,
                     }),
                 });
-    
+
                 const data = await response.json();
-    
+
                 if (response.ok) {
                     console.log('Item deleted from cart:', data.message);
-    
+
                     setCartItems(prevItems => {
                         const updatedItems = prevItems.filter(item => item.cartItemId !== cartItemId);
-                        
+
                         // Tính lại tổng số lượng sau khi xóa
                         const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
                         setTotalOfCart(updatedTotalOfCart);
-    
+
                         return updatedItems;
                     });
                 } else {
@@ -609,7 +609,7 @@ export const CartProvider = ({ children }) => {
             }
         }
     };
-    
+
 
     // Get userId from token
     const getUserIdFromToken = (token) => {
@@ -844,18 +844,18 @@ export const CartProvider = ({ children }) => {
 
             const updateData = await updateResponse.json();
             const { quantity: updatedQuantity, totalPrice } = updateData;
-    
+
             setCartItems(prevItems => {
                 const updatedItems = prevItems.map(item =>
                     item.cartItemId === cartItemId
                         ? { ...item, quantity: updatedQuantity, totalPrice }
                         : item
                 );
-    
+
                 // Tính lại tổng số lượng của giỏ hàng
                 const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
                 setTotalOfCart(updatedTotalOfCart);
-    
+
                 return updatedItems;
             });
         } catch (error) {
@@ -869,12 +869,12 @@ export const CartProvider = ({ children }) => {
     const deleteOneItem = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (!cartItemId) {
             console.error('No cart item ID provided.');
             return;
         }
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/cart-item/delete/${cartItemId}`, {
                 method: 'DELETE',
@@ -888,23 +888,23 @@ export const CartProvider = ({ children }) => {
                     cartItemId: cartItemId,
                 }),
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 console.log('Item deleted successfully:', data.message);
-    
+
                 // Cập nhật lại cartItems và totalOfCart
                 setCartItems((prevItems) => {
                     const updatedItems = prevItems.filter(item => item.cartItemId !== cartItemId);
-                    
+
                     // Tính lại tổng số lượng
                     const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
                     setTotalOfCart(updatedTotalOfCart);
-    
+
                     return updatedItems;
                 });
-    
+
             } else {
                 console.error('Failed to delete item:', data);
             }
@@ -912,7 +912,7 @@ export const CartProvider = ({ children }) => {
             console.error('Error deleting item:', error);
         }
     };
-    
+
 
 
     return (

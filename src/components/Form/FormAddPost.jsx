@@ -230,9 +230,9 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         <div className="form-add-post-group">
                             <label htmlFor="typePost">Loại bài đăng</label>
                             <select id="typePost" name="typePost" value={formData.typePost} onChange={handleInputChange}>
-                                <option value="EVENT">EVENT</option>
-                                <option value="NEW">NEW</option>
-                                <option value="DISCOUNT">DISCOUNT</option>
+                                <option value="EVENT">Sự kiện</option>
+                                <option value="NEW">Món mới</option>
+                                <option value="DISCOUNT">Giảm giá</option>
                             </select>
                         </div>
                         <div className="form-add-post-group">
@@ -279,8 +279,8 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                         <div className="form-add-post-group">
                             <label htmlFor="status">Trạng thái</label>
                             <select id="status" name="status" value={formData.status} onChange={handleInputChange}>
-                                <option value="ACTIVE">ACTIVE</option>
-                                <option value="INACTIVE">INACTIVE</option>
+                                <option value="ACTIVE">Kích hoạt</option>
+                                <option value="INACTIVE">Không kích hoạt</option>
                             </select>
                         </div>
                     </div>

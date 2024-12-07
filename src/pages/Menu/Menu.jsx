@@ -517,8 +517,8 @@ const Menu = () => {
                                 <option value="priceAsc">Giá thấp đến cao</option>
                                 <option value="priceDesc">Giá cao đến thấp</option>
                                 <option value="newest">Ngày mới nhất</option>
-                                <option value="ratingAsc">Rating thấp đến cao</option>
-                                <option value="ratingDesc">Rating cao đến thấp</option>
+                                <option value="ratingAsc">Đánh giá thấp đến cao</option>
+                                <option value="ratingDesc">Đánh giá cao đến thấp</option>
                             </select>
                         </div>
                         {hasProducts && (

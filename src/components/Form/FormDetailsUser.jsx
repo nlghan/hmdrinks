@@ -10,6 +10,24 @@ const FormDetailsUser = ({ user, onClose }) => {
         const day = String(date.getDate()).padStart(2, '0');
         return `${day}/${month}/${year}`;
     };
+    const getRoleText = (role) => {
+        const roleMap = {
+            'ADMIN': 'Quản trị viên',
+            'CUSTOMER': 'Khách hàng',
+            'SHIPPER': 'Nhân viên'
+        };
+        
+        return roleMap[role] || role;
+    };
+    const getSexText = (role) => {
+        const roleMap = {
+            'MALE': 'Nam',
+            'FEMALE': 'Nữ',
+            'OTHER': 'Khác'
+        };
+        
+        return roleMap[role] || role;
+    };
     console.log("adress: ", user.address)
     return (
         <div className="form-details-user">
@@ -25,7 +43,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     )}
 
                     <div className="user-role">
-                        <span>{user.role}</span>
+                        <span>{getRoleText(user.role)}</span>
                     </div>
                     <div className="user-dates">
                         <div>Ngày tạo: {user.dateCreated ? new Date(user.dateCreated).toLocaleDateString() : 'N/A'}</div>
@@ -64,7 +82,7 @@ const FormDetailsUser = ({ user, onClose }) => {
                     </div>
                     <div className="detail-row">
                         <label>Giới tính:</label>
-                        <span>{user.sex}</span>
+                        <span>{getSexText(user.sex)}</span>
                     </div>
                     <div className="detail-row">
                         <label>Trạng thái:</label>

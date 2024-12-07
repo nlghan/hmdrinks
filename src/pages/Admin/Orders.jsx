@@ -4,6 +4,8 @@ import Header from '../../components/Header/Header';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
+import Swal from 'sweetalert2';
+import FormDetailsOrder from '../../components/Form/FormDetailsOrder';
 
 function Orders() {
     const [shipments, setShipments] = useState([]);
@@ -15,13 +17,15 @@ function Orders() {
     const [refundOrders, setRefundOrders] = useState([]); // Danh sách đơn hàng hoàn tiền
     const [loadingRefunds, setLoadingRefunds] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showSuccessRe, setShowSuccessRe] = useState(false);
+    const [showError, setShowError] = useState(false);
 
     const [cancleOrders, setCancleOrders] = useState([]); // Danh sách yêu cầu hủy đơn
     const [loadingCancle, setLoadingCancle] = useState(true); // Trạng thái tải dữ liệu
 
-   
-
+    const [showDetailsForm, setShowDetailsForm] = useState(false);
+    const [selectedShipment, setSelectedShipment] = useState(null);
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -252,6 +256,15 @@ function Orders() {
         const token = getCookie('access_token');  // Get token from the cookie
 
         try {
+            const result = await Swal.fire({
+                title: 'Xác nhận hoàn tiền',
+                text: 'Bạn có chắc chắn muốn hoàn tiền cho đơn hàng này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Có',
+                cancelButtonText: 'Không',
+            });
+            if (result.isConfirmed) {
             const response = await fetch('http://localhost:1010/api/admin/activate/refund', {
                 method: 'PUT',
                 headers: {
@@ -264,18 +277,23 @@ function Orders() {
                 }),
             });
 
-            // Check if the response is JSON or plain text
-            const contentType = response.headers.get('Content-Type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                // Handle the JSON response if needed
-                fetchRefundOrders();
-                console.log('Refund activated:', data);
-            } else {
-                // If it's plain text, just handle the message
-                fetchRefundOrders();
-                const message = await response.text();
-                console.log('Refund activated:', message);
+                // Check if the response is JSON or plain text
+                const contentType = response.headers.get('Content-Type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    setShowSuccessRe(true);
+                    setTimeout(() => {
+                        setShowSuccessRe(false);
+                    }, 2000);
+                    // Handle the JSON response if needed
+                    fetchRefundOrders();
+                    console.log('Refund activated:', data);
+                } else {
+                    // If it's plain text, just handle the message
+                    fetchRefundOrders();
+                    const message = await response.text();
+                    console.log('Refund activated:', message);
+                }
             }
 
         } catch (error) {
@@ -301,7 +319,7 @@ function Orders() {
     const fetchCancelOrders = async () => {
         setLoadingCancle(true); // Bắt đầu tải dữ liệu
         const token = getCookie('access_token'); // Lấy token từ cookie
-    
+
         try {
             // Gửi yêu cầu GET để lấy danh sách hủy đơn
             const response = await fetch('http://localhost:1010/api/orders/list-cancel-reason', {
@@ -311,10 +329,10 @@ function Orders() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             // Chuyển đổi phản hồi thành JSON
             const data = await response.json();
-    
+
             // Kiểm tra nếu có dữ liệu trả về và cập nhật danh sách đơn hủy
             if (data && data.list) {
                 setCancleOrders(data.list);
@@ -325,7 +343,7 @@ function Orders() {
             setLoadingCancle(false); // Kết thúc tải dữ liệu
         }
     };
-    
+
     // Sử dụng useEffect để gọi fetchCancelOrders khi component mount
     useEffect(() => {
         fetchCancelOrders(); // Gọi hàm fetch khi component mount
@@ -333,67 +351,111 @@ function Orders() {
 
 
     const acceptCancel = async (orderId) => {
-        const token = getCookie('access_token');  // Lấy token từ cookie
-    
         try {
-            const response = await fetch('http://localhost:1010/api/orders/reason-cancel/accept', {
-                method: 'POST',
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: orderId }),
+            const result = await Swal.fire({
+                title: 'Xác nhận duyệt yêu cầu',
+                text: 'Bạn có chắc chắn muốn duyệt yêu cầu hủy đơn này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Có',
+                cancelButtonText: 'Không',
             });
-    
-             // Kiểm tra xem phản hồi có phải là chuỗi "Success" hay không
-             const data = await response.text(); // Đọc phản hồi như văn bản (text)
-            
-             // Kiểm tra nếu phản hồi là "Success"
-             if (response.ok && data === 'Success') {
-                console.log('Yêu cầu hủy đơn đã được chấp nhận:', data);
-                // Gọi lại fetchCancelOrders để cập nhật danh sách sau khi thao tác thành công
-                fetchCancelOrders();
-            } else {
-                console.error('Lỗi khi chấp nhận yêu cầu hủy đơn:', data.message || 'Không xác định');
+
+            if (result.isConfirmed) {
+                const token = getCookie('access_token');
+
+                const response = await fetch('http://localhost:1010/api/orders/reason-cancel/accept', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: orderId }),
+                });
+
+                const data = await response.text();
+
+                if (response.ok && data === 'Success') {
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                    }, 2000);
+                    console.log('Yêu cầu hủy đơn đã được chấp nhận:', data);
+                    fetchCancelOrders();
+                } else {
+                    console.error('Lỗi khi chấp nhận yêu cầu hủy đơn:', data.message || 'Không xác định');
+                }
             }
         } catch (error) {
             console.error('Lỗi kết nối khi chấp nhận yêu cầu hủy đơn:', error);
         }
     };
-    
-    // Hàm xử lý từ chối yêu cầu hủy đơn
+
     const rejectCancel = async (orderId) => {
-        const token = getCookie('access_token');  // Lấy token từ cookie
-    
         try {
-            const response = await fetch('http://localhost:1010/api/orders/reason-cancel/reject', {
-                method: 'POST',
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: orderId }),
+            const result = await Swal.fire({
+                title: 'Xác nhận từ chối yêu cầu',
+                text: 'Bạn có chắc muốn từ chối yêu cầu hủy đơn này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Có',
+                cancelButtonText: 'Không',
             });
-    
-            // Kiểm tra xem phản hồi có phải là chuỗi "Success" hay không
-            const data = await response.text(); // Đọc phản hồi như văn bản (text)
-            
-            // Kiểm tra nếu phản hồi là "Success"
-            if (response.ok && data === 'Success') {
-                console.log('Yêu cầu hủy đơn đã bị từ chối:', data);
-                fetchCancelOrders(); // Gọi lại fetchCancelOrders để cập nhật danh sách yêu cầu hủy đơn
-            } else {
-                console.error('Lỗi khi từ chối yêu cầu hủy đơn:', data || 'Không xác định');
+
+            if (result.isConfirmed) {
+                const token = getCookie('access_token');
+
+                const response = await fetch('http://localhost:1010/api/orders/reason-cancel/reject', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: orderId }),
+                });
+
+                const data = await response.text();
+
+                if (response.ok && data === 'Success') {
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                    }, 2000);
+                    console.log('Yêu cầu hủy đơn đã bị từ chối:', data);
+                    fetchCancelOrders();
+                } else {
+                    console.error('Lỗi khi từ chối yêu cầu hủy đơn:', data || 'Không xác định');
+                }
             }
         } catch (error) {
             console.error('Lỗi kết nối khi từ chối yêu cầu hủy đơn:', error);
         }
     };
-    
-    
-    
+
+    const handleDetailsClick = (shipment) => {
+        setSelectedShipment(shipment);
+        setShowDetailsForm(true);
+    };
+
+    const getCancelReasonText = (reason) => {
+        const reasonMap = {
+            'CHANGED_MY_MIND': 'Đổi ý không muốn mua nữa',
+            'FOUND_CHEAPER_ELSEWHERE': 'Tìm thấy giá rẻ hơn ở nơi khác',
+            'ORDERED_BY_MISTAKE': 'Đặt nhầm sản phẩm',
+            'DELIVERY_TOO_SLOW': 'Giao hàng quá chậm',
+            'WRONG_PRODUCT_SELECTED': 'Chọn nhầm sản phẩm',
+            'NOT_NEEDED_ANYMORE': 'Không cần sản phẩm nữa',
+            'PAYMENT_ISSUES': 'Gặp vấn đề khi thanh toán',
+            'PREFER_DIFFERENT_STORE': 'Thích mua ở cửa hàng khác hơn',
+            'UNSATISFIED_WITH_SERVICE': 'Không hài lòng với dịch vụ',
+            'OTHER_REASON': 'Lý do khác'
+        };
+        
+        return reasonMap[reason] || reason;
+    };
+
 
 
     return (
@@ -439,15 +501,15 @@ function Orders() {
                                     <th>Mã Đơn Hàng</th>
                                     <th>Khách Hàng</th>
                                     <th>Điện Thoại</th>
-                                    <th>Địa Chỉ</th>
                                     <th>Đơn Giá (VND)</th>
                                     <th>Loại Thanh Toán</th>
-                                    <th>Trạng Thái</th>
+                                    {/* <th>Trạng Thái</th> */}
                                     <th>Ngày Đặt</th>
                                     <th>Ngày Giao</th>
                                     <th>Ngày Hủy</th>
                                     <th>Người Giao</th>
                                     <th>Trạng Thái</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -462,10 +524,9 @@ function Orders() {
                                             <td>{shipment.orderId}</td>
                                             <td>{shipment.customerName}</td>
                                             <td>{shipment.phoneNumber}</td>
-                                            <td>{shipment.address}</td>
                                             <td>{formatPrice(shipment.amount)}</td>
                                             <td>{shipment.paymentMethod}</td>
-                                            <td>{shipment.statusPayment}</td>
+                                            {/* <td>{shipment.statusPayment}</td> */}
                                             <td>{shipment.dateCreated}</td>
                                             <td>{shipment.dateShipped}</td>
                                             <td>{shipment.dateCancelled}</td>
@@ -495,6 +556,15 @@ function Orders() {
                                                     <option value="CANCELLED">Đã hủy</option>
                                                 </select>
                                             </td>
+                                            <td>
+                                                <button 
+                                                    style={{ backgroundColor: 'white', size: '20px', color: 'green'}}
+                                                    onClick={() => handleDetailsClick(shipment)}
+                                                >
+                                                    <i className="ti-info-alt"></i>
+                                                </button>
+                                            </td>
+
                                         </tr>
                                     ))
                                 ) : (
@@ -564,12 +634,12 @@ function Orders() {
                                             <tr key={order.orderId}>
                                                 <td>{order.orderId}</td>
                                                 <td>{order.userId}</td>
-                                                <td>{order.cancelReason}</td>
+                                                <td>{getCancelReasonText(order.cancelReason)}</td>
                                                 <td>
-                                                <button onClick={() => acceptCancel(order.orderId)}>
+                                                    <button onClick={() => acceptCancel(order.orderId)}>
                                                         <i className="ti-check" style={{ color: 'blue', fontSize: '20px' }}></i> {/* Edit icon */}
                                                     </button>
-                                                    <button style={{marginLeft:'10px'}} onClick={() => rejectCancel(order.orderId)}>
+                                                    <button style={{ marginLeft: '10px' }} onClick={() => rejectCancel(order.orderId)}>
                                                         <i className="ti-close" style={{ color: 'red', fontSize: '20px' }}></i> {/* Edit icon */}
                                                     </button>
                                                 </td>
@@ -615,11 +685,30 @@ function Orders() {
                                                 <td>{refund.orderId}</td>
                                                 <td>{refund.paymentMethod}</td>
                                                 <td>{formatPrice(refund.amount)} VND</td>
-                                                <td>{refund.refunded}</td>
                                                 <td>
-                                                    <button onClick={() => updateRefund(refund.refundId)}>
-                                                        <i className="ti-pencil" style={{ color: 'blue', fontSize: '20px' }}></i> {/* Edit icon */}
-                                                    </button>
+                                                    <span style={{ 
+                                                        color: refund.refunded === 'true' ? 'green' : 'red',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {refund.refunded === 'True' ? 'Đã hoàn tiền' : 'Chưa hoàn tiền'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {refund.refunded === 'True' ? (
+                                                        <span style={{ 
+                                                            color: 'green', 
+                                                            fontWeight: '500',
+                                                            padding: '5px 10px',
+                                                            backgroundColor: '#e8f5e9',
+                                                            borderRadius: '4px'
+                                                        }}>
+                                                            Đã xử lý
+                                                        </span>
+                                                    ) : (
+                                                        <button onClick={() => updateRefund(refund.refundId)}>
+                                                            <i className="ti-pencil" style={{ color: 'blue', fontSize: '18px' }}></i>
+                                                        </button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))
@@ -632,7 +721,61 @@ function Orders() {
                             </table>
                         </div>
                     </div>
+                    {showSuccess && (
+                        <div className="success-animation">
+                            <div className="success-modal">
+                                <div className="success-icon">
+                                    <div className="success-icon-circle">
+                                        <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3>Xử lý yêu cầu hủy đơn thành công!</h3>
+                            </div>
+                        </div>
+                    )}
+                    {showSuccessRe && (
+                        <div className="success-animation">
+                            <div className="success-modal">
+                                <div className="success-icon">
+                                    <div className="success-icon-circle">
+                                        <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3>Xử lý yêu cầu hoàn tiền thành công!</h3>
+                            </div>
+                        </div>
+                    )}
 
+                    {showError && (
+                        <div className="error-animation">
+                            <div className="error-modal">
+                                <div className="error-icon">
+                                    <div className="error-icon-circle">
+                                        <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                            <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                            <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3>Số lượng phải lớn hơn 0</h3>
+                                <p>Vui lòng nhập số lượng khác</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {showDetailsForm && selectedShipment && (
+                        <FormDetailsOrder 
+                            shipment={selectedShipment}
+                            onClose={() => setShowDetailsForm(false)}
+                            formatPrice={formatPrice}
+                        />
+                    )}
                 </div>
 
 

@@ -7,6 +7,7 @@ import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
 import './MyOrderDetail.css';
 import { useLocation } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const MyOrderDetail = () => {
     const { shipmentId } = useParams(); // Nhận shipmentId từ URL
@@ -20,6 +21,8 @@ const MyOrderDetail = () => {
     console.log("ngày đặt hàng", dateDelivered)
     const [cancelError, setCancelError] = useState(null);
     const [cancelReason, setCancelReason] = useState(''); // Trạng thái lưu lý do hủy đơn
+    const [isReasonSelected, setIsReasonSelected] = useState(false);
+    const [isRequestSent, setIsRequestSent] = useState(false);
 
     const navigate = useNavigate();
     const getCookie = (name) => {
@@ -121,46 +124,59 @@ const MyOrderDetail = () => {
 
 
 
-    const handleCancelOrder = async (cancelReason) => {
-        // Kiểm tra lý do hủy đơn
-        if (!cancelReason) {
+    const handleCancelOrder = async (reason) => {
+        if (!reason) {
             setCancelError('Vui lòng chọn lý do hủy đơn.');
             return;
         }
 
-        // Kiểm tra token
-        const token = getCookie('access_token');
-        if (!token) {
-            setError('Vui lòng đăng nhập lại.');
-            return;
-        }
-
-        // Lấy userId từ token
-        const userId = getUserIdFromToken(token);
-        if (!userId) {
-            setError('Không thể xác định UserId.');
-            return;
-        }
-
         try {
-            // Gửi yêu cầu hủy đơn
-            const response = await axios.post(
-                'http://localhost:1010/api/orders/reason-cancel',
-                {
-                    orderId: order.orderId,
-                    userId,
-                    cancelReason
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
+            const result = await Swal.fire({
+                title: 'Xác nhận hủy đơn',
+                text: 'Bạn có chắc chắn muốn hủy đơn hàng này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Có',
+                cancelButtonText: 'Không',
+            });
+
+            if (result.isConfirmed) {
+                const token = getCookie('access_token');
+                if (!token) {
+                    setError('Vui lòng đăng nhập lại.');
+                    return;
                 }
-            );
-            console.log('Order canceled:', response.data);
-            setCancelError(null); // Reset lỗi hủy đơn
-            fetchShipmentDetail(); // Cập nhật thông tin đơn hàng
+
+                const userId = getUserIdFromToken(token);
+                if (!userId) {
+                    setError('Không thể xác định UserId.');
+                    return;
+                }
+
+                const response = await axios.post(
+                    'http://localhost:1010/api/orders/reason-cancel',
+                    {
+                        orderId: order.orderId,
+                        userId,
+                        cancelReason: reason
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log('Order canceled:', response.data);
+                setCancelError(null);
+                setIsRequestSent(true);
+                fetchShipmentDetail();
+            } else {
+                // Reset trạng thái khi người dùng chọn "Không"
+                setCancelReason('');
+                setIsReasonSelected(false);
+            }
+            
         } catch (error) {
             console.error('Error canceling order:', error);
             setCancelError('Chỉ được gửi yêu cầu hủy đơn một lần');
@@ -220,34 +236,64 @@ const MyOrderDetail = () => {
                             {cancelError && <div className="error-message">{cancelError}</div>}
                             {payment?.statusPayment !== 'FAILED' && payment?.statusPayment !== 'REFUND' ? (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', gap: '10px' }}>
-                                    <select
-                                        id="cancelReason"
-                                        style={{
-                                            width: '100%',
+                                    {!isRequestSent ? (
+                                        <>
+                                            <select
+                                                id="cancelReason"
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '4px',
+                                                    border: '1px solid #ccc',
+                                                    backgroundColor: '#fff',
+                                                }}
+                                                value={cancelReason}
+                                                onChange={(e) => {
+                                                    setCancelReason(e.target.value);
+                                                    setIsReasonSelected(true);
+                                                }}
+                                            >
+                                                <option value="" disabled>Chọn lý do hủy đơn</option>
+                                                <option value="CHANGED_MY_MIND">Đổi ý không muốn mua nữa</option>
+                                                <option value="FOUND_CHEAPER_ELSEWHERE">Tìm thấy giá rẻ hơn ở nơi khác</option>
+                                                <option value="ORDERED_BY_MISTAKE">Đặt nhầm sản phẩm</option>
+                                                <option value="DELIVERY_TOO_SLOW">Giao hàng quá chậm</option>
+                                                <option value="WRONG_PRODUCT_SELECTED">Chọn nhầm sản phẩm</option>
+                                                <option value="NOT_NEEDED_ANYMORE">Không cần sản phẩm nữa</option>
+                                                <option value="PAYMENT_ISSUES">Gặp vấn đề khi thanh toán</option>
+                                                <option value="PREFER_DIFFERENT_STORE">Thích mua ở cửa hàng khác hơn</option>
+                                                <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
+                                                <option value="OTHER_REASON">Lý do khác</option>
+                                            </select>
+                                            
+                                            <button 
+                                                onClick={() => handleCancelOrder(cancelReason)}
+                                                disabled={!isReasonSelected}
+                                                style={{
+                                                    padding: '10px',
+                                                    borderRadius: '4px',
+                                                    border: 'none',
+                                                    backgroundColor: isReasonSelected ? '#dc3545' : '#ccc',
+                                                    color: 'white',
+                                                    cursor: isReasonSelected ? 'pointer' : 'not-allowed',
+                                                    marginTop: '10px'
+                                                }}
+                                            >
+                                                Xác nhận hủy đơn
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div style={{
                                             padding: '10px',
+                                            backgroundColor: '#f8f9fa',
+                                            border: '1px solid #dee2e6',
                                             borderRadius: '4px',
-                                            border: '1px solid #ccc',
-                                            backgroundColor: '#fff',
-                                        }}
-                                        value={cancelReason}
-                                        onChange={(e) => {
-                                            setCancelReason(e.target.value);
-                                            handleCancelOrder(e.target.value);
-                                        }}
-                                        disabled={cancelReason !== ''}
-                                    >
-                                        <option value="" disabled>Chọn lý do hủy đơn</option>
-                                        <option value="CHANGED_MY_MIND">Đổi ý không muốn mua nữa</option>
-                                        <option value="FOUND_CHEAPER_ELSEWHERE">Tìm thấy giá rẻ hơn ở nơi khác</option>
-                                        <option value="ORDERED_BY_MISTAKE">Đặt nhầm sản phẩm</option>
-                                        <option value="DELIVERY_TOO_SLOW">Giao hàng quá chậm</option>
-                                        <option value="WRONG_PRODUCT_SELECTED">Chọn nhầm sản phẩm</option>
-                                        <option value="NOT_NEEDED_ANYMORE">Không cần sản phẩm nữa</option>
-                                        <option value="PAYMENT_ISSUES">Gặp vấn đề khi thanh toán</option>
-                                        <option value="PREFER_DIFFERENT_STORE">Thích mua ở cửa hàng khác hơn</option>
-                                        <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
-                                        <option value="OTHER_REASON">Lý do khác</option>
-                                    </select>
+                                            textAlign: 'center',
+                                            color: '#28a745'
+                                        }}>
+                                            Yêu cầu hủy đơn đã được gửi đi
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <p style={{ color: 'red', fontWeight: 'bold' }}></p>
