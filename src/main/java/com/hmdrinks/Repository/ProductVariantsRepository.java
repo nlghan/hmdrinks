@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface ProductVariantsRepository extends JpaRepository<ProductVariants,Integer> {
     ProductVariants findByVarId(Integer varId);
+    ProductVariants findByVarIdAndSize(Integer varId,Size size);
     ProductVariants findBySizeAndProduct_ProId(Size size, Integer productId);
     ProductVariants findBySizeAndProduct_ProIdAndIsDeletedFalse(Size size, Integer productId);
 

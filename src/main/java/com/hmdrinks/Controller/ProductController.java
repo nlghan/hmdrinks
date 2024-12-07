@@ -79,6 +79,14 @@ public class ProductController {
         return productService.totalSearchProduct(keyword,page,limit);
     }
 
+    @GetMapping(value = "/cate/search")
+    public ResponseEntity<?> searchByCategoryName1(@RequestParam(name = "keyword") String keyword,
+                                                  @RequestParam(name ="cateId") Integer cateId,
+                                                  @RequestParam(name = "page") String page,
+                                                  @RequestParam(name = "limit") String limit) {
+        return productService.totalSearchProductByCategory(keyword,cateId,page,limit);
+    }
+
     @GetMapping(value = "/list-review")
     public ResponseEntity<?> listReview(@RequestParam(name = "proId") Integer proId,
                                         @RequestParam(name = "page") String page,

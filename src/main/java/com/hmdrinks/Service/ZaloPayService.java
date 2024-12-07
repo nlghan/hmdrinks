@@ -1,10 +1,8 @@
 package com.hmdrinks.Service;
 
+import cats.kernel.Order;
 import com.hmdrinks.Entity.*;
-import com.hmdrinks.Enum.Role;
-import com.hmdrinks.Enum.Status_Cart;
-import com.hmdrinks.Enum.Status_Payment;
-import com.hmdrinks.Enum.Status_Shipment;
+import com.hmdrinks.Enum.*;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.SupportFunction.DistanceAndDuration;
 import com.hmdrinks.SupportFunction.SupportFunction;
@@ -368,6 +366,9 @@ public class ZaloPayService {
             } else {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);
+                Orders order = payment.getOrder();
+                order.setDateCanceled(LocalDateTime.now());
+                order.setStatus(Status_Order.CANCELLED);
                 response.put("status", 0);
             }
 

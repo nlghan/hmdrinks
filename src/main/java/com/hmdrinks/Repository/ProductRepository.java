@@ -27,6 +27,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Page<Product> findByProNameContaining(String proName, Pageable pageable);
 
     Page<Product> findByProNameContainingAndIsDeletedFalse(String proName, Pageable pageable);
+    Page<Product> findByProNameContainingAndIsDeletedFalseAndCategory_CateId(String proName, Pageable pageable,Integer cateId );
     Page<Product> findByCategory_CateId(int cateId, Pageable pageable);
     List<Product> findByCategory_CateId(int cateId);
 
@@ -125,6 +126,67 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "GROUP BY pv.proId " +
             "ORDER BY AVG(CASE WHEN r.ratingStar IS NOT NULL THEN r.ratingStar ELSE 0 END) ASC")
     Page<Product> findTopRatedProductsAsc(Pageable pageable);
+
+    @Query("SELECT pv.varId, pv.size, COALESCE(SUM(ci.quantity), 0) as totalSold " +
+            "FROM ProductVariants pv " +
+            "LEFT JOIN pv.product p " +
+            "LEFT JOIN CartItem ci ON ci.productVariants.varId = pv.varId AND (ci.isDeleted = false) " +
+            "LEFT JOIN Cart c ON ci.cart.cartId = c.cartId " +
+            "LEFT JOIN OrderItem oi ON c.orderItem.orderItemId = oi.orderItemId " +
+            "LEFT JOIN Orders o ON oi.order.orderId = o.orderId AND o.status = 'CONFIRMED' AND o.isDeleted = false " +
+            "WHERE pv.isDeleted = false " +
+            "GROUP BY pv.varId, pv.size " +
+            "ORDER BY " +
+            "   CASE WHEN COALESCE(SUM(ci.quantity), 0) = 0 THEN 1 ELSE 0 END ASC, " +
+            "   COALESCE(SUM(ci.quantity), 0) DESC")
+    Page<Object[]> findBestSellingProducts(Pageable pageable);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Query("SELECT pv.varId, pv.size, COALESCE(SUM(ci.quantity), 0) as totalSold " +
+            "FROM ProductVariants pv " +
+            "LEFT JOIN pv.product p " +  // Liên kết với bảng Product
+            "LEFT JOIN CartItem ci ON ci.productVariants.varId = pv.varId AND ci.isDeleted = false " +
+            "LEFT JOIN Cart c ON ci.cart.cartId = c.cartId " +
+            "LEFT JOIN OrderItem oi ON c.orderItem.orderItemId = oi.orderItemId " +
+            "LEFT JOIN Orders o ON oi.order.orderId = o.orderId AND o.status = 'CONFIRMED' AND o.isDeleted = false " +
+            "WHERE pv.isDeleted = false AND p.category.cateId = :cateId " + // Lọc theo cateId
+            "GROUP BY pv.varId, pv.size " +
+            "ORDER BY " +
+            "   CASE WHEN COALESCE(SUM(ci.quantity), 0) = 0 THEN 1 ELSE 0 END ASC, " +
+            "   COALESCE(SUM(ci.quantity), 0) DESC")
+    Page<Object[]> findBestSellingProductsByCategory(@Param("cateId") int cateId, Pageable pageable);
+
+
+
+    @Query("SELECT pv.varId, pv.size, COALESCE(SUM(ci.quantity), 0) as totalSold " +
+            "FROM ProductVariants pv " +
+            "LEFT JOIN pv.product p " +  // Liên kết với bảng Product
+            "LEFT JOIN CartItem ci ON ci.productVariants.varId = pv.varId AND ci.isDeleted = false " +
+            "LEFT JOIN Cart c ON ci.cart.cartId = c.cartId " +
+            "LEFT JOIN OrderItem oi ON c.orderItem.orderItemId = oi.orderItemId " +
+            "LEFT JOIN Orders o ON oi.order.orderId = o.orderId AND o.status = 'CONFIRMED' AND o.isDeleted = false " +
+            "WHERE pv.isDeleted = false " +
+            "AND p.category.cateId = :cateId " +
+            "AND p.proId IN :productIds " +
+            "GROUP BY pv.varId, pv.size " +
+            "ORDER BY " +
+            "   CASE WHEN COALESCE(SUM(ci.quantity), 0) = 0 THEN 1 ELSE 0 END ASC, " +
+            "   COALESCE(SUM(ci.quantity), 0) DESC")
+    Page<Object[]> findBestSellingProductsByCategoryAndProductIds(@Param("cateId") int cateId,
+                                                                  @Param("productIds") List<Integer> productIds,
+                                                                  Pageable pageable);
 
     @Query(value = "SELECT p.*, " +
             "(SELECT MIN(v.price) " +

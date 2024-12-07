@@ -1,16 +1,16 @@
 package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.*;
+import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Enum.Status_Cart;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.DeleteAllCartItemReq;
-import com.hmdrinks.Request.DeleteOneCartItemReq;
-import com.hmdrinks.Request.IncreaseDecreaseItemQuantityReq;
-import com.hmdrinks.Request.InsertItemToCart;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.CRUDCartItemResponse;
+import com.hmdrinks.Response.ChangeSizeItemResponse;
 import com.hmdrinks.Response.DeleteCartItemResponse;
 import com.hmdrinks.Response.IncreaseDecreaseItemQuantityResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -221,6 +221,49 @@ public class CartItemService {
                 Present_Quantity,
                 Present_TotalPrice
         ));
+    }
+
+    @Transactional
+    public ResponseEntity<?> changeSizeCartItemQuantity(ChangeSizeItemReq req)
+    {
+        CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
+        if(cartItem == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
+        }
+
+        ProductVariants productVariants = productVariantsRepository.findByVarIdAndSize(cartItem.getProductVariants().getVarId(),req.getSize());
+        if(productVariants == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ProductVariants Not Found with Size");
+        }
+        cartItem.setProductVariants(productVariants);
+        double Present_TotalPrice = productVariants.getPrice() * cartItem.getQuantity();
+        cartItem.setTotalPrice(Present_TotalPrice);
+        cartItemRepository.save(cartItem);
+        Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
+        if(cart == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
+        }
+
+        List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
+        Double Price = 0.0;
+        Integer Quantity=0;
+        for(CartItem cartItem2: cartItemList)
+        {
+            Price = Price + Double.valueOf(cartItem2.getTotalPrice());
+            Quantity = Quantity + cartItem2.getQuantity();
+        }
+        cart.setTotalProduct(Quantity);
+        cart.setTotalPrice(Price);
+        cartRepository.save(cart);
+        return ResponseEntity.status(HttpStatus.OK).body(new ChangeSizeItemResponse(
+                 req.getSize(),
+                 Quantity,
+                 Present_TotalPrice
+                )
+        );
     }
 
     public ResponseEntity<?> decreaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)

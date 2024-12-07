@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -822,6 +823,97 @@ public class OrdersService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndPaymentRefund(historyOrderResponses.size(), historyOrderResponses));
     }
+
+    @Transactional
+    public ResponseEntity<?> getDetailOrder(int orderId) {
+        Orders order = orderRepository.findByOrderId(orderId);
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+
+        Payment payment = order.getPayment();
+        Shippment shipment = payment != null
+                ? shipmentRepository.findByPaymentPaymentIdAndIsDeletedFalse(payment.getPaymentId())
+                : null;
+
+        CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                order.getOrderId(),
+                order.getAddress(),
+                order.getDeliveryFee(),
+                order.getDateCreated(),
+                order.getDateDeleted(),
+                order.getDateUpdated(),
+                order.getDeliveryDate(),
+                order.getDateCanceled(),
+                order.getDiscountPrice(),
+                order.getIsDeleted(),
+                order.getNote(),
+                order.getOrderDate(),
+                order.getPhoneNumber(),
+                order.getStatus(),
+                order.getTotalPrice(),
+                order.getUser().getUserId(),
+                order.getVoucher() != null ? order.getVoucher().getVoucherId() : null
+        );
+
+        CRUDPaymentResponse crudPaymentResponse = payment != null
+                ? new CRUDPaymentResponse(
+                payment.getPaymentId(),
+                payment.getAmount(),
+                payment.getDateCreated(),
+                payment.getDateDeleted(),
+                payment.getDateRefunded(),
+                payment.getIsDeleted(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getOrder().getOrderId(),
+                payment.getIsRefund()
+        )
+                : null;
+
+        CRUDShipmentResponse crudShipmentResponse = shipment != null
+                ? new CRUDShipmentResponse(
+                shipment.getShipmentId(),
+                shipment.getUser() != null ? shipment.getUser().getFullName() : null,
+                shipment.getDateCreated(),
+                shipment.getDateDeleted(),
+                shipment.getDateDelivered(),
+                shipment.getDateShip(),
+                shipment.getDateCancel(),
+                shipment.getIsDeleted(),
+                shipment.getStatus(),
+                shipment.getPayment().getPaymentId(),
+                shipment.getUser() != null ? shipment.getUser().getUserId() : null,
+                order.getUser().getFullName(),
+                order.getAddress(),
+                order.getUser().getPhoneNumber(),
+                order.getUser().getEmail(),
+                order.getOrderId()
+        )
+                : null;
+
+        List<CartItem> cartItems = order.getOrderItem().getCart().getCartItems();
+        List<CRUDCartItemResponse> crudCartItemResponses = cartItems.stream()
+                .map(cartItem -> new CRUDCartItemResponse(
+                        cartItem.getCartItemId(),
+                        cartItem.getProductVariants().getProduct().getProId(),
+                        cartItem.getCart().getCartId(),
+                        cartItem.getProductVariants().getSize(),
+                        cartItem.getTotalPrice(),
+                        cartItem.getQuantity()
+                ))
+                .collect(Collectors.toList());
+
+        DetailOrderResponse detailOrderResponse = new DetailOrderResponse(
+                createOrdersResponse,
+                crudPaymentResponse,
+                crudShipmentResponse,
+                crudCartItemResponses
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(detailOrderResponse);
+    }
+
 
 
     @Transactional

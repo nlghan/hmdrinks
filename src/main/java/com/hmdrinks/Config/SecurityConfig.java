@@ -47,6 +47,8 @@ public class SecurityConfig {
 
                         ).permitAll()
                         .requestMatchers("/api/fav-item/list").permitAll()
+                        .requestMatchers("/api/product/cate/search").permitAll()
+                        .requestMatchers("/api/orders/detail/**").permitAll()
                         .requestMatchers("/api/orders/list-cancel-reason").hasAuthority("ADMIN")
                         .requestMatchers("/api/orders/reason-cancel/accept","/api/orders/reason-cancel/reject").hasAuthority("ADMIN")
                         .requestMatchers("/api/product/recommended/**").permitAll()

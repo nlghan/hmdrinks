@@ -134,6 +134,11 @@ public class OrdersController {
         return  ordersService.detailItemOrders(orderId);
     }
 
+    @GetMapping("/detail/{orderId}")
+    public ResponseEntity<?> detailOrder(@PathVariable int orderId) {
+        return  ordersService.getDetailOrder(orderId);
+    }
+
     @PostMapping("/reason-cancel")
     public ResponseEntity<?> ReasonCancel(@RequestBody CancelReasonReq req, HttpServletRequest httpRequest) {
         ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());

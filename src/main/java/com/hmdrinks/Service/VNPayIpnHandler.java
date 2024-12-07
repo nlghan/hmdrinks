@@ -2,10 +2,7 @@ package com.hmdrinks.Service;
 
 
 import com.hmdrinks.Entity.*;
-import com.hmdrinks.Enum.Role;
-import com.hmdrinks.Enum.Status_Cart;
-import com.hmdrinks.Enum.Status_Payment;
-import com.hmdrinks.Enum.Status_Shipment;
+import com.hmdrinks.Enum.*;
 import com.hmdrinks.Exception.BusinessException;
 import com.hmdrinks.Repository.*;
 import com.hmdrinks.Response.IpnResponse;
@@ -247,6 +244,9 @@ public class VNPayIpnHandler {
                     if (payment != null) {
                         payment.setStatus(Status_Payment.FAILED);
                         paymentRepository.save(payment);
+                        Orders order1 = payment.getOrder();
+                        order1.setDateCanceled(LocalDateTime.now());
+                        order1.setStatus(Status_Order.CANCELLED);
                     }
                 }
             } catch (NumberFormatException nfe) {

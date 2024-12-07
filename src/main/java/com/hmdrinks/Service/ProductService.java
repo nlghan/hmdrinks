@@ -1,6 +1,7 @@
 package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.*;
+import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Exception.NotFoundException;
 import com.hmdrinks.Repository.*;
@@ -292,6 +293,63 @@ public class ProductService {
     }
 
     @Transactional
+    public ResponseEntity<?> totalSearchProductByCategory(String keyword, Integer cateId,  String pageFromParam, String limitFromParam) {
+        int page = Integer.parseInt(pageFromParam);
+        int limit = Integer.parseInt(limitFromParam);
+        if (limit >= 100) limit = 100;
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        Page<Product> productList = productRepository.findByProNameContainingAndIsDeletedFalseAndCategory_CateId(keyword, pageable,cateId);
+        int total = (int) productList.getTotalElements(); // Đếm tổng số sản phẩm
+
+        List<CRUDProductResponse> crudProductResponseList = new ArrayList<>();
+        for (Product product1 : productList) {
+            List<ProductImageResponse> productImageResponses = new ArrayList<>();
+            String currentProImg = product1.getListProImg();
+            if (currentProImg != null && !currentProImg.trim().isEmpty()) {
+                String[] imageEntries1 = currentProImg.split(", ");
+                for (String imageEntry : imageEntries1) {
+                    String[] parts = imageEntry.split(": ");
+                    int stt = Integer.parseInt(parts[0]);
+                    String url = parts[1];
+                    productImageResponses.add(new ProductImageResponse(stt, url));
+                }
+            }
+            List<CRUDProductVarResponse> variantResponses = Optional.ofNullable(product1.getProductVariants())
+                    .orElse(Collections.emptyList()) // Trả về danh sách rỗng nếu là null
+                    .stream()
+                    .map(variant -> new CRUDProductVarResponse(
+                            variant.getVarId(),
+                            variant.getProduct().getProId(),
+                            variant.getSize(),
+                            variant.getPrice(),
+                            variant.getStock(),
+                            variant.getIsDeleted(),
+                            variant.getDateDeleted(),
+                            variant.getDateCreated(),
+                            variant.getDateUpdated()
+                    ))
+                    .toList();
+
+            crudProductResponseList.add(new CRUDProductResponse(
+                    product1.getProId(),
+                    product1.getCategory().getCateId(),
+                    product1.getProName(),
+                    productImageResponses,
+                    product1.getDescription(),
+                    product1.getIsDeleted(),
+                    product1.getDateDeleted(),
+                    product1.getDateCreated(),
+                    product1.getDateUpdated(),
+                    variantResponses
+            ));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new TotalSearchProductResponse(page, productList.getTotalPages(), limit, total, crudProductResponseList));
+    }
+
+    @Transactional
     public ResponseEntity<?> totalSearchProduct(String keyword, String pageFromParam, String limitFromParam) {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
@@ -461,17 +519,21 @@ public class ProductService {
         // 3: theo ngay moi nhat
         // 4: theo rating thap den cao
         // 5: theo rating cao den thap
+        // 6: Sản phẩm bán chạy
         int total = 0;
         long totalPages = 0;
         if (req.getO() == 1) {
             Page<Product> productWithPrices;
             if(req.getC() == -1){
                 productWithPrices = productRepository.findAllProductsWithMinPriceNoCategory(pageable);
+                total = (int) productWithPrices.getTotalElements();
             } else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findProductsWithMinPriceNoProduct(req.getC(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             else {
                 productWithPrices = productRepository.findProductsWithMinPrice(req.getC(), req.getP(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
@@ -514,18 +576,22 @@ public class ProductService {
                         product.getDateUpdated(),
                         variantResponses
                 ));
-                total ++;
             }
 
         } else if (req.getO() == 2) {
             Page<Product> productWithPrices;
             if(req.getC() == -1) {
+
                 productWithPrices = productRepository.findAllProductsWithMaxPriceNoCategory(pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             else if (req.getP() == null || req.getP().isEmpty()) {
+
                 productWithPrices = productRepository.findProductsWithMaxPriceNoProduct(req.getC(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             } else {
                 productWithPrices = productRepository.findProductsWithMaxPrice(req.getC(), req.getP(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             totalPages = productWithPrices.getTotalPages();
             for (Product product : productWithPrices) {
@@ -568,7 +634,6 @@ public class ProductService {
                         product.getDateUpdated(),
                         variantResponses
                 ));
-                total++;
             }
         }
          else if (req.getO() == 3) {
@@ -578,12 +643,15 @@ public class ProductService {
             if (req.getC() == -1) {
                 Pageable pageable1 = PageRequest.of(page, limit, sort);
                 productWithPrices = productRepository.findByIsDeletedFalse(pageable1);
+                total = (int) productWithPrices.getTotalElements();
             } else if (req.getP() == null || req.getP().isEmpty()) {
                 Pageable pageable1 = PageRequest.of(page, limit, sort);
                 productWithPrices = productRepository.findByCategory_CateIdAndIsDeletedFalse(req.getC(), pageable1);
+                total = (int) productWithPrices.getTotalElements();
             } else {
                 Pageable pageable1 = PageRequest.of(page, limit, sort);
                 productWithPrices = productRepository.findByCategory_CateIdAndProIdInAndIsDeletedFalse(req.getC(), req.getP(), pageable1);
+                total = (int) productWithPrices.getTotalElements();
             }
 
             totalPages = productWithPrices.getTotalPages();
@@ -627,7 +695,6 @@ public class ProductService {
                         product.getDateUpdated(),
                         variantResponses
                 ));
-                total ++;
             }
         }
         else if (req.getO() == 4) {
@@ -635,11 +702,14 @@ public class ProductService {
             if(req.getC() == -1)
             {
                 productWithPrices = productRepository.findTopRatedProductsDesc(pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             else if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findTopRatedProductsDescByCategory(req.getC(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             } else {
                 productWithPrices = productRepository.findTopRatedProductsDesc(req.getC(), req.getP(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
@@ -682,7 +752,6 @@ public class ProductService {
                         product.getDateUpdated(),
                         variantResponses
                 ));
-                total ++;
             }
         }
          else if (req.getO() == 5) {
@@ -690,12 +759,15 @@ public class ProductService {
             if(req.getC() == -1)
             {
                 productWithPrices = productRepository.findTopRatedProductsAsc(pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             else  if (req.getP() == null || req.getP().isEmpty()) {
                 productWithPrices = productRepository.findTopRatedProductsAscByCategory(req.getC(),pageable);
+                total = (int) productWithPrices.getTotalElements();
 
             } else {
                 productWithPrices = productRepository.findTopRatedProductsAsc(req.getC(), req.getP(),pageable);
+                total = (int) productWithPrices.getTotalElements();
             }
             totalPages = productWithPrices.getTotalPages();
             for (Product product: productWithPrices) {
@@ -738,10 +810,64 @@ public class ProductService {
                         product.getDateUpdated(),
                         variantResponses
                 ));
-                total ++;
             }
-        }
+        } else if (req.getO() == 6) {
+            Page<Object[]> productWithPrices;
+            if (req.getC() == -1) {
+                productWithPrices = productRepository.findBestSellingProducts(pageable);
+                total = (int) productWithPrices.getTotalElements();
+            } else if (req.getP() == null || req.getP().isEmpty()) {
+                productWithPrices = productRepository.findBestSellingProductsByCategory(req.getC(), pageable);
+                total = (int) productWithPrices.getTotalElements();
 
+            } else {
+                productWithPrices = productRepository.findBestSellingProductsByCategoryAndProductIds(req.getC(), req.getP(), pageable);
+                total = (int) productWithPrices.getTotalElements();
+            }
+            totalPages = productWithPrices.getTotalPages();
+            List<CRUDProductVarFilterBestSellResponse> productFilterResponses = new ArrayList<>();
+            for (Object[] row : productWithPrices) {
+                int varId = (Integer) row[0];
+                long totalSold = (long) row[2];
+                ProductVariants productVariants = productVariantsRepository.findByVarId(varId);
+                Product product = productVariants.getProduct();
+                List<ProductImageResponse> productImageResponses = new ArrayList<>();
+                String currentProImg = product.getListProImg();
+                if(currentProImg != null && !currentProImg.trim().isEmpty())
+                {
+                    String[] imageEntries1 = currentProImg.split(", ");
+                    for (String imageEntry : imageEntries1) {
+                        String[] parts = imageEntry.split(": ");
+                        int stt = Integer.parseInt(parts[0]);
+                        String url = parts[1];
+                        productImageResponses.add(new ProductImageResponse(stt, url));
+                    }
+                }
+                Double avgRating = productRepository.findAverageRatingByProductId(product.getCategory().getCateId(), product.getProId());
+                if (avgRating == null) avgRating = 0.0;
+                CRUDProductVarFilterBestSellResponse crudProductVarFilterBestSellResponse = new CRUDProductVarFilterBestSellResponse(
+                        avgRating,
+                        totalSold,
+                        productVariants.getVarId(),
+                        productVariants.getSize(),
+                        productVariants.getPrice(),
+                        productVariants.getStock(),
+                        product.getProId(),
+                        product.getProName(),
+                        productImageResponses
+
+                );
+                productFilterResponses.add(crudProductVarFilterBestSellResponse);
+
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new FilterProductBestSellBoxResponse(
+                    page,
+                    totalPages,
+                    limit,
+                    total,
+                    productFilterResponses
+            ));
+        }
          return ResponseEntity.status(HttpStatus.OK).body(new FilterProductBoxResponse(
                     page,
                     totalPages,

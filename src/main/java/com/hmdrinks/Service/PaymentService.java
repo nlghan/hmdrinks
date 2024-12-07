@@ -983,6 +983,7 @@ public class PaymentService {
             paymentRepository.save(payment);
             Orders orders = orderRepository.findByOrderId(payment.getOrder().getOrderId());
             orders.setStatus(Status_Order.CANCELLED);
+            orders.setDateCanceled(LocalDateTime.now());
             orderRepository.save(orders);
 
             UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
@@ -1401,6 +1402,9 @@ public class PaymentService {
             case "EXPIRED", "CANCELLED" -> {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);
+                Orders order = payment.getOrder();
+                order.setDateCanceled(LocalDateTime.now());
+                order.setStatus(Status_Order.CANCELLED);
             }
             case "PAID" -> {
                 payment.setStatus(Status_Payment.COMPLETED);
