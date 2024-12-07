@@ -671,6 +671,13 @@ public class OrdersService {
             );
             createOrdersResponses.add(createOrdersResponse);
         }
+        createOrdersResponses.sort((h1, h2) -> {
+            if (h1.getDateCanceled() != null && h2.getDateCanceled() != null) {
+                return h2.getDateCanceled().compareTo(h1.getDateCanceled());
+            }
+
+            return h2.getDateCreated().compareTo(h1.getDateCreated());
+        });
          return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndNotPayment(createOrdersResponses.size(),createOrdersResponses));
     }
 
@@ -721,6 +728,13 @@ public class OrdersService {
             );
             createOrdersResponses.add(createOrdersResponse);
         }
+        createOrdersResponses.sort((h1, h2) -> {
+            if (h1.getDateCanceled() != null && h2.getDateCanceled() != null) {
+                return h2.getDateCanceled().compareTo(h1.getDateCanceled());
+            }
+
+            return h2.getDateCreated().compareTo(h1.getDateCreated());
+        });
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndNotPayment(createOrdersResponses.size(),createOrdersResponses));
     }
 
@@ -776,7 +790,15 @@ public class OrdersService {
             );
 
             historyOrderResponses.add(new OrderCancelPaymentRefund(createOrdersResponse, crudPaymentResponse));
+
         }
+        historyOrderResponses.sort((h1, h2) -> {
+            if (h1.getPayment().getDateRefund() != null && h2.getPayment().getDateRefund() != null) {
+                return h2.getPayment().getDateRefund().compareTo(h1.getPayment().getDateRefund());
+            }
+
+            return h2.getOrder().getDateCreated().compareTo(h1.getOrder().getDateCreated());
+        });
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndPaymentRefund(historyOrderResponses.size(), historyOrderResponses));
     }
 
@@ -831,6 +853,13 @@ public class OrdersService {
 
             historyOrderResponses.add(new OrderCancelPaymentRefund(createOrdersResponse, crudPaymentResponse));
         }
+        historyOrderResponses.sort((h1, h2) -> {
+            if (h1.getPayment().getDateRefund() != null && h2.getPayment().getDateRefund() != null) {
+                return h2.getPayment().getDateRefund().compareTo(h1.getPayment().getDateRefund());
+            }
+
+            return h2.getOrder().getDateCreated().compareTo(h1.getOrder().getDateCreated());
+        });
         return ResponseEntity.status(HttpStatus.OK).body(new ListAllOrderCancelAndPaymentRefund(historyOrderResponses.size(), historyOrderResponses));
     }
 
@@ -990,6 +1019,13 @@ public class OrdersService {
 
             historyOrderResponses.add(new HistoryOrderResponse(createOrdersResponse, crudShipmentResponse));
         }
+
+        historyOrderResponses.sort((h1, h2) -> {
+            if (h1.getShipment().getDateShipped() != null && h2.getShipment().getDateShipped() != null) {
+                return h2.getShipment().getDateShipped().compareTo(h1.getShipment().getDateShipped());
+            }
+            return h2.getOrder().getDateCreated().compareTo(h1.getOrder().getDateCreated());
+        });
 
         return ResponseEntity.status(HttpStatus.OK).body(historyOrderResponses);
     }
