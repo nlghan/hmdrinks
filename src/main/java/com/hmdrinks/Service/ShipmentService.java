@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -405,7 +406,20 @@ public class ShipmentService {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Sort sort = null;
+        if(status == Status_Shipment.CANCELLED)
+        {
+            sort = Sort.by(Sort.Direction.DESC, "dateCanceled");
+        } else if (status == Status_Shipment.SUCCESS) {
+            sort = Sort.by(Sort.Direction.DESC, "dateShipped");
+        } else if (status == Status_Shipment.SHIPPING) {
+            sort = Sort.by(Sort.Direction.DESC, "dateCreated");
+        }
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+        if(sort == null)
+        {
+           pageable = PageRequest.of(page - 1, limit);
+        }
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserIdAndStatus(userId,status,pageable);
         List<Shippment> shippments1 = shipmentRepository.findAllByUserUserIdAndStatus(userId,status);
         List<CRUDShipmentResponse> responses = new ArrayList<>();
@@ -450,7 +464,8 @@ public class ShipmentService {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Sort sort = Sort.by(Sort.Direction.DESC, "dateCreated");
+        Pageable pageable = PageRequest.of(page - 1, limit,sort);
         Page<Shippment> shippments = shipmentRepository.findAllByUserUserId(userId,pageable);
         List<Shippment> shippments1 = shipmentRepository.findAllByUserUserId(userId);
 
@@ -500,8 +515,8 @@ public class ShipmentService {
         int limit = Integer.parseInt(limitFromParam);
 
         if (limit >= 100) limit = 100;
-
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Sort sort = Sort.by(Sort.Direction.DESC, "dateCreated");
+        Pageable pageable = PageRequest.of(page - 1, limit,sort);
         Page<Shippment> shippments = shipmentRepository.findAll(pageable);
         List<Shippment> shippments1 = shipmentRepository.findAll();
 
@@ -577,10 +592,18 @@ public class ShipmentService {
         int page = Integer.parseInt(pageFromParam);
         int limit = Integer.parseInt(limitFromParam);
         if (limit >= 100) limit = 100;
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Sort sort = null;
+        if(status == Status_Shipment.CANCELLED)
+        {
+            sort = Sort.by(Sort.Direction.DESC, "dateCanceled");
+        } else if (status == Status_Shipment.SUCCESS) {
+            sort = Sort.by(Sort.Direction.DESC, "dateShipped");
+        } else if (status == Status_Shipment.SHIPPING || status == Status_Shipment.WAITING) {
+            sort = Sort.by(Sort.Direction.DESC, "dateCreated");
+        }
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
         Page<Shippment> shippments = shipmentRepository.findAllByStatus(status,pageable);
         List<Shippment> shippments1 = shipmentRepository.findAllByStatus(status);
-
         List<CRUDShipmentResponse> responses = new ArrayList<>();
         int total = 0;
         for(Shippment shippment : shippments)
