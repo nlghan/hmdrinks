@@ -169,5 +169,11 @@ public class PaymentController {
         return paymentService.getOnePayment(paymentId);
     }
 
+    @GetMapping("/check-time")
+    public ResponseEntity<?> getListShipment()
+    {
+        return paymentService.checkTimePayment();
+    }
+
 
 }

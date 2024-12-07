@@ -41,6 +41,10 @@ public class VNPayIpnHandler {
     private CartItemRepository cartItemRepository;
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
+    @Autowired
+    private  VoucherRepository voucherRepository;
+    @Autowired
+    private  UserVoucherRepository userVoucherRepository;
 
     public static class VnpIpnResponseConst {
         public static final IpnResponse SUCCESS = new IpnResponse("00", "Successful","");
@@ -247,6 +251,12 @@ public class VNPayIpnHandler {
                         Orders order1 = payment.getOrder();
                         order1.setDateCanceled(LocalDateTime.now());
                         order1.setStatus(Status_Order.CANCELLED);
+                        Voucher voucher = order.getVoucher();
+                        if(voucher != null) {
+                            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                            userVoucherRepository.save(userVoucher);
+                        }
                     }
                 }
             } catch (NumberFormatException nfe) {
@@ -263,6 +273,15 @@ public class VNPayIpnHandler {
                     if (payment != null) {
                         payment.setStatus(Status_Payment.FAILED);
                         paymentRepository.save(payment);
+                        Orders order1 = payment.getOrder();
+                        order1.setDateCanceled(LocalDateTime.now());
+                        order1.setStatus(Status_Order.CANCELLED);
+                        Voucher voucher = order.getVoucher();
+                        if(voucher != null) {
+                            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                            userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                            userVoucherRepository.save(userVoucher);
+                        }
                     }
                 }
             } catch (NumberFormatException nfe) {

@@ -985,11 +985,9 @@ public class PaymentService {
             orders.setStatus(Status_Order.CANCELLED);
             orders.setDateCanceled(LocalDateTime.now());
             orderRepository.save(orders);
-
-            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(
-                    orders.getUser().getUserId(), orders.getVoucher().getVoucherId()
-            );
-            if (userVoucher != null) {
+            Voucher voucher = orders.getVoucher();
+            if(voucher != null) {
+                UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(orders.getUser().getUserId(), voucher.getVoucherId());
                 userVoucher.setStatus(Status_UserVoucher.INACTIVE);
                 userVoucherRepository.save(userVoucher);
             }
@@ -1405,6 +1403,12 @@ public class PaymentService {
                 Orders order = payment.getOrder();
                 order.setDateCanceled(LocalDateTime.now());
                 order.setStatus(Status_Order.CANCELLED);
+                Voucher voucher = order.getVoucher();
+                if(voucher != null) {
+                    UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                    userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                    userVoucherRepository.save(userVoucher);
+                }
             }
             case "PAID" -> {
                 payment.setStatus(Status_Payment.COMPLETED);
@@ -1557,5 +1561,27 @@ public class PaymentService {
        paymentRepository.save(payment);
        return ResponseEntity.status(HttpStatus.OK).body("Refund activated");
    }
+
+    @Transactional
+    public ResponseEntity<?> checkTimePayment(){
+        List<Payment> paymentList = paymentRepository.findAllByPaymentMethodAndIsDeletedFalse(Payment_Method.CREDIT);
+
+        for(Payment payment : paymentList)
+        {
+            if(payment.getStatus() != Status_Payment.PENDING)
+            {
+                continue;
+            }
+            if (payment.getDateCreated().plusHours(1).isBefore(LocalDateTime.now())) {
+                payment.setStatus(Status_Payment.FAILED);
+                paymentRepository.save(payment);
+                Orders orders = payment.getOrder();
+                orders.setDateCanceled(LocalDateTime.now());
+                orders.setStatus(Status_Order.CANCELLED);
+                orderRepository.save(orders);
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
 
 }

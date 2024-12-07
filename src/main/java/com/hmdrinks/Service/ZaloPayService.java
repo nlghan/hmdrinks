@@ -59,6 +59,8 @@ public class ZaloPayService {
     private SupportFunction supportFunction;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private UserVoucherRepository userVoucherRepository;
 
     public ZaloPayService(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
@@ -369,6 +371,12 @@ public class ZaloPayService {
                 Orders order = payment.getOrder();
                 order.setDateCanceled(LocalDateTime.now());
                 order.setStatus(Status_Order.CANCELLED);
+                Voucher voucher = order.getVoucher();
+                if(voucher != null) {
+                    UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                    userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                    userVoucherRepository.save(userVoucher);
+                }
                 response.put("status", 0);
             }
 
