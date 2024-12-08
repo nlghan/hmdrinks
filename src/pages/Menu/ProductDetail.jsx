@@ -581,7 +581,7 @@ const ProductDetail = () => {
                                 <>
                                     <div id='img1-container'>
                                         <img
-                                            src={product.productImageResponseList[currentImageIndex].linkImage}
+                                            src={product.productImageResponseList[currentImageIndex].linkImage || product.productImageResponseList[currentImageIndex]}
                                             alt={product.name}
                                             className="product-image"
                                         />
@@ -599,7 +599,7 @@ const ProductDetail = () => {
                                         {product.productImageResponseList.map((image, index) => (
                                             <img
                                                 key={index}
-                                                src={image.linkImage}
+                                                src={image.linkImage || image}
                                                 alt={product.name}
                                                 className={`product-image-detail ${currentImageIndex === index ? 'active' : ''}`}
                                                 onClick={() => handleDotClick(index)}

@@ -115,11 +115,11 @@ function Orders() {
 
         let url = '';
         if (keyword) {
-            url = `http://localhost:1010/api/shipment/search-shipment?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=5`;
+            url = `http://localhost:1010/api/shipment/search-shipment?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=8`;
         } else if (status !== 'all') {
             url = `http://localhost:1010/api/shipment/view/listByStatus?page=${page}&limit=5&status=${status}`;
         } else {
-            url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=5`;
+            url = `http://localhost:1010/api/shipment/view/list-All?page=${page}&limit=8`;
         }
 
         try {

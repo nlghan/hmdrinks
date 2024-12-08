@@ -18,6 +18,18 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
 }
 
+.hot-image-container {
+    position: absolute;
+    top: -5px;
+    left: 0px;
+    z-index: 10;
+}
+
+.hot-image {
+    width: 100px !important;
+    height: 30px !important;
+}
+
 
 
 /* Product image styling */
