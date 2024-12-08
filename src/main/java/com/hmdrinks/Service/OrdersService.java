@@ -635,6 +635,10 @@ public class OrdersService {
             if(payment == null) {
                 continue;
             }
+            if (payment.getPaymentMethod() == Payment_Method.CASH)
+            {
+                continue;
+            }
             if(payment.getStatus() != Status_Payment.PENDING)
             {
                 continue;
@@ -990,8 +994,6 @@ public class OrdersService {
 
         return ResponseEntity.status(HttpStatus.OK).body(detailOrderResponse);
     }
-
-
 
     @Transactional
     public ResponseEntity<?> listOrderConfirmed(int userId) {

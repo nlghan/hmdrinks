@@ -1,8 +1,6 @@
 package com.hmdrinks.Controller;
 
-import com.hmdrinks.Request.CreateVoucherReq;
-import com.hmdrinks.Request.CrudVoucherReq;
-import com.hmdrinks.Request.IdReq;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.*;
 import com.hmdrinks.Service.VoucherService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,6 +27,13 @@ public class VoucherController {
             @PathVariable Integer id,HttpServletRequest httpRequest
     ){
         return ResponseEntity.ok(voucherService.getVoucherById(id));
+    }
+
+    @PostMapping(value ="/user/key")
+    public ResponseEntity<?> getOneVoucher1(
+            @RequestBody GetVoucherKeyReq req, HttpServletRequest httpRequest
+    ){
+        return voucherService.getVoucherByKey(req.getKeyVoucher(), req.getUserId());
     }
 
     @GetMapping(value = "/view/all")

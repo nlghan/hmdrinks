@@ -1,5 +1,6 @@
 package com.hmdrinks.Service;
 import com.hmdrinks.Entity.Post;
+import com.hmdrinks.Entity.User;
 import com.hmdrinks.Entity.UserVoucher;
 import com.hmdrinks.Entity.Voucher;
 import com.hmdrinks.Enum.Status_Voucher;
@@ -10,6 +11,7 @@ import com.hmdrinks.Repository.VoucherRepository;
 import com.hmdrinks.Request.CreateVoucherReq;
 import com.hmdrinks.Request.CrudVoucherReq;
 import com.hmdrinks.Response.CRUDVoucherResponse;
+import com.hmdrinks.Response.GetVoucherResponse;
 import com.hmdrinks.Response.ListAllVoucherResponse;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,6 +216,23 @@ public class VoucherService {
                 voucher.getDiscount(),
                 voucher.getStatus(),
                 voucher.getPost().getPostId()
+        ));
+    }
+
+    public ResponseEntity<?> getVoucherByKey(String voucherCode, int userId){
+        Voucher voucher = voucherRepository.findByKeyAndIsDeletedFalse(voucherCode);
+        if(voucher == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Voucher not found");
+        }
+        UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(userId,voucher.getVoucherId());
+        if(userVoucher == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Voucher not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new GetVoucherResponse(
+                userVoucher.getUserVoucherId(),
+                userVoucher.getUser().getUserId(),
+                userVoucher.getVoucher().getVoucherId(),
+                userVoucher.getStatus().toString()
         ));
     }
 
