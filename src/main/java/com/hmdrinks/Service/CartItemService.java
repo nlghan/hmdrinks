@@ -234,8 +234,7 @@ public class CartItemService {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
         }
-
-        ProductVariants productVariants = productVariantsRepository.findByVarIdAndSize(cartItem.getProductVariants().getVarId(),req.getSize());
+        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProIdAndIsDeletedFalse(req.getSize(),cartItem.getProductVariants().getProduct().getProId());
         if(productVariants == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ProductVariants Not Found with Size");
