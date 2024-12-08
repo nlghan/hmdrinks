@@ -232,6 +232,21 @@ public class VNPayIpnHandler {
                         note
                 );
             }
+            if (payment != null && !code.equals("00")) {
+
+                    payment.setStatus(Status_Payment.FAILED);
+                    paymentRepository.save(payment);
+                    Orders order1 = payment.getOrder();
+                    order1.setDateCanceled(LocalDateTime.now());
+                    order1.setStatus(Status_Order.CANCELLED);
+                    Voucher voucher = order1.getVoucher();
+                    if(voucher != null) {
+                        UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order1.getUser().getUserId(), voucher.getVoucherId());
+                        userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                        userVoucherRepository.save(userVoucher);
+                    }
+
+            }
             response = response1;
 
         }
@@ -253,7 +268,7 @@ public class VNPayIpnHandler {
                         order1.setStatus(Status_Order.CANCELLED);
                         Voucher voucher = order.getVoucher();
                         if(voucher != null) {
-                            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                            UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order1.getUser().getUserId(), voucher.getVoucherId());
                             userVoucher.setStatus(Status_UserVoucher.INACTIVE);
                             userVoucherRepository.save(userVoucher);
                         }

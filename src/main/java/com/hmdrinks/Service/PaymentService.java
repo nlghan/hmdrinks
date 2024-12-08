@@ -43,13 +43,13 @@ public class PaymentService {
     private static final String clientId = "0e21da23-8871-45ef-8624-694417cf10eb";
     private static final String apiKey = "0ad492a1-cf68-446e-901d-d282171cbdd9";
     private static final String checksumKey = "465b9e56baff7a17688d4867b9ad117f9f0ccc95732f18971f9e94b72ffe9a2e";
-    private static  final String webhookUrl = "https://e017-14-186-74-32.ngrok-free.app/intermediary-page";
+    private static  final String webhookUrl = " https://c472-42-116-39-1.ngrok-free.app/intermediary-page";
 
     //momo
     private final String accessKey = "F8BBA842ECF85";
     private final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private final String partnerCode = "MOMO";
-    private final String redirectUrl = "https://e017-14-186-74-32.ngrok-free.app/intermediary-page";
+    private final String redirectUrl = " https://c472-42-116-39-1.ngrok-free.app/intermediary-page";
     private final String ipnUrl = "https://rightly-poetic-amoeba.ngrok-free.app/api/payment/callback";
     private final String requestType = "payWithMethod";
     private final boolean autoCapture = true;
@@ -992,13 +992,13 @@ public class PaymentService {
                 userVoucherRepository.save(userVoucher);
             }
 
-            OrderItem orderItem1 = orders.getOrderItem();
-            if (orderItem1 != null) {
-                orderItemRepository.delete(orderItem1);
-                Cart cart = cartRepository.findByCartId(orderItem1.getCart().getCartId());
-                cart.setStatus(Status_Cart.NEW);
-                cartRepository.save(cart);
-            }
+//            OrderItem orderItem1 = orders.getOrderItem();
+//            if (orderItem1 != null) {
+//                orderItemRepository.delete(orderItem1);
+//                Cart cart = cartRepository.findByCartId(orderItem1.getCart().getCartId());
+//                cart.setStatus(Status_Cart.NEW);
+//                cartRepository.save(cart);
+//            }
 
             response.put("status", HttpStatus.BAD_REQUEST.value());
             response.put("message", "Payment failed");

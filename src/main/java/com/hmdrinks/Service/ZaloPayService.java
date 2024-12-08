@@ -189,7 +189,7 @@ public class ZaloPayService {
         order.put("amount", total);
         order.put("description", "HMDrinks - Payment for the order #" + transId);
         order.put("bank_code", "");
-        order.put("callback_url", "https://e017-14-186-74-32.ngrok-free.app/payment-online-status/");
+        order.put("callback_url", "https://c472-42-116-39-1.ngrok-free.app/payment-online-status/");
         order.put("embed_data", "{\"redirecturl\":\"http://localhost:5173/payment-online-status\"}");
         order.put("item", "[]");
 
@@ -307,7 +307,8 @@ public class ZaloPayService {
         }
         Map<String, Object> response = new HashMap<>();
         boolean isSuccess = checkStatusOrder(appTransId);
-        if (isSuccess) {
+        System.out.println(isSuccess);
+        if (isSuccess != false) {
             if (payment.getStatus() != Status_Payment.FAILED || payment.getStatus() != Status_Payment.COMPLETED) {
                 payment.setStatus(Status_Payment.COMPLETED);
                 paymentRepository.save(payment);
@@ -380,6 +381,21 @@ public class ZaloPayService {
                 response.put("status", 0);
             }
 
+        }
+        else
+        {
+            payment.setStatus(Status_Payment.FAILED);
+            paymentRepository.save(payment);
+            Orders order = payment.getOrder();
+            order.setDateCanceled(LocalDateTime.now());
+            order.setStatus(Status_Order.CANCELLED);
+            Voucher voucher = order.getVoucher();
+            if(voucher != null) {
+                UserVoucher userVoucher = userVoucherRepository.findByUserUserIdAndVoucherVoucherId(order.getUser().getUserId(), voucher.getVoucherId());
+                userVoucher.setStatus(Status_UserVoucher.INACTIVE);
+                userVoucherRepository.save(userVoucher);
+            }
+            response.put("status", 0);
         }
         return ResponseEntity.ok().body(response);
     }
