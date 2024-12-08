@@ -667,6 +667,26 @@ public class OrdersService {
             );
             listOrderConfirmPaymentPending.add(createOrdersResponse);
         }
+        listOrderWaiting.sort((h1, h2) -> {
+            if (h1.getDateOders() != null && h2.getDateOders() != null) {
+                return h2.getDateOders().compareTo(h1.getDateOders());
+            }
+            return h2.getDateCreated().compareTo(h1.getDateCreated());
+        });
+
+        listOrderConfirm.sort((h1, h2) -> {
+            if (h1.getDateOders() != null && h2.getDateOders() != null) {
+                return h2.getDateOders().compareTo(h1.getDateOders());
+            }
+            return h2.getDateCreated().compareTo(h1.getDateCreated());
+        });
+
+        listOrderConfirmPaymentPending.sort((h1, h2) -> {
+            if (h1.getDateOders() != null && h2.getDateOders() != null) {
+                return h2.getDateOders().compareTo(h1.getDateOders());
+            }
+            return h2.getDateCreated().compareTo(h1.getDateCreated());
+        });
 
         ListOrderWaiting list1 = new ListOrderWaiting(ordersWaiting.size(),listOrderWaiting);
         ListAllOrderConfirmAndNotPayment list2 = new ListAllOrderConfirmAndNotPayment(ordersConfirm.size(),listOrderConfirm);
