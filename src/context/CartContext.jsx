@@ -22,6 +22,8 @@ export const CartProvider = ({ children }) => {
     const [showError, setShowError] = useState(false);
     const [showErrorDistance, setShowErrorDistance] = useState(false);
     const [showErrorValue, setShowErrorValue] = useState(false);
+    const [showErrorSOT, setShowErrorSOT] = useState(false);
+    const [showErrorSOTT, setShowErrorSOTT] = useState(false);
 
     // Ensure cart exists
     // Ensure cart exists
@@ -255,6 +257,7 @@ export const CartProvider = ({ children }) => {
         const productDetails = await fetchProductDetails(product.productId, product.size);
 
         if (!productDetails) {
+
             console.error('Could not fetch product details');
             return; // Exit if product details couldn't be fetched
         }
@@ -555,7 +558,11 @@ export const CartProvider = ({ children }) => {
                     setCartItems(prevItems => {
                         const updatedItems = prevItems.map(item =>
                             item.cartItemId === cartItemId
-                                ? { ...item, quantity: item.quantity - 1 }
+                                ? { 
+                                    ...item, 
+                                    quantity: item.quantity - 1,
+                                    totalPrice: item.price * (item.quantity - 1) // Cập nhật totalPrice
+                                }
                                 : item
                         );
 
@@ -920,25 +927,69 @@ export const CartProvider = ({ children }) => {
         L: 'L'
     };
 
+    // Thêm hàm fetch giá theo size
+    const fetchPriceBySize = async (productId, size) => {
+        const token = getCookie('access_token');
+        try {
+            const response = await fetch(`http://localhost:1010/api/product/variants/${productId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Tìm variant có size tương ứng
+                const variant = data.responseList.find(v => v.size === size);
+                return variant ? variant.price : null;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching price for size:', error);
+            return null;
+        }
+    };
+
     const changeSize = async (cartItemId, newSize) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
-        // Log thông tin request
-        console.log('Request Data:', {
-            userId,
-            cartItemId,
-            size: Size[newSize],
-            token: token ? 'Token exists' : 'No token'
-        });
-
         try {
+            // Tìm sản phẩm hiện tại để lấy productId
+            const currentItem = cartItems.find(item => item.cartItemId === cartItemId);
+            if (!currentItem) {
+                console.error('Cart item not found');
+                return;
+            }
+
+            // Kiểm tra stock của size mới trước khi thay đổi
+            const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${currentItem.productId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const variantData = await variantResponse.json();
+            const newSizeVariant = variantData.responseList.find(v => v.size === newSize);
+
+            if (!newSizeVariant) {
+                setShowErrorSOT(true);
+                setTimeout(() => {
+                    setShowErrorSOT(false);
+                }, 2000);
+                console.error('Variant not found for new size');
+                return;
+            }
+
             const requestBody = {
                 userId: parseInt(userId),
                 cartItemId: parseInt(cartItemId),
-                size: newSize  // Gửi trực tiếp S, M, L để match với enum Size trong Java
+                size: newSize
             };
-            console.log('Request Body:', requestBody);
 
             const response = await fetch('http://localhost:1010/api/cart-item/change-size', {
                 method: 'PUT',
@@ -950,54 +1001,49 @@ export const CartProvider = ({ children }) => {
                 body: JSON.stringify(requestBody)
             });
 
-            // Log response status
-            console.log('Response Status:', response.status);
+            if (response.ok) {
+                const data = await response.json();
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error Response:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    errorText: errorText
-                });
-                setShowError(true);
-                setTimeout(() => {
-                    setShowError(false);
-                }, 2000);
-                return;
+                // Kiểm tra nếu số lượng yêu cầu vượt quá stock
+                if (data.quantity > newSizeVariant.stock) {
+                    setShowErrorSOTT(true);
+                    setTimeout(() => {
+                        setShowErrorSOTT(false);
+                    }, 2000);
+
+                    // Cập nhật cartItems với số lượng bằng stock hiện có
+                    setCartItems(prevItems => {
+                        return prevItems.map(item =>
+                            item.cartItemId === cartItemId
+                                ? {
+                                    ...item,
+                                    size: data.size,
+                                    price: newSizeVariant.price,
+                                    quantity: newSizeVariant.stock,
+                                    totalPrice: newSizeVariant.price * newSizeVariant.stock
+                                }
+                                : item
+                        );
+                    });
+                } else {
+                    // Cập nhật bình thường nếu đủ stock
+                    setCartItems(prevItems => {
+                        return prevItems.map(item =>
+                            item.cartItemId === cartItemId
+                                ? {
+                                    ...item,
+                                    size: data.size,
+                                    price: newSizeVariant.price,
+                                    quantity: data.quantity,
+                                    totalPrice: data.totalPrice
+                                }
+                                : item
+                        );
+                    });
+                }
             }
-
-            const data = await response.json();
-            // Log response data
-            console.log('Success Response:', data);
-            
-            setCartItems(prevItems => {
-                const updatedItems = prevItems.map(item => 
-                    item.cartItemId === cartItemId 
-                        ? { 
-                            ...item, 
-                            size: data.size,
-                            quantity: data.quantity,
-                            totalPrice: data.totalPrice
-                        } 
-                        : item
-                );
-                // Log state update
-                console.log('Updated Cart Items:', updatedItems);
-                return updatedItems;
-            });
-
-            setShowSuccess(true);
-            setTimeout(() => {
-                setShowSuccess(false);
-            }, 2000);
-
         } catch (error) {
-            // Log detailed error information
-            console.error('Error Details:', {
-                message: error.message,
-                stack: error.stack
-            });
+            console.error('Error Details:', error);
             setShowError(true);
             setTimeout(() => {
                 setShowError(false);
@@ -1051,6 +1097,38 @@ export const CartProvider = ({ children }) => {
                         </div>
                         <h3>Đã đạt giới hạn số lượng cho sản phẩm này!</h3>
                         <p>Không thể thêm vượt quá số lượng hàng tồn kho.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng sản phẩm của kích thước này hết hàng!</h3>
+                        <p>Vui lòng chọn lại kích thước khác.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOTT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng sản phẩm của kích thước này không đủ!</h3>
+                        <p>Vui lòng chọn lại số lượng phù hợp.</p>
                     </div>
                 </div>
             )}

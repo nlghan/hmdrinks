@@ -14,6 +14,7 @@ const MyOrder = () => {
     const [currentDeliveringPage, setCurrentDeliveringPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const navigate = useNavigate(); // Hook dùng để chuyển hướng
     const location = useLocation();
@@ -315,7 +316,7 @@ const MyOrder = () => {
     const fetchWaitingList = async () => {
         setLoading(true);
         setError(null);
-    
+
         const token = getCookie('access_token');
         if (!token) {
             setError('Vui lòng đăng nhập lại.');
@@ -323,7 +324,7 @@ const MyOrder = () => {
             return;
         }
         const userId = getUserIdFromToken(token);
-    
+
         try {
             // Gọi API danh sách shipment có trạng thái WAITING
             const responseShipment = await axios.get(
@@ -335,9 +336,9 @@ const MyOrder = () => {
                     },
                 }
             );
-    
+
             const listShipment = responseShipment.data.listShipment || [];
-    
+
             // Lấy chi tiết info-payment của từng orderId
             const promises = listShipment.map(async (shipment) => {
                 const responseOrder = await axios.get(
@@ -351,7 +352,7 @@ const MyOrder = () => {
                 );
                 return { ...shipment, infoPayment: responseOrder.data };
             });
-    
+
             const listWithPaymentInfo = await Promise.all(promises);
             setWaitingList(listWithPaymentInfo);  // Sử dụng setWaitingList thay cho setData
             window.scrollTo(0, 0);
@@ -362,7 +363,7 @@ const MyOrder = () => {
             setLoading(false);
         }
     };
-    
+
 
 
     const [currentHistoryPage, setCurrentHistoryPage] = useState(1);
@@ -492,12 +493,14 @@ const MyOrder = () => {
                     },
                 }
             );
-            alert('Order cancelled successfully');
+            setShowSuccess(true);
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 2000);
             console.log(response.data);
             fetchWaitingList();
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to cancel order');
         }
     };
 
@@ -588,82 +591,100 @@ const MyOrder = () => {
                         )}
                     </div>
                 );
-                case 'waiting':
-                    return (
-                        <div>
-                            {loading ? (
-                                <div>Đang tải...</div>
-                            ) : error ? (
-                                <div>{error}</div>
-                            ) : (
-                                <>
-                                    <ul className="my-orders-list">
-                                        {paginate(waitingList, currentWaitingPage).map((order) => (
-                                            <li key={order.orderId} className="my-orders-item">
-                                                <div
-                                                    className="my-orders-item-header"
-                                                    style={{ background: 'rgb(194 229 182)' }}
-                                                >
-                                                    <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                                    <button
-                                                        className="btn-view-details-ship"
-                                                        onClick={() =>
-                                                            navigate(`/my-order-detail/${order.orderId}`, {
-                                                                state: { dateDelivered: order.dateOders },
-                                                            })
-                                                        }
-                                                    >
-                                                        Chi tiết
-                                                    </button>
-                                                </div>
-                                                <div className="my-orders-item-content">
-                                                    <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
-                                                    <p><strong>Số điện thoại: &nbsp;</strong> {order.phoneNumber}</p>
-                                                    <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.infoPayment?.discountPrice)} VND</p>
-                                                    <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.infoPayment?.deliveryFee)} VND</p>
-                                                    <p>
-                                                        <strong>Tổng tiền:&nbsp;</strong>
-                                                        {formatPrice(Math.max(order.infoPayment?.totalPrice + order.infoPayment?.deliveryFee - order.infoPayment?.discountPrice, 0))} VND
-                                                    </p>
-                                                    <p><strong>Ngày đặt hàng: &nbsp;</strong> {order.infoPayment?.dateOders}</p>
-                                                    
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                    <button
-                                                        className="shipping-status-button"
-                                                        style={{
-                                                            background: 'red',
-                                                            padding: '10px',
-                                                            borderRadius: '4px',
-                                                            color: 'white',
-                                                            marginRight:'5px',
-                                                            marginBottom:'5px'
-                                                        }}   
-                                                        onClick={() => handleCancelOrder(order.orderId)} 
-                                                    >
-                                                        HỦY ĐƠN
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {/* Pagination */}
-                                    <div className="menu-category-pagination" style={{ width: '100%' }}>
-                                        {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
-                                            <span
-                                                key={index + 1}
-                                                className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
-                                                onClick={() => handleDeliveringPageChange(index + 1)}
+            case 'waiting':
+                return (
+                    <div>
+                        {loading ? (
+                            <div>Đang tải...</div>
+                        ) : error ? (
+                            <div>{error}</div>
+                        ) : (
+                            <>
+                                <ul className="my-orders-list">
+                                    {paginate(waitingList, currentWaitingPage).map((order) => (
+                                        <li key={order.orderId} className="my-orders-item">
+                                            <div
+                                                className="my-orders-item-header"
+                                                style={{ background: 'rgb(194 229 182)' }}
                                             >
-                                                •
-                                            </span>
-                                        ))}
+                                                <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.orderId}`, {
+                                                            state: { dateDelivered: order.dateOders },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
+                                            </div>
+                                            <div className="my-orders-item-content">
+                                                <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
+                                                <p><strong>Số điện thoại: &nbsp;</strong> {order.phoneNumber}</p>
+                                                <p><strong>Giảm giá:&nbsp;</strong> {formatPrice(order.infoPayment?.discountPrice)} VND</p>
+                                                <p><strong>Phí vận chuyển: &nbsp;</strong> {formatPrice(order.infoPayment?.deliveryFee)} VND</p>
+                                                <p>
+                                                    <strong>Tổng tiền:&nbsp;</strong>
+                                                    {formatPrice(Math.max(order.infoPayment?.totalPrice + order.infoPayment?.deliveryFee - order.infoPayment?.discountPrice, 0))} VND
+                                                </p>
+                                                <p><strong>Ngày đặt hàng: &nbsp;</strong> {order.infoPayment?.dateOders}</p>
+
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="shipping-status-button"
+                                                    style={{
+                                                        background: 'red',
+                                                        padding: '10px',
+                                                        borderRadius: '4px',
+                                                        color: 'white',
+                                                        marginRight: '5px',
+                                                        marginBottom: '5px'
+                                                    }}
+                                                    onClick={() => handleCancelOrder(order.orderId)}
+                                                >
+                                                    HỦY ĐƠN
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {/* Pagination */}
+                                <div className="menu-category-pagination" style={{ width: '100%' }}>
+                                    {Array.from({ length: Math.ceil(confirmedOrders.length / itemsPerPage) }, (_, index) => (
+                                        <span
+                                            key={index + 1}
+                                            className={`pagination-cate-dot ${currentDeliveringPage === index + 1 ? 'active' : ''}`}
+                                            onClick={() => handleDeliveringPageChange(index + 1)}
+                                        >
+                                            •
+                                        </span>
+                                    ))}
+                                </div>
+
+                            </>
+                        )}
+                        {showSuccess && (
+                            <div className="success-animation">
+                                <div className="success-modal">
+                                    <div className="success-icon">
+                                        <div className="success-icon-circle">
+                                            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                                <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                                <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                            </svg>
+                                        </div>
                                     </div>
-    
-                                </>
-                            )}
-                        </div>
-                    );
+                                    <h3>Đơn hàng đã được hủy thành công!</h3>                                    
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+
+
+                );
 
             case 'cancelled':
                 return (
@@ -678,16 +699,16 @@ const MyOrder = () => {
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
-                                            <button
-                                                        className="btn-view-details-ship"
-                                                        onClick={() =>
-                                                            navigate(`/my-order-detail/${order.orderId}`, {
-                                                                state: { dateDelivered: order.dateOders },
-                                                            })
-                                                        }
-                                                    >
-                                                        Chi tiết
-                                                    </button>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.orderId}`, {
+                                                            state: { dateDelivered: order.dateOders },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
                                             </div>
                                             <div className="my-orders-item-content">
                                                 <p><strong>Địa chỉ: &nbsp;</strong> {order.address}</p>
