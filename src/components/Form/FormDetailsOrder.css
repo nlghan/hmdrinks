@@ -1,0 +1,135 @@
+.fod-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.fod-container {
+    background-color: white;
+    width: 700px;
+    height: 750px;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow-y: auto;
+}
+
+.fod-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+}
+
+.fod-content {
+    margin-top: 20px;
+}
+
+.fod-status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: default;
+    font-weight: 500;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.fod-status-select:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+.fod-status-select option {
+    background-color: white;
+    color: #333;
+}
+
+.fod-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.fod-section h4 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.fod-detail-row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.fod-detail-label {
+    width: 150px;
+    font-weight: bold;
+    color: #666;
+}
+
+.fod-detail-value {
+    flex: 1;
+    color: #333;
+}
+
+.fod-order-items {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.fod-items-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.fod-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fod-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.fod-item:last-child {
+    margin-bottom: 0;
+}
+
+.fod-item .fod-detail-row {
+    margin-bottom: 5px;
+}
+
+.fod-item .fod-detail-row:last-child {
+    margin-bottom: 0;
+}
+
+.fod-item .fod-detail-label {
+    font-size: 13px;
+}
+
+.fod-item .fod-detail-value {
+    font-size: 13px;
+}

@@ -174,7 +174,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Dashboard" />
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Tổng quan" />
             <div className={`dashboard-row ${isMenuOpen ? 'dimmed' : ''}`}>
                 <div className="main-section">
                     <div className="stats-section">

@@ -486,9 +486,9 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                         <div className="form-update-post-group">
                             <label htmlFor="typePost">Loại bài đăng</label>
                             <select id="typePost" name="typePost" value={formData.typePost} onChange={handleInputChange}>
-                                <option value="EVENT">EVENT</option>
-                                <option value="NEW">NEW</option>
-                                <option value="DISCOUNT">DISCOUNT</option>
+                                <option value="EVENT">Sự kiện</option>
+                                <option value="NEW">Món mới</option>
+                                <option value="DISCOUNT">Giảm giá</option>
                             </select>
                         </div>
                         <div className="form-update-post-group-image">

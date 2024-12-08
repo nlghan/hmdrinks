@@ -1,0 +1,103 @@
+.fdp-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.fdp-modal {
+    background: white;
+    width: 700px;
+    height: 700px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fdp-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fdp-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.fdp-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.fdp-row {
+    margin-bottom: 15px;
+}
+
+.fdp-row label {
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 120px;
+    display: inline-block;
+}
+
+.fdp-description {
+    white-space: pre-wrap;
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.fdp-image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.fdp-image-grid img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.fdp-variants-list {
+    display: grid;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.fdp-variant-item {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.fdp-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.fdp-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.fdp-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}

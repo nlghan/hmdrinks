@@ -128,6 +128,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
         setShowPassword(!showPassword); // Đảo ngược giá trị của showPassword
     };
 
+
     return (
         <div className="form-add-user-container">
             <div className="form-add-user">
@@ -197,9 +198,9 @@ const FormAddUser = ({ onClose, onSubmit }) => {
                             value={formData.role}
                             onChange={handleInputChange}
                         >
-                            <option value="CUSTOMER">Customer</option>
-                            <option value="SHIPPER">Shipper</option>
-                            <option value="ADMIN">Admin</option>
+                            <option value="CUSTOMER">Khách hàng</option>
+                            <option value="SHIPPER">Nhân viên</option>
+                            <option value="ADMIN">Quản trị viên</option>
                         </select>
                     </div>
                     {/*<div className="form-group">

@@ -327,6 +327,17 @@ input:checked + .pro-slider:before {
 #btn-pro-add:hover {
     transform: scale(1.2);
 }
+#btn-pro-det {
+    color: blue;
+    font-size: 20px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#btn-pro-det:hover {
+    transform: scale(1.2);
+}
 
 .btn-pro-add1 {
     padding: 10px 15px;
