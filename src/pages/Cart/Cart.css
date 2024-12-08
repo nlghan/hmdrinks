@@ -298,3 +298,23 @@
     color: #888; /* Đảm bảo màu chữ trong các ô cũng đổi thành màu xám */
     text-decoration: line-through; /* Gạch ngang chữ trong các ô */
 }
+
+.size-select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    width: 80px;
+    text-align: center;
+}
+
+.size-select:hover {
+    border-color: #666;
+}
+
+.size-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
