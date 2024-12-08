@@ -998,14 +998,16 @@ export const CartProvider = ({ children }) => {
         const userId = getUserIdFromToken(token);
 
         try {
-            // Tìm sản phẩm hiện tại để lấy productId
+            // Tìm sản phẩm hiện tại để lấy productId và quantity hiện tại
             const currentItem = cartItems.find(item => item.cartItemId === cartItemId);
             if (!currentItem) {
                 console.error('Cart item not found');
                 return;
             }
 
-            // Kiểm tra stock của size mới trước khi thay đổi
+            const currentQuantity = currentItem.quantity; // Lưu số lượng hiện tại
+
+            // Kiểm tra stock của size mới
             const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${currentItem.productId}`, {
                 method: 'GET',
                 headers: {
@@ -1023,6 +1025,30 @@ export const CartProvider = ({ children }) => {
                     setShowErrorSOT(false);
                 }, 2000);
                 console.error('Variant not found for new size');
+                return;
+            }
+
+            // Kiểm tra nếu size mới không đủ stock cho số lượng hiện tại
+            if (currentQuantity > newSizeVariant.stock) {
+                setShowErrorSOTT(true);
+                setTimeout(() => {
+                    setShowErrorSOTT(false);
+                }, 2000);
+
+                // Cập nhật với số lượng tối đa có thể của size mới
+                setCartItems(prevItems => {
+                    return prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? {
+                                ...item,
+                                size: newSize,
+                                price: newSizeVariant.price,
+                                quantity: newSizeVariant.stock,
+                                totalPrice: newSizeVariant.price * newSizeVariant.stock
+                            }
+                            : item
+                    );
+                });
                 return;
             }
 
@@ -1044,44 +1070,21 @@ export const CartProvider = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
-
-                // Kiểm tra nếu số lượng yêu cầu vượt quá stock
-                if (data.quantity > newSizeVariant.stock) {
-                    setShowErrorSOTT(true);
-                    setTimeout(() => {
-                        setShowErrorSOTT(false);
-                    }, 2000);
-
-                    // Cập nhật cartItems với số lượng bằng stock hiện có
-                    setCartItems(prevItems => {
-                        return prevItems.map(item =>
-                            item.cartItemId === cartItemId
-                                ? {
-                                    ...item,
-                                    size: data.size,
-                                    price: newSizeVariant.price,
-                                    quantity: newSizeVariant.stock,
-                                    totalPrice: newSizeVariant.price * newSizeVariant.stock
-                                }
-                                : item
-                        );
-                    });
-                } else {
-                    // Cập nhật bình thường nếu đủ stock
-                    setCartItems(prevItems => {
-                        return prevItems.map(item =>
-                            item.cartItemId === cartItemId
-                                ? {
-                                    ...item,
-                                    size: data.size,
-                                    price: newSizeVariant.price,
-                                    quantity: data.quantity,
-                                    totalPrice: data.totalPrice
-                                }
-                                : item
-                        );
-                    });
-                }
+                
+                // Cập nhật với số lượng hiện tại
+                setCartItems(prevItems => {
+                    return prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? {
+                                ...item,
+                                size: newSize,
+                                price: newSizeVariant.price,
+                                quantity: currentQuantity, // Giữ nguyên số lượng hiện tại
+                                totalPrice: newSizeVariant.price * currentQuantity // Tính lại tổng tiền với giá mới
+                            }
+                            : item
+                    );
+                });
             }
         } catch (error) {
             console.error('Error Details:', error);
@@ -1095,6 +1098,115 @@ export const CartProvider = ({ children }) => {
     return (
         <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, handleRestore, changeSize }}>
             {children}
+            {isLoading && (
+                <div className="product-card-loading-animation">
+                    <div className="product-card-loading-modal">
+                        <div className="product-card-loading-spinner">
+                            <div className="product-card-spinner"></div>
+                        </div>
+                        <h3>Đang xử lý...</h3>
+                        <p>Vui lòng đợi trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {showSuccess && (
+                <div className="success-animation">
+                    <div className="success-modal">
+                        <div className="success-icon">
+                            <div className="success-icon-circle">
+                                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Thêm vào giỏ hàng thành công!</h3>
+                        <p>Bạn đã thêm vào giỏ hàng thành công.</p>
+                    </div>
+                </div>
+            )}
+
+            {showError && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Đã đạt giới hạn số lượng cho sản phẩm này!</h3>
+                        <p>Không thể thêm vượt quá số lượng hàng tồn kho.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng của kích thước sản phẩm này đã hết hàng!</h3>
+                        <p>Vui lòng chọn kích thước khác.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOTT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng của kích thước sản phẩm này không đủ!</h3>
+                        <p>Vui lòng chọn lại số lượng phù hợp.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorDistance && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Khoảng cách không hợp lệ!</h3>
+                        <p>Xin vui lòng cập nhật lại.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorValue && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Không thể nhập số lượng là 0!!</h3>
+                        <p>Vui lòng nhập số lượng hợp lệ.</p>
+                    </div>
+                </div>
+            )}
         </CartContext.Provider>
     );
 };
