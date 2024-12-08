@@ -195,6 +195,7 @@ class CartControllerTest {
         CRUDCartItemResponse response1 = new CRUDCartItemResponse(
                 1,
                 1,
+                "",
                 1,
                 Size.S,
                 50000.0,
@@ -204,6 +205,7 @@ class CartControllerTest {
         CRUDCartItemResponse response2 = new CRUDCartItemResponse(
                 2,
                 1,
+                "",
                 1,
                 Size.L,
                 80000.0,

@@ -15,6 +15,7 @@ import com.hmdrinks.Response.CRUDCartItemResponse;
 import com.hmdrinks.Response.CreateNewCartResponse;
 import com.hmdrinks.Response.ListAllCartUserResponse;
 import com.hmdrinks.Response.ListItemCartResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +84,7 @@ public class CartService {
         return ResponseEntity.status(HttpStatus.OK).body( new ListAllCartUserResponse(userId, carts.size(), cartResponses));
     }
 
+    @Transactional
     public ResponseEntity<?> getAllItemCart(int id){
         Cart cart = cartRepository.findByCartId(id);
         if(cart == null)
@@ -96,6 +98,7 @@ public class CartService {
             crudCartItemResponses.add( new CRUDCartItemResponse(
                     cartItem.getCartItemId(),
                     cartItem.getProductVariants().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProName(),
                     cartItem.getCart().getCartId(),
                     cartItem.getProductVariants().getSize(),
                     cartItem.getTotalPrice(),

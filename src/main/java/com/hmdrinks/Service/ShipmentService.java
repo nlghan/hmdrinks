@@ -409,9 +409,9 @@ public class ShipmentService {
         Sort sort = null;
         if(status == Status_Shipment.CANCELLED)
         {
-            sort = Sort.by(Sort.Direction.DESC, "dateCanceled");
+            sort = Sort.by(Sort.Direction.DESC, "dateCancel");
         } else if (status == Status_Shipment.SUCCESS) {
-            sort = Sort.by(Sort.Direction.DESC, "dateShipped");
+            sort = Sort.by(Sort.Direction.DESC, "dateShip");
         } else if (status == Status_Shipment.SHIPPING) {
             sort = Sort.by(Sort.Direction.DESC, "dateCreated");
         }

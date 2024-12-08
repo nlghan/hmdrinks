@@ -33,6 +33,7 @@ public class CartItemService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public ResponseEntity<?> insertCartItem(InsertItemToCart req)
     {
         User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
@@ -92,6 +93,7 @@ public class CartItemService {
             return ResponseEntity.status(HttpStatus.OK).body(new CRUDCartItemResponse(
                     cartItem.getCartItemId(),
                     cartItem.getProductVariants().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProName(),
                     cartItem.getCart().getCartId(),
                     cartItem.getProductVariants().getSize(),
                     cartItem.getTotalPrice(),
@@ -123,6 +125,7 @@ public class CartItemService {
             return ResponseEntity.status(HttpStatus.OK).body(new CRUDCartItemResponse(
                     cartItem1.getCartItemId(),
                     cartItem1.getProductVariants().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProName(),
                     cartItem1.getCart().getCartId(),
                     cartItem1.getProductVariants().getSize(),
                     cartItem1.getTotalPrice(),
@@ -355,10 +358,10 @@ public class CartItemService {
 
     public ResponseEntity<?> deleteAllCartItem(DeleteAllCartItemReq req)
     {
-        Cart cart_restore = cartRepository.findByUserUserIdAndStatus(req.getCartId(), Status_Cart.RESTORE);
+        Cart cart_restore = cartRepository.findByCartIdAndStatus(req.getCartId(), Status_Cart.RESTORE);
         if(cart_restore != null)
         {
-            List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(req.getCartId());
+            List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cart_restore.getCartId());
             for(CartItem cartItem2: cartItemList)
             {
                 cartItemRepository.delete(cartItem2);
@@ -367,6 +370,9 @@ public class CartItemService {
             cart_restore.setTotalPrice(0);
             cart_restore.setStatus(Status_Cart.COMPLETED);
             cartRepository.save(cart_restore);
+            return ResponseEntity.status(HttpStatus.OK).body(new DeleteCartItemResponse(
+                    "Delete all item success"
+            ));
         }
 
         ///

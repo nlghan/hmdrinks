@@ -1002,6 +1002,7 @@ public class OrdersService {
                 .map(cartItem -> new CRUDCartItemResponse(
                         cartItem.getCartItemId(),
                         cartItem.getProductVariants().getProduct().getProId(),
+                        cartItem.getProductVariants().getProduct().getProName(),
                         cartItem.getCart().getCartId(),
                         cartItem.getProductVariants().getSize(),
                         cartItem.getTotalPrice(),

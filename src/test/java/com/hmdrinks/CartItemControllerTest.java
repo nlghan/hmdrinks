@@ -102,6 +102,7 @@ class CartItemControllerTest {
         CRUDCartItemResponse response = new CRUDCartItemResponse(
                 1,
                 1,
+                "",
                 1,
                 Size.S,
                 20000.0,

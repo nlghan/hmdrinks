@@ -1191,6 +1191,7 @@ public class PaymentService {
         payment1.setPaymentMethod(Payment_Method.CASH);
         payment1.setStatus(Status_Payment.PENDING);
         payment1.setDateCreated(LocalDateTime.now());
+        payment1.setLink("");
         payment1.setIsDeleted(false);
         payment1.setOrder(order);
         payment1.setIsRefund(false);
@@ -1253,7 +1254,8 @@ public class PaymentService {
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
                 payment1.getOrder().getOrderId(),
-                payment1.getIsRefund(),payment.getLink()
+                payment1.getIsRefund(),
+                payment1.getLink()
 
         ));
     }
