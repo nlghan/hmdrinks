@@ -12,12 +12,14 @@ import Swal from 'sweetalert2';
 const MyOrderDetail = () => {
     const { shipmentId } = useParams(); // Nhận shipmentId từ URL
     const [shipment, setShipment] = useState(null);
+    const [name, setName] = useState(null);
+    const [items, setItems] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [payment, setPayment] = useState(null);
     const [order, setOrder] = useState(null);
     const location = useLocation();
-    const { dateDelivered } = location.state || {};
+    const { dateDelivered, phone  } = location.state || {};
     console.log("ngày đặt hàng", dateDelivered)
     const [cancelError, setCancelError] = useState(null);
     const [cancelReason, setCancelReason] = useState(''); // Trạng thái lưu lý do hủy đơn
@@ -56,49 +58,33 @@ const MyOrderDetail = () => {
         }
 
         try {
-            // Lấy chi tiết shipment
-            const shipmentResponse = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/shipment/view/order/${shipmentId}`,
+            // Gọi API lấy toàn bộ thông tin
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/orders/detail/${shipmentId}`, // Thay `shipmentId` bằng `orderId` nếu cần
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
-            const shipmentData = shipmentResponse.data;
-            setShipment(shipmentData);
 
-            // Lấy thông tin thanh toán
-            const paymentResponse = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/payment/view/${shipmentData.paymentId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            const paymentData = paymentResponse.data;
-            setPayment(paymentData);
+            const data = response.data;
 
-            // Lấy chi tiết đơn hàng
-            const orderResponse = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/orders/detail-item/${paymentData.orderId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            const orderData = orderResponse.data;
-            setOrder(orderData);
+            // Cập nhật state với dữ liệu nhận được
+            setName(data.customerName);
+            setOrder(data.order);
+            setPayment(data.payment);
+            setShipment(data.shipment);
+            setItems(data.listItem); // Nếu bạn muốn lưu danh sách item
 
             setLoading(false);
         } catch (err) {
             console.error('Error fetching data:', err);
-            setCancelError('Không thể tải thông tin.');
+            setError('Không thể tải thông tin.');
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchShipmentDetail();
@@ -176,7 +162,7 @@ const MyOrderDetail = () => {
                 setCancelReason('');
                 setIsReasonSelected(false);
             }
-            
+
         } catch (error) {
             console.error('Error canceling order:', error);
             setCancelError('Chỉ được gửi yêu cầu hủy đơn một lần');
@@ -207,12 +193,12 @@ const MyOrderDetail = () => {
                             <h2>Chi Tiết Đơn Hàng</h2>
 
                             <p><strong>Mã đơn hàng:</strong> {order?.orderId}</p>
-                            <p><strong>Tên khách hàng:</strong> {shipment?.customerName}</p>
-                            <p><strong>Địa chỉ giao hàng:</strong> {shipment?.address}</p>
-                            <p><strong>Số điện thoại:</strong> {shipment?.phoneNumber}</p>
-                            <p><strong>Mã đơn giao:</strong> {shipment?.shipmentId}</p>
-                            <p><strong>Ngày đặt hàng:</strong> {shipment?.dateCreated}</p>
-                            <p><strong>Trạng thái giao hàng:</strong> {shipment?.status}</p>
+                            <p><strong>Tên khách hàng:</strong> {shipment?.customerName || name}</p>
+                            <p><strong>Địa chỉ giao hàng:</strong> {order?.address}</p>
+                            <p><strong>Số điện thoại:</strong> {shipment?.phoneNumber || phone}</p>
+                            <p><strong>Mã đơn giao:</strong> {shipment?.shipmentId || 'Không có'}</p>
+                            <p><strong>Ngày đặt hàng:</strong> {order?.dateCreated}</p>
+                            <p><strong>Trạng thái giao hàng:</strong> {shipment?.status || 'Không có'}</p>
                             {/* <p><strong>Ngày hủy đơn:</strong> {shipment?.dateCancelled}</p> */}
                             <p><strong>Ghi chú:</strong> {shipment?.notes || 'Không có ghi chú.'}</p>
                             <h2>Thông Tin Thanh Toán</h2>
@@ -220,21 +206,21 @@ const MyOrderDetail = () => {
                             <p><strong>Trạng thái thanh toán:</strong> {payment?.statusPayment}</p>
 
 
-                            <p><strong>Tổng tiền:</strong> {formatPrice(payment?.amount)} VND (Bao gồm phí ship)</p>
+                            <p><strong>Tổng tiền:</strong> {formatPrice(order.totalPrice + order.deliveryFee - order.discountPrice)} VND (Bao gồm phí ship)</p>
                             <ul className="order-items-list">
-                                {order?.listItemOrders.map(item => (
+                                {items?.map(item => (
                                     <li key={item.cartItemId} className="order-item">
-                                        <p><strong>Sản phẩm:</strong> {item.proName}</p>
+                                        <p><strong>Sản phẩm:</strong> {item.proName}</p> {/* Nếu cần tên sản phẩm, cần bổ sung dữ liệu từ API */}
                                         <p><strong>Kích cỡ:</strong> {item.size}</p>
-                                        <p><strong>Giá:</strong> {item.priceItem} VND</p>
                                         <p><strong>Số lượng:</strong> {item.quantity}</p>
                                         <p><strong>Thành tiền:</strong> {formatPrice(item.totalPrice)} VND</p>
                                     </li>
                                 ))}
                             </ul>
 
+
                             {cancelError && <div className="error-message">{cancelError}</div>}
-                            {payment?.statusPayment !== 'FAILED' && payment?.statusPayment !== 'REFUND' ? (
+                            {payment?.statusPayment !== 'FAILED' && payment?.statusPayment !== 'REFUND' && order?.status != "CANCELLED" && shipment?.status != "SUCCESS" && shipment?.status != null? (
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', gap: '10px' }}>
                                     {!isRequestSent ? (
                                         <>
@@ -265,8 +251,8 @@ const MyOrderDetail = () => {
                                                 <option value="UNSATISFIED_WITH_SERVICE">Không hài lòng với dịch vụ</option>
                                                 <option value="OTHER_REASON">Lý do khác</option>
                                             </select>
-                                            
-                                            <button 
+
+                                            <button
                                                 onClick={() => handleCancelOrder(cancelReason)}
                                                 disabled={!isReasonSelected}
                                                 style={{

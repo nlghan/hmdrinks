@@ -150,7 +150,7 @@ const NewsUser = () => {
               <p>Loading...</p>
             ) : (
               posts.map((post) => (
-                <div className="news-user-card" key={post.postId}>
+                <div className="news-user-card" key={post.postId} onClick={() => handleDetailsClick(post.postId)} >
                   <img src={post.url || "https://via.placeholder.com/250"} alt={post.title || "Tin tức"} className="news-user-image" />
                   <div className="news-user-card-content">
                     <p className="news-user-card-date">

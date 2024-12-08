@@ -22,18 +22,18 @@ export const CartProvider = ({ children }) => {
     const [showError, setShowError] = useState(false);
     const [showErrorDistance, setShowErrorDistance] = useState(false);
     const [showErrorValue, setShowErrorValue] = useState(false);
+    const [cartChanged, setCartChanged] = useState(false);
 
-    // Ensure cart exists
+
     // Ensure cart exists
     const ensureCartExists = async (userId) => {
-        // Check if the user is not logged in (userId is null or undefined)
         if (!userId) {
             console.log("User is not logged in, skipping cart fetch.");
-            return; // Exit the function early
+            return;
         }
-
+    
         const token = getCookie('access_token');
-
+    
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -42,29 +42,32 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             const data = await response.json();
-            console.log("Cart List Response:", data); // Debugging response
-
+            console.log("Cart List Response:", data);
+    
             if (response.ok) {
                 const cartList = data.listCart || [];
-                console.log("Cart List:", cartList); // Checking cart list
-
-                // Check if there is a cart with the status "NEW"
-                const newCart = cartList.find(cart => cart.statusCart === 'NEW');
-
-                if (newCart) {
-                    // If there is already a "NEW" cart, just retrieve its cartId
-                    if (cartId !== newCart.cartId) { // Check if cartId has been set
-                        setCartId(newCart.cartId);
-                        console.log("Existing NEW cart ID:", newCart.cartId); // Log cart ID
-                        await fetchCartItemsByCartId(newCart.cartId); // Fetch items of the "NEW" cart
+                const restoreCart = cartList.find(cart => cart.statusCart === 'RESTORE');
+    
+                if (restoreCart) {
+                    if (cartId !== restoreCart.cartId) {
+                        setCartId(restoreCart.cartId);
+                        await fetchCartItemsByCartId(restoreCart.cartId);
                     }
                 } else {
-                    // If there is no "NEW" cart, create a new cart and save cartId
-                    console.log('No "NEW" cart found, creating a new cart...');
-                    const newCartId = await createCart(userId); // Create a new cart with status "NEW"
-                    setCartId(newCartId); // Save cartId
+                    const newCart = cartList.find(cart => cart.statusCart === 'NEW');
+    
+                    if (newCart) {
+                        if (cartId !== newCart.cartId) {
+                            setCartId(newCart.cartId);
+                            await fetchCartItemsByCartId(newCart.cartId);
+                        }
+                    } else {
+                        console.log('No "NEW" or "RESTORE" cart found, creating a new cart...');
+                        const newCartId = await createCart(userId);
+                        setCartId(newCartId);
+                    }
                 }
             } else {
                 console.error('Failed to fetch carts:', data);
@@ -73,7 +76,41 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart:', error);
         }
     };
-
+    
+    const handleRestore = async (orderId) => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+    
+        if (!token) {
+            console.error('Token không tồn tại. Vui lòng đăng nhập lại.');
+            return;
+        }
+    
+        try {
+            const response = await axios.post(
+                'http://localhost:1010/api/orders/restore',
+                { userId, orderId },
+                { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+            );
+    
+            const restoredData = response.data;
+            console.log('Đơn hàng đã được khôi phục:', restoredData);
+    
+            await fetchCartItemsByCartId(restoredData.cartId);
+            setCartId(restoredData.cartId);
+    
+            // Đánh dấu rằng giỏ hàng đã thay đổi
+            setCartChanged(prev => !prev);
+    
+            alert('Đơn hàng đã được khôi phục thành công!');
+            return restoredData.cartId;
+        } catch (error) {
+            console.error('Không thể khôi phục đơn hàng:', error);
+            throw error;
+        }
+    };
+    
+  
 
     useEffect(() => {
         const initializeCart = async () => {
@@ -81,7 +118,7 @@ export const CartProvider = ({ children }) => {
             await ensureCartExists(userId);
         };
         initializeCart();
-    }, []);
+    }, [cartChanged]);
 
 
 
@@ -331,18 +368,25 @@ export const CartProvider = ({ children }) => {
     const handleCheckout = async () => {
         const token = getCookie('access_token');
         const userId = parseInt(getUserIdFromToken(token), 10);
-
+    
         if (!userId || !cartId) {
             console.error("User ID or Cart ID is missing");
             return;
         }
-
+    
         const orderData = { userId, cartId, voucherId: selectedVoucher, note };
-
+    
         console.log('Data to be sent to the server:', orderData);
-
+    
         try {
             setIsCreating(true);
+    
+            // Đảm bảo cartId đã được cập nhật trước khi gọi API tạo đơn hàng
+            const updatedCartId = await ensureCartExists(userId);
+            if (updatedCartId) {
+                orderData.cartId = updatedCartId;
+            }
+    
             const response = await fetch('http://localhost:1010/api/orders/create', {
                 method: 'POST',
                 headers: {
@@ -352,40 +396,40 @@ export const CartProvider = ({ children }) => {
                 },
                 body: JSON.stringify(orderData),
             });
-
+    
             const data = await response.json();
-
+    
             console.log('Response Status:', response.status);
             console.log('Response Body:', data.body);
-
+    
             if (data.statusCodeValue === 400) {
                 setShowErrorDistance(true);
-                setSelectedVoucher(null)
+                setSelectedVoucher(null);
                 setTimeout(() => {
                     setShowErrorDistance(false);
                     navigate('/info');
                 }, 2000);
             } else if (data.statusCodeValue === 200) {
                 console.log('Order created successfully: ', data);
-
-                setCartItems([]);  // Clear cart after successful checkout
-                await ensureCartExists(userId);
-                setSelectedVoucher(null)
-
+    
+                setCartItems([]); // Clear cart after successful checkout
+                await ensureCartExists(userId); // Tạo giỏ hàng mới sau checkout
+                setSelectedVoucher(null);
+    
                 // Navigate to the order page and pass the order data using state
                 navigate('/order', { state: { orderData: data.body } });
-
             } else {
-                setSelectedVoucher(null)
+                setSelectedVoucher(null);
                 console.error('Error creating order:', data);
             }
         } catch (error) {
-            setSelectedVoucher(null)
+            setSelectedVoucher(null);
             console.error('Error while making order request:', error);
         } finally {
             setIsCreating(false);
         }
     };
+    
 
     const increase = async (cartItemId) => {
         const token = getCookie('access_token');
@@ -599,8 +643,10 @@ export const CartProvider = ({ children }) => {
                         const updatedTotalOfCart = updatedItems.reduce((acc, item) => acc + item.quantity, 0);
                         setTotalOfCart(updatedTotalOfCart);
 
+
                         return updatedItems;
                     });
+                    setCartChanged(prev => !prev);
                 } else {
                     console.error('Failed to delete item:', data);
                 }
@@ -614,9 +660,13 @@ export const CartProvider = ({ children }) => {
     // Get userId from token
     const getUserIdFromToken = (token) => {
         try {
+            // Tách payload từ token
             const payload = token.split('.')[1];
+            // Giải mã payload từ base64
             const decodedPayload = JSON.parse(atob(payload));
-            return decodedPayload.UserId;
+
+            // Ép kiểu UserId thành int (số nguyên)
+            return parseInt(decodedPayload.UserId, 10); // 10 là hệ cơ số thập phân
         } catch (error) {
             console.error("Cannot decode token:", error);
             return null;
@@ -629,27 +679,39 @@ export const CartProvider = ({ children }) => {
     const handleAuthChange = async () => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-
+    
         if (userId) {
             console.log('User logged in, fetching cart items for userId:', userId);
-
+    
             // Đảm bảo giỏ hàng tồn tại
             ensureCartExists(userId);
-
-            // // Lấy thời gian vận chuyển
+    
+            // Lấy thời gian vận chuyển
             try {
-                const response = await axios.get('http://localhost:1010/api/shipment/check-time', {
+                const shipmentResponse = await axios.get('http://localhost:1010/api/shipment/check-time', {
                     headers: {
                         'accept': '*/*',
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                console.log('Shipment check-time response:', response.data);
+                console.log('Shipment check-time response:', shipmentResponse.data);
             } catch (error) {
                 console.error('Error fetching shipment check-time:', error);
             }
-
+    
+            // Gọi thêm API kiểm tra thời gian thanh toán
+            try {
+                const paymentResponse = await axios.get('http://localhost:1010/api/payment/check-time', {
+                    headers: {
+                        'accept': '*/*',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                console.log('Payment check-time response:', paymentResponse.data);
+            } catch (error) {
+                console.error('Error fetching payment check-time:', error);
+            }
+    
             // Lấy các sản phẩm trong giỏ hàng
             await fetchCartItemsByCartId(cartId);
         } else {
@@ -658,6 +720,7 @@ export const CartProvider = ({ children }) => {
             setCartId(null); // Clear cart ID on logout
         }
     };
+    
 
     // Call handleAuthChange on component mount and when the access token changes
     useEffect(() => {
@@ -687,12 +750,13 @@ export const CartProvider = ({ children }) => {
                 }),
             });
 
-            const data = await response.json();
+            const data = await response.text();
 
             if (response.ok) {
                 console.log('All items deleted from cart:', data.message);
                 // Clear cart items in the state
                 setCartItems([]);
+                setCartChanged(prev => !prev);
             } else {
                 console.error('Failed to clear cart items:', data);
             }
@@ -904,6 +968,7 @@ export const CartProvider = ({ children }) => {
 
                     return updatedItems;
                 });
+                ensureCartExists();
 
             } else {
                 console.error('Failed to delete item:', data);
@@ -1007,7 +1072,8 @@ export const CartProvider = ({ children }) => {
 
 
     return (
-        <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, changeSize }}>
+        <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, handleRestore, changeSize }}>
+
             {children}
             {isLoading && (
                 <div className="product-card-loading-animation">

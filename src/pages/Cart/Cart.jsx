@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import './Cart.css'; // Use a CSS file for styling
 import { useNavigate } from 'react-router-dom';
+import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete and TextField
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Cart = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [showErrorOutStock, setShowErrorOutStock] = useState(false);
     const [availableSizes, setAvailableSizes] = useState({});
+
 
     const handleNoteChange = (event) => {
         setNote(event.target.value); // Update note
@@ -128,13 +130,21 @@ const Cart = () => {
     }, []);
 
 
-    const handleVoucherChange = async (e) => {
-        const selectedVoucherId = e.target.value;
-        setSelectedVoucher(selectedVoucherId);
-
-        console.log("Selected Voucher ID: ", selectedVoucherId);  // Log ID chọn được
-
-        if (selectedVoucherId) {
+    const handleVoucherChange = async (event, newValue) => {
+        // Nếu giỏ hàng trống, reset selectedVoucher và discount
+        if (cartItems.length === 0) {
+            setSelectedVoucher(null);
+            setDiscount(0);
+            console.log("Giỏ hàng trống, voucher đã được reset.");
+            return;
+        }
+    
+        if (newValue) {
+            const selectedVoucherId = newValue.voucherId; // Lấy voucherId từ giá trị mới
+            setSelectedVoucher(selectedVoucherId);
+    
+            console.log("Selected Voucher ID: ", selectedVoucherId); // Log ID chọn được
+    
             try {
                 // Gọi API để lấy thông tin voucher
                 const response = await fetch(`http://localhost:1010/api/voucher/view/${selectedVoucherId}`, {
@@ -143,14 +153,14 @@ const Cart = () => {
                         'accept': '*/*',
                     },
                 });
-
+    
                 const data = await response.json();
-
+    
                 if (response.ok) {
                     // Cập nhật discount nếu tìm thấy voucher
                     const discount = data.body.discount;
-                    setDiscount(discount);  // Cập nhật giá trị giảm giá
-                    console.log("Giảm giá nè: ", discount);  // Log giảm giá
+                    setDiscount(discount); // Cập nhật giá trị giảm giá
+                    console.log("Giảm giá nè: ", discount); // Log giảm giá
                 } else {
                     // Nếu API trả về lỗi hoặc không có voucher
                     setDiscount(0);
@@ -158,12 +168,20 @@ const Cart = () => {
                 }
             } catch (error) {
                 console.error("Có lỗi xảy ra khi gọi API: ", error);
-                setDiscount(0);  // Nếu có lỗi trong API call, set discount = 0
+                setDiscount(0); // Nếu có lỗi trong API call, set discount = 0
             }
         } else {
-            setDiscount(0);  // Nếu không có voucher chọn thì giảm giá = 0
+            setSelectedVoucher(null); // Xóa voucher nếu không chọn
+            setDiscount(0); // Giảm giá = 0
         }
     };
+    
+    useEffect(() => {
+        if (cartItems.length === 0) {
+            setSelectedVoucher(null);
+            setDiscount(0);
+        }
+    }, [cartItems]);
 
     console.log("cartID để order:", cartId)
 
@@ -439,7 +457,7 @@ const Cart = () => {
                                     </table>
 
                                     {/* Voucher selection box */}
-                                    <select
+                                    {/* <select
                                         className="voucher-select"
                                         value={selectedVoucher || ''}
                                         onChange={handleVoucherChange}  // Dùng handleVoucherChange để xử lý
@@ -451,8 +469,25 @@ const Cart = () => {
                                                 {voucher.key} - {formatCurrency(voucher.discount)}
                                             </option>
                                         ))}
-                                    </select>
+                                    </select> */}
+                                    <div style={{ marginTop: '20px' }}>
+                                        <Autocomplete
+                                            options={vouchers} // Danh sách vouchers
+                                            getOptionLabel={(option) =>
+                                                `${option.key} - ${formatCurrency(option.discount)}`
+                                            } // Hiển thị key và giảm giá
+                                            value={vouchers.find((voucher) => voucher.voucherId === selectedVoucher) || null}
+                                            onChange={handleVoucherChange} // Truyền đúng hàm xử lý
+                                            renderInput={(params) => (
+                                                <TextField {...params} label="Chọn voucher" variant="outlined" />
+                                            )} // Render giao diện input
+                                            isOptionEqualToValue={(option, value) =>
+                                                option.voucherId === value?.voucherId
+                                            } // Đảm bảo lựa chọn chính xác
+                                            noOptionsText="Không tìm thấy voucher" // Hiển thị khi không có kết quả
+                                        />
 
+                                    </div>
 
                                     <textarea placeholder="GHI CHÚ" className="cart-note" value={note} onChange={handleNoteChange}></textarea>
                                 </section>
@@ -511,7 +546,8 @@ const Cart = () => {
                                             </svg>
                                         </div>
                                     </div>
-                                    <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trư��c khi thanh toán.!</h3>                                
+                                    <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.!</h3>
+
                                 </div>
                             </div>
                         )}
