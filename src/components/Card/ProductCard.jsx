@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 import { useFavorite } from '../../context/FavoriteContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
+import hot from '../../assets/img/best_seller.png'
 
 function ProductCard({ product, onClick, onAddToCart, className, style, onFavoriteChange }) {
     const [isFavorited, setIsFavorited] = useState(false);
@@ -72,10 +73,6 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
         } catch (error) {
             setIsLoading(false);
             setMessage(error.message || "Đã đạt giới hạn số lượng cho sản phẩm này!");
-            // setShowError(true);
-            // setTimeout(() => {
-            //     setShowError(false);
-            // }, 2000);
         }
     };
 
@@ -101,6 +98,12 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
             >
                 <div className="product-card-image-container zoomIn">
                     <img src={product.image} alt={product.name} />
+                    {/* Check if averageRating is 5.0 to display the 'hot' image */}
+                    {product.averageRating === 5.0 && (
+                        <div className="hot-image-container">
+                            <img src={hot} alt="Hot" className="hot-image" />
+                        </div>
+                    )}
                     {isLoggedIn && ( // Render the favorite icon only if logged in
                         <button className="favorite-icon" onClick={handleFavorite}>
                             <i className="fa fa-heart" style={{ color: isFavorited ? 'red' : 'grey' }} aria-hidden="true"></i>
@@ -110,9 +113,16 @@ function ProductCard({ product, onClick, onAddToCart, className, style, onFavori
                 <div className="info-product-card">
                     <h3 style={{ margin: "0 0 4px 0" }}>{product.name} ({product.size})</h3>
                     <p style={{ margin: "0 0 4px 0" }}>{renderStars(product.averageRating)}</p>
-                    <div style={{ margin: "0" }} className="product-card-price">                        
+                    {/* Kiểm tra nếu totalSell có giá trị, nếu không thì không hiển thị dòng này */}
+                    {product.totalSell && (
+                        <div style={{ margin: "0 0 4px 0" }} className="product-card-price">
+                            <p style={{ margin: 0 }} className="product-card-p">Lượt mua: {product.totalSell}</p>
+                        </div>
+                    )}
+                    <div style={{ margin: "0" }} className="product-card-price">
                         <p style={{ margin: 0 }} className="product-card-p">Giá: {formattedPrice} VND</p>
                     </div>
+
                     <button className="add-cart" onClick={handleAddToCartClick}>
                         <i className="ti-shopping-cart" /> Đặt mua
                     </button>

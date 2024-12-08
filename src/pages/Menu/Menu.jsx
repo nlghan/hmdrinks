@@ -90,11 +90,11 @@ const Menu = () => {
                     : selectedCategoryId
                         ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
                         : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
-    
+
                 const response = await fetch(url);
                 const data = await response.json();
                 const productList = searchTerm ? data.productResponseList : (selectedCategoryId ? data.responseList : data.productResponses);
-    
+
                 // Lấy chi tiết từ listProductVariants ở vị trí 0 và log ra console
                 const productsWithDetails = productList.map((product) => {
                     const firstVariant = product.listProductVariants?.[0] || {};
@@ -103,16 +103,16 @@ const Menu = () => {
                         price: firstVariant.price,
                         stock: firstVariant.stock
                     };
-    
+
                     console.log("Chi tiết sản phẩm:", {
                         id: product.id,
                         name: product.name,
                         price: variantDetails.price || 'Không có giá'
                     });
-    
+
                     return { ...product, variantDetails };
                 });
-    
+
                 setProducts(productsWithDetails);
                 setTotalPages(data.totalPage);
             } catch (error) {
@@ -121,10 +121,10 @@ const Menu = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchProducts();
     }, [currentPage, selectedCategoryId, searchTerm, currentFilterType]); // Cập nhật khi bộ lọc thay đổi
-    
+
 
 
 
@@ -149,7 +149,7 @@ const Menu = () => {
         setCurrentPage(page);
         handleFilterChange(currentFilterType, page); // Gọi lại API với bộ lọc hiện tại
     };
-    
+
 
     // Handle category page change
     const handleCategoryPageChange = (page) => {
@@ -266,7 +266,7 @@ const Menu = () => {
         fetchRating(); // Gọi fetchRating khi component được mount
     }, []);
 
-    
+
     const [sortOrder, setSortOrder] = useState(() => {
         // Lấy giá trị từ localStorage nếu có, nếu không thì gán giá trị mặc định là 0
         const savedSortOrder = localStorage.getItem('sortOrder');
@@ -275,10 +275,10 @@ const Menu = () => {
 
     const handleFilterChange = async (filterType, page = 1, limit = 8) => {
         setCurrentFilterType(filterType); // Cập nhật bộ lọc hiện tại
-    
+
         let newSortOrder;
         let filterCode;
-    
+
         switch (filterType) {
             case 'priceAsc':
                 filterCode = [];
@@ -300,8 +300,11 @@ const Menu = () => {
                 filterCode = [];
                 newSortOrder = 4; // Sắp xếp đánh giá giảm dần
                 break;
+            case 'hot':
+                filterCode = [];
+                newSortOrder = 6;
+                break;
             default:
-                
                 break;
         }
 
@@ -326,35 +329,71 @@ const Menu = () => {
                     limit: limit
                 }),
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
-                
-                // Lấy danh sách sản phẩm và thêm ảnh cho từng sản phẩm
-                const products = await Promise.all(data.productResponseList.map(async (product) => {
-                    // Nếu sortOrder là 1, đảo ngược danh sách variants
-                    let variants = product.listProductVariants;
-                    if (newSortOrder === 1) {
-                        variants = [...variants].reverse(); // Đảo ngược phiên bản sản phẩm nếu cần
-                    }
-    
-                    // Lấy thông tin của phiên bản đầu tiên sau khi đảo ngược (nếu có)
-                    const firstVariant = variants[0] || {}; // Nếu không có variant thì tạo đối tượng rỗng
-    
-                    return {
-                        ...product,
-                        variantDetails: {
-                            size: firstVariant.size || 'Không có kích thước',
-                            price: firstVariant.price || 'Không có giá',
-                            stock: firstVariant.stock || 0
-                        },
-                    };
-                }));
-    
+
+                let products = [];
+                if (newSortOrder === 6) {
+                    // Trường hợp "hot" response có "varId", "size", "price", ...
+                    products = data.productResponseList.map(product => {
+                        // Truyền ảnh cho product detail trong trường hợp "hot"
+                        const images = product.productImageResponseList && product.productImageResponseList.length > 0
+                            ? product.productImageResponseList.map(img => img.linkImage)
+                            : [backgroundImage]; // Fallback if no images
+
+                        // Log link ảnh để kiểm tra
+                        console.log(`Product ID: ${product.proId}, Images:, ${images} , ProSize: ${product.size}`);
+
+                        // Đưa size, price, quantity vào variantDetails
+                        const variantDetails = {
+                            size: product.size || 'Không có kích thước',
+                            price: product.price || 'Không có giá',
+                            stock: product.quantity || 0
+                        };
+
+                        return {
+                            proId: product.proId,
+                            proName: product.proName,
+                            variantDetails, // Thêm variantDetails vào sản phẩm
+                            avgRating: product.avgRating,
+                            totalSell: product.totalSell,
+                            productImageResponseList: images, // Gán mảng link ảnh vào đối tượng sản phẩm
+                        };
+                    });
+                } else {
+                    // Trường hợp các filter khác
+                    products = await Promise.all(data.productResponseList.map(async (product) => {
+                        let variants = product.listProductVariants;
+                        if (newSortOrder === 1) {
+                            variants = [...variants].reverse(); // Đảo ngược phiên bản sản phẩm nếu cần
+                        }
+
+                        // Lấy thông tin của phiên bản đầu tiên sau khi đảo ngược (nếu có)
+                        const firstVariant = variants[0] || {}; // Nếu không có variant thì tạo đối tượng rỗng
+
+                        const images = product.productImageResponseList && product.productImageResponseList.length > 0
+                            ? product.productImageResponseList.map(img => img.linkImage)
+                            : [backgroundImage]; // Fallback if no images
+
+                        return {
+                            ...product,
+                            variantDetails: {
+                                size: firstVariant.size || 'Không có kích thước',
+                                price: firstVariant.price || 'Không có giá',
+                                stock: firstVariant.stock || 0
+                            },
+                            productImageResponseList: images, // Gán mảng link ảnh vào đối tượng sản phẩm
+                        };
+                    }));
+                }
+
                 // Cập nhật danh sách sản phẩm với thông tin ảnh
                 setProducts(products);
                 setTotalPages(data.totalPages);
                 setCurrentPage(data.currentPage);
+
+
             } else {
                 console.error("Error fetching filtered products");
             }
@@ -363,15 +402,16 @@ const Menu = () => {
         }
     };
 
+
     useEffect(() => {
         // Khi component load, gọi lại dữ liệu với sortOrder đã lưu từ localStorage
         if (sortOrder !== null) {
             handleFilterChange(currentFilterType, currentPage);
         }
     }, [sortOrder, selectedCategoryId, currentPage]);
-    
-    
-    
+
+
+
 
 
 
@@ -500,8 +540,8 @@ const Menu = () => {
                     <div className="filter">
                         <div className="filter">
                             <select
-                                 onChange={(e) => handleFilterChange(e.target.value)}
-                                 value={currentFilterType}
+                                onChange={(e) => handleFilterChange(e.target.value)}
+                                value={currentFilterType} // Controlled component using value prop
                                 style={{
                                     padding: '8px',
                                     borderRadius: '5px',
@@ -513,41 +553,43 @@ const Menu = () => {
                                     marginBottom: '20px'
                                 }}
                             >
-                                <option value="" disabled selected>Chọn bộ lọc</option>
+                                <option value="" disabled>Chọn bộ lọc</option> {/* Removed selected */}
+                                <option value="hot">Bán chạy nhất</option>
                                 <option value="priceAsc">Giá thấp đến cao</option>
                                 <option value="priceDesc">Giá cao đến thấp</option>
                                 <option value="newest">Ngày mới nhất</option>
                                 <option value="ratingAsc">Rating thấp đến cao</option>
                                 <option value="ratingDesc">Rating cao đến thấp</option>
                             </select>
+
                         </div>
                         {hasProducts && (
-                           <div className="menu-product-pagination">
-                           <span
-                               className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
-                               onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
-                           >
-                               {'<'}
-                           </span>
-                       
-                           {Array.from({ length: totalPages }, (_, index) => (
-                               <span
-                                   key={index + 1}
-                                   className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
-                                   onClick={() => handleProductPageChange(index + 1)}
-                               >
-                                   •
-                               </span>
-                           ))}
-                       
-                           <span
-                               className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
-                               onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
-                           >
-                               {'>'}
-                           </span>
-                       </div>
-                       
+                            <div className="menu-product-pagination">
+                                <span
+                                    className={`pagination-arrow ${currentPage === 1 ? 'disabled' : ''}`}
+                                    onClick={() => currentPage > 1 && handleProductPageChange(currentPage - 1)}
+                                >
+                                    {'<'}
+                                </span>
+
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <span
+                                        key={index + 1}
+                                        className={`pagination-dot ${currentPage === index + 1 ? 'active' : ''}`}
+                                        onClick={() => handleProductPageChange(index + 1)}
+                                    >
+                                        •
+                                    </span>
+                                ))}
+
+                                <span
+                                    className={`pagination-arrow ${currentPage === totalPages ? 'disabled' : ''}`}
+                                    onClick={() => currentPage < totalPages && handleProductPageChange(currentPage + 1)}
+                                >
+                                    {'>'}
+                                </span>
+                            </div>
+
 
                         )}
 
@@ -558,34 +600,35 @@ const Menu = () => {
                         <LoadingAnimation />
                     ) : (
                         <div className="products zoomIn">
-                        {hasProducts ? (
-                            filteredProducts.map((product) => {
-                                // Lấy biến thể đầu tiên từ listProductVariants nếu có
-                                const firstVariant = product.listProductVariants?.[0] || {};
-                                
-                                return (
-                                    <ProductCard
-                                        key={product.proId}
-                                        className={"zoom-in"}
-                                        product={{
-                                            proId: product.proId,
-                                            name: product.proName,
-                                            size: product.variantDetails?.size || firstVariant.size,
-                                            price: product.variantDetails?.price || firstVariant.price || 'N/A',
-                                            image: product.productImageResponseList?.[0]?.linkImage || backgroundImage,
-                                            averageRating: productRatings[product.proId] || 0,
-                                        }}
-                                        isFavorited={favoritedProIds.includes(product.proId)}
-                                        onClick={() => handleProductCardClick(product)}
-                                        onAddToCart={() => handleAddToCart(product)}
-                                    />
-                                );
-                            })
-                        ) : (
-                            <p>No products found matching your search.</p>
-                        )}
-                    </div>
-                    
+                            {hasProducts ? (
+                                filteredProducts.map((product) => {
+                                    // Lấy biến thể đầu tiên từ listProductVariants nếu có
+                                    const firstVariant = product.listProductVariants?.[0] || {};
+
+                                    return (
+                                        <ProductCard
+                                            key={product.varId}
+                                            className={"zoom-in"}
+                                            product={{
+                                                proId: product.proId,
+                                                name: product.proName,
+                                                size: product.variantDetails?.size || firstVariant.size || product.size,
+                                                price: product.variantDetails?.price || firstVariant.price || product.price || 'N/A',
+                                                image: product.productImageResponseList?.[0]?.linkImage || product.productImageResponseList?.[0] || backgroundImage,
+                                                averageRating: productRatings[product.proId] || 0,
+                                                totalSell: product.totalSell || ''
+                                            }}
+                                            isFavorited={favoritedProIds.includes(product.proId)}
+                                            onClick={() => handleProductCardClick(product)}
+                                            onAddToCart={() => handleAddToCart(product)}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <p>No products found matching your search.</p>
+                            )}
+                        </div>
+
                     )}
                     {showError && (
                         <div className="error-animation">
