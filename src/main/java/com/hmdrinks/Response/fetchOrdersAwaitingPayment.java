@@ -14,4 +14,5 @@ public class fetchOrdersAwaitingPayment {
     private int total ;
     ListOrderWaiting listOrderWaiting;
     ListAllOrderConfirmAndNotPayment listAllOrderConfirmAndNotPayment ;
+    ListAllOrderConfirmAndNotPayment listAllOrderConfirmAndPaymentPending ;
 }

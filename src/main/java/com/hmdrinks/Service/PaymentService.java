@@ -1568,11 +1568,24 @@ public class PaymentService {
 
         for(Payment payment : paymentList)
         {
+            Orders orders1 = payment.getOrder();
+            if(orders1 != null)
+            {
+                if(orders1.getStatus() == Status_Order.WAITING || (orders1.getStatus() == Status_Order.CONFIRMED && orders1.getPayment() == null))
+                {
+                    if(orders1.getDateDeleted().plusMinutes(20).isBefore(LocalDateTime.now()))
+                    {
+                              orders1.setDateCanceled(LocalDateTime.now());
+                              orders1.setStatus(Status_Order.CONFIRMED);
+                    }
+                }
+
+            }
             if(payment.getStatus() != Status_Payment.PENDING)
             {
                 continue;
             }
-            if (payment.getDateCreated().plusHours(1).isBefore(LocalDateTime.now())) {
+            if (payment.getDateCreated().plusMinutes(30it ).isBefore(LocalDateTime.now())) {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);
                 Orders orders = payment.getOrder();

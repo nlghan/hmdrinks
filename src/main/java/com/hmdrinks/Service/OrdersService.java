@@ -574,6 +574,7 @@ public class OrdersService {
         List<Orders> ordersConfirm = orderRepository.findAllByUserUserIdAndStatus(userId, Status_Order.CONFIRMED);
         List<CreateOrdersResponse> listOrderWaiting = new ArrayList<>();
         List<CreateOrdersResponse> listOrderConfirm = new ArrayList<>();
+        List<CreateOrdersResponse> listOrderConfirmPaymentPending = new ArrayList<>();
         for(Orders order: ordersWaiting)
         {
             Voucher voucher = null;
@@ -627,13 +628,49 @@ public class OrdersService {
                 );
                 listOrderConfirm.add(createOrdersResponse);
             }
+
+        for(Orders order: ordersConfirm)
+        {
+            Payment payment = order.getPayment();
+            if(payment == null) {
+                continue;
+            }
+            if(payment.getStatus() != Status_Payment.PENDING)
+            {
+                continue;
+            }
+            Voucher voucher = null;
+            CreateOrdersResponse createOrdersResponse = new CreateOrdersResponse(
+                    order.getOrderId(),
+                    order.getAddress(),
+                    order.getDeliveryFee(),
+                    order.getDateCreated(),
+                    order.getDateDeleted(),
+                    order.getDateUpdated(),
+                    order.getDeliveryDate(),
+                    order.getDateCanceled(),
+                    order.getDiscountPrice(),
+                    order.getIsDeleted(),
+                    order.getNote(),
+                    order.getOrderDate(),
+                    order.getPhoneNumber(),
+                    order.getStatus(),
+                    order.getTotalPrice(),
+                    order.getUser().getUserId(),
+                    voucher != null ? voucher.getVoucherId() : null
+            );
+            listOrderConfirmPaymentPending.add(createOrdersResponse);
+        }
+
         ListOrderWaiting list1 = new ListOrderWaiting(ordersWaiting.size(),listOrderWaiting);
         ListAllOrderConfirmAndNotPayment list2 = new ListAllOrderConfirmAndNotPayment(ordersConfirm.size(),listOrderConfirm);
+        ListAllOrderConfirmAndNotPayment list3 = new ListAllOrderConfirmAndNotPayment(listOrderConfirmPaymentPending.size(), listOrderConfirmPaymentPending);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new fetchOrdersAwaitingPayment(
                         list1.getTotal() + list2.getTotal(),
                         list1,
-                        list2
+                        list2,
+                        list3
                 )
         );
         }
