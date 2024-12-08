@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public class DetailOrderResponse {
+    private String customerName;
     CreateOrdersResponse order;
     CRUDPaymentResponse payment;
     CRUDShipmentResponse shipment;

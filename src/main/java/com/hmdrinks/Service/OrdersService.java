@@ -981,6 +981,7 @@ public class OrdersService {
                 .collect(Collectors.toList());
 
         DetailOrderResponse detailOrderResponse = new DetailOrderResponse(
+                order!= null ?order.getUser().getFullName():null,
                 createOrdersResponse,
                 crudPaymentResponse,
                 crudShipmentResponse,

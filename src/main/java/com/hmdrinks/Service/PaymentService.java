@@ -1585,7 +1585,7 @@ public class PaymentService {
             {
                 continue;
             }
-            if (payment.getDateCreated().plusMinutes(30it ).isBefore(LocalDateTime.now())) {
+            if (payment.getDateCreated().plusMinutes(30).isBefore(LocalDateTime.now())) {
                 payment.setStatus(Status_Payment.FAILED);
                 paymentRepository.save(payment);
                 Orders orders = payment.getOrder();
