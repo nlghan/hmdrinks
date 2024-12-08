@@ -58,7 +58,7 @@ const Product = () => {
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    const LIMIT = 4; // Số lượng sn phẩm mỗi trang
+    const LIMIT = 5; // Số lượng sn phẩm mỗi trang
     const [total, setTotal] = useState(); // Tổng số trang
 
     const [selectedVariant, setSelectedVariant] = useState(null); // State để lưu biến thể được chọn
@@ -162,19 +162,26 @@ const Product = () => {
         }
     }, [categoryPage]);
 
-    const fetchSearchOptions = useCallback(async (keyword) => {
+    const fetchSearchOptions = useCallback(async (keyword, cateId) => {
         try {
             const token = Cookies.get('access_token');
             if (!token) {
                 throw new Error("Bạn cần đăng nhập để xem thông tin này.");
             }
 
-            const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=4`;
+            // Xây dựng URL API phù hợp
+            const baseUrl = `${import.meta.env.VITE_API_BASE_URL}/product`;
+            const apiUrl = cateId
+                ? `${baseUrl}/cate/search?keyword=${encodeURIComponent(keyword)}&cateId=${cateId}&page=1&limit=5`
+                : `${baseUrl}/search?keyword=${encodeURIComponent(keyword)}&page=1&limit=5`;
+
+            console.log("Fetching search options from URL:", apiUrl); // Log URL để kiểm tra
+
             const response = await axios.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
 
             console.log('API Search Options response:', response.data);
@@ -190,6 +197,7 @@ const Product = () => {
         }
     }, []);
 
+
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -203,11 +211,14 @@ const Product = () => {
             }
 
             // Xác định URL API dựa trên các điều kiện
-            const apiUrl = debouncedSearchTerm?.trim()
-                ? `${import.meta.env.VITE_API_BASE_URL}/admin/search-product?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`
-                : selectedCateId
-                    ? `${import.meta.env.VITE_API_BASE_URL}/admin/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`
-                    : `${import.meta.env.VITE_API_BASE_URL}/admin/list-product?page=${currentPage}&limit=${LIMIT}`;
+            const apiUrl = debouncedSearchTerm?.trim() && selectedCateId
+                ? `${import.meta.env.VITE_API_BASE_URL}/product/cate/search?keyword=${encodeURIComponent(debouncedSearchTerm)}&cateId=${selectedCateId}&page=${currentPage}&limit=${LIMIT}`
+                : debouncedSearchTerm?.trim()
+                    ? `${import.meta.env.VITE_API_BASE_URL}/admin/search-product?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`
+                    : selectedCateId
+                        ? `${import.meta.env.VITE_API_BASE_URL}/admin/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`
+                        : `${import.meta.env.VITE_API_BASE_URL}/admin/list-product?page=${currentPage}&limit=${LIMIT}`;
+
 
             console.log("Fetching data from URL:", apiUrl);  // Log URL để xác nhận
 
@@ -292,11 +303,12 @@ const Product = () => {
     // Fetch search options when debouncedSearchTerm changes
     useEffect(() => {
         if (debouncedSearchTerm) {
-            fetchSearchOptions(debouncedSearchTerm);
+            fetchSearchOptions(debouncedSearchTerm, selectedCateId); // Truyền thêm `selectedCateId` nếu có
         } else {
             setSearchOptions([]);
         }
-    }, [debouncedSearchTerm, fetchSearchOptions]);
+    }, [debouncedSearchTerm, selectedCateId, fetchSearchOptions]);
+
 
     // Handle pagination for products
     const handleNextPage = () => {
@@ -660,8 +672,8 @@ const Product = () => {
                                                     <p>Đang tải hình ảnh...</p>
                                                 )}
                                             </td>
-                                            <td>{product.description.length > 20 
-                                                ? `${product.description.substring(0, 20)}...` 
+                                            <td>{product.description.length > 20
+                                                ? `${product.description.substring(0, 20)}...`
                                                 : product.description}
                                             </td>
                                             <td>
@@ -699,7 +711,7 @@ const Product = () => {
                                             <td className='pro-action'>
                                                 <div className='gr-btn-pro'>
                                                     <div id="btn-pro-det" onClick={() => handleDetailsClick(product)}>
-                                                        <i className="ti-info-alt" style={{ color: 'violet'}}></i> {/* Themify icon for updating */}
+                                                        <i className="ti-info-alt" style={{ color: 'violet' }}></i> {/* Themify icon for updating */}
                                                     </div>
                                                     <div id="btn-pro-add" onClick={() => handleUpdateClick(product.proId)}>
                                                         <i className="ti-pencil"></i> {/* Themify icon for updating */}
@@ -783,8 +795,8 @@ const Product = () => {
                 )}
 
                 {isDetailsFormVisible && selectedProduct && (
-                    <FormDetailsProduct 
-                        product={selectedProduct} 
+                    <FormDetailsProduct
+                        product={selectedProduct}
                         onClose={() => setIsDetailsFormVisible(false)}
                     />
                 )}

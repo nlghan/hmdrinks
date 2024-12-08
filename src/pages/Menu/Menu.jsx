@@ -79,52 +79,70 @@ const Menu = () => {
     };
 
     const userId = isLoggedIn ? getUserIdFromToken(getCookie('access_token')) : null; // Get userId from token if logged in
-
-    // Fetch products and their prices and sizes from API
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true);
-            try {
-                const url = searchTerm
+    const fetchProducts = async () => {
+        const token = getCookie('access_token')
+        setLoading(true);
+        try {
+            // Xây dựng URL API dựa trên điều kiện
+            const url = searchTerm && selectedCategoryId
+                ? `http://localhost:1010/api/product/cate/search?keyword=${encodeURIComponent(searchTerm)}&cateId=${selectedCategoryId}&page=${currentPage}&limit=${limit}`
+                : searchTerm
                     ? `http://localhost:1010/api/product/search?keyword=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
                     : selectedCategoryId
                         ? `http://localhost:1010/api/cate/view/${selectedCategoryId}/product?page=${currentPage}&limit=${limit}`
                         : `http://localhost:1010/api/product/list-product?page=${currentPage}&limit=${limit}`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-                const productList = searchTerm ? data.productResponseList : (selectedCategoryId ? data.responseList : data.productResponses);
-
-                // Lấy chi tiết từ listProductVariants ở vị trí 0 và log ra console
-                const productsWithDetails = productList.map((product) => {
-                    const firstVariant = product.listProductVariants?.[0] || {};
-                    const variantDetails = {
-                        size: firstVariant.size,
-                        price: firstVariant.price,
-                        stock: firstVariant.stock
-                    };
-
-                    console.log("Chi tiết sản phẩm:", {
-                        id: product.id,
-                        name: product.name,
-                        price: variantDetails.price || 'Không có giá'
-                    });
-
-                    return { ...product, variantDetails };
+    
+            console.log("Fetching data from URL:", url); // Log URL để kiểm tra
+    
+            // Gọi API
+            const response = await fetch(url, {
+                headers: {
+                    // 'Authorization': `Bearer ${token}`, // Thay bằng token hợp lệ
+                    'Accept': '*/*'
+                }
+            });
+            const data = await response.json();
+    
+            // Xác định danh sách sản phẩm
+            const productList = searchTerm && selectedCategoryId
+                ? data.productResponseList // Tìm kiếm theo danh mục và từ khóa
+                : searchTerm
+                    ? data.productResponseList // Tìm kiếm chỉ theo từ khóa
+                    : selectedCategoryId
+                        ? data.responseList // Lọc theo danh mục
+                        : data.productResponses; // Danh sách mặc định
+    
+            // Thêm chi tiết biến thể sản phẩm
+            const productsWithDetails = productList.map((product) => {
+                const firstVariant = product.listProductVariants?.[0] || {};
+                const variantDetails = {
+                    size: firstVariant.size,
+                    price: firstVariant.price,
+                    stock: firstVariant.stock
+                };
+    
+                console.log("Chi tiết sản phẩm:", {
+                    id: product.proId,
+                    name: product.proName,
+                    price: variantDetails.price || 'Không có giá'
                 });
-
-                setProducts(productsWithDetails);
-                setTotalPages(data.totalPage);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
+    
+                return { ...product, variantDetails };
+            });
+    
+            setProducts(productsWithDetails);
+            setTotalPages(data.totalPage);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
         fetchProducts();
-    }, [currentPage, selectedCategoryId, searchTerm, currentFilterType]); // Cập nhật khi bộ lọc thay đổi
-
+    }, [currentPage, selectedCategoryId, searchTerm, limit]); // Thêm các phụ thuộc cần thiết
+    
 
 
 

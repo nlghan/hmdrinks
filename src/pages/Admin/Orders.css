@@ -219,7 +219,7 @@
 .table-orders th:nth-child(12),
 .table-orders td:nth-child(12) {
     /* Trạng Thái */
-    width: 10%;
+    width: 6%;
 }
 
 .table-orders th:nth-child(13),

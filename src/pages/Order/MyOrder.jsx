@@ -5,6 +5,7 @@ import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
+import { useCart } from '../../context/CartContext';
 
 const MyOrder = () => {
     const [selectedTab, setSelectedTab] = useState('delivering');
@@ -17,13 +18,16 @@ const MyOrder = () => {
 
     const navigate = useNavigate(); // Hook dùng để chuyển hướng
     const location = useLocation();
+    const { handleRestore } = useCart();
 
 
     const handleCheckout = async (order) => {
         const token = getCookie('access_token');
+        let orderData = null; // Khai báo orderData bên ngoài try-catch
+
         try {
-            // Gọi API để lấy chi tiết đơn hàng
-            const response = await axios.get(
+            // Gọi API lấy chi tiết đơn hàng
+            const detailResponse = await axios.get(
                 `http://localhost:1010/api/orders/detail-item/${order.orderId}`,
                 {
                     headers: {
@@ -32,26 +36,62 @@ const MyOrder = () => {
                 }
             );
 
-            // Kết hợp dữ liệu chi tiết đơn hàng vào orderData và truyền qua state
-            const orderData = {
-                ...response.data,  // Dữ liệu chi tiết từ API
+            // Gán giá trị vào orderData
+            orderData = {
+                ...detailResponse.data, // Dữ liệu chi tiết từ API
                 orderId: order.orderId,
                 address: order.address,
                 phone: order.phone,
                 discountPrice: order.discountPrice,
                 deliveryFee: order.deliveryFee,
                 totalPrice: order.totalPrice,
-                dateOders: order.dateOders
+                dateOders: order.dateOders,
             };
 
-            // Truyền toàn bộ dữ liệu vào state khi điều hướng đến trang Order
+            // Gọi API kiểm tra thông tin thanh toán
+            const paymentResponse = await axios.get(
+                `http://localhost:1010/api/orders/info-payment?orderId=${order.orderId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const paymentData = paymentResponse.data;
+
+            // Nếu có link thanh toán, điều hướng đến liên kết
+            if (paymentData.infoPaymentResponse?.link) {
+                window.location.href = paymentData.infoPaymentResponse.link;
+                return;
+            }
+
+            // Nếu không tìm thấy thông tin thanh toán hoặc link null
             navigate('/order', {
-                state: { orderData }
+                state: { orderData },
             });
         } catch (error) {
-            console.error('Không thể lấy thông tin chi tiết đơn hàng:', error);
+            console.error('Error processing payment:', error);
+
+            // Kiểm tra lỗi phản hồi "Not found payment"
+            if (error.response?.status === 404 || error.response?.data?.message === "Not found payment") {
+                console.warn("Payment information not found, navigating to order page.");
+
+                // Điều hướng đến trang Order với dữ liệu chi tiết nếu khả dụng
+                if (orderData) {
+                    navigate('/order', {
+                        state: { orderData },
+                    });
+                } else {
+                    alert('Không thể tải thông tin đơn hàng.');
+                }
+            } else {
+                alert('Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại sau.');
+            }
         }
     };
+
+
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', {
@@ -60,8 +100,6 @@ const MyOrder = () => {
             maximumFractionDigits: 0,
         }).format(parseFloat(price));
     };
-
-
 
 
     const getUserIdFromToken = (token) => {
@@ -143,14 +181,15 @@ const MyOrder = () => {
             );
 
             // Tách dữ liệu từ response
-            const { listOrderWaiting, listAllOrderConfirmAndNotPayment } = response.data;
+            const { listOrderWaiting, listAllOrderConfirmAndNotPayment, listAllOrderConfirmAndPaymentPending } = response.data;
 
             // Lấy danh sách đơn hàng đang chờ
             const waitingOrders = listOrderWaiting?.list || [];
             const confirmedNotPaidOrders = listAllOrderConfirmAndNotPayment?.list || [];
+            const confirmedPendingPaidOrders = listAllOrderConfirmAndPaymentPending?.list || [];
 
             // Gộp hai danh sách đơn hàng vào một nếu cần hiển thị cả hai hoặc xử lý riêng
-            const combinedOrders = [...waitingOrders, ...confirmedNotPaidOrders];
+            const combinedOrders = [...waitingOrders, ...confirmedNotPaidOrders, ...confirmedPendingPaidOrders];
 
             // Cập nhật danh sách đơn hàng đang chờ
             setWaitingOrders(combinedOrders);
@@ -413,6 +452,11 @@ const MyOrder = () => {
         }
     };
 
+    const handleRestoreOrder = async (orderId) => {
+        handleRestore(orderId);
+    };
+
+
     const [refundOrders, setRefundOrders] = useState([]);
     const [currentRefundPage, setCurrentRefundPage] = useState(1);
 
@@ -494,7 +538,7 @@ const MyOrder = () => {
             );
             alert('Order cancelled successfully');
             console.log(response.data);
-            fetchWaitingList();
+            fetchCancelledOrders();
         } catch (error) {
             console.error('Error:', error);
             alert('Failed to cancel order');
@@ -677,14 +721,18 @@ const MyOrder = () => {
                                 <ul className="my-orders-list">
                                     {paginate(cancelledOrders, currentCancelledPage).map((order) => (
                                         <li key={order.orderId} className="my-orders-item">
-                                            <div className="my-orders-item-header" style={{ background: '#d67474' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                            <div className="my-orders-item-header" style={{ background: '#f38a84' }}><p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
                                                 <button
                                                     className="btn-view-details-ship"
                                                     onClick={() =>
                                                         navigate(`/my-order-detail/${order.orderId}`, {
-                                                            state: { dateDelivered: order.dateOders },
+                                                            state: {
+                                                                dateDelivered: order.dateOders,
+                                                                phone: order.phone,  // Thêm trường phone vào state
+                                                            },
                                                         })
                                                     }
+
                                                 >
                                                     Chi tiết
                                                 </button>
@@ -704,6 +752,16 @@ const MyOrder = () => {
                                                     {order.dateCanceled || order.shipment?.dateCancelled || "Chưa có thông tin"}
                                                 </p>
 
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="checkout-button-order"
+                                                    onClick={() => handleRestoreOrder(order.orderId)}
+                                                    style={{ background: '#d67474' }}
+                                                >
+                                                    Mua lại <i className="ti-shopping-cart-full" style={{ fontSize: '15px' }} />
+                                                </button>
+                                                
                                             </div>
                                         </li>
                                     ))}
@@ -738,6 +796,19 @@ const MyOrder = () => {
                                         <li key={order.orderId} className="my-orders-item">
                                             <div className="my-orders-item-header">
                                                 <p><strong>Mã đơn hàng:</strong> {order.orderId}</p>
+                                                <button
+                                                    className="btn-view-details-ship"
+                                                    onClick={() =>
+                                                        navigate(`/my-order-detail/${order.orderId}`, {
+                                                            state: {
+                                                                dateDelivered: order.dateOders,
+                                                                phone: order.phone,  // Thêm trường phone vào state
+                                                            },
+                                                        })
+                                                    }
+                                                >
+                                                    Chi tiết
+                                                </button>
 
                                             </div>
                                             <div className="my-orders-item-content">
@@ -813,6 +884,16 @@ const MyOrder = () => {
                                                 <p><strong>Trạng thái hoàn tiền:&nbsp; </strong> {refund.payment?.refunded}</p>
                                                 {/* <p><strong>Ngày hoàn tiền:&nbsp;</strong> {refund.payment?.dateRefund}</p> */}
                                             </div>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="checkout-button-order"
+                                                    onClick={() => handleRestoreOrder(refund.orderId)}
+                                                    style={{ background: '#daaad7' }}
+                                                >
+                                                    Mua lại <i className="ti-shopping-cart-full" style={{ fontSize: '15px' }} />
+                                                </button>
+                                               
+                                            </div>
 
                                         </li>
                                     ))}
@@ -852,7 +933,7 @@ const MyOrder = () => {
                                                 <button
                                                     className="btn-view-details-ship"
                                                     onClick={() =>
-                                                        navigate(`/my-order-detail/${order.shipment?.shipmentId}`, {
+                                                        navigate(`/my-order-detail/${order.orderId}`, {
                                                             state: { dateDelivered: order.dateOders },
                                                         })
                                                     }
@@ -878,6 +959,13 @@ const MyOrder = () => {
 
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="checkout-button-order"
+                                                    onClick={() => handleRestoreOrder(order.orderId)}
+                                                    style={{ background: '#45b6cc' }}
+                                                >
+                                                    Mua lại <i className="ti-shopping-cart-full" style={{ fontSize: '15px' }} />
+                                                </button>
                                                 <button
                                                     className="checkout-button-order"
                                                     onClick={() => handlePrint(order.orderId)}
