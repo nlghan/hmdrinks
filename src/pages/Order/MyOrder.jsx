@@ -16,6 +16,9 @@ const MyOrder = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [isLoadingRestore, setIsLoadingRestore] = useState(false);
+    const [showSuccessRestore, setShowSuccessRestore] = useState(false);
 
     const navigate = useNavigate(); // Hook dùng để chuyển hướng
     const location = useLocation();
@@ -84,10 +87,10 @@ const MyOrder = () => {
                         state: { orderData },
                     });
                 } else {
-                    alert('Không thể tải thông tin đơn hàng.');
+                    setShowError(true);
                 }
             } else {
-                alert('Đã xảy ra lỗi khi xử lý đơn hàng. Vui lòng thử lại sau.');
+                setShowError(true);
             }
         }
     };
@@ -460,7 +463,18 @@ const MyOrder = () => {
     };
 
     const handleRestoreOrder = async (orderId) => {
-        handleRestore(orderId);
+        try {
+            setIsLoadingRestore(true);
+            await handleRestore(orderId);
+            setShowSuccessRestore(true);
+            setTimeout(() => {
+                setShowSuccessRestore(false);
+            }, 2000);
+        } catch (error) {
+            console.error('Error restoring order:', error);
+        } finally {
+            setIsLoadingRestore(false);
+        }
     };
 
 
@@ -726,7 +740,7 @@ const MyOrder = () => {
                                             </svg>
                                         </div>
                                     </div>
-                                    <h3>Đơn hàng đã được hủy thành công!</h3>                                    
+                                    <h3>Đơn hàng đã được hủy thành công!</h3>
                                 </div>
                             </div>
                         )}
@@ -784,7 +798,7 @@ const MyOrder = () => {
                                                 >
                                                     Mua lại <i className="ti-shopping-cart-full" style={{ fontSize: '15px' }} />
                                                 </button>
-                                                
+
                                             </div>
                                         </li>
                                     ))}
@@ -915,7 +929,7 @@ const MyOrder = () => {
                                                 >
                                                     Mua lại <i className="ti-shopping-cart-full" style={{ fontSize: '15px' }} />
                                                 </button>
-                                               
+
                                             </div>
 
                                         </li>
@@ -942,6 +956,7 @@ const MyOrder = () => {
             case 'history':
                 return (
                     <div>
+
                         {loading ? (
                             <div>Đang tải...</div>
                         ) : error ? (
@@ -1069,8 +1084,53 @@ const MyOrder = () => {
                 <div className="my-orders-content">
                     {renderContent()}
                 </div>
+
             </div>
             <Footer />
+            {isLoadingRestore && (
+                <div className="loading-animation">
+                    <div className="loading-modal">
+                        <div className="loading-spinner">
+                            <div className="spinner"></div>
+                        </div>
+                        <h3>Đang xử lý...</h3>
+                        <p>Vui lòng đợi trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {showSuccessRestore && (
+                <div className="success-animation">
+                    <div className="success-modal">
+                        <div className="success-icon">
+                            <div className="success-icon-circle">
+                                <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Đơn hàng đã được khôi phục thành công!</h3>
+                        <p>Bạn đã khôi phục đơn hàng thành công.</p>
+                    </div>
+                </div>
+            )}
+            {showError && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Không thể tải thông tin đơn hàng!</h3>
+                        <p>Vui lòng thử lại sau.</p>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
