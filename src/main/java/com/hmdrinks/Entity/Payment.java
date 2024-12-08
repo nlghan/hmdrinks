@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "payments")
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "paymentId")
@@ -52,6 +51,9 @@ public class Payment {
 
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
+
+    @Column(name = "link")
+    private String Link;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId", nullable = false)

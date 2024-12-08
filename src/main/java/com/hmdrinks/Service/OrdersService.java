@@ -315,7 +315,9 @@ public class OrdersService {
                         payment.getPaymentMethod(),
                         payment.getStatus(),
                         payment.getOrder().getOrderId(),
-                        payment.getIsRefund()
+                        payment.getIsRefund(),
+                        payment.getLink()
+
                 )
         ));
     }
@@ -827,7 +829,8 @@ public class OrdersService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    payment.getIsRefund()
+                    payment.getIsRefund(),
+                    payment.getLink()
             );
 
             historyOrderResponses.add(new OrderCancelPaymentRefund(createOrdersResponse, crudPaymentResponse));
@@ -889,7 +892,8 @@ public class OrdersService {
                     payment.getPaymentMethod(),
                     payment.getStatus(),
                     payment.getOrder().getOrderId(),
-                    payment.getIsRefund()
+                    payment.getIsRefund(),
+                    payment.getLink()
             );
 
             historyOrderResponses.add(new OrderCancelPaymentRefund(createOrdersResponse, crudPaymentResponse));
@@ -947,7 +951,8 @@ public class OrdersService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getIsRefund(),
+                payment.getLink()
         )
                 : null;
 

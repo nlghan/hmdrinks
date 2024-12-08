@@ -404,6 +404,7 @@ public class PaymentService {
                 payment.setOrderIdPayment(orderId);
                 payment.setIsDeleted(false);
                 payment.setIsRefund(false);
+                payment.setLink(shortLink);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -589,6 +590,7 @@ public class PaymentService {
                 payment.setOrderIdPayment("PayOS" + orderCode);
                 payment.setIsDeleted(false);
                 payment.setIsRefund(false);
+                payment.setLink(link);
                 paymentRepository.save(payment);
             }
             return new ResponseEntity<>(new CreatePaymentResponse(
@@ -749,9 +751,10 @@ public class PaymentService {
                 .ipAddress(req.getIpAddress())
                 .build();
         payment.setOrderIdPayment(order_id);
-        System.out.println(order_id);
         paymentRepository.save(payment);
         var initPaymentResponse = vnPayService.init(initPaymentRequest);
+        payment.setLink(initPaymentResponse.getVnpUrl());
+        paymentRepository.save(payment);
         return new ResponseEntity<>(new CreatePaymentResponse(
                 payment.getPaymentId(),
                 payment.getAmount(),
@@ -880,11 +883,12 @@ public class PaymentService {
         payment.setOrderIdPayment(orderId);
         payment.setIsDeleted(false);
         payment.setIsRefund(false);
+
         paymentRepository.save(payment);
         Map<String, Object> response = zaloPayService.createPayment(totalAmountLong);
         String orderUrl = (String) response.get("order_url");
         String appTransId = (String) response.get("app_trans_id");
-
+        payment.setLink(orderUrl);
         payment.setOrderIdPayment(appTransId);
         paymentRepository.save(payment);
         return new ResponseEntity<>(new CreatePaymentResponse(
@@ -1042,7 +1046,8 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getIsRefund(),
+                payment.getLink()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -1067,7 +1072,8 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getIsRefund(),
+                payment.getLink()
         ));
     }
 
@@ -1247,7 +1253,8 @@ public class PaymentService {
                 payment1.getPaymentMethod(),
                 payment1.getStatus(),
                 payment1.getOrder().getOrderId(),
-                payment1.getIsRefund()
+                payment1.getIsRefund(),payment.getLink()
+
         ));
     }
 
@@ -1271,7 +1278,8 @@ public class PaymentService {
                             payment.getPaymentMethod(),
                             payment.getStatus(),
                             payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getIsRefund(),
+                            payment.getLink()
                     )
             );
         }
@@ -1304,7 +1312,8 @@ public class PaymentService {
                             payment.getPaymentMethod(),
                             payment.getStatus(),
                             payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getIsRefund(),
+                            payment.getLink()
                     )
             );
         }
@@ -1337,7 +1346,8 @@ public class PaymentService {
                             payment.getPaymentMethod(),
                             payment.getStatus(),
                             payment.getOrder().getOrderId(),
-                            payment.getIsRefund()
+                            payment.getIsRefund(),
+                            payment.getLink()
                     )
             );
         }
@@ -1366,7 +1376,8 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getIsRefund(),
+                payment.getLink()
         ));
     }
 
@@ -1477,7 +1488,8 @@ public class PaymentService {
                 payment.getPaymentMethod(),
                 payment.getStatus(),
                 payment.getOrder().getOrderId(),
-                payment.getIsRefund()
+                payment.getIsRefund(),
+                payment.getLink()
         );
         return ResponseEntity.status(HttpStatus.OK).body(crudPaymentResponse);
     }
@@ -1521,7 +1533,8 @@ public class PaymentService {
                            payment.getPaymentMethod(),
                            payment.getStatus(),
                            payment.getOrder().getOrderId(),
-                           payment.getIsRefund()
+                           payment.getIsRefund(),
+                           payment.getLink()
                    )
            );
        }
