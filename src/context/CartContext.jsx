@@ -978,10 +978,102 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // Thêm hàm changeSize vào CartContext
+    const Size = {
+        S: 'S',
+        M: 'M',
+        L: 'L'
+    };
+
+    const changeSize = async (cartItemId, newSize) => {
+        const token = getCookie('access_token');
+        const userId = getUserIdFromToken(token);
+
+        // Log thông tin request
+        console.log('Request Data:', {
+            userId,
+            cartItemId,
+            size: Size[newSize],
+            token: token ? 'Token exists' : 'No token'
+        });
+
+        try {
+            const requestBody = {
+                userId: parseInt(userId),
+                cartItemId: parseInt(cartItemId),
+                size: newSize  // Gửi trực tiếp S, M, L để match với enum Size trong Java
+            };
+            console.log('Request Body:', requestBody);
+
+            const response = await fetch('http://localhost:1010/api/cart-item/change-size', {
+                method: 'PUT',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            // Log response status
+            console.log('Response Status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error Response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    errorText: errorText
+                });
+                setShowError(true);
+                setTimeout(() => {
+                    setShowError(false);
+                }, 2000);
+                return;
+            }
+
+            const data = await response.json();
+            // Log response data
+            console.log('Success Response:', data);
+            
+            setCartItems(prevItems => {
+                const updatedItems = prevItems.map(item => 
+                    item.cartItemId === cartItemId 
+                        ? { 
+                            ...item, 
+                            size: data.size,
+                            quantity: data.quantity,
+                            totalPrice: data.totalPrice
+                        } 
+                        : item
+                );
+                // Log state update
+                console.log('Updated Cart Items:', updatedItems);
+                return updatedItems;
+            });
+
+            setShowSuccess(true);
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 2000);
+
+        } catch (error) {
+            // Log detailed error information
+            console.error('Error Details:', {
+                message: error.message,
+                stack: error.stack
+            });
+            setShowError(true);
+            setTimeout(() => {
+                setShowError(false);
+            }, 2000);
+        }
+    };
 
 
     return (
-        <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, handleRestore }}>
+        <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, handleRestore, changeSize }}>
+
             {children}
             {isLoading && (
                 <div className="product-card-loading-animation">

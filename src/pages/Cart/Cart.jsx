@@ -8,7 +8,7 @@ import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete 
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { cartItems, increase, increaseQuantity, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout, totalOfCart } = useCart();
+    const { cartItems, increase, increaseQuantity, decrease, clearCart, deleteOneItem, cartId, selectedVoucher, note, setSelectedVoucher, setNote, isCreating, handleCheckout, totalOfCart, changeSize } = useCart();
 
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -16,14 +16,12 @@ const Cart = () => {
     const [showError, setShowError] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showErrorOutStock, setShowErrorOutStock] = useState(false);
-
+    const [availableSizes, setAvailableSizes] = useState({});
 
 
     const handleNoteChange = (event) => {
         setNote(event.target.value); // Update note
     };
-
-
 
     // Helper function to format prices in VND
     const formatCurrency = (value) => {
@@ -62,7 +60,7 @@ const Cart = () => {
     // Tính subtotal, discount, shipping, và total
     const subtotal = cartItems.reduce((acc, item) => acc + item.totalPrice, 0);
     const [discount, setDiscount] = useState(0);
-    const shipping = 0; // Giả sử miễn phí vận chuyển
+    const shipping = 0; // Giả sử miễn phí vận chuy���n
     let total = subtotal - discount + shipping;
 
     // Kiểm tra nếu tổng cộng nhỏ hơn hoặc bằng 0 thì gán nó thành 0
@@ -242,7 +240,31 @@ const Cart = () => {
     const [editingItemId, setEditingItemId] = useState(null);
     const [editingValue, setEditingValue] = useState("");
 
+    // Hàm để lấy danh sách size có sẵn cho sản phẩm
+    const fetchAvailableSizes = async (productId) => {
+        try {
+            const response = await fetch(`http://localhost:1010/api/product/variants/${productId}`);
+            const data = await response.json();
+            return data.responseList.map(variant => variant.size);
+        } catch (error) {
+            console.error('Error fetching sizes:', error);
+            return [];
+        }
+    };
 
+    // Thêm useEffect để lấy sizes khi component mount
+    useEffect(() => {
+        const loadSizes = async () => {
+            const sizeMap = {};
+            for (const item of cartItems) {
+                if (!sizeMap[item.productId]) {
+                    sizeMap[item.productId] = await fetchAvailableSizes(item.productId);
+                }
+            }
+            setAvailableSizes(sizeMap);
+        };
+        loadSizes();
+    }, [cartItems]);
 
     return (
         <>
@@ -344,7 +366,21 @@ const Cart = () => {
                                                                 )}
                                                                 <td>{formatCurrency(item.price)}</td>
                                                                 <td className={selectedItem === item.cartItemId ? 'selected-size' : ''}>
-                                                                    {item.size}
+                                                                    <select
+                                                                        value={item.size}
+                                                                        onChange={(e) => {
+                                                                            const newSize = e.target.value;
+                                                                            console.log('Selected Size:', newSize);
+                                                                            console.log('Cart Item ID:', item.cartItemId);
+                                                                            changeSize(item.cartItemId, newSize);
+                                                                        }}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        className="size-select"
+                                                                    >
+                                                                        <option value="S">S</option>
+                                                                        <option value="M">M</option>
+                                                                        <option value="L">L</option>
+                                                                    </select>
                                                                 </td>
                                                                 <td>
                                                                     <div style={{ display: 'flex' }}>
@@ -511,6 +547,7 @@ const Cart = () => {
                                         </div>
                                     </div>
                                     <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.!</h3>
+
                                 </div>
                             </div>
                         )}
