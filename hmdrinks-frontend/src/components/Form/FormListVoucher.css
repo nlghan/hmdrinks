@@ -1,0 +1,79 @@
+/* Thêm các kiểu cho overlay và bảng */
+.voucher-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Mờ nền */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.voucher-overlay-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.voucher-overlay h3 {
+    text-align: center;
+}
+
+/* Bảng voucher */
+.voucher-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.voucher-table th,
+.voucher-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd; /* Thêm border cho các ô */
+}
+
+.voucher-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.voucher-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Màu nền cho hàng chẵn */
+}
+
+.voucher-table tr:hover {
+    background-color: #f1f1f1; /* Hiệu ứng hover */
+}
+
+/* Nút đóng */
+.voucher-close-btn {
+    padding: 8px 16px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    width: 100%;
+}
+
+.voucher-close-btn:hover {
+    background-color: #ff3333;
+}
+.voucher-table thead{
+    display: contents !important;
+}
+
+#h3-list-voucher{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

@@ -1,0 +1,333 @@
+/* Home.css */
+
+.shipper-home-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 60px;
+}
+
+.shipper-home-content {
+    flex: 1;
+    padding: 20px 300px;
+}
+
+.shipper-post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 50px;
+    margin-bottom: 20px;
+}
+
+.shipper-view-more-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff6f61;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shipper-view-more-btn:hover {
+    background-color: #ff4f41;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.shipper-login-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.shipper-login-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.shipper-login-modal-content p {
+    margin-bottom: 20px;
+}
+
+.shipper-login-modal-content button,
+.shipper-login-modal-content a {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff6f61;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.shipper-login-modal-content a {
+    text-decoration: none;
+}
+
+.shipper-login-modal-content button:hover,
+.shipper-login-modal-content a:hover {
+    background-color: #ff4f41;
+}
+
+.shipment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.shipment-item {
+    border: 2px solid #d9534f;
+    /* Đường viền dày hơn và có màu đậm hơn */
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Hiệu ứng đổ bóng */
+}
+
+
+.shipment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.shipment-id {
+    display: flex;
+    margin-left: 15px;
+    border-radius: 50px;
+    border: 1px solid #c33838;
+    width: 150px;
+    text-align: center;
+    background: white;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.shipment-body {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    padding: 0px 15px;
+}
+
+.btn-view-details-ship,
+.btn-deliver {
+    background-color: #fa8072;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 20%;
+    margin-bottom: 4px;
+    margin-right: 4px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.btn-view-details-ship {
+    background: transparent;
+}
+
+.btn-view-details:hover,
+.btn-deliver:hover {
+    background-color: #e36a5a;
+}
+.side-menu-shipper {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    font-family: 'Inter';
+}
+
+.side-menu-shipper button {
+    border-radius: 50px;
+    background: antiquewhite;
+    transition: color 0.4s ease, background-color 0.4s ease;
+    position: relative;
+}
+
+.side-menu-shipper button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f9d3d3;  /* Màu nền khi active hoặc hover */
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+}
+
+.side-menu-shipper button:hover,
+.side-menu-shipper button:focus,
+.side-menu-shipper button:focus-visible {
+    color: black;
+    background-color: #f8a5a5;  /* Thay đổi màu nền khi hover hoặc focus */
+}
+
+.side-menu-shipper button:focus::before,
+.side-menu-shipper button:focus-visible::before {
+    transform: scaleX(1);  /* Làm đầy màu khi focus */
+}
+
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation delay for cards in same row */
+.shipper-post-card-wrapper:nth-child(3n + 1) {
+    animation-delay: 0.2s;
+}
+
+.shipper-post-card-wrapper:nth-child(3n + 2) {
+    animation-delay: 0.3s;
+}
+
+.shipper-post-card-wrapper:nth-child(3n + 3) {
+    animation-delay: 0.4s;
+}
+
+/* Responsive adjustments for post grid */
+@media (max-width: 1024px) {
+    .shipper-post-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .shipper-post-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .shipper-soda-ad {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 420px;
+        height: 600px;
+        margin: 0 15px;
+        background-color: rgba(255, 250, 250, 1);
+    }
+
+    .shipper-soda-ad-button {
+        display: inline-block;
+        padding: 10px 20px;
+        color: rgb(244, 11, 11);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        display: flex;
+        justify-content: flex-end;
+        position: absolute;
+        right: 15px;
+        bottom: 0px;
+    }
+}
+
+@media (max-width: 480px) {
+    .shipper-post-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .shipper-view-more-btn {
+        padding: 8px 16px;
+    }
+
+    .shipper-login-modal-content {
+        padding: 15px;
+    }
+}
+
+.shipper-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 45%;
+    position: absolute;
+    bottom: 20px;
+}
+
+.shipper-pagination .btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ff6f61;
+    color: #ffffff;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+
+.shipper-pagination .btn:hover:not(:disabled) {
+    background-color: #ff4f41;
+}
+
+.shipper-pagination .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.shipper-pagination .btn-page {
+    background-color: #ff4f41;
+}
+
+.shipper-pagination .btn-light {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.shipper-pagination .btn-light:hover {
+    background-color: #e2e6ea;
+}
+
+.btn-pre,
+.btn-next {
+    font-weight: bold;
+}

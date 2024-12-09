@@ -1,0 +1,366 @@
+/* Import fonts as before */
+@import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
+
+.navbar {
+    width: auto;
+    display: flex; 
+    padding: 0 50px 0 102px;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    position: relative; /* For absolute positioning of the toggle menu */
+    
+}
+
+.box-shadow {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
+}
+
+.logo {
+    height: 80px; 
+    padding-bottom: 10px;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px; 
+    font-size: 20px; 
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 0px;
+    align-items: center;
+    flex-grow: 1; /* Allow it to grow */
+    margin-left: 13%;
+    
+    
+}
+
+.navbar-menu li {
+    transition: transform 0.3s ease;
+}
+
+.navbar-menu li:hover {
+    transform: scale(1.05);
+}
+
+.navbar-right {
+    display: flex;
+    gap: 25px; 
+    align-items: center;
+}
+
+.login1, .signup {
+    display: flex;
+    padding: 10px 20px; 
+    align-items: center;
+    border-radius: 12px;
+    border: 2px solid #2E2F35;
+    box-shadow: 3px 3px 0px 0px #2E2F35;
+    font-size: 16px; 
+    cursor: pointer; 
+}
+
+.login1 {
+    background: #FFF;
+    margin-left: 138px;
+
+    
+}
+
+.signup {
+    background: #FF6D2C;
+    color: #FFF;
+}
+
+/* Hover effect for buttons */
+.login1:hover, .signup:hover {
+    opacity: 0.9;
+    background-color: rgb(127, 180, 255);
+    color: black;
+}
+
+.navbar .active {
+    font-weight: bold;
+    padding-bottom: 2px;
+    border-bottom: 2px solid #FF7380 ;
+}
+
+.navbar-right i {
+    font-size: 22px; /* Adjust icon size */
+    cursor: pointer; /* Indicate clickable icon */
+    transition: transform 0.3s ease; /* Transition effect on hover */
+}
+
+.navbar-right i:hover {
+    transform: scale(1.1); /* Scale icon on hover */
+}
+
+.navbar-right .signup {
+    margin-left: 15px; /* Space between icons and buttons */
+}
+
+.breadcrumb {
+    background-color: rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 80px;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+
+.breadcrumb-title {
+    font-weight: bold; /* Bold title */
+    font-size: 24px; /* Font size for the title */
+    flex: 1; /* Allow title to take up available space */
+    text-align: center; /* Center text for title */
+}
+
+.breadcrumb-navigation {
+    color: #555; /* Darker color for navigation */
+    font-size: 20px; /* Font size for navigation */
+    margin-top: 5px; /* Add space between title and navigation */
+}
+
+.bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(173, 216, 230, 0.7); /* Light blue */
+    border-radius: 50%;
+    pointer-events: none; /* Prevent interaction */
+    animation: bubble-animation 1s ease-out forwards;
+    z-index: 9999; /* Ensure the bubble appears above other content */
+}
+  
+@keyframes bubble-animation {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.progress-bar {
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
+}
+
+.progress-navigation {
+    display: flex; /* Use flexbox for navigation layout */
+    align-items: center; /* Center items vertically */
+    font-size: 20px; /* Font size for navigation */
+    width: 100%; /* Ensure it takes full width */
+    padding-left: 42%;
+}
+
+.nav-item {
+    margin: 0 20px; /* Space around the items */
+    color: rgb(43, 118, 118);
+    font-weight: bold; /* Bold text for navigation items */
+}
+
+.separator {
+    margin: 0 10px; /* Space around the separator */
+    color: #555; /* Color for the separator */
+}
+.navbar-toggle {
+    display: none; /* Hide toggle button by default */
+  }
+/* Responsive styles */
+@media (max-width: 1571px) {
+    .navbar {
+        padding: 0 20px; /* Reduce padding for smaller screens */
+    }
+
+    .navbar-menu {
+        display: none; /* Hide the menu by default */
+        flex-direction: column; /* Stack items vertically */
+        position: absolute; /* Overlay menu */
+        top: 80px; /* Adjust based on navbar height */
+        left: 0; /* Align to left */
+        width: 100%; /* Full width */
+        background-color: white; /* Background color */
+        z-index: 10; /* Ensure it appears above other content */
+        align-items: flex-start;
+        margin-left: 0;
+    }
+
+    .navbar-menu.show {
+        display: flex; /* Show menu when toggled */
+        gap:15px;
+        margin-top: 10px;
+    }
+
+    .navbar-toggle {
+        display: block; /* Show toggle button */
+        font-size: 24px; /* Increase font size for better visibility */
+        cursor: pointer; /* Indicate it's clickable */
+    }
+
+    .navbar-right {
+        display: none; /* Hide right-side buttons in mobile view */
+    }
+    .icon-group {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0px !important;
+      }
+      .login1{
+        margin-left: 0px !important;
+      }
+      .signup
+      {
+        width: 130px;
+        text-align: center;
+        align-items: center;
+        
+      }
+      .icon-group-nav {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0 !important;
+      }
+}
+
+@media (max-width: 800px) {
+    .navbar {
+        padding: 0 20px; /* Reduce padding for smaller screens */
+    }
+
+    .navbar-menu {
+        display: none; /* Hide the menu by default */
+        flex-direction: column; /* Stack items vertically */
+        position: absolute; /* Overlay menu */
+        top: 80px; /* Adjust based on navbar height */
+        left: 0; /* Align to left */
+        width: 100%; /* Full width */
+        background-color: white; /* Background color */
+        z-index: 10; /* Ensure it appears above other content */
+        align-items: flex-start;
+        margin-left: 0px !important;
+    }
+
+    .navbar-menu.show {
+        display: flex; /* Show menu when toggled */
+        gap:15px
+
+    }
+
+    .navbar-toggle {
+        display: block; /* Show toggle button */
+        font-size: 24px; /* Increase font size for better visibility */
+        cursor: pointer; /* Indicate it's clickable */
+    }
+
+    .navbar-right {
+        display: none; /* Hide right-side buttons in mobile view */
+    }
+    .icon-group {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0px !important;
+
+      }
+      .login1{
+        margin-left: 0px !important;
+      }
+
+      .progress-navigation{
+        padding-left: 20% ;
+      
+      }
+      .icon-group-nav {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0 !important;
+      }
+
+    
+      
+  }
+
+
+  .icon-group-nav {
+    display: flex; /* Use flexbox for icon layout */
+    align-items: center; /* Center icons vertically */
+    margin-left: auto; /* Push icons to the right */
+    gap: 15px; /* Space between icons */
+  }
+  
+
+  .icon-group-nav li {
+    position: relative;
+  }
+  
+  .icon-badge-nav {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff6a00;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  
+  /* Dropdown container */
+  .user-menu {
+    position: relative; /* Tạo ngữ cảnh cho dropdown */
+    cursor: pointer;
+    z-index: 10; /* Đảm bảo menu nổi trên các phần tử khác */
+}
+
+.dropdown-menu {
+    display: none; /* Ẩn menu khi chưa hover */
+    position: absolute;
+    top: 100%; /* Hiển thị ngay dưới icon */
+    right: 0; /* Căn phải */
+    background-color: #fff; /* Nền trắng */
+    min-width: 150px; /* Chiều rộng tối thiểu */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    z-index: 9999; /* Đảm bảo menu không bị khuất */
+    border-radius: 4px; /* Góc bo tròn */
+    overflow: hidden; /* Giới hạn nội dung thừa */
+}
+
+.user-menu:hover .dropdown-menu {
+    display: block; /* Hiển thị menu khi hover */
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f1f1; /* Màu nền khi hover */
+}
+/* Tùy chỉnh thêm cho đường phân cách */
+.dropdown-divider {
+    height: 1px; /* Độ dày */
+    background-color: #eaeaea; /* Màu sắc */
+    margin: 8px 0; /* Khoảng cách trên và dưới */
+}

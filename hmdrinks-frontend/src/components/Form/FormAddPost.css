@@ -1,0 +1,116 @@
+.form-add-post-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Nền tối với độ trong suốt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+.form-add-post-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    
+}
+
+.form-add-post-wrapper {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 80vh; /* Giới hạn chiều cao để cuộn */
+}
+
+.form-add-post-wrapper h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    color: #333;
+}
+
+.form-add-post-columns {
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa các cột */
+    flex-wrap: wrap; /* Đảm bảo cột hiển thị tốt trên các thiết bị nhỏ */
+}
+.form-add-post-column h3 {
+    margin-bottom: 10px;
+}
+
+.form-add-post-column {
+    flex: 1;
+    min-width: 250px; /* Đặt chiều rộng tối thiểu cho cột */
+}
+
+.form-add-post-group {
+    margin-bottom: 15px;
+}
+
+.form-add-post-group label {
+    display: block;
+    font-size: 1em;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-add-post-group input,
+.form-add-post-group textarea,
+.form-add-post-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.form-add-post-group textarea {
+    resize: vertical;
+}
+
+.form-add-post-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.form-add-post-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.form-add-post-actions button:hover {
+    background-color: #0056b3;
+}
+
+.form-add-post-actions button[type="button"] {
+    background-color: #6c757d;
+}
+
+.form-add-post-actions button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+/* Cuộn trang trong form */
+.form-add-post-wrapper {
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .form-add-post-columns {
+        flex-direction: column; /* Chuyển thành layout cột khi màn hình nhỏ */
+    }
+}

@@ -1,0 +1,37 @@
+.custom-chart-ship {
+    display: flex
+    ;
+        z-index: -1;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px;
+        background-color: rgba(255, 255, 255, 0.90);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        position: relative;
+        padding: 20px 0;
+}
+
+.custom-chart-ship-title {
+    font-size: 1.5rem; /* Kích thước chữ cho tiêu đề */
+    margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
+    color: #333; /* Màu chữ */
+}
+
+.custom-chart-ship-container {
+    width: 100%; /* Chiều rộng của biểu đồ */
+    border-radius: 8px; /* Bo góc cho biểu đồ */
+    overflow: visible; /* Đảm bảo không ẩn các phần thừa */
+    position: relative; /* Đặt vị trí tương đối để sử dụng z-index */
+    z-index: 1; /* Đặt z-index cho container */
+    background-color: rgba(255, 255, 255, 0); /* Màu nền trong suốt */
+} 
+&MuiChartsAxis-label {
+    transform: translateX(10px);
+}
+&css-ltfg7h {
+    width: 950px;
+}
+&css-1evyvmv-MuiChartsSurface-root {
+    margin-right: 60px;
+}

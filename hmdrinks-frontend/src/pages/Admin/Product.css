@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+.product-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: 100%;
+    margin: 0;
+    min-height: 100vh;
+    background-image: url('../../assets/img/contact.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    padding-left: 70px;
+}
+/* styles.css hoặc file CSS tương ứng */
+.price-history-modal {
+    background-color: rgba(255, 255, 255, 0.853); /* Màu nền trắng */
+    border: 2px solid #e0caca; /* Đường viền xám */
+    border-radius: 5px; /* Bo góc */
+    padding: 10px; /* Khoảng cách bên trong */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    position: absolute; /* Định vị tuyệt đối */
+    right: 10px; /* Cách bên phải 10px */
+    top: 10px; /* Cách trên 10px */
+    z-index: 1000; /* Đảm bảo modal nằm trên các phần tử khác */
+}
+.product-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 223, 223, 0.2);
+    z-index: 0;
+}
+.product-content {
+    display: flex;
+    justify-content: space-between;
+    z-index: 1;
+}
+
+/* Categories Section Styling */
+.product-categories {
+    width: 28.5%;
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.94);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    
+}
+
+.product-title,
+.product-title-table {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.prodcut-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.search-add-container {
+    display: flex;
+    align-items: center;
+}
+
+.product-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.product-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.product-category-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.product-category-item {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 20px;
+    position: relative;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.product-category-item:hover {
+    background-color: #f0f0f0;
+}
+
+.product-category-item.active {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.product-category-item::before {
+    content: '❤️';
+    margin-right: 8px;
+}
+.pro-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px; 
+    height: 20px; 
+    margin-left: 10px;
+}
+
+.pro-switch input {
+    opacity: 0; 
+    width: 0;
+    height: 0;
+}
+
+.pro-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc; 
+    transition: .4s; 
+    border-radius: 20px;
+}
+
+.pro-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; 
+    width: 16px; 
+    left: 2px;
+    bottom: 2px;
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+}
+
+input:checked + .pro-slider {
+    background-color: #4CAF50; 
+}
+
+input:checked + .pro-slider:before {
+    transform: translateX(20px); 
+}
+/* Products Section Styling */
+/* Products Section Styling */
+/* Products Section Styling */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Distribute columns evenly */
+}
+
+.product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+    word-wrap: break-word; /* Ensure long text wraps inside cells */
+}
+
+/* Set the first column to 5% width */
+.product-table th:first-child, .product-table td:first-child {
+    width: 4%; /* Set the width of the first column */
+}
+.product-table th:nth-child(2), .product-table td:nth-child(2) {
+    width: 13%; /* Set the width of the second column */
+}
+.product-table th:nth-child(3), .product-table td:nth-child(3) {
+    width: 15%; /* Set the width of the second column */
+}
+
+.product-table th:nth-child(4), .product-table td:nth-child(3) {
+    width: 20%; /* Set the width of the second column */
+}
+
+.product-table th:nth-child(5), .product-table td:nth-child(3) {
+    width: 10%; /* Set the width of the second column */
+}
+
+.product-table th:last-child, .product-table td:last-child {
+    width: 12%; /* Set the width of the first column */
+}
+
+.product-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+
+.product-table td .pro-action {
+    width: 20%;
+}
+
+.product-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Action Buttons Styling */
+.product-table .action-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.product-table .update-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.product-table .delete-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.product-table .view-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.product-table .action-button:hover {
+    opacity: 0.8;
+}
+
+/* Pagination Controls */
+.pro-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 15%;
+    flex-direction: row;
+    margin-left: 45%;
+}
+
+.pro-pagination .btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ed8ca1;
+    color: #ffffff;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+
+.pro-pagination .btn:hover:not(:disabled) {
+    background-color: #7397b8;
+}
+
+.pro-pagination .btn:disabled {
+    cursor: not-allowed;
+}
+
+.pro-pagination .btn-page {
+    background-color: #33a1b4;
+    margin: 5px;
+}
+
+.pro-pagination .btn-page:hover {
+    background-color: #5a6268;
+}
+
+.pro-pagination .btn-light {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.pro-pagination .btn-light:hover {
+    background-color: #e2e6ea;
+}
+
+/* Product List */
+.product-list {
+    width: 70%;
+    padding-left: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+/* Buttons */
+.btn-pro-view, .btn-pro-add1 {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+}
+
+#btn-pro-add {
+    color: blue;
+    font-size: 20px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#btn-pro-add:hover {
+    transform: scale(1.2);
+}
+#btn-pro-det {
+    color: blue;
+    font-size: 20px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#btn-pro-det:hover {
+    transform: scale(1.2);
+}
+
+.btn-pro-add1 {
+    padding: 10px 15px;
+    background-color: #ffffff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.btn-pro-add1 i {
+    font-size: 20px;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.btn-pro-add1:hover {
+    background-color: #cae3cb;
+    transform: scale(1.1);
+}
+
+.btn-pro-add1::before {
+    content: "Thêm sản phẩm";
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-pro-add1:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-pro-view {
+    background-color: #78afdc;
+}
+
+.gr-btn-pro {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+#btn-pro-clear {
+    color: red;
+    font-size: 20px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+#btn-pro-clear:hover {
+    transform: scale(1.2);
+}
+
+/* Styles for the product price column */
+.product-table td ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.product-table td ul li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-table td ul li:last-child {
+    border-bottom: none;
+}
+
+.product-table td ul li span {
+    display: inline-block;
+    font-size: 16px;
+    color: #333;
+}
+
+.product-table td ul li .size {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.product-table td ul li .price {
+    color: #28a745;
+    margin-right: 5px;
+}
+
+.product-table td ul li .stock {
+    color: #dc3545;
+    font-size: 16px;
+}
+
+.product-table td img {
+    border-radius: 5px;
+}
+
+.product-images {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.product-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+.product-pagination-controls{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: space-between;
+
+}

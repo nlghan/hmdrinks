@@ -1,0 +1,311 @@
+.form-update-product {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(5px); /* Blur effect for background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure modal is on top */
+    height: auto; /* Cho phép cuộn khi nội dung dài */
+}
+
+/* Modal Content */
+.form-update-product > div {
+    background: white; /* Modal background color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Inner spacing */
+    width: 90%; /* Responsive width */
+    max-width: 600px; /* Max width for larger screens */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    max-height: 90vh; /* Max height for the modal content */
+    overflow-y: auto; /* Cho phép cuộn nếu nội dung vượt quá chiều cao */
+}
+
+/* Header Style */
+h2 {
+    margin-top: 0; /* Remove default margin */
+}
+
+/* Error message style */
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+    text-align: center; /* Center the error message */
+}
+
+/* Form Group Style */
+.form-group {
+    margin-bottom: 15px; /* Space between form groups */
+}
+
+/* Input Field Styles */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%; /* Full width */
+    padding: 10px; /* Inner spacing */
+    border: 1px solid #ccc; /* Border style */
+    border-radius: 4px; /* Rounded corners */
+}
+
+/* Button Styles */
+button {
+    padding: 10px 15px; /* Inner spacing */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-right: 10px; /* Space between buttons */
+}
+
+button[type="submit"] {
+    background-color: #28a745; /* Green background for submit button */
+    color: white; /* White text */
+}
+
+button[type="submit"]:disabled {
+    background-color: #ccc; /* Gray background when disabled */
+    cursor: not-allowed; /* Not-allowed cursor when disabled */
+}
+
+button[type="button"] {
+    background-color: #dc3545; /* Red background for cancel button */
+    color: white; /* White text */
+}
+
+/* Variant Section */
+.pro-update-variant-container {
+    margin-top: 20px; /* Space above variant section */
+}
+
+.pro-update-variant-group {
+    margin-bottom: 15px; /* Space between variant groups */
+}
+
+.pro-update-variant-fields {
+    display: flex; /* Flexbox for alignment */
+    justify-content: space-between; /* Space between fields */
+}
+
+.pro-update-field-group {
+    flex: 1; /* Equal width for fields */
+    margin-right: 10px; /* Space between fields */
+}
+
+/* Remove margin for last field in each group */
+.pro-update-field-group:last-child {
+    margin-right: 0; /* No margin for last child */
+}
+
+/* Image Upload Styles */
+.image-upload {
+    margin: 20px 0; /* Space above/below image upload section */
+}
+
+.uploaded-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Create two equal columns */
+    gap: 10px; /* Space between the images */
+    padding: 15px;
+    width: 300px;
+}
+
+.image-container {
+    display: flex;
+    flex-direction: column; /* Stack image and button vertically */
+    align-items: center; /* Center align items */
+    text-align: center; /* Center text */
+    transition:  1s ease;
+    
+}
+
+.image-container img {
+    max-width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+    border: 1px solid #ccc; /* Optional: border around images */
+    border-radius: 4px; /* Optional: rounded corners */
+}
+
+.image-container button {
+    margin-top: 8px; /* Space between image and button */
+    padding: 6px 12px; /* Button padding */
+    background-color: #e74c3c; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 1s ease; /* Transition effect for hover */
+}
+
+.image-container button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+.image-container button:disabled {
+    background-color: #bdc3c7; /* Gray color for disabled button */
+    cursor: not-allowed; /* Not allowed cursor */
+}
+
+/* Delete All Images Button */
+.delete-all-images-button {
+    margin-top: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.delete-all-images-button:hover {
+    background-color: #c82333;
+}
+
+.delete-all-images-button:disabled {
+    background-color: #e6a1a1;
+    cursor: not-allowed;
+}
+
+/* Form Layout */
+
+
+.product-info-section {
+    flex: 1; /* Take up remaining space */
+    padding-right: 20px; /* Space between sections */
+}
+
+.variant-section {
+    flex: 1;
+    display: flex;
+    padding-left: 20px;
+    gap: 35px;
+    flex-direction: column;
+    margin-top: 20px;
+    
+}
+
+/* Form Actions */
+.update-pro-form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px; /* Space above action buttons */
+}
+
+#update-pro-submit-button {
+    background-color: #00B087;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    width: 57%;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+#update-pro-submit-button:hover {
+    background-color: #00b04c;
+}
+
+.submit-button:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+}
+
+#update-pro-cancel-button {
+    background-color: #c73b48;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 50%;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+#update-pro-cancel-button:hover {
+    background-color: #bd535e;
+  
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
+}
+
+
+
+
+.image-container {
+    position: relative;
+    margin: 10px;
+}
+
+
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-spinner-button {
+    margin-right: 10px;
+    display: inline-block;
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ensure the spinner is centered properly within the button */
+.loading-spinner-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.upload-message {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+input[type="file"] {
+    margin-bottom: 15px;
+}
+
+
+/* Đảm bảo ảnh có kiểu đặt vị trí chính xác */
+.image-container {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
+/* Ẩn nút xóa mặc định */
+.delete-button {
+    display: none; /* Ẩn button khi không hover */
+    position: absolute;
+    top: -10px;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: red;
+
+}
+
+/* Hiển thị nút xóa khi hover vào ảnh */
+.image-container:hover .delete-button {
+    display: block; /* Hiển thị button khi hover vào image */
+}

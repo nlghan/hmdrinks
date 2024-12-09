@@ -1,0 +1,476 @@
+/* NewsUser.css */
+
+/* Basic container for the NewsUser component */
+
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+.news-user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.news-user-banner {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 780px;
+  overflow: hidden;
+  /* Ensures that the pseudo-element fits within the banner area */
+}
+
+/* Overlay for semi-transparent background */
+.news-user-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.86);
+  /* Semi-transparent black overlay */
+  z-index: 1;
+  /* Place it below the content */
+}
+
+/* Ensure banner content appears above the overlay */
+.banner-content,
+.banner-image {
+  position: relative;
+  z-index: 2;
+  /* Content layers above the background overlay */
+}
+
+
+.banner-image {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+
+}
+
+.pacifico-regular {
+  font-family: "Pacifico", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+/* Define the reusable Pacifico font class */
+.pacifico-regular {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: Pacifico;
+  font-size: 60px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  /* 118.519% */
+  letter-spacing: 3.24px;
+}
+
+
+
+/* Centered, justified block for banner content */
+.banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: justify;
+  /* Justifies text for even alignment */
+  margin: 0 auto;
+  /* Centers the block */
+  line-height: 1.6;
+  /* Improves readability */
+  padding: 0 100px;
+  /* background-color: #a3d7ef80;
+  border-radius: 20px;
+  margin-right: 20px; */
+}
+
+.banner-description {
+  color: #000;
+  font-family: 'Inter';
+  margin-top: 25px;
+  font-size: 26px;
+}
+
+/* News Section */
+.news-user-section {
+  padding: 20px;
+
+}
+/* Initially hides the element */
+.news-user-card.hidden {
+  opacity: 0;
+  transform: translateY(20px); /* Slight offset for entry effect */
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* Reveals the element with a fade-in effect */
+.news-user-card.fade-in {
+  opacity: 1;
+  transform: translateY(0); /* Back to original position */
+}
+
+.zoomIn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
+
+
+.news-user-title {
+  font-size: 36px;
+  text-align: center;
+  margin-bottom: 50px;
+  margin-top: 50px;
+  font-family: 'Pacifico', cursive;
+}
+
+.news-user-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Hiển thị 3 bài viết trên một dòng */
+  gap: 30px;
+}
+#arrow{
+  font-size: 30px;
+}
+.news-user-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s ease;
+}
+.news-user-card:hover{
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.news-user-image {
+  width: 100%;
+  height: 450px; /* Đặt chiều cao ảnh để các thẻ có kích thước nhất quán */
+  object-fit: cover;
+}
+
+.news-user-card-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.news-user-card-date {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.news-user-card-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.news-user-card-description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.news-user-card-button {
+  align-self: flex-start;
+  background-color: #f39c12;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.news-user-card-button:hover {
+  background-color: #e67e22;
+}
+
+.news-user-see-more {
+  margin-top: 20px;
+  display: block;
+  width: 100%;
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.news-user-see-more:hover {
+  background-color: #2980b9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .news-user-cards {
+    grid-template-columns: 1fr 1fr; /* 2 bài viết trên mỗi hàng cho màn hình trung bình */
+  }
+}
+
+@media (max-width: 768px) {
+  .news-user-cards {
+    grid-template-columns: 1fr; /* 1 bài viết trên mỗi hàng cho màn hình nhỏ */
+  }
+}
+
+
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+    /* Start 100% to the right */
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    /* End at the original position */
+  }
+}
+
+.banner-drink-image {
+  width: 600px;
+  height: 600px;
+  margin-right: 50px;
+  border-radius: 30px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  /* Shadow effect */
+  animation: slideInFromRight 1s ease-out;
+  /* Apply the slide-in animation */
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    /* Start at half the size */
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    /* End at the original size */
+  }
+}
+
+.banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: 'Pacifico', cursive;
+  /* Changed to Pacifico */
+  font-size: 54px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  letter-spacing: 3.24px;
+  animation: zoomIn 1s ease-out;
+  /* Apply the zoom-in animation */
+}
+
+.banner-description {
+  color: #000;
+  font-family: 'Inter';
+  animation: zoomIn 1s ease-out
+    /* Apply with a slight delay */
+}
+.banner-user-cotainer{
+  display: flex;
+}
+
+
+/* Responsive for smaller screens */
+@media (max-width: 1400px) {
+
+ 
+  .banner-title {
+    font-size: 48px;
+    text-align: center;
+  }
+
+  .banner-description {
+    font-size: 22px;
+    padding: 0 50px;
+  }
+
+  .banner-drink-image {
+    width: 500px;
+    height: 500px;
+    margin-right: 30px;
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+   
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: 700px;  }
+  .news-user-banner{
+    height: 1200px;
+
+   
+  }
+}
+
+@media (max-width: 992px) {
+  .banner-title {
+    font-size: 42px;
+    text-align: center;
+  }
+
+  .banner-description {
+    font-size: 20px;
+    padding: 0 30px;
+  }
+
+  .banner-drink-image {
+    width: 400px;
+    height: 400px;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .news-user-cards {
+    gap: 15px;
+  }
+
+  .news-user-card {
+    width: 220px;
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+   
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: 500px;
+  }
+  .news-user-banner{
+    height: 1200px;
+
+   
+  }
+
+ 
+}
+
+@media (max-width: 768px) {
+  .news-user-banner {
+    padding: 20px 0px;
+    
+  }
+
+  .banner-title {
+    font-size: 46px;
+  }
+
+  .banner-description {
+    font-size: 20px;
+    padding: 0 20px;
+  }
+
+  .banner-drink-image {
+    width: 300px;
+    height: 300px;
+    margin-bottom: 20px;
+  }
+
+  .news-user-cards {
+    gap: 10px;
+  }
+
+  .news-user-card {
+    width: 180px;
+  }
+
+  .news-user-see-more {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .news-user-banner{
+    width: 100%;
+    
+  }
+  .banner-user-cotainer{
+    display: flex;
+    flex-direction: column;
+  }
+  .banner-content{
+    width: 100%;
+    padding: 10px;
+  }
+
+  .banner-drink-image{
+    width: 90%;
+    height: auto;
+  }
+}
+
+@media (max-width: 576px) {
+ 
+  .banner-title {
+    font-size: 40px;
+  }
+
+  .banner-description {
+    font-size: 18px;
+    padding: 0 10px;
+  }
+
+  .news-user-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .news-user-card {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .banner-drink-image {
+    width: 90%;
+    height: 400px;
+  }
+}

@@ -1,0 +1,47 @@
+/* src/components/Card/ProductRecommend.css */
+.recommend-product-recommend {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    margin: 10px;
+    flex: 1 1 calc(33.33% - 20px); /* Adjust width for three items per row */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width:auto;
+}
+
+.recommend-product-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.recommend-product-price {
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.recommend-product-description {
+    color: #555;
+    margin: 8px 0;
+}
+
+.recommend-star-rating {
+    color: gold;
+}
+
+.recommend-star {
+    font-size: 20px;
+}
+
+.recommend-star.filled {
+    color: gold;
+}
+
+/* Add this to your CSS file for the related-products container */
+.related-products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Use space-around for even spacing */
+    margin: 0 -10px; /* Adjust for the margin of child elements */
+}

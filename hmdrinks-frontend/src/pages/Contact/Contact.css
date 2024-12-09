@@ -1,0 +1,669 @@
+.contact-main {
+  padding: 60px 0;
+  background-image: url('../../assets/img/contact.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  opacity: 0;
+  animation: fadeIn 0.4s forwards;
+}
+
+.contact-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(238, 223, 223, 0.2);
+}
+
+.contact-section {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  gap: 40px;
+  padding: 0 20px;
+}
+
+.contact-info {
+  flex: 1;
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.contact-form {
+  flex: 2;
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.contact-info,
+.contact-form {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Contact Info Styles */
+.contact-info h2,
+.contact-form h2 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 28px;
+  position: relative;
+}
+
+.contact-info h2::after,
+.contact-form h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  width: 50px;
+  height: 3px;
+  
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 5px;
+  padding: 5px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+.contact-info-item:hover {
+  background-color: #f8f9fa;
+}
+
+.contact-info-item i {
+  margin-top: 1px;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ec686a;
+  border-radius: 50%;
+  margin-right: 15px;
+  color: #ffffff;
+}
+
+.contact-info-item .ti-mobile {
+  font-size: 22px;
+}
+
+.contact-info-item .ti-location-pin {
+  font-size: 22px;
+}
+
+.contact-info-item .ti-email {
+  font-size: 20px;
+}
+
+.contact-info-item .ti-time {
+  font-size: 20px;
+}
+
+.contact-info-content {
+  flex: 1;
+}
+
+.contact-info-content h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 5px;
+  line-height: 1.2;
+}
+
+.contact-info-content p {
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Add divider style */
+.contact-info-divider {
+  height: 1px;
+  background-color: #ddd;
+  margin: 20px 0;
+  margin-top: 40px;
+}
+
+/* Contact Form Styles */
+.contact-form-group {
+  margin-bottom: 25px;
+  position: relative;
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+.contact-form-group:nth-child(-n+3) {
+  flex: 1;
+  min-width: 200px;  /* Đảm bảo độ rộng tối thiểu khi responsive */
+  margin-bottom: 20px;
+}
+
+.contact-form-group:nth-child(4) {
+  width: 100%;
+}
+
+.contact-form-group input[required]::after,
+.contact-form-group textarea[required]::after {
+  content: '*';
+  color: #ff0000;
+  position: absolute;
+  top: 12px;
+  right: 15px;
+}
+.required-field {
+  font-size: 19px;
+}
+.contact-form-group input::placeholder,
+.contact-form-group textarea::placeholder {
+  position: relative;
+}
+
+.contact-form-group input[required]::placeholder {
+  content: ' *';
+}
+
+.contact-form-group input[required]::placeholder::after {
+  content: ' *';
+  color: #ff0000;
+}
+
+.contact-form-group input,
+.contact-form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 18px;
+  transition: border-color 0.3s;
+}
+
+.contact-form-group input:focus,
+.contact-form-group textarea:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+.contact-form-group textarea {
+  height: 150px;
+  resize: vertical;
+}
+
+.contact-submit-btn1 {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 0.8s;
+}
+
+.contact-submit-btn1:hover {
+  background-color: #d74556;
+}
+
+button[type="submit"] {
+    background-color: #ff7380;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .contact-section {
+    flex-direction: column;
+  }
+
+  .contact-info,
+  .contact-form {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-main {
+    padding: 40px 0;
+  }
+
+  .contact-info,
+  .contact-form {
+    padding: 20px;
+  }
+}
+
+/* Contact Form Styles */
+.contact-form form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;  /* Khoảng cách giữa các form group */
+}
+
+/* Style cho 3 trường input đầu tiên */
+.contact-form-group:nth-child(-n+3) {
+  flex: 1;
+  min-width: 200px;  /* Đảm bảo độ rộng tối thiểu khi responsive */
+  margin-bottom: 20px;
+}
+
+/* Style cho textarea (trường thứ 4) */
+.contact-form-group:nth-child(4) {
+  width: 100%;
+}
+
+/* Style cho button submit */
+.contact-form button {
+  width: auto;
+  margin-top: 10px;
+  margin-left: auto;
+  display: block;
+}
+
+/* Điều chỉnh responsive */
+@media (max-width: 768px) {
+  .contact-form-group:nth-child(-n+3) {
+    width: 100%;
+    flex: none;
+  }
+  .contact-submit-btn1{
+    margin-bottom: 10px;
+  }
+}
+
+/* Thêm các keyframes animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn1 {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn2 {
+  0% {
+    transform: scale(0.5) translateY(2px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0px);
+    opacity: 1;
+  }
+}
+
+/* Thêm các classes cho animations */
+.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ase, transform 0.3s ease;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+.slide-in-left {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+.slide-in-right {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+/* Thêm hiệu ứng cho contact-info và contact-form */
+.contact-info {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.contact-form {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+/* Thêm hiệu ứng cho các contact-info-item */
+.contact-info-item {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+.contact-info-item:nth-child(1) { animation-delay: 0.4s; }
+.contact-info-item:nth-child(2) { animation-delay: 0.3s; }
+.contact-info-item:nth-child(3) { animation-delay: 0.4s; }
+.contact-info-item:nth-child(4) { animation-delay: 0.5s; }
+.contact-info-item:nth-child(5) { animation-delay: 0.6s; }
+.contact-info-item:nth-child(6) { animation-delay: 0.7s; }
+
+/* Thêm hiệu ứng cho các form elements */
+.contact-form-group {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+}
+
+.contact-form-group:nth-child(1) { animation-delay: 0.7s; }
+.contact-form-group:nth-child(2) { animation-delay: 0.8s; }
+.contact-form-group:nth-child(3) { animation-delay: 0.9s; }
+.contact-form-group:nth-child(4) { animation-delay: 1s; }
+
+/* Thêm hiệu ứng cho button submit */
+.contact-submit-btn1 fade-in {
+  opacity: 0;
+  animation: zoomIn2 0.3s ease-out forwards;
+  animation-delay: 1.1s;
+}
+
+.contact-success-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.contact-success-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
+}
+
+.contact-success-modal h3 {
+  color: #2d3436;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.contact-success-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.contact-success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.contact-success-icon-circle {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.contact-checkmark {
+  width: 80px;
+  height: 80px;
+}
+
+.contact-checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #00b894;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.contact-checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #00b894;
+  stroke-width: 3;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes modalSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.contact-error-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.contact-error-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
+}
+
+.contact-error-modal h3 {
+  color: #e74c3c;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.contact-error-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.contact-error-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.contact-error-icon-circle {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.contact-cross {
+  width: 80px;
+  height: 80px;
+}
+
+.contact-cross-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #e74c3c;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.contact-cross-line {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #e74c3c;
+  stroke-width: 3;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Thêm animation cho cross */
+@keyframes contact-crossRotate {
+  0% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+/* Thêm shake animation cho error modal */
+.contact-error-modal {
+  animation: modalSlideIn 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.contact-loading-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.contact-loading-modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  animation: modalSlideIn 0.5s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  min-width: 300px;
+  max-width: 90%;
+}
+
+.contact-loading-modal h3 {
+  color: #2d3436;
+  margin: 15px 0 5px;
+  font-size: 24px;
+}
+
+.contact-loading-modal p {
+  color: #636e72;
+  margin: 0;
+  font-size: 16px;
+}
+
+.contact-loading-spinner {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.contact-spinner {
+  width: 80px;
+  height: 80px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Thêm animation cho transition giữa các trạng thái */
+.contact-loading-modal, .contact-success-modal, .contact-error-modal {
+  position: relative;
+  transition: transform 0.3s ease-out;
+}
+
+.contact-loading-modal.hide {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.contact-success-modal.show, .contact-error-modal.show {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Thêm pulse effect cho spinner */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.contact-loading-spinner {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Làm mịn transition */
+.contact-loading-animation, .contact-success-animation, .contact-error-animation {
+  transition: opacity 0.3s ease-out;
+}

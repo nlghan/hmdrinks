@@ -1,0 +1,322 @@
+.container-menu {
+    width: 100%;
+    min-height: 110vh; /* Full viewport height */
+    flex:0.4;
+    padding-top: 150px;
+    
+  }
+  
+  .overlay-menu {
+    flex:1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    background-color: #FDEAF2;
+    border-radius: 0 0 100% 0; /* Creates the curved shape */
+    z-index: 1; /* Make sure it's on top */
+  }
+  
+  .container-content-menu {
+    position: relative;
+    z-index: 2; /* Make sure the content is above the overlay */
+    padding: 20px;
+  }
+
+/* Base styles for the category list items */
+.menu-product-category li {
+    cursor: pointer;
+    margin: 10px 0;
+    padding: 10px 15px;
+    font-size: 1.5em;
+    color: #333;
+    width: 55%;
+    transition: color 0.3s ease-in-out;
+    transform: translateX(-100px); /* Start off-screen */
+    opacity: 0;
+    animation: slideIn 0.5s forwards;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Stagger the animation for each item */
+.menu-product-category li:nth-child(1) {
+    animation-delay: 0s;
+}
+.menu-product-category li:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.menu-product-category li:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.menu-product-category li:nth-child(4) {
+    animation-delay: 0.3s;
+}
+.menu-product-category li:nth-child(5) {
+    animation-delay: 0.4s;
+}
+.menu-product-category li:nth-child(6) {
+    animation-delay: 0.5s;
+}
+.menu-product-category li:nth-child(7) {
+    animation-delay: 0.6s;
+}
+.menu-product-category li:nth-child(8) {
+    animation-delay: 0.7s;
+}
+.menu-product-category li:nth-child(9) {
+    animation-delay: 0.8s;
+}
+.menu-product-category li:nth-child(10) {
+    animation-delay: 0.9s;
+}
+/* Continue this for as many items as needed */
+
+
+.menu-product-category li:hover {
+    background-color: rgba(255, 255, 255, 0.3); /* Change background color on hover */
+    color: #fd0404; /* Change text color on hover (optional) */
+    transform: scale(1.05);
+}
+
+.menu-product-category li.active-category {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.menu-category{
+    margin-top: 10px;
+}
+
+.menu-product-h2{
+    display: flex;
+    align-items: flex-start;
+    padding-left: 15px;
+    margin-bottom: 0px !important;
+}
+
+.product-listing {
+    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-right: 20px;
+}
+
+.filter button {
+    padding: 10px 20px;
+    background-color: #ff7f7f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.products {
+    display: flex; /* Use flexbox */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    justify-content: flex-start; /* Align items to the start */
+    gap: 20px; /* Space between items */
+}
+
+
+.product-card {
+    flex: 0 0 calc(25% - 20px); /* Each product card takes up 25% width, accounting for gap */
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95); /* Start closer to full size for a gentler zoom */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1); /* End at full size */
+    }
+}
+
+.zoom-in {
+    opacity: 0;
+    animation: zoomIn 1s ease-in-out forwards; /* Reduced duration for a softer movement */
+}
+
+
+/* Pagination Container */
+.menu-product-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    gap: 10px; /* Khoảng cách giữa các phần tử */
+}
+
+/* Pagination dots */
+.pagination-dot {
+    font-size: 80px; /* Kích thước lớn hơn cho dấu chấm */
+    color: #b1adad; /* Màu sắc dấu chấm mặc định */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.pagination-dot.active {
+    color: #e55a28; /* Màu của dấu chấm khi được chọn */
+}
+
+.pagination-dot:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+/* Pagination arrows */
+.pagination-arrow {
+    font-size: 50px; /* Kích thước của nút mũi tên */
+    color: #f67a28; /* Màu mặc định của mũi tên */
+    cursor: pointer;
+    user-select: none; /* Ngăn người dùng chọn văn bản */
+    transition: color 0.3s ease;
+}
+
+.pagination-arrow:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+.pagination-arrow.disabled {
+    color: #e0e0e0; /* Màu cho mũi tên khi bị vô hiệu hóa */
+    cursor: not-allowed;
+}
+
+
+.menu-category-pagination {
+    display: flex; /* Use flexbox for alignment */
+   justify-content: center;
+    align-items: center; /* Center items vertically */
+    width: 65%; /* Add spacing above the pagination */
+    height: 50px;
+}
+
+.pagination-cate-dot {
+    font-size: 50px; /* Kích thước lớn hơn cho dấu chấm */
+    color: #ccc; /* Màu sắc dấu chấm mặc định */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.pagination-cate-dot.active {
+    color: #e55a28; /* Màu của dấu chấm khi được chọn */
+}
+
+.pagination-cate-dot:hover {
+    color: #ff7f7f; /* Hiệu ứng hover */
+}
+
+/* Styles for screens between 768px and 1200px */
+@media (min-width: 768px) and (max-width: 1200px) {
+    .container-menu {
+        padding-top: 150px;
+        min-height: 110vh;
+    }
+
+    .overlay-menu {
+        width: 25%;
+    }
+
+    .product-card {
+        flex: 0 0 calc(33.33% - 20px); /* Each product card takes up 1/3 of the width, minus gap */
+    }
+}
+
+
+/* Tablet styles (between 600px and 768px) */
+@media (max-width: 768px) and (min-width: 600px) {
+    .container-menu {
+        padding-top: 120px;
+    }
+
+    .overlay-menu {
+        width: 30%;
+    }
+
+    .menu-product-category li {
+        font-size: 1.2em;
+    }
+
+    .product-card {
+        flex: 0 0 calc(50% - 20px); /* Each card takes up 50% of width */
+    }
+
+    .pagination-dot, .pagination-arrow {
+        font-size: 60px;
+    }
+
+    .pagination-cate-dot {
+        font-size: 40px;
+    }
+}
+
+/* Mobile styles (below 600px) */
+@media (max-width: 600px) {
+    .container-menu {
+        padding-top: 100px;
+        min-height: 100vh;
+    }
+
+    .overlay-menu {
+        width: 35%;
+        border-radius: 0; /* Adjust to avoid overlap on small screens */
+    }
+
+    .container-content-menu {
+        padding: 10px;
+    }
+
+    .menu-product-category li {
+        font-size: 1em;
+        width: 100%; /* Make it full-width for better visibility */
+    }
+
+    .product-card {
+        flex: 0 0 calc(100% - 20px);
+        margin-bottom: 10px;
+        margin-left: 30px;
+    }
+
+    .filter button {
+        font-size: 0.9em;
+        padding: 8px 16px;
+        margin-left: 30px;
+    }
+
+    .pagination-dot, .pagination-arrow {
+        font-size: 40px;
+    }
+
+    .pagination-cate-dot {
+        font-size: 30px;
+    }
+
+    
+}
+
+
+
+
+

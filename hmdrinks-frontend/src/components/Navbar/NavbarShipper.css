@@ -1,0 +1,384 @@
+/* Import fonts as before */
+@import url('https://fonts.googleapis.com/css2?family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Taviraj:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
+
+.shipper-navbar {
+    width: auto;
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;  /* Màu nền nhẹ nhàng hơn */
+    border-bottom: 2px solid #e9ecef;
+    position: relative;
+}
+
+.shipper-box-shadow {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.shipper-logo {
+    height: 80px; 
+    padding-bottom: 10px;
+}
+
+.shipper-navbar-menu {
+    display: flex
+    ;
+        list-style: none;
+        gap: 60px;
+        font-size: 20px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0px;
+        align-items: center;
+        flex-grow: 1;
+        margin-left: 15%;
+}
+
+.shipper-navbar-menu li {
+    transition: all 0.3s ease;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.shipper-navbar-menu li:hover {
+    transform: translateY(-2px);
+    background-color: #e9ecef;
+    color: #FF6D2C;
+}
+
+.shipper-navbar-right {
+    display: flex;
+    gap: 25px; 
+    align-items: center;
+}
+
+.shipper-login1, .shipper-signup {
+    display: flex;
+    padding: 10px 20px; 
+    align-items: center;
+    border-radius: 12px;
+    border: 2px solid #2E2F35;
+    box-shadow: 3px 3px 0px 0px #2E2F35;
+    font-size: 16px; 
+    cursor: pointer; 
+}
+
+.shipper-login1 {
+    background: #FFF;
+    margin-left: 138px;
+}
+
+.shipper-signup {
+    background: #FF6D2C;
+    color: #FFF;
+}
+
+.shipper-login1:hover, .shipper-signup:hover {
+    opacity: 0.9;
+    background-color: rgb(127, 180, 255);
+    color: black;
+}
+
+.shipper-navbar .shipper-active {
+    font-weight: 600;
+    color: #FF6D2C;
+    background-color: #fff3ef;
+    border-radius: 20px;
+    padding: 8px 15px;
+}
+
+.shipper-navbar-toggle {
+    display: none;
+}
+
+.shipper-navbar-right i:hover {
+    transform: scale(1.1); /* Scale icon on hover */
+}
+
+.shipper-navbar-right .shipper-signup {
+    margin-left: 15px; /* Space between icons and buttons */
+}
+
+.shipper-breadcrumb {
+    background-color: rgba(250, 211, 211, 0.9); /* Background color with slight transparency */
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 80px;
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+
+.shipper-breadcrumb-title {
+    font-weight: bold; /* Bold title */
+    font-size: 24px; /* Font size for the title */
+    flex: 1; /* Allow title to take up available space */
+    text-align: center; /* Center text for title */
+}
+
+.shipper-breadcrumb-navigation {
+    color: #555; /* Darker color for navigation */
+    font-size: 20px; /* Font size for navigation */
+    margin-top: 5px; /* Add space between title and navigation */
+}
+
+.shipper-bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(173, 216, 230, 0.7); /* Light blue */
+    border-radius: 50%;
+    pointer-events: none; /* Prevent interaction */
+    animation: bubble-animation 1s ease-out forwards;
+    z-index: 9999; /* Ensure the bubble appears above other content */
+}
+  
+@keyframes bubble-animation {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.shipper-progress-bar {
+    padding: 15px; /* Padding for the breadcrumb */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Change to column layout */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    height: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adjust values as needed */
+}
+
+.shipper-progress-navigation {
+    display: flex; /* Use flexbox for navigation layout */
+    align-items: center; /* Center items vertically */
+    font-size: 20px; /* Font size for navigation */
+    width: 100%; /* Ensure it takes full width */
+    padding-left: 42%;
+}
+
+.shipper-nav-item {
+    margin: 0 20px; /* Space around the items */
+    color: rgb(43, 118, 118);
+    font-weight: bold; /* Bold text for navigation items */
+}
+
+.shipper-separator {
+    margin: 0 10px; /* Space around the separator */
+    color: #555; /* Color for the separator */
+}
+.shipper-navbar-toggle {
+    display: none; /* Hide toggle button by default */
+  }
+/* Responsive styles */
+@media (max-width: 1571px) {
+    .shipper-navbar {
+        padding: 0 20px;
+    }
+
+    .shipper-navbar-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        z-index: 10;
+        align-items: flex-start;
+        margin-left: 0;
+    }
+
+    .shipper-navbar-menu.show {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .shipper-navbar-toggle {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .shipper-navbar-right {
+        display: none;
+    }
+
+    .shipper-icon-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-left: 0px !important;
+    }
+
+    .shipper-login1 {
+        margin-left: 0px !important;
+    }
+
+    .shipper-signup {
+        width: 130px;
+        text-align: center;
+        align-items: center;
+    }
+}
+
+@media (max-width: 800px) {
+    .shipper-navbar {
+        padding: 0 20px; /* Reduce padding for smaller screens */
+    }
+
+    .shipper-navbar-menu {
+        display: none; /* Hide the menu by default */
+        flex-direction: column; /* Stack items vertically */
+        position: absolute; /* Overlay menu */
+        top: 80px; /* Adjust based on navbar height */
+        left: 0; /* Align to left */
+        width: 100%; /* Full width */
+        background-color: white; /* Background color */
+        z-index: 10; /* Ensure it appears above other content */
+        align-items: flex-start;
+        margin-left: 0px !important;
+    }
+
+    .shipper-navbar-menu.show {
+        display: flex; /* Show menu when toggled */
+        gap:15px
+
+    }
+
+    .shipper-navbar-toggle {
+        display: block; /* Show toggle button */
+        font-size: 24px; /* Increase font size for better visibility */
+        cursor: pointer; /* Indicate it's clickable */
+    }
+
+    .shipper-navbar-right {
+        display: none; /* Hide right-side buttons in mobile view */
+    }
+    .shipper-icon-group {
+        display: flex; /* Use flexbox for icon layout */
+        align-items: center; /* Center icons vertically */
+        gap: 15px; /* Space between icons */
+        margin-left: 0px !important;
+
+      }
+      .shipper-login1{
+        margin-left: 0px !important;
+      }
+
+      .shipper-progress-navigation{
+        padding-left: 20% ;
+      
+      }
+
+    
+      
+  }
+
+
+  .shipper-icon-group-nav {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 20px;
+    padding: 0 20px;
+    height: 55px; /* Cố định chiều cao */
+    min-width: 100px;
+    border: 2px solid #e2886d;
+    border-radius: 25px;
+    background-color: rgba(173, 216, 230, 0.1);
+  }
+  
+
+  .shipper-icon-group-nav li {
+    position: relative;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .shipper-icon-group-nav li i {
+    font-size: 20px;
+    color: #2c3e50;
+  }
+  
+  .shipper-icon-badge-nav {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #FF6D2C;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Thêm style mới cho avatar trong icon group */
+  .shipper-icon-group-nav .user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6bbad;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  .shipper-icon-group-nav .user-avatar:hover {
+    transform: scale(1.1);
+    border-color: #FF6D2C;
+  }
+  
+  /* Thêm style cho status dot */
+  .user-avatar-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background-color: #2ecc71; /* Màu xanh lá */
+    border-radius: 50%;
+    border: 2px solid #fff; /* Viền trắng */
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(46, 204, 113, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
+  }
+  
+  /* Thêm style cho phần chào */
+  .welcome-text {
+    font-size: 16px;
+    color: #2c3e50;
+    white-space: nowrap;
+    margin-right: 10px;
+    font-weight: 500;
+  }
+  

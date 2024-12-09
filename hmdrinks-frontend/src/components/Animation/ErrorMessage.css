@@ -1,0 +1,52 @@
+/* ErrorMessage.css */
+
+.errorContainer {
+    display: flex;
+    flex-direction: row; /* Sắp xếp theo hàng */
+    justify-content: center;
+    height: 100vh;
+    
+  }
+  
+  .animationContainer {
+    width: 600px; /* Kích thước của animation */
+    height: 600px; /* Kích thước của animation */
+    margin-right: 20px; /* Khoảng cách giữa animation và message */
+  }
+  .messageContainer {
+    display: flex; /* Sử dụng flexbox để căn giữa nội dung */
+    justify-content: center; /* Căn giữa nội dung */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    font-size: 20px;
+    font-weight: bold;
+    color: #721c24; /* Màu chữ lỗi */
+    background: linear-gradient(to right, #f8e9d7, #f5c6cb); /* Gradient nền */
+    padding: 20px;
+    border: 1px solid #f5c6cb; /* Viền hộp thông báo */
+    border-radius: 10px; /* Bo tròn góc */
+    max-width: 600px; /* Độ rộng tối đa của hộp thông báo */
+    text-align: left;
+    position: absolute; 
+    width: 100%; /* Đặt lại vị trí để có thể sử dụng các thuộc tính khác */
+    margin-top: 8%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng cho hộp thông báo */
+    animation: fadeIn 0.5s ease-in-out; /* Thêm hiệu ứng động khi hiển thị */
+  }
+  
+  /* Định nghĩa hiệu ứng fadeIn */
+  @keyframes fadeIn {
+    from {
+      opacity: 0; /* Bắt đầu từ độ mờ 0 */
+    }
+    to {
+      opacity: 1; /* Kết thúc ở độ mờ 1 */
+    }
+  }
+  
+  /* Thêm hiệu ứng cho chữ */
+  .messageContainer:hover {
+    transform: scale(1.05); /* Tăng kích thước chữ khi hover */
+    transition: transform 0.3s; /* Hiệu ứng chuyển tiếp */
+  }
+  
+  

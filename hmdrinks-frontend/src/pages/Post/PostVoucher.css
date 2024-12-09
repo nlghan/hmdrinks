@@ -1,0 +1,447 @@
+/* PostVoucher.css */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+.post-voucher-container {
+    min-height: 100vh;
+    padding: 80px 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Blurred background styling */
+.post-voucher-container::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--post-background);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: scale(1);
+    z-index: -1; /* Ensure background is behind main content */
+    border-radius: inherit;
+    opacity: 0.1;
+}
+
+/* Back button styling */
+.btn-back {
+    background: #ff6b6b;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+    z-index: 1; /* Keep it above the background */
+}
+.btn-back:hover {
+    background-color: #ff5252;
+}
+
+/* Post banner styling */
+.post-banner {
+    display: flex;
+    gap: 50px;
+    margin-bottom: 20px;
+    z-index: 1; /* Keep it above the background */
+}
+.post-image-wrapper {
+    flex: 2;
+}
+.post-banner-image {
+    width: 100%;
+    border-radius: 8px;
+}
+
+/* Post details styling */
+.post-details {
+    flex: 2;
+    z-index: 1; /* Keep it above the background */
+}
+.post-title {
+    font-size: 40px;
+    font-weight: bold;
+    color: #0d0d0d;
+    margin-bottom: 10px;
+    font-family: "Pacifico", cursive;
+}
+.post-title2 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #0f0f0f;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: "Pacifico", cursive;
+    margin-top: 50px;
+}
+.post-date {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 15px;
+}
+.post-short-desc {
+    font-size: 16px;
+    color: #555;
+}
+
+/* Post description section */
+.post-description-section {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #171717;
+    line-height: 1.6;
+    z-index: 1; /* Keep it above the background */
+    font-family: 'Inter';
+}
+
+/* Voucher section styling */
+/* Voucher section styling */
+/* Container for the Voucher Section */
+/* Section for the Voucher */
+.voucher-section {
+    display: flex;
+    gap: 30px;
+    position: relative;
+    animation: slideShow var(--animation-duration, 3s) linear infinite;
+    width: max-content;
+}
+
+.voucher-card {
+    position: relative;
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    width: 800px; /* Chiều rộng cố định cho mỗi card */
+    gap: 120px;
+    background: #f2fffa;
+    flex-shrink: 0;
+}
+
+.voucher-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    animation: shine 3s infinite;
+    animation-delay: calc(var(--card-index) * 0.5s);
+}
+
+.voucher-image img {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    object-fit: cover;
+}
+
+.voucher-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+}
+
+.voucher-discount {
+    font-size: 30px;
+    color: #00796b; /* Deep green color */
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.voucher-description {
+    font-size: 18px;
+    color: #444;
+    font-weight: 600;
+}
+
+.voucher-description p:first-child {
+    font-size: 24px;
+    color: #00796b; /* Deep green color for "HDI" text */
+}
+
+.voucher-dates {
+    font-size: 14px;
+    color: #777;
+}
+
+.voucher-contact {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #777;
+}
+
+.voucher-contact span {
+    display: block;
+}
+
+.voucher-claim-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #00796b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.voucher-claim-btn:hover {
+    background-color: #e05f3c;
+}
+
+.voucher-claim-btn:focus {
+    outline: none;
+}
+
+.voucher-key {
+    display: block;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgb(132 207 170 / 50%);
+}
+
+@keyframes shine {
+    from {
+        transform: rotate(30deg) translateX(-200%);
+    }
+    to {
+        transform: rotate(30deg) translateX(200%);
+    }
+}
+
+.rotating-circles {
+    opacity: 0.3;
+}
+
+/* Animation effects */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-in-out forwards;
+}
+.slide-in-right {
+    animation: slideInRight 0.5s ease-in-out forwards;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideInLeft {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideInRight {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.post-description-section p {
+    white-space: pre-line;
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideShow {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-100% / 2));
+    }
+}
+
+/* Thêm hover effect để dừng animation */
+.voucher-section:hover {
+    animation-play-state: paused;
+}
+
+@media (max-width: 1200px) {
+    .voucher-card {
+        width: 600px;
+        gap: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .voucher-card {
+        width: 300px;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .voucher-image img {
+        max-width: 100%;
+    }
+}
+
+/* Thêm wrapper cho voucher section */
+.voucher-wrapper {
+    width: 100%;
+    overflow: hidden;
+    padding: 50px 0;
+    position: relative;
+}
+
+/* Animation styles */
+.loading-animation, .success-animation, .error-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.loading-modal, .success-modal, .error-modal {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    animation: modalSlideIn 0.5s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #00796b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Success icon styles */
+.success-icon, .error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.checkmark-circle, .cross-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #00796b;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #00796b;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Error icon styles */
+.cross-circle {
+    stroke: #e74c3c;
+}
+
+.cross-line {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #e74c3c;
+    stroke-width: 3;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Animation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-60px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal text styles */
+.loading-modal h3, .success-modal h3, .error-modal h3 {
+    margin: 15px 0 5px;
+    font-size: 24px;
+}
+
+.loading-modal p, .success-modal p, .error-modal p {
+    color: #636e72;
+    margin: 0;
+    font-size: 16px;
+}
+
+.success-modal h3 { color: #00796b; }
+.error-modal h3 { color: #e74c3c; }
+
+.voucher-claim-btn.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.voucher-claim-btn.disabled:hover {
+    background-color: #ccc;
+}

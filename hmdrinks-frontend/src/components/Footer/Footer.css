@@ -1,0 +1,126 @@
+@import url('https://fonts.cdnfonts.com/css/porter-sans-block');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #FDF9FA;
+    margin-top: auto;
+    flex-shrink: 0;
+    position: relative;
+    bottom: 0;
+}
+
+.footer-left,
+.footer-right {
+    width: 33%;
+}
+
+.footer-left h2 {
+    color: #DF6B6B;
+    font-family: "Porter Sans Block";
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 1.2px;
+}
+
+.name-footer {
+    text-align: left;
+}
+
+.footer-left p,
+.footer-right p {
+    color: #080B1D;
+    font-family: Roboto;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 40px;
+    letter-spacing: 0.48px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    margin-right: 10px;
+    color: #333;
+    font-size: 30px;
+}
+
+.social-icons a:hover {
+    color: #f44336;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    footer {
+        padding: 15px; /* Adjust padding for smaller screens */
+        flex-direction: row; /* Maintain row layout */
+    }
+
+    .footer-left,
+    .footer-right {
+        width: 40%; /* Adjust width for balance */
+    }
+
+    .footer-left h2 {
+        font-size: 22px; /* Slightly smaller heading */
+    }
+
+    .footer-left p,
+    .footer-right p {
+        font-size: 18px; /* Smaller text size */
+    }
+}
+
+@media (max-width: 800px) {
+    footer {
+        flex-direction: column; /* Stack elements vertically */
+        align-items: center; /* Center items */
+    }
+
+    .footer-left,
+    .footer-right, .name-footer {
+        width: 100%; /* Full width for stacked layout */
+        text-align: center; /* Center text for better visibility */
+        margin-bottom: 15px; /* Space between sections */
+    }
+
+    .footer-left h2 {
+        font-size: 20px; /* Further reduce heading size */
+    }
+
+    .footer-left p,
+    .footer-right p {
+        font-size: 16px; /* Further reduce paragraph size */
+    }
+
+    .social-icons {
+        justify-content: center; /* Center social icons */
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 10px; /* Reduce padding for compactness */
+    }
+
+    .footer-left h2 {
+        font-size: 18px; /* Smaller heading for mobile */
+    }
+
+    .footer-left p,
+    .footer-right p {
+        font-size: 14px; /* Smaller text size */
+    }
+
+    .social-icons a {
+        font-size: 24px; /* Reduce icon size */
+    }
+}

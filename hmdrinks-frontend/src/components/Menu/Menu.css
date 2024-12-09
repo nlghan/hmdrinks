@@ -1,0 +1,127 @@
+/* Thanh menu nhỏ gọn */
+.menu-side-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px; /* Chiều rộng khi chỉ hiển thị icon */
+  height: 100vh;
+  background: white;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden; /* Ẩn nội dung khi ở trạng thái thu gọn */
+  transition: width 0.3s ease; /* Thêm hiệu ứng chuyển đổi chiều rộng */
+}
+
+.menu-side-menu.expanded {
+  width: 250px; /* Chiều rộng khi mở rộng menu */
+  overflow-y: auto;
+}
+
+/* Dim background */
+.menu-dim-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Logo và các mục khi menu mở rộng */
+.menu-logo {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.menu-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-weight: 400;
+  font-family: 'Inter';
+  margin-left: 10px;
+}
+
+.menu-items li {
+  font-size: 20px;
+  font-weight:bolder;
+  font-weight: 400;
+  color: #333;
+  margin-bottom: 15px;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  padding: 10px 20px;
+  white-space: nowrap; /* Đảm bảo văn bản không xuống dòng */
+  overflow: hidden; /* Ẩn văn bản khi menu thu gọn */
+  cursor: pointer; /* Đảm bảo con trỏ vẫn hiển thị khi hover */
+}
+
+.menu-items li:hover {
+  color: #FF7380;
+  background-color: #e9ece9;
+}
+
+/* Biểu tượng và văn bản */
+.menu-and-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.menu-and-user i {
+  font-size: 24px;
+  color: #333;
+}
+
+.menu-and-user {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  margin-bottom: 10px; /* Space below each menu item */
+}
+
+.menu-and-user i {
+  margin-left: 10px;
+  margin-right: 12px; /* Space between the icon and text */
+  font-size: 18px; /* Adjust the icon size as needed */
+  color: #333; /* Icon color */
+}
+
+.menu-and-user li {
+  font-size: 18px; /* Adjust font size for the list item */
+  font-weight: 400; /* Make font bold */
+  color: #333; /* Text color */
+  list-style: none; /* Remove default list styling */
+  padding: 1; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+  opacity: 0; /* Ẩn văn bản khi menu thu gọn */
+  transition: opacity 0.3s ease; /* Thêm hiệu ứng cho sự thay đổi opacity */
+}
+
+/* Hiển thị văn bản khi menu mở rộng */
+.menu-side-menu.expanded .menu-and-user li {
+  opacity: 1; /* Hiển thị văn bản khi menu mở rộng */
+}
+
+/* Đảm bảo khi hover vào menu icon vẫn có con trỏ pointer khi menu thu gọn */
+.menu-side-menu:not(.expanded) .menu-and-user:hover {
+  cursor: pointer; /* Giữ con trỏ pointer khi hover vào icon trong trạng thái thu gọn */
+  transform: scale(1.05);
+}
+
+/* Custom size cho logo mini khi menu thu nhỏ */
+.menu-side-menu:not(.expanded) .menu-logo {
+    padding: 5px;
+    margin-top: 10px;
+    width: 50px;
+    height: 50px;
+    margin-left: -5px;
+    object-fit: contain;
+}
+
+/* Giữ nguyên style cho logo khi menu mở rộng */
+.menu-side-menu.expanded .menu-logo {
+    width: 100%;
+    padding: 20px 0;
+    height: auto;
+    margin-left: -5px;
+}

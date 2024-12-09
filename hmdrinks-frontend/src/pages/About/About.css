@@ -1,0 +1,830 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+.about-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.about-banner {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 50px 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 800px;
+  overflow: hidden;
+}
+
+/* Overlay for semi-transparent background */
+.about-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.86);
+  z-index: 1;
+}
+.about-banner-container{
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+/* Ensure banner content appears above the overlay */
+.about-banner-content,
+.about-banner-image {
+  position: relative;
+  z-index: 2;
+}
+
+.about-banner-image {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+}
+
+.pacifico-regular {
+  font-family: "Pacifico", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.about-banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: 'Pacifico', cursive;
+  font-size: 60px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  letter-spacing: 3.24px;
+}
+
+/* Centered, justified block for banner content */
+.about-banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: justify;
+  margin: 0 auto;
+  line-height: 1.6;
+  padding: 0 100px;
+}
+
+.about-banner-description {
+  color: #000;
+  font-family: 'Inter';
+  margin-top: 25px;
+  font-size: 26px;
+}
+
+/* News Section */
+.about-section {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+}
+
+.about-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.about-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.about-card {
+  width: 250px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+}
+
+.about-image {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.about-card-title {
+  font-size: 18px;
+  color: #333;
+  margin: 10px 0;
+}
+
+.about-card-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.about-card-button {
+  background-color: #ff5e5e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.about-card-button:hover {
+  background-color: #e54b4b;
+}
+
+.about-see-more {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ff5e5e;
+  background-color: transparent;
+  border: 2px solid #ff5e5e;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.about-see-more:hover {
+  background-color: #ff5e5e;
+  color: #fff;
+}
+
+
+.about-banner-drink-image {
+  width: 500px;
+  height: 500px;
+  margin-right: 50px;
+  border-radius: 30px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  animation: slideInFromRight 1s ease-out;
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.about-banner-title {
+  color: #000;
+  text-align: justify;
+  font-family: 'Pacifico', cursive;
+  font-size: 54px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 64px;
+  letter-spacing: 3.24px;
+  animation: zoomIn 1s ease-out;
+}
+
+.about-banner-description {
+  color: #000;
+  font-family: 'Inter';
+  animation: zoomIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-500px); /* Optional: adds a slight upward motion */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-500px);
+  }
+}
+
+/* Container for stat cards */
+.about-stat-cards {
+  display: flex;
+  justify-content: space-around;
+  bottom: 20px; /* Positions 20px from the bottom */
+  width: 80%;
+  max-width: 1200px; /* Constrain the width */
+  position: relative;
+  top: 30px;
+  z-index: 2;
+  animation: fadeIn 0.8s ease forwards; /* Apply the fadeIn animation */
+  animation-delay: 0.2s; /* Optional: delay each card slightly for a staggered effect */
+ 
+}
+.about-stat-cards .about-stat-card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.about-stat-cards .about-stat-card:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.about-stat-cards .about-stat-card:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.about-stat-cards .about-stat-card:nth-child(4) {
+  animation-delay: 0.8s;
+}
+
+.about-stat-card:hover {
+  transform: translateY(-10px);
+  background-color: #ff7f7f;
+}
+
+.about-stat-icon {
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: bolder;
+  color: #252424;
+}
+
+.about-stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #000;
+}
+
+.about-stat-text {
+  font-size: 14px;
+  color: #555;
+}
+
+
+
+
+/* Additional styling for spacing adjustments */
+.about-stat-card {
+  background-color: transparent;
+  border-radius: 8px;
+  box-shadow: 1px 4px 8px rgba(22, 19, 19, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  border: 1px solid black;
+  width: 290px;
+}
+
+.introduce-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px;
+}
+
+.introduce-title {
+  font-size: 36px;
+  margin-bottom: 20px;
+  font-family: "Pacifico", cursive;
+}
+
+.introduce-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.introduce-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 45%;
+  margin-top: 20px;
+}
+
+.introduce-item-left, .introduce-item-right {
+  position: relative;
+  margin: 20px;
+  text-align: center;
+}
+
+
+.introduce-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.introduce-circle {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 60px; /* Size for the first circle */
+  height: 60px; /* Ensure width and height are equal for a perfect circle */
+  border: 2px solid rgba(0, 128, 0, 0.2); /* Light green border */
+  border-radius: 50%;
+  transform-origin: center;
+  transform: translate(-50%, -50%);
+}
+
+.introduce-circle:nth-child(1) {
+  animation: rotate1 2s linear infinite; /* Fast rotation for first circle */
+}
+
+.introduce-circle:nth-child(2) {
+ width: 65px;
+  height: 71px;
+  animation: rotate2 2s linear infinite; /* Medium rotation speed for second circle */
+}
+
+.introduce-circle:nth-child(3) {
+  width: 68px;
+  height: 74px;
+  animation: rotate3 2s linear infinite; /* Slower rotation for third circle */
+}
+
+/* Individual rotate animations */
+@keyframes rotate1 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes rotate2 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg); /* Reverse rotation */
+  }
+}
+
+@keyframes rotate3 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+
+
+.introduce-item-left h3 {
+  font-size: 24px;
+  margin: 10px 0;
+  font-family: 'Inter';
+  font-weight: bold;
+  margin-top: 20px !important;
+}
+
+.introduce-item-right h3 {
+  font-size: 24px;
+  margin: 10px 0;
+  font-family: 'Inter';
+  font-weight: bold;
+  margin-top: 20px !important;
+}
+
+.introduce-item-left p {
+  font-size: 16px;
+  color: #666;
+  font-family: 'Inter';
+}
+
+.introduce-item-right p {
+  font-size: 16px;
+  color: #666;
+  font-family: 'Inter';
+}
+
+.introduce-image {
+  width: 600px;
+  margin: 0 20px;
+  transform: translateY(-60px);
+}
+
+
+
+/* About.css */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s forwards;
+}
+
+.zoom-in1 {
+  opacity: 0; /* Bắt đầu với độ trong suốt bằng 0 */
+  animation: zoomIn1 0.4s ease-out forwards; /* Sử dụng 'forwards' để giữ lại trạng thái cuối cùng */
+}
+
+@keyframes zoomIn1 {
+  0% {
+      transform: scale(0.5) translateY(0px); /* Bắt đầu với kích thước nhỏ hơn và dịch chuyển xuống */
+      opacity: 0; /* Độ trong suốt ban đầu là 0 */
+  }
+  100% {
+      transform: scale(1) translateY(-60px); /* Trở về kích thước ban đầu và không dịch chuyển */
+      opacity: 1; /* Độ trong suốt là 1 khi hoàn thành */
+  }
+}
+
+@keyframes zoomIn2 {
+  0% {
+      transform: scale(0.5) translateY(2px); /* Bắt đầu với kích thước nhỏ hơn và dịch chuyển xuống */
+      opacity: 0; /* Độ trong suốt ban đầu là 0 */
+  }
+  100% {
+      transform: scale(1) translateY(0px); /* Trở về kích thước ban đầu và không dịch chuyển */
+      opacity: 1; /* Độ trong suốt là 1 khi hoàn thành */
+  }
+}
+
+
+.hidden {
+  opacity: 0; /* Độ trong suốt bằng 0 */
+  transform: scale(0.8); /* Giảm kích thước để tạo hiệu ứng thu nhỏ */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Thêm hiệu ứng chuyển tiếp */
+}
+
+
+.slide-in-left {
+  opacity: 0; /* Bắt đầu với độ trong suốt bằng 0 */
+  animation: zoomIn2 0.5s ease-out forwards; /* Giữ trạng thái cuối cùng */
+}
+
+/* Khi phần tử đã bị ẩn */
+.slide-in-left.hidden {
+  opacity: 0; /* Độ trong suốt là 0 khi bị ẩn */
+  transform: translateX(100%); /* Đẩy phần tử ra bên phải */
+
+}
+
+
+.slide-in-right {
+  opacity: 0; /* Bắt đầu với độ trong suốt bằng 0 */
+  animation: zoomIn2 0.5s ease-out forwards; /* Giữ trạng thái cuối cùng */
+}
+
+/* Khi phần tử đã bị ẩn */
+.slide-in-right.hidden {
+  opacity: 0; /* Độ trong suốt là 0 khi bị ẩn */
+  transform: translateX(100%); /* Đẩy phần tử ra bên phải */
+}
+
+/* CSS cho phần Đăng Ký Nhận Ưu Đãi */
+.subscribe-section {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.subscribe-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.subscribe-description {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.subscribe-form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.subscribe-input {
+  padding: 10px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.subscribe-button {
+  padding: 10px 20px;
+  background-color: #b19cd9;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.subscribe-button:hover {
+  background-color: #a28cc6;
+}
+
+.subscribe-privacy {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+/* CSS cho phần Hỗ trợ 12/7 - Thanh toán tiện dụng - Giao hàng nhanh chóng */
+.features-section {
+  position: relative; /* Để pseudo-element định vị theo .features-section */
+  display: flex;
+  justify-content: space-around;
+  padding: 40px 20px;
+  background-color: #f5f5f5;
+  background-image: url('../../assets/img/dau.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  text-align: center;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden; /* Ẩn lớp phủ ra ngoài vùng phần tử chính */
+  
+}
+
+.features-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(239, 237, 237, 0.8); /* Màu overlay (đen, độ trong suốt 0.5) */
+  z-index: 1; /* Đặt lớp phủ phía trên nền, nhưng phía sau nội dung */
+}
+
+.features-section * {
+  position: relative;
+  z-index: 2; /* Đảm bảo nội dung hiển thị trên overlay */
+}
+
+
+
+.feature-item {
+  max-width: 300px;
+  color: black;
+}
+
+.feature-icon {
+  width: 250px;
+  height: 200px;
+  margin-bottom: 12px;
+}
+
+.feature-item h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.feature-item p {
+  font-size: 14px;
+  color: #555;
+}
+
+/* About.css */
+
+.feature-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.feature-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: zoomIn2 0.4s ease-out forwards;
+}
+
+
+
+.features-section.hidden {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.5s ease, transform 1s ease;
+}
+
+.features-section.slide-up {
+  opacity: 1;
+  animation: fadeIn 0.8s forwards;
+}
+
+.sub {
+  border: 4px solid rgb(6, 6, 6);
+  padding: 0 100px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Thêm box shadow */
+}
+
+.feature-item-container{
+  
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 100px
+
+}
+
+
+
+/* For larger screens */
+
+
+/* For medium screens */
+@media (min-width: 768px) and (max-width: 1210px) {
+  .about-banner-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .about-banner {
+    height:auto;
+    
+  }
+
+  .about-banner-title {
+    font-size: 40px;
+    text-align: center;
+  }
+
+  .about-banner-description{
+    font-size: 15px;
+  }
+
+  .about-banner-content {
+    padding: 0 80px;
+  }
+
+  .about-stat-cards {
+    gap: 10px;
+  }
+
+  .about-stat-card {
+    width: 30%;
+    height: 100px;
+    padding: 10px 5px;
+    
+  }
+  .about-stat-icon{
+    font-size: 15px;
+    margin: 0;
+  }
+  .about-stat-value{
+    font-size: 15px;
+  }
+  .about-stat-text{
+    font-size: 10px;
+  }
+
+  .introduce-content {
+    flex-direction: column;
+    padding: 0 40px;
+  }
+
+  .about-banner-drink-image{
+    width: 85%;
+    height: 600px;
+    margin: auto;
+  }
+
+  .feature-item-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .features-section.hidden {
+    opacity: 1; /* Đặt lại opacity để hiện phần tử */
+    transform: translateY(0); /* Đặt lại transform để bỏ dịch chuyển */
+    transition: none; /* Tắt hiệu ứng chuyển đổi */
+}
+.feature-item{
+  width: 100%;
+  margin:auto;
+}
+.feature-icon{
+  width: 300px;
+  height: 300px;
+}
+.introduce-section{
+  width: 100%;
+}
+  
+  
+}
+
+/* For small screens (mobile) */
+@media (max-width: 767px) {
+  .about-banner-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .about-banner {
+    height:auto;
+    
+  }
+
+  .about-banner-title {
+    font-size: 30px;
+    margin-top: 0;
+  
+  }
+
+  .about-banner-description{
+    font-size: 15px;
+  }
+
+  .about-banner-content {
+    padding: 0 0px;
+  }
+
+  .about-stat-cards {
+    gap: 10px;
+  }
+
+  .about-stat-card {
+    width: 30%;
+    height: 110px;
+    padding: 10px 5px;
+    
+  }
+  .about-stat-icon{
+    font-size: 15px;
+    margin: 0;
+  }
+  .about-stat-value{
+    font-size: 15px;
+  }
+  .about-stat-text{
+    font-size: 10px;
+  }
+
+  .introduce-content {
+    flex-direction: column;
+    padding: 0 40px;
+  }
+
+  .about-banner-drink-image{
+    width: 100%;
+    height: 400px;
+    margin: auto;
+  }
+
+  .feature-item-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .features-section.hidden {
+    opacity: 1; /* Đặt lại opacity để hiện phần tử */
+    transform: translateY(0); /* Đặt lại transform để bỏ dịch chuyển */
+    transition: none; /* Tắt hiệu ứng chuyển đổi */
+}
+
+.feature-item{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin:auto;
+}
+.introduce-image{
+  width: 380px;
+  height: 400px;
+}
+.introduce-section{
+  width: 100%;
+}
+.introduce-column{
+  width: 280px;
+}
+
+
+
+}

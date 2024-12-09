@@ -1,0 +1,728 @@
+.post-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 100%;
+  margin: 0;
+  min-height: 100vh;
+  height: auto;
+  background-image: url('../../assets/img/contact.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  padding-left: 70px;
+}
+
+.post-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(238, 223, 223, 0.2);
+  z-index: 0;
+}
+
+.post-content {
+  position: relative;
+  z-index: 1;
+}
+
+.post-voucher-table {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex-direction: column;
+/*   height: calc(100vh - 100px);
+  overflow: auto;
+  padding: 20px; */
+
+}
+
+.post-table {
+  width: 100%;
+  display: flex;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  align-items: center;
+  margin-right: 40px;
+  height: 650px;
+/*   height: fit-content;
+  min-height: 500px; */
+
+  position: relative;
+  overflow: visible;
+}
+
+.voucher-table,
+.user-voucher-table {
+  width: 100%;
+  max-height: 300px;
+  overflow: hidden;
+  margin: 10px 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.voucher-table table,
+.user-voucher-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.voucher-table thead,
+.user-voucher-table thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.voucher-table-body,
+.user-voucher-table-body {
+  display: block;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.voucher-table-body tr,
+.user-voucher-table-body tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.voucher-table th,
+.voucher-table td,
+.user-voucher-table th,
+.user-voucher-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+.post-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; 
+  height: 20px; 
+  margin-left: 5px;
+  margin-top: 15px;
+}
+
+.post-switch input {
+  opacity: 0; 
+  width: 0;
+  height: 0;
+}
+
+.post-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #a25d5d; 
+  transition: .4s; 
+  border-radius: 20px;
+}
+
+.post-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; 
+  width: 16px; 
+  left: 2px;
+  bottom: 2px;
+  background-color: white; 
+  transition: .4s; 
+  border-radius: 50%; 
+}
+
+input:checked + .post-slider {
+  background-color: #4CAF50; 
+}
+
+input:checked + .post-slider:before {
+  transform: translateX(20px); 
+}
+.post-content {
+  width: 100%;
+}
+
+.header-post-table {
+  position: relative;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 10px;
+  flex-direction: row;
+  gap:20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  
+  width: 100%;
+}
+
+.header-post-table input {
+  width: 40%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.header-post-table h2 {
+  margin: 0;
+  width: 40%;
+  text-align: left;
+}
+
+.search-post-admin-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 25% !important;
+}
+
+.post-table-add-btn {
+  padding: 10px 15px;
+  background-color: #ffffff;
+  color: white;
+  border: none;
+  border-radius: 70%;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.post-table-add-btn i {
+  font-size: 20px;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.post-table-add-btn:hover {
+  background-color: #cae3cb;
+  transform: scale(1.1);
+}
+
+.post-table-add-btn::before {
+  content: "Thêm bài đăng và voucher";
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.post-table-add-btn:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+.admin-post-button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.admin-post-button-container button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-post-button-container button:hover {
+  background-color: #f5f5f5;
+}
+
+.admin-post-button-container i {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-pagination,
+.voucher-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+
+}
+
+.post-pagination .btn,
+.voucher-pagination .btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #ed8ca1;
+  color: #ffffff;
+  transition: background-color 0.3s;
+  margin: 5px;
+}
+
+.post-tab-navigation {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.post-tab-btn {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f1f1f1;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .post-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .post-voucher-table,
+  .voucher-table,
+  .user-voucher-table {
+    width: 100%;
+  }
+
+  .header-post-table {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 10px;
+  }
+
+  .header-post-table input {
+    width: 100%;
+  }
+
+  .admin-post-button-container {
+    flex-direction: row;
+  }
+
+  .post-voucher-table {
+    height: auto;
+    min-height: calc(100vh - 100px);
+  }
+}
+@media (max-width: 1200px) {
+  .post-container {
+    flex-direction: column;
+  }
+
+  .post-table {
+    width: 100%;
+    height: 650px; /* Allows height to adjust dynamically on smaller screens */
+    margin-right: 0;
+    padding: 10px;
+  }
+  .header-post-table{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+   }
+   .header-post-table h2{
+     display: flex;
+         margin-top: 10px;
+         margin-bottom: 10px;
+         margin-left: 30%;
+   }
+}
+
+@media (max-width: 800px) {
+  .post-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .post-table {
+    width: 90%;
+    padding: 10px; /* Reduced padding for smaller screens */
+    margin: 0 5px; /* Center with slight margin on sides */
+  }
+  .voucher-table,
+  .user-voucher-table {
+    width: 95%;
+  }
+
+  .post-pagination,
+  .voucher-pagination {
+    width: 100%;
+  }
+  .header-post-table{
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+  }
+  .header-post-table h2{
+    display: flex;
+    margin: auto;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  .post-table-add-btn{
+    display: flex;
+    margin: auto;
+   
+  }
+  
+  
+
+
+}
+
+@media (max-width: 480px) {
+  .post-table {
+    width: 100%;
+    margin: 0;
+    padding: 5px;
+    height: auto;
+  }
+
+  .post-table th, .post-table td {
+    font-size: 14px; /* Smaller font for better fit */
+    padding: 5px; /* Reduced padding */
+  }
+}
+
+.post-list-table {
+  width: 100%;  /* Đảm bảo bảng chiếm toàn bộ chiều rộng của phần chứa */
+  table-layout: fixed; /* Đặt chiều rộng của các cột cố định */
+  border-collapse: collapse; /* Loại bỏ khoảng cách giữa các cell */
+  margin-top: 20px;
+}
+
+.post-list-table th,
+.post-list-table td {
+  padding: 8px; /* Khoảng cách giữa nội dung và biên cột */
+  text-align: center; /* Căn giữa nội dung trong các cột */
+  border: 1px solid #ddd; /* Thêm viền cho các cột */
+}
+
+.post-list-table th {
+  background-color: #f4f4f4; /* Màu nền cho header */
+}
+
+.post-list-table th:nth-child(1),
+.post-list-table td:nth-child(1) {
+  width: 5%; /* Cột STT */
+}
+
+.post-list-table th:nth-child(2),
+.post-list-table td:nth-child(2) {
+  width: 15%; /* Cột Tiêu đề */
+}
+
+.post-list-table th:nth-child(3),
+.post-list-table td:nth-child(3) {
+  width: 10%; /* Cột Danh mục */
+}
+
+.post-list-table th:nth-child(4),
+.post-list-table td:nth-child(4) {
+  width: 10%; /* Cột Ảnh bài đăng */
+}
+
+.post-list-table th:nth-child(5),
+.post-list-table td:nth-child(5) {
+  width: 8%; /* Cột Mã voucher */
+}
+
+.post-list-table th:nth-child(6),
+.post-list-table td:nth-child(6) {
+  width: 8%; /* Cột Giảm giá */
+}
+
+.post-list-table th:nth-child(7),
+.post-list-table td:nth-child(7) {
+  width: 10%; /* Cột Trạng thái */
+}
+
+.post-list-table th:nth-child(8),
+.post-list-table td:nth-child(8) {
+  width: 8%; /* Cột Ngày bắt đầu */
+}
+
+.post-list-table th:nth-child(9),
+.post-list-table td:nth-child(9) {
+  width: 8%; /* Cột Ngày kết thúc */
+}
+
+.post-list-table th:nth-child(10),
+.post-list-table td:nth-child(10) {
+  width: 8%; /* Cột Action (nếu có) */
+}
+.post-list-table th:nth-child(11),
+.post-list-table td:nth-child(11) {
+  width: 4%; /* Cột Action (nếu có) */
+}
+#user-voucher-table-header{
+  display: contents;
+}
+
+/* Cập nhật CSS cho user-voucher-table */
+.user-voucher-table {
+    margin: 20px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    height: auto;
+    min-height: 500px;
+    position: relative;
+}
+
+/* Thêm wrapper cho table */
+.user-voucher-table .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Cập nhật styles cho table */
+.user-voucher-table .post-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.user-voucher-table .post-list-table th,
+.user-voucher-table .post-list-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Reset các styles có thể gây xung đột */
+.user-voucher-table table {
+    display: table;
+    border-collapse: collapse;
+}
+
+.user-voucher-table thead {
+    display: table-header-group;
+}
+
+.user-voucher-table tbody {
+    display: table-row-group;
+}
+
+.user-voucher-table tr {
+    display: table-row;
+}
+
+.user-voucher-table th,
+.user-voucher-table td {
+    display: table-cell;
+}
+
+/* Xóa bỏ các styles có thể gây xung đột */
+.voucher-table thead,
+.user-voucher-table thead {
+    display: table-header-group;
+    width: 100%;
+}
+
+.voucher-table-body,
+.user-voucher-table-body {
+    display: table-row-group;
+    max-height: none;
+    overflow-y: visible;
+}
+
+/* Header styles giống post-table */
+.user-voucher-table .header-post-table {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.user-voucher-table .header-post-table h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #333;
+    font-size: 32px;
+}
+
+.user-voucher-table .search-post-admin-input{
+    padding: 12px 15px;
+    border-radius: 20px;
+    width: 300px;
+    font-size: 16px;
+}
+
+/* Table styles giống post-table */
+.user-voucher-table .post-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.user-voucher-table .post-list-table th,
+.user-voucher-table .post-list-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.user-voucher-table .post-list-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Điều chỉnh đ rộng các cột */
+.user-voucher-table .post-list-table th:nth-child(1),
+.user-voucher-table .post-list-table td:nth-child(1) {
+    width: 8%; /* STT */
+}
+
+.user-voucher-table .post-list-table th:nth-child(2),
+.user-voucher-table .post-list-table td:nth-child(2) {
+    width: 15%; /* Mã Voucher */
+}
+
+.user-voucher-table .post-list-table th:nth-child(3),
+.user-voucher-table .post-list-table td:nth-child(3) {
+    width: 15%; /* Giảm giá */
+}
+
+.user-voucher-table .post-list-table th:nth-child(4),
+.user-voucher-table .post-list-table td:nth-child(4) {
+    width: 12%; /* Số lượng */
+}
+
+.user-voucher-table .post-list-table th:nth-child(5),
+.user-voucher-table .post-list-table td:nth-child(5),
+.user-voucher-table .post-list-table th:nth-child(6),
+.user-voucher-table .post-list-table td:nth-child(6) {
+    width: 15%; /* Ngày bắt đầu và kết thúc */
+}
+
+.user-voucher-table .post-list-table th:nth-child(7),
+.user-voucher-table .post-list-table td:nth-child(7) {
+    width: 20%; /* Trạng thái */
+}
+
+/* Hover effect cho rows */
+.user-voucher-table .post-list-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+    .user-voucher-table {
+        margin: 20px 0;
+        padding: 10px;
+    }
+    
+    .user-voucher-table .search-post-admin-input {
+        width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-voucher-table {
+        padding: 5px;
+    }
+    
+    .user-voucher-table .post-list-table th,
+    .user-voucher-table .post-list-table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+/* Thêm styles cho loading và error messages */
+.loading-message,
+.error-message {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.loading-message {
+    color: #666;
+}
+
+.error-message {
+    color: #dc3545;
+}
+
+/* Thêm optional loading spinner */
+.loading-message::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid #666;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

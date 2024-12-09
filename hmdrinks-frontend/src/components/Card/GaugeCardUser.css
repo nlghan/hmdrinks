@@ -1,0 +1,36 @@
+.user-gauge-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 350px;
+    height: 180px;
+    background-color: #f9f9f9; /* Light background for the card */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+.user-gauge-container {
+    flex: 1; /* Allow the gauge to take available space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-gauge-info {
+    flex: 1; /* Allow the info section to take available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 10px; /* Space between gauge and info */
+}
+
+.user-gauge-info h4 {
+    margin: 0;
+    font-size: 25px; /* Adjust font size for data */
+}
+
+.user-gauge-info p {
+    margin: 0;
+    color: #2b2a2a; /* Gray color for description */
+}

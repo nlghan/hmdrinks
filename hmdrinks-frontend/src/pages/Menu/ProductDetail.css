@@ -1,0 +1,791 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* When the element is in view, it becomes visible and moves into place */
+.fade-in.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* When scrolling back up, the fade-out effect will smoothly hide the element */
+.fade-in:not(.show) {
+    opacity: 0;
+    transform: translateY(20px);
+}
+.reviews-container {
+    margin: 20px 0;
+}
+
+.review-item {
+    border: 1px solid #efd9d9;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 15px;
+    
+}
+
+.review-header {
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    font-weight: bold;
+}
+
+.review-fullname {
+    font-size: 22px;
+    color: #333;
+    margin-right: 15px;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #888;
+    margin-right: 20px;
+    margin-top:4px;
+}
+/* Animation styles */
+.menu-pro-success-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.menu-pro-success-modal {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    animation: modalSlideIn 0.5s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Success icon styles */
+.menu-pro-success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.menu-pro-checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 2;
+    stroke-miterlimit: 10;
+    stroke: #00796b;
+    fill: none;
+    animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.menu-pro-checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #00796b;
+    stroke-width: 3;
+    animation: strokeCheckmark 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+/* Add keyframes for stroke animations */
+@keyframes strokeCircle {
+    to {
+        stroke-dashoffset: 0; /* This makes the circle appear */
+    }
+}
+
+@keyframes strokeCheckmark {
+    to {
+        stroke-dashoffset: 0; /* This makes the checkmark appear */
+    }
+}
+
+/* Modal fade in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal slide in */
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+.edit-icon {
+    cursor: pointer;
+    color: #007bff;
+    font-size: 16px;
+    margin-top:6px; /* Màu xanh cho icon */
+    margin-right:10px;
+}
+.delete-icon {
+    cursor: pointer;
+    color: #f62428;
+    font-size: 16px;
+    margin-top:6px; /* Màu xanh cho icon */
+}
+
+.review-stars {
+    margin-top: 5px;    
+}
+
+.review-stars .fa-star {
+    color: gold; /* Màu vàng cho ngôi sao */
+}
+
+.review-content {
+    font-size: 14px;
+    color: #444;
+    margin-top: 15px;
+}
+
+.pagination-product-list-reviews {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+
+.pagination-button {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    /* border: 1px solid #ccc; */
+    background-color: #f6e2e2;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: #d09a9a;
+    color: #000;
+}
+
+.pagination-button.active {
+    font-weight: bold;
+    background-color: #fa7272; /* Thay đổi màu nền cho nút hiện tại */
+    color: #fff; /* Thay đổi màu chữ cho nút hiện tại */
+}
+
+.pagination-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+.rating-stars {
+    cursor: pointer;
+    padding-left:12px;
+}
+
+.star {
+    font-size: 18px; /* Kích thước ngôi sao */
+    color: #ccc; /* Màu ngôi sao rỗng */
+}
+
+.star.filled {
+    color: gold; /* Màu ngôi sao đầy */
+}
+
+.proCon {
+    position: relative;
+    background: white
+}
+
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    color: #ccc; /* Màu ngôi sao chưa được chọn */
+}
+.review-update-btn {
+    background-color: #fa7272;
+    margin-top: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.proCon svg {
+    position: absolute;
+    width: 66%; /* Adjust size */
+    height: 1400px;
+    z-index: 2;
+    opacity: 1
+    ; /* Adjust the opacity of the SVG */
+}
+
+.proCon > *:not(svg) {
+    position: relative;
+    z-index: 3;
+}
+
+#img-phai{
+    position: absolute;
+    top: 700px; /* Adjust for placement */
+    right: -200px;
+    width: 250px; /* Adjust size */
+    height: auto;
+    z-index: 2;
+    opacity: 0.2; /* Adjust the opacity of the SVG */
+}
+
+
+
+
+
+.product-detail-container {
+    padding: 20px;
+    padding-top: 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
+
+.product-detail-main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.product-image-container {
+    width: 50%;
+    
+}
+
+.product-image {
+    width: 500px;
+    max-width: 500px;
+    height: 500px;
+    border: 1px solid #f4a8a8;
+    transition: transform 0.3s ease; /* Smooth transition */
+    overflow: hidden; /* Hide overflow */
+    position: relative; /* Set position relative for absolute positioning of the magnifying effect */
+    background-color: white;
+    cursor: pointer;
+}
+
+.product-image:hover {
+    transform: scale(1.2); /* Scale the image up when hovered */
+    z-index: 1; /* Bring the image above other elements */
+}
+
+.product-image-detail {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #fa7272;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.product-info-container {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap:12px
+}
+
+.product-info-container h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-family: 'Inter';
+}
+
+.product-category {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-family: 'Inter';
+}
+
+.product-price {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-family: 'Inter';
+}
+
+.product-size {
+    margin-bottom: 20px;
+    font-family: 'Inter';
+    font-weight: 700;
+}
+
+.size-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    font-family: 'Inter';
+}
+
+#soluong{
+    margin-top: 15px;
+    margin-left: 0;
+    width: 98%;
+    font-family: 'Inter';
+}
+
+.size-option {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background-color: #f8f8f8;
+    font-family: 'Inter';
+}
+
+.size-option.active {
+    border-color: #000;
+    background-color: #ff7979;
+    color: #fff;
+    font-family: 'Inter';
+}
+
+.product-quantity {
+    width: 100%;
+    font-family: 'Inter';
+    
+}
+
+.quantity-input {
+    /* width: 50px; */
+    text-align: center;
+    margin-top: 5px;
+    font-family: 'Inter';
+}
+
+.quantity-input .input[type="number"]{
+    width: 100%;
+}
+
+.add-to-cart-button {
+    padding: 15px 20px;
+    background-color: #ff7979;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    transition: opacity 0.3s ease; 
+    font-family: 'Inter';
+}
+
+.add-to-cart-button:hover {
+    background-color: #ffb579;
+    transform: scale(1.05);
+}
+
+.product-description-container {
+    margin-bottom: 50px;
+    font-family: 'Inter';
+}
+
+.product-description-container h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    font-family: 'Inter';
+}
+
+.h2-maybe{
+    font-size: 28px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+    font-family: 'Inter';
+}
+
+.des-product{
+    font-size: 22px;
+    font-family: 'Inter';
+    color: #000;
+    text-align: justify;
+    font-weight: 300;
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.product-rating-container {
+    margin-bottom: 50px;
+}
+
+.product-rating {
+    color: gold;
+    font-size: 24px;
+}
+
+.related-products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Use space-around for even spacing */
+    margin: 0 -10px;
+    height: 30%;
+}
+
+.related-product-card {
+    width: 30%;
+    text-align: center;
+}
+
+.related-product-card img {
+    width: 100%;
+    height: auto;
+}
+
+.related-product-card h3 {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.related-product-card button {
+    padding: 10px 20px;
+    background-color: #ff7979;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+
+#img1-container {
+    position: relative; /* Position relative for child elements */
+    height: 500px;
+    width: 500px; /* Adjust as needed */
+    overflow: hidden; /* Prevent overflow of buttons */
+    margin-bottom: 20px;
+}
+
+
+.navigation-buttons {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between; /* Space out buttons */
+    transform: translateY(-50%); /* Center vertically */
+    z-index: 2; /* Ensure buttons are above the image */
+    opacity: 0; /* Initially hide the buttons */
+    transition: opacity 0.3s ease; /* Smooth transition for opacity */
+}
+
+#img1-container:hover .navigation-buttons {
+    opacity: 1; /* Show buttons on hover */
+}
+
+.arrow-button {
+    background: none; /* Remove default button background */
+    border: none; /* Remove border */
+    font-size: 30px; /* Adjust size as needed */
+    color: rgb(0, 0, 0); /* Change to desired color */
+    cursor: pointer; /* Change cursor to pointer */
+    padding: 10px; /* Add some padding */
+    transition: color 0.3s; /* Smooth transition for hover effect */
+}
+
+.arrow-button:hover {
+    color: #ff7979; /* Change color on hover */
+}
+
+
+.product-image-detail.active {
+    transform: scale(1.02); /* Slightly enlarge the active thumbnail */
+    border: 2px solid black; /* Highlight border color */
+}
+
+.review-container {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 100%; /* Optional: Adjust width as needed */
+}
+
+#input-text-review {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 10px; /* Optional: Adjust padding as needed */
+    height: 70px;
+}
+
+.send-button {
+    border: none;
+    background-color: rgb(9, 148, 148);
+    cursor: pointer;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    font-size: 25px;
+}
+
+.send-button i {
+    color: white;
+}
+
+/* Zoom-in effect for initial image load */
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.product-image-container .product-image {
+    animation: zoomIn 0.6s ease-out;
+}
+
+/* Slide-in effect for product details */
+@keyframes slideRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.product-info-container {
+    animation: slideRight 0.6s ease-out;
+}
+.tab-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: color 0.4s ease; /* Chuyển màu chữ mượt mà */
+    font-family: 'Inter';
+}
+
+.tab-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color:#f9d3d3; /* Màu nền khi active */
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease; /* Hiệu ứng màu chạy từ trái sang phải */
+    z-index: -1; /* Đảm bảo lớp nền ở dưới chữ */
+}
+
+.tab-button.active::before
+ {
+    transform: scaleX(1); /* Làm đầy màu khi active hoặc hover */
+}
+
+.tab-button.active,
+.tab-button:hover {
+    color: black; /* Đổi màu chữ khi hover hoặc active */
+    border-bottom: 2px solid #ff6a00;
+    border-left: 1px solid #ff6a00;
+}
+
+
+
+/* Danh sách đánh giá */
+.product-list-reviews {
+    margin-top: 20px;
+}
+
+.h2-maybe {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: "Pacifico", cursive;
+}
+
+.reviews-container {
+    border-top: 1px solid #ddd;
+}
+
+.review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.review-fullname {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.review-stars .star {
+    color: #ffcc00;
+    font-size: 18px;
+}
+
+.star.filled {
+    color: #ffcc00;
+}
+
+.review-content {
+    font-size: 14px;
+    color: #333;
+    margin-top: 10px;
+}
+
+/* Nút chỉnh sửa và xóa */
+.edit-icon, .delete-icon {
+    font-size: 14px;
+    color: #ff6a00;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.edit-icon:hover, .delete-icon:hover {
+    color: #ff3300;
+}
+
+/* Phần đánh giá sản phẩm */
+.product-rating-container {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.product-rating {
+    font-size: 24px;
+    color: #ffcc00;
+}
+
+.reviews-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 10px; /* Space between each review */
+}
+
+.review-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-top: 20px;
+
+    /* Thêm hiệu ứng fade-in */
+    opacity: 0;  /* Bắt đầu ở trạng thái mờ */
+    animation: fadeIn 1s forwards;  /* Áp dụng animation fadeIn */
+}
+
+/* Định nghĩa keyframes cho hiệu ứng fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;  /* Mờ dần từ 0 */
+    }
+    to {
+        opacity: 1;  /* Mờ dần đến 100% */
+    }
+}
+
+
+
+.rating-stars {
+    display: flex;
+    gap: 5px;
+}
+
+.rating-stars .star {
+    font-size: 20px;
+    cursor: pointer;
+    color: #ccc;
+}
+
+.rating-stars .star.filled {
+    color: #ffcc00;
+}
+
+#input-text-review {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.send-button {
+    font-size: 18px;
+    color: #ff6a00;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    color: #ff3300;
+}
+
+/* Prompt đăng nhập */
+.login-prompt {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.login-prompt a {
+    color: #ff6a00;
+    text-decoration: none;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+.tab-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
