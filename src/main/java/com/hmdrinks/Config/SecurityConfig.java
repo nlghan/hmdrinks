@@ -90,6 +90,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user-voucher/view-all/**").permitAll()
                         .requestMatchers("/api/user-voucher/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/contact/create").permitAll()
                         .requestMatchers("/api/contact/view/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/contact/response").hasAuthority("ADMIN")
                         .requestMatchers("/api/contact/**").hasAnyAuthority("ADMIN", "CUSTOMER","SHIPPER")

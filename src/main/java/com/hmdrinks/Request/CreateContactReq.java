@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateContactReq {
-    private  int userId;
+    private String email;
+    private String phone;
+    private String fullName;
     private String description;
 }
 

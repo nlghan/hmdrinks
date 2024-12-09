@@ -24,6 +24,15 @@ public class Contact {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "fullName")
+    private String fullName;
+
+    @Column(name = "phoneNumber")
+    private String phoneNumber;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
     @Column(name = "createDate",nullable = false,columnDefinition = "DATETIME")
     private LocalDateTime createDate;
 
@@ -40,7 +49,4 @@ public class Contact {
     @Column(name = "date_updated",columnDefinition = "DATETIME")
     private LocalDateTime updateDate;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
 }

@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.regex.Pattern;
 @Service
 public class ContactService {
     @Autowired
@@ -37,25 +37,36 @@ public class ContactService {
     @Autowired
     private JavaMailSender javaMailSender1;
 
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+
+    public static boolean isValidEmail(String email) {
+        return email != null && Pattern.matches(EMAIL_REGEX, email);
+    }
     public ResponseEntity<?> createContact(CreateContactReq req) {
-        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        if (req.getPhone() == null || req.getPhone().length() != 10) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Số điện thoại không hợp lệ. Phải chứa 10 chữ số.");
         }
+
+        if(!isValidEmail(req.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không hợp lệ");
+        }
+
         Contact contact = new Contact();
         contact.setDescription(req.getDescription());
-        contact.setUser(user);
+        contact.setEmail(req.getEmail());
+        contact.setPhoneNumber(req.getPhone());
+        contact.setFullName(req.getFullName());
         contact.setStatus(Status_Contact.WAITING);
         contact.setIsDeleted(false);
         contact.setCreateDate(LocalDateTime.now());
         contactRepository.save(contact);
-        String to = user.getEmail();
+        String to = req.getEmail();
         if(to != null && !to.equals(""))
         {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("HMDRINKS");
             message.setTo(to);
-            String text = "Dear " + user.getFullName() + ",\n\n"
+            String text = "Dear " + req.getFullName() + ",\n\n"
                     + "We have successfully received your feedback with the following details:\n\n"
                     + "Description: " + req.getDescription() + "\n\n"
                     + "Please do not reply to this message.\n\n"
@@ -71,35 +82,48 @@ public class ContactService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDContactResponse(
                 contact.getContactId(),
-                contact.getUser().getUserId(),
                 contact.getDescription(),
                 contact.getStatus(),
                 contact.getIsDeleted(),
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
-                contact.getDateDeleted()
+                contact.getDateDeleted(),
+                contact.getFullName(),
+                contact.getPhoneNumber(),
+                contact.getEmail()
         ));
     }
 
     public ResponseEntity<?> updateContact(CrudContactReq req){
-        Contact contact = contactRepository.findByContactIdAndUserUserIdAndIsDeletedFalse(req.getContactId(), req.getUserId());
+        Contact contact = contactRepository.findByContactIdAndIsDeletedFalse(req.getContactId());
         if (contact == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
+        if (req.getPhone() == null || req.getPhone().length() != 10) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Số điện thoại không hợp lệ. Phải chứa 10 chữ số.");
+        }
+
+        if(!isValidEmail(req.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không hợp lệ");
+        }
         contact.setDescription(req.getDescription());
-        contact.setUser(contact.getUser());
+        contact.setEmail(req.getEmail());
+        contact.setPhoneNumber(req.getPhone());
+        contact.setFullName(req.getFullName());
         contact.setUpdateDate(LocalDateTime.now());
         contactRepository.save(contact);
 
         return ResponseEntity.status(HttpStatus.OK).body( new CRUDContactResponse(
                 contact.getContactId(),
-                contact.getUser().getUserId(),
                 contact.getDescription(),
                 contact.getStatus(),
                 contact.getIsDeleted(),
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
-                contact.getDateDeleted()
+                contact.getDateDeleted(),
+                contact.getFullName(),
+                contact.getPhoneNumber(),
+                contact.getEmail()
         ));
     }
 
@@ -110,13 +134,15 @@ public class ContactService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(new CRUDContactResponse(
                 contact.getContactId(),
-                contact.getUser().getUserId(),
                 contact.getDescription(),
                 contact.getStatus(),
                 contact.getIsDeleted(),
                 contact.getCreateDate(),
                 contact.getUpdateDate(),
-                contact.getDateDeleted()
+                contact.getDateDeleted(),
+                contact.getFullName(),
+                contact.getPhoneNumber(),
+                contact.getEmail()
         ));
     }
 
@@ -136,14 +162,13 @@ public class ContactService {
         if (contact == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
         }
-        User user = userRepository.findByUserId(contact.getUser().getUserId());
-        String to = user.getEmail();
+        String to = contact.getEmail();
         if(to != null && !to.equals(""))
         {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("HMDRINKS");
             message.setTo(to);
-            String text = "Dear user,\n\n"
+            String text = "Dear " + contact.getFullName() + ",\n\n"
                     +  req.getContent()
                     + "\n\n"
                     + "Please do not reply to this message.\n\n"
@@ -171,13 +196,15 @@ public class ContactService {
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
-                    contact.getUser().getUserId(),
                     contact.getDescription(),
                     contact.getStatus(),
                     contact.getIsDeleted(),
                     contact.getCreateDate(),
                     contact.getUpdateDate(),
-                    contact.getDateDeleted()
+                    contact.getDateDeleted(),
+                    contact.getFullName(),
+                    contact.getPhoneNumber(),
+                    contact.getEmail()
             ));
         }
         return new ListAllContactResponse(
@@ -202,13 +229,15 @@ public class ContactService {
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
-                    contact.getUser().getUserId(),
                     contact.getDescription(),
                     contact.getStatus(),
                     contact.getIsDeleted(),
                     contact.getCreateDate(),
                     contact.getUpdateDate(),
-                    contact.getDateDeleted()
+                    contact.getDateDeleted(),
+                    contact.getFullName(),
+                    contact.getPhoneNumber(),
+                    contact.getEmail()
             ));
             total++;
         }
@@ -234,13 +263,15 @@ public class ContactService {
         for(Contact contact : contacts) {
             responses.add(new CRUDContactResponse(
                     contact.getContactId(),
-                    contact.getUser().getUserId(),
                     contact.getDescription(),
                     contact.getStatus(),
                     contact.getIsDeleted(),
                     contact.getCreateDate(),
                     contact.getUpdateDate(),
-                    contact.getDateDeleted()
+                    contact.getDateDeleted(),
+                    contact.getFullName(),
+                    contact.getPhoneNumber(),
+                    contact.getEmail()
             ));
             total++;
         }
