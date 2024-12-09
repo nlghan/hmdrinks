@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,30 +26,42 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     @Autowired
     private CartService cartService;
-
     @Autowired
     private CartItemService cartItemService;
     @Autowired
     private SupportFunction supportFunction;
     @Autowired
     private JwtService jwtService;
+
     @PostMapping(value = "/create")
-    public ResponseEntity<CreateNewCartResponse> create(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartService.createCart(req));
+    public ResponseEntity<?> createCart(@RequestBody CreateNewCart req, HttpServletRequest httpRequest){
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        };
+        return cartService.createCart(req);
     }
 
-    @GetMapping(value = "/list-caritem/{id}")
-    public ResponseEntity<ListItemCartResponse> listAllUser(
+    @GetMapping(value = "/list-cartItem/{id}")
+    public ResponseEntity<?> listAllCartItem(
             @PathVariable Integer id
 
     ) {
-        return ResponseEntity.ok(cartService.getAllItemCart(id));
+        return cartService.getAllItemCart(id);
     }
 
     @DeleteMapping(value = "/delete-allItem/{id}")
-    public ResponseEntity<DeleteCartItemResponse> deleteAllItem(@RequestBody DeleteAllCartItemReq req,HttpServletRequest httpRequest){
-        supportFunction.checkUserAuthorization(httpRequest,Long.valueOf(req.getUserId()));
-        return ResponseEntity.ok(cartItemService.deleteAllCartItem(req));
+    public ResponseEntity<?> deleteAllItem(@RequestBody DeleteAllCartItemReq req,HttpServletRequest httpRequest){
+        ResponseEntity<?> authResponse = supportFunction.checkUserAuthorization(httpRequest, req.getUserId());
+
+        if (!authResponse.getStatusCode().equals(HttpStatus.OK)) {
+            return authResponse;
+        }
+        return cartItemService.deleteAllCartItem(req);
+    }
+
+    @GetMapping("/list-cart/{userId}")
+    public  ResponseEntity<?> getAllCartUser(@PathVariable Integer userId){
+        return cartService.getAllCartFromUser(userId);
     }
 }

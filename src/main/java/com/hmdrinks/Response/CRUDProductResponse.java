@@ -1,8 +1,13 @@
 package com.hmdrinks.Response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Data
@@ -13,8 +18,17 @@ public class CRUDProductResponse {
     private int proId;
     private int cateId;
     private String proName;
-    private String proImg;
+    List<ProductImageResponse> productImageResponseList;
     private String description;
     private boolean isDeleted;
-    private Date dateDeleted;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateDeleted;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateCreated;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateUpdated;
+    List<CRUDProductVarResponse> listProductVariants;
 }

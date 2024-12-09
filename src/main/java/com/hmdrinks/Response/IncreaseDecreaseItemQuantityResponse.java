@@ -13,5 +13,6 @@ import lombok.Setter;
 
 public class IncreaseDecreaseItemQuantityResponse {
     private int quantity;
+    private double totalPrice;
 
 }

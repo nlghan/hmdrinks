@@ -3,7 +3,6 @@ package com.hmdrinks.Controller;
 import com.hmdrinks.Request.ForgetPasswordReq;
 import com.hmdrinks.Request.ForgetPasswordSendReq;
 import com.hmdrinks.Service.UserService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +26,4 @@ public class PublicController {
     public ResponseEntity<?> getSendPassword(@RequestBody ForgetPasswordSendReq Req) {
         return ResponseEntity.ok(userService.AcceptOTP(Req.getEmail(), Req.getOtp()));
     }
-
 }
-

@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class ListItemCartResponse {
     private  int cartId;
+    private int total;
     List<CRUDCartItemResponse> listCartItemResponses;
 }

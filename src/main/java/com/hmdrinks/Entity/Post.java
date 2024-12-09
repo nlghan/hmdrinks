@@ -1,11 +1,14 @@
 package com.hmdrinks.Entity;
 
+import com.hmdrinks.Enum.Payment_Method;
+import com.hmdrinks.Enum.Type_Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -26,11 +29,16 @@ public class Post {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "description")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private Type_Post type;
+
+    @Lob
+    @Column(name = "description",columnDefinition = "TEXT")
     private  String description;
 
     @Column(name = "date_create",nullable = false)
-    private Date dateCreate;
+    private LocalDateTime dateCreate;
 
     @Column(name = "shortDes", nullable = false)
     private String shortDes;

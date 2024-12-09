@@ -36,6 +36,9 @@ public class Cart {
     @Enumerated(EnumType.STRING)
     private Status_Cart status;
 
+    @OneToOne(mappedBy = "cart", cascade = CascadeType.ALL)  // mappedBy để ánh xạ với thuộc tính user bên UserInfo
+    private OrderItem orderItem;
+
     @OneToMany(mappedBy = "cart")
     private List<CartItem> cartItems;
 }
