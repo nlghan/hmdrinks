@@ -19,11 +19,14 @@ export const CartProvider = ({ children }) => {
     const [cartId, setCartId] = useState(null); // Default cart to null
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showSuccessRestore, setShowSuccessRestore] = useState(false);
     const [showError, setShowError] = useState(false);
     const [showErrorDistance, setShowErrorDistance] = useState(false);
     const [showErrorValue, setShowErrorValue] = useState(false);
     const [cartChanged, setCartChanged] = useState(false);
 
+    const [showErrorSOT, setShowErrorSOT] = useState(false);
+    const [showErrorSOTT, setShowErrorSOTT] = useState(false);
 
     // Ensure cart exists
     const ensureCartExists = async (userId) => {
@@ -31,9 +34,9 @@ export const CartProvider = ({ children }) => {
             console.log("User is not logged in, skipping cart fetch.");
             return;
         }
-    
+
         const token = getCookie('access_token');
-    
+
         try {
             const response = await fetch(`http://localhost:1010/api/cart/list-cart/${userId}`, {
                 method: 'GET',
@@ -42,14 +45,14 @@ export const CartProvider = ({ children }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-    
+
             const data = await response.json();
             console.log("Cart List Response:", data);
-    
+
             if (response.ok) {
                 const cartList = data.listCart || [];
                 const restoreCart = cartList.find(cart => cart.statusCart === 'RESTORE');
-    
+
                 if (restoreCart) {
                     if (cartId !== restoreCart.cartId) {
                         setCartId(restoreCart.cartId);
@@ -57,7 +60,7 @@ export const CartProvider = ({ children }) => {
                     }
                 } else {
                     const newCart = cartList.find(cart => cart.statusCart === 'NEW');
-    
+
                     if (newCart) {
                         if (cartId !== newCart.cartId) {
                             setCartId(newCart.cartId);
@@ -76,41 +79,38 @@ export const CartProvider = ({ children }) => {
             console.error('Error fetching cart:', error);
         }
     };
-    
+
     const handleRestore = async (orderId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (!token) {
             console.error('Token không tồn tại. Vui lòng đăng nhập lại.');
             return;
         }
-    
+
         try {
             const response = await axios.post(
                 'http://localhost:1010/api/orders/restore',
                 { userId, orderId },
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
-    
+
             const restoredData = response.data;
             console.log('Đơn hàng đã được khôi phục:', restoredData);
-    
+
             await fetchCartItemsByCartId(restoredData.cartId);
             setCartId(restoredData.cartId);
-    
+
             // Đánh dấu rằng giỏ hàng đã thay đổi
             setCartChanged(prev => !prev);
-    
-            alert('Đơn hàng đã được khôi phục thành công!');
+
             return restoredData.cartId;
         } catch (error) {
             console.error('Không thể khôi phục đơn hàng:', error);
             throw error;
         }
     };
-    
-  
 
     useEffect(() => {
         const initializeCart = async () => {
@@ -119,8 +119,6 @@ export const CartProvider = ({ children }) => {
         };
         initializeCart();
     }, [cartChanged]);
-
-
 
     // Create a new cart
     const createCart = async (userId) => {
@@ -209,9 +207,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
-
-
     // Fetch product details by product ID and size
     const fetchProductDetails = async (productId, size) => {
         const token = getCookie('access_token');
@@ -273,8 +268,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
-
     const addToCart = async (product) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
@@ -286,7 +279,6 @@ export const CartProvider = ({ children }) => {
             console.error('No cartId found!');
 
         }
-
 
         // Fetch product details including the price based on size
         const productDetails = await fetchProductDetails(product.productId, product.size);
@@ -362,31 +354,28 @@ export const CartProvider = ({ children }) => {
     const navigate = useNavigate();
     const [isCreating, setIsCreating] = useState(false);
 
-
-
-
     const handleCheckout = async () => {
         const token = getCookie('access_token');
         const userId = parseInt(getUserIdFromToken(token), 10);
-    
+
         if (!userId || !cartId) {
             console.error("User ID or Cart ID is missing");
             return;
         }
-    
+
         const orderData = { userId, cartId, voucherId: selectedVoucher, note };
-    
+
         console.log('Data to be sent to the server:', orderData);
-    
+
         try {
             setIsCreating(true);
-    
+
             // Đảm bảo cartId đã được cập nhật trước khi gọi API tạo đơn hàng
             const updatedCartId = await ensureCartExists(userId);
             if (updatedCartId) {
                 orderData.cartId = updatedCartId;
             }
-    
+
             const response = await fetch('http://localhost:1010/api/orders/create', {
                 method: 'POST',
                 headers: {
@@ -396,12 +385,12 @@ export const CartProvider = ({ children }) => {
                 },
                 body: JSON.stringify(orderData),
             });
-    
+
             const data = await response.json();
-    
+
             console.log('Response Status:', response.status);
             console.log('Response Body:', data.body);
-    
+
             if (data.statusCodeValue === 400) {
                 setShowErrorDistance(true);
                 setSelectedVoucher(null);
@@ -411,11 +400,11 @@ export const CartProvider = ({ children }) => {
                 }, 2000);
             } else if (data.statusCodeValue === 200) {
                 console.log('Order created successfully: ', data);
-    
+
                 setCartItems([]); // Clear cart after successful checkout
                 await ensureCartExists(userId); // Tạo giỏ hàng mới sau checkout
                 setSelectedVoucher(null);
-    
+
                 // Navigate to the order page and pass the order data using state
                 navigate('/order', { state: { orderData: data.body } });
             } else {
@@ -429,7 +418,6 @@ export const CartProvider = ({ children }) => {
             setIsCreating(false);
         }
     };
-    
 
     const increase = async (cartItemId) => {
         const token = getCookie('access_token');
@@ -558,7 +546,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
     const decrease = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
@@ -599,7 +586,11 @@ export const CartProvider = ({ children }) => {
                     setCartItems(prevItems => {
                         const updatedItems = prevItems.map(item =>
                             item.cartItemId === cartItemId
-                                ? { ...item, quantity: item.quantity - 1 }
+                                ? {
+                                    ...item,
+                                    quantity: item.quantity - 1,
+                                    totalPrice: item.price * (item.quantity - 1) // Cập nhật totalPrice
+                                }
                                 : item
                         );
 
@@ -656,7 +647,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
     // Get userId from token
     const getUserIdFromToken = (token) => {
         try {
@@ -673,19 +663,17 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
-
     // Handle user login and logout
     const handleAuthChange = async () => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
-    
+
         if (userId) {
             console.log('User logged in, fetching cart items for userId:', userId);
-    
+
             // Đảm bảo giỏ hàng tồn tại
             ensureCartExists(userId);
-    
+
             // Lấy thời gian vận chuyển
             try {
                 const shipmentResponse = await axios.get('http://localhost:1010/api/shipment/check-time', {
@@ -698,7 +686,7 @@ export const CartProvider = ({ children }) => {
             } catch (error) {
                 console.error('Error fetching shipment check-time:', error);
             }
-    
+
             // Gọi thêm API kiểm tra thời gian thanh toán
             try {
                 const paymentResponse = await axios.get('http://localhost:1010/api/payment/check-time', {
@@ -711,7 +699,7 @@ export const CartProvider = ({ children }) => {
             } catch (error) {
                 console.error('Error fetching payment check-time:', error);
             }
-    
+
             // Lấy các sản phẩm trong giỏ hàng
             await fetchCartItemsByCartId(cartId);
         } else {
@@ -720,7 +708,6 @@ export const CartProvider = ({ children }) => {
             setCartId(null); // Clear cart ID on logout
         }
     };
-    
 
     // Call handleAuthChange on component mount and when the access token changes
     useEffect(() => {
@@ -858,7 +845,6 @@ export const CartProvider = ({ children }) => {
                 return;
             }
 
-
             // Step 3: Check if adding the desired quantity exceeds stock
             if (quantityToAdd > stock) {
                 console.error(`Cannot increase quantity. Stock limit reached for cart item ID ${cartItemId}.`);
@@ -927,9 +913,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
-
-
     const deleteOneItem = async (cartItemId) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
@@ -985,25 +968,95 @@ export const CartProvider = ({ children }) => {
         L: 'L'
     };
 
+    // Thêm hàm fetch giá theo size
+    const fetchPriceBySize = async (productId, size) => {
+        const token = getCookie('access_token');
+        try {
+            const response = await fetch(`http://localhost:1010/api/product/variants/${productId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Tìm variant có size tương ứng
+                const variant = data.responseList.find(v => v.size === size);
+                return variant ? variant.price : null;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching price for size:', error);
+            return null;
+        }
+    };
+
     const changeSize = async (cartItemId, newSize) => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
 
-        // Log thông tin request
-        console.log('Request Data:', {
-            userId,
-            cartItemId,
-            size: Size[newSize],
-            token: token ? 'Token exists' : 'No token'
-        });
-
         try {
+            // Tìm sản phẩm hiện tại để lấy productId và quantity hiện tại
+            const currentItem = cartItems.find(item => item.cartItemId === cartItemId);
+            if (!currentItem) {
+                console.error('Cart item not found');
+                return;
+            }
+
+            const currentQuantity = currentItem.quantity; // Lưu số lượng hiện tại
+
+            // Kiểm tra stock của size mới
+            const variantResponse = await fetch(`http://localhost:1010/api/product/variants/${currentItem.productId}`, {
+                method: 'GET',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const variantData = await variantResponse.json();
+            const newSizeVariant = variantData.responseList.find(v => v.size === newSize);
+
+            if (!newSizeVariant) {
+                setShowErrorSOT(true);
+                setTimeout(() => {
+                    setShowErrorSOT(false);
+                }, 2000);
+                console.error('Variant not found for new size');
+                return;
+            }
+
+            // Kiểm tra nếu size mới không đủ stock cho số lượng hiện tại
+            if (currentQuantity > newSizeVariant.stock) {
+                setShowErrorSOTT(true);
+                setTimeout(() => {
+                    setShowErrorSOTT(false);
+                }, 2000);
+
+                // Cập nhật với số lượng tối đa có thể của size mới
+                setCartItems(prevItems => {
+                    return prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? {
+                                ...item,
+                                size: newSize,
+                                price: newSizeVariant.price,
+                                quantity: newSizeVariant.stock,
+                                totalPrice: newSizeVariant.price * newSizeVariant.stock
+                            }
+                            : item
+                    );
+                });
+                return;
+            }
+
             const requestBody = {
                 userId: parseInt(userId),
                 cartItemId: parseInt(cartItemId),
-                size: newSize  // Gửi trực tiếp S, M, L để match với enum Size trong Java
+                size: newSize
             };
-            console.log('Request Body:', requestBody);
 
             const response = await fetch('http://localhost:1010/api/cart-item/change-size', {
                 method: 'PUT',
@@ -1015,54 +1068,26 @@ export const CartProvider = ({ children }) => {
                 body: JSON.stringify(requestBody)
             });
 
-            // Log response status
-            console.log('Response Status:', response.status);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error Response:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    errorText: errorText
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Cập nhật với số lượng hiện tại
+                setCartItems(prevItems => {
+                    return prevItems.map(item =>
+                        item.cartItemId === cartItemId
+                            ? {
+                                ...item,
+                                size: newSize,
+                                price: newSizeVariant.price,
+                                quantity: currentQuantity, // Giữ nguyên số lượng hiện tại
+                                totalPrice: newSizeVariant.price * currentQuantity // Tính lại tổng tiền với giá mới
+                            }
+                            : item
+                    );
                 });
-                setShowError(true);
-                setTimeout(() => {
-                    setShowError(false);
-                }, 2000);
-                return;
             }
-
-            const data = await response.json();
-            // Log response data
-            console.log('Success Response:', data);
-            
-            setCartItems(prevItems => {
-                const updatedItems = prevItems.map(item => 
-                    item.cartItemId === cartItemId 
-                        ? { 
-                            ...item, 
-                            size: data.size,
-                            quantity: data.quantity,
-                            totalPrice: data.totalPrice
-                        } 
-                        : item
-                );
-                // Log state update
-                console.log('Updated Cart Items:', updatedItems);
-                return updatedItems;
-            });
-
-            setShowSuccess(true);
-            setTimeout(() => {
-                setShowSuccess(false);
-            }, 2000);
-
         } catch (error) {
-            // Log detailed error information
-            console.error('Error Details:', {
-                message: error.message,
-                stack: error.stack
-            });
+            console.error('Error Details:', error);
             setShowError(true);
             setTimeout(() => {
                 setShowError(false);
@@ -1070,10 +1095,8 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-
     return (
         <CartContext.Provider value={{ cartItems, ensureCartExists, cartId, addToCart, increase, increaseQuantity, decrease, clearCart, deleteOneItem, selectedVoucher, setSelectedVoucher, note, setNote, isCreating, handleCheckout, totalOfCart, fetchCartItemsByCartId, handleRestore, changeSize }}>
-
             {children}
             {isLoading && (
                 <div className="product-card-loading-animation">
@@ -1117,6 +1140,38 @@ export const CartProvider = ({ children }) => {
                         </div>
                         <h3>Đã đạt giới hạn số lượng cho sản phẩm này!</h3>
                         <p>Không thể thêm vượt quá số lượng hàng tồn kho.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng của kích thước sản phẩm này đã hết hàng!</h3>
+                        <p>Vui lòng chọn kích thước khác.</p>
+                    </div>
+                </div>
+            )}
+            {showErrorSOTT && (
+                <div className="error-animation">
+                    <div className="error-modal">
+                        <div className="error-icon">
+                            <div className="error-icon-circle">
+                                <svg className="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle className="cross-circle" cx="26" cy="26" r="25" fill="none" />
+                                    <path className="cross-line" fill="none" d="M16,16 L36,36 M36,16 L16,36" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Số lượng của kích thước sản phẩm này không đủ!</h3>
+                        <p>Vui lòng chọn lại số lượng phù hợp.</p>
                     </div>
                 </div>
             )}

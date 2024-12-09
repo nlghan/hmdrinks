@@ -60,7 +60,7 @@ const Cart = () => {
     // Tính subtotal, discount, shipping, và total
     const subtotal = cartItems.reduce((acc, item) => acc + item.totalPrice, 0);
     const [discount, setDiscount] = useState(0);
-    const shipping = 0; // Giả sử miễn phí vận chuy���n
+    const shipping = 0; // Giả sử miễn phí vận chuyển
     let total = subtotal - discount + shipping;
 
     // Kiểm tra nếu tổng cộng nhỏ hơn hoặc bằng 0 thì gán nó thành 0
@@ -546,8 +546,7 @@ const Cart = () => {
                                             </svg>
                                         </div>
                                     </div>
-                                    <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.!</h3>
-
+                                    <h3>Vui lòng xóa các sản phẩm có số lượng bằng 0 trước khi thanh toán.!</h3>                                
                                 </div>
                             </div>
                         )}

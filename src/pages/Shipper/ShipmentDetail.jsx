@@ -6,6 +6,7 @@ import Footer from '../../components/Footer/Footer';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
 import './ShipmentDetail.css';
+import Swal from 'sweetalert2';
 
 const ShipmentDetail = () => {
     const { shipmentId } = useParams(); // Nhận shipmentId từ URL
@@ -14,6 +15,7 @@ const ShipmentDetail = () => {
     const [error, setError] = useState(null);
     const [payment, setPayment] = useState(null);
     const [order, setOrder] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
 
     const navigate = useNavigate();
     const getCookie = (name) => {
@@ -183,6 +185,55 @@ const ShipmentDetail = () => {
         }
     };
     
+    const handleStatusSelect = (e) => {
+        setSelectedStatus(e.target.value);
+    };
+
+    const handleConfirmStatus = async () => {
+        if (!selectedStatus) return;
+
+        let confirmMessage = '';
+        switch (selectedStatus) {
+            case 'CANCELLED':
+                confirmMessage = 'Bạn có chắc chắn muốn hủy đơn này?';
+                break;
+            case 'SHIPPING':
+                confirmMessage = 'Bạn có chắc chắn muốn giao đơn này?';
+                break;
+            case 'SUCCESS':
+                confirmMessage = 'Bạn có chắc chắn đã hoàn thành đơn này?';
+                break;
+            case 'WAITING':
+                confirmMessage = 'Bạn có chắc chắn đang chờ giao đơn này?';
+                break;
+            default:
+                return;
+        }
+
+        // Hiển thị SweetAlert2 để xác nhận
+        const result = await Swal.fire({
+            title: 'Xác nhận',
+            text: confirmMessage,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        });
+
+        if (result.isConfirmed) {
+            // Gọi hàm handleStatusChange nếu người dùng xác nhận
+            await handleStatusChange(shipment.shipmentId, selectedStatus);
+            
+            // Hiển thị thông báo thành công
+            Swal.fire(
+                'Đã cập nhật!',
+                'Trạng thái đơn hàng đã được cập nhật.',
+                'success'
+            );
+        }
+    };
 
     return (
         <>
@@ -234,37 +285,49 @@ const ShipmentDetail = () => {
                                 ))}
                             </ul>
                             <div>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <select
                                         className="btn-deliver"
-                                        value={shipment.status}  // Đảm bảo trạng thái hiện tại được chọn
-                                        onChange={(e) => {
-                                            const selectedStatus = e.target.value;
-                                            handleStatusChange(shipment.shipmentId, selectedStatus); // Gọi hàm xử lý khi chọn trạng thái
-                                        }}
-                                        disabled={shipment.status === 'SUCCESS'} // Vô hiệu hóa nếu trạng thái là SUCCESS
+                                        value={selectedStatus || shipment.status}
+                                        onChange={handleStatusSelect}
+                                        disabled={shipment.status === 'SUCCESS'}
                                         style={{
                                             width: '100%',
                                             backgroundColor:
                                                 shipment.status === 'SUCCESS' ? '#6fb380' :
-                                                    shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
-                                                    shipment.status === 'WAITING' ? 'pink':
-                                                        shipment.status === 'CANCELLED' ? 'red' : 'pink', // Màu nền tùy thuộc vào trạng thái
-                                            color: 'white',  // Đảm bảo chữ màu trắng
+                                                shipment.status === 'SHIPPING' ? 'rgb(255, 169, 131)' :
+                                                shipment.status === 'WAITING' ? 'pink' :
+                                                shipment.status === 'CANCELLED' ? 'red' : 'pink',
+                                            color: 'white',
                                             border:
                                                 shipment.status === 'SUCCESS' ? '2px solid #4c8b5b' :
-                                                    shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' :
-                                                        shipment.status === 'CANCELLED' ? '2px solid red' : 'none', // Border tùy thuộc vào trạng thái
+                                                shipment.status === 'SHIPPING' ? '2px solid rgb(255, 169, 131)' :
+                                                shipment.status === 'CANCELLED' ? '2px solid red' : 'none',
+                                            marginBottom: '10px'
                                         }}
                                     >
                                         <option value="CANCELLED">Đã hủy</option>
                                         <option value="SHIPPING">Đang giao</option>
                                         <option value="SUCCESS">Hoàn thành</option>
                                         <option value="WAITING">Đang chờ</option>
-
-
                                     </select>
 
+                                    <button
+                                        onClick={handleConfirmStatus}
+                                        disabled={shipment.status === 'SUCCESS' || !selectedStatus || selectedStatus === shipment.status}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                            opacity: (shipment.status === 'SUCCESS' || !selectedStatus || selectedStatus === shipment.status) ? '0.5' : '1'
+                                        }}
+                                    >
+                                        Xác nhận
+                                    </button>
                                 </div>
                             </div>
 
