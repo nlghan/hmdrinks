@@ -15,21 +15,21 @@ const FormDetailsProduct = ({ product, onClose }) => {
                 <div className="fdp-header">
                     <h2>Chi tiết sản phẩm</h2>
                     <button
-                    onClick={onClose}
-                    style={{
-                        height: '35px',
-                        width: '35px',
-                        borderRadius: '50%',
-                        backgroundColor: '#e8e6e6',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: 'none'
-                    }}
-                    className="fdp-close"
-                >
-                    <i className="ti-close" style={{ color: '#f21b1b', fontSize: '18px' }}></i>
-                </button>
+                        onClick={onClose}
+                        style={{
+                            height: '35px',
+                            width: '35px',
+                            borderRadius: '50%',
+                            backgroundColor: '#e8e6e6',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none'
+                        }}
+                        className="fdp-close"
+                    >
+                        <i className="ti-close" style={{ color: '#f21b1b', fontSize: '18px' }}></i>
+                    </button>
                 </div>
                 <div className="fdp-content">
                     <div className="fdp-info">
@@ -52,15 +52,22 @@ const FormDetailsProduct = ({ product, onClose }) => {
                             </span>
                         </div>
                     </div>
-                    
+
                     <div className="fdp-images">
                         <label>Hình ảnh sản phẩm:</label>
                         <div className="fdp-image-grid">
-                            {product.images && product.images.map((img, index) => (
-                                <img key={index} src={img} alt={`${product.proName} ${index + 1}`} />
+                            {product.images && product.images.map((image, index) => (
+                                <img
+                                    key={image.id || index} // Sử dụng ID từ API hoặc index nếu không có ID
+                                    src={image.linkImage} // Truy cập vào linkImage từ API
+                                    alt={`${product.proName} ${index + 1}`}
+                                    className="fdp-image"
+                                    loading="lazy"
+                                />
                             ))}
                         </div>
                     </div>
+
 
                     <div className="fdp-variants">
                         <label>Các biến thể:</label>

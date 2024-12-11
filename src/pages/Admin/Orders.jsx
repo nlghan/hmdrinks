@@ -455,12 +455,16 @@ function Orders() {
         
         return reasonMap[reason] || reason;
     };
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
 
 
 
     return (
         <div className="orders-table">
-            <Header title="Đơn Hàng" />
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Đơn Hàng" />
             <div className="orders-table-row">
                 <div className="orders-main-section">
                     <div className="orders-box">

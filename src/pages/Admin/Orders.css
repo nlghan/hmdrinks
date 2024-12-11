@@ -11,6 +11,7 @@
     position: relative;
     margin-top: 20px;
     padding-left: 70px;
+    overflow: hidden;
 }
 
 .orders-table-row {

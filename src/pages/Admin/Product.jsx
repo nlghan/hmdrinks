@@ -197,7 +197,6 @@ const Product = () => {
         }
     }, []);
 
-
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -219,8 +218,7 @@ const Product = () => {
                         ? `${import.meta.env.VITE_API_BASE_URL}/admin/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`
                         : `${import.meta.env.VITE_API_BASE_URL}/admin/list-product?page=${currentPage}&limit=${LIMIT}`;
 
-
-            console.log("Fetching data from URL:", apiUrl);  // Log URL để xác nhận
+            console.log("Fetching data from URL:", apiUrl);
 
             // Gọi API để lấy danh sách sản phẩm
             const response = await axios.get(apiUrl, {
@@ -230,55 +228,35 @@ const Product = () => {
                 }
             });
 
-            console.log("Response data:", response.data);  // Log toàn bộ dữ liệu phản hồi
+            console.log("Response data:", response.data);
 
-            let productData;
+            let productData = response.data?.productResponses || response.data?.productResponseList || response.data?.body?.responseList || [];
 
-            console.log("Checking responseList:", response.data?.responseList);
+            if (productData.length > 0) {
+                // Xử lý dữ liệu sản phẩm (sử dụng hình ảnh và biến thể từ phản hồi API)
+                const updatedProducts = productData.map(product => {
+                    const variants = product.listProductVariants || [];
+                    const images = product.productImageResponseList || [];
 
-            if (response.data?.productResponseList && response.data.productResponseList.length > 0) {
-                productData = response.data.productResponseList;
-            } else if (response.data?.productResponses && response.data.productResponses.length > 0) {
-                productData = response.data.productResponses;
-            } else if (response.data?.body?.responseList && response.data.body.responseList.length > 0) {
-                productData = response.data.body.responseList;  // Lấy dữ liệu từ body nếu tồn tại responseList
-                console.log("Product data for category:", productData); // Log để kiểm tra dữ liệu của responseList
-            } else {
-                setProducts([]);
-                console.log("No product data found in response");  // Log nếu không tìm thấy dữ liệu sản phẩm
-                return;
-            }
-
-
-
-            console.log("Parsed product data:", productData);  // Log dữ liệu sản phẩm đã được phân tích
-
-            // Xử lý dữ liệu sản phẩm và lấy thêm biến thể, hình ảnh
-            if (productData?.length > 0) {
-                const updatedProducts = await Promise.all(productData.map(async (product) => {
-                    console.log("Processing product:", product.proId);  // Log mỗi sản phẩm trước khi xử lý
-
-                    const variants = await fetchProductVariants(product.proId);
-                    const images = await fetchProductImages(product.proId);
-
-                    console.log("Fetched variants for product:", product.proId, variants);  // Log biến thể của sản phẩm
-                    console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản phm
-
-                    return { ...product, variants, images };
-                }));
+                    return {
+                        ...product,
+                        variants,
+                        images
+                    };
+                });
 
                 setProducts(updatedProducts);
-                console.log("Updated products with details:", updatedProducts);  // Log danh sách sản phẩm sau khi xử lý
+                console.log("Updated products with details:", updatedProducts);
 
                 // Cập nhật danh sách sản phẩm đang hoạt động
                 const activeIds = updatedProducts.filter(product => !product.deleted).map(product => product.proId);
-                setActiveProducts("delete: " + activeIds);
+                setActiveProducts(activeIds);
 
                 setTotalPages(response.data.totalPage || response.data.body.totalPage || 1);
-                setTotal(response.data.total)
+                setTotal(response.data.total || response.data.body.total || 0);
             } else {
                 setProducts([]);
-                console.log("No products found in parsed product data");  // Log nếu không có sản phẩm trong dữ liệu đã phân tích
+                console.log("No product data found in response");
             }
         } catch (err) {
             console.error("Lỗi khi lấy danh sách sản phẩm:", err);
@@ -286,8 +264,7 @@ const Product = () => {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearchTerm, selectedCateId, currentPage, fetchProductVariants, fetchProductImages]);
-
+    }, [debouncedSearchTerm, selectedCateId, currentPage]);
 
 
     // Fetch categories when component mounts or when categoryPage changes
@@ -309,19 +286,6 @@ const Product = () => {
         }
     }, [debouncedSearchTerm, selectedCateId, fetchSearchOptions]);
 
-
-    // Handle pagination for products
-    const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(prevPage => prevPage + 1);
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(prevPage => prevPage - 1);
-        }
-    };
 
     // Handle category pagination
     const handleNextCategoryPage = () => {
@@ -570,9 +534,101 @@ const Product = () => {
         }).format(parseFloat(price));
     };
 
+    // const fetchProducts = useCallback(async () => {
+    //     setLoading(true);
+    //     setError(null);
+
+    //     try {
+    //         const token = Cookies.get('access_token');
+    //         if (!token) {
+    //             setError("Bạn cần đăng nhập để xem thông tin này.");
+    //             setLoading(false);
+    //             return;
+    //         }
+
+    //         // Xác định URL API dựa trên các điều kiện
+    //         const apiUrl = debouncedSearchTerm?.trim() && selectedCateId
+    //             ? `${import.meta.env.VITE_API_BASE_URL}/product/cate/search?keyword=${encodeURIComponent(debouncedSearchTerm)}&cateId=${selectedCateId}&page=${currentPage}&limit=${LIMIT}`
+    //             : debouncedSearchTerm?.trim()
+    //                 ? `${import.meta.env.VITE_API_BASE_URL}/admin/search-product?keyword=${encodeURIComponent(debouncedSearchTerm)}&page=${currentPage}&limit=${LIMIT}`
+    //                 : selectedCateId
+    //                     ? `${import.meta.env.VITE_API_BASE_URL}/admin/cate/view/${selectedCateId}/product?page=${currentPage}&limit=${LIMIT}`
+    //                     : `${import.meta.env.VITE_API_BASE_URL}/admin/list-product?page=${currentPage}&limit=${LIMIT}`;
+
+
+    //         console.log("Fetching data from URL:", apiUrl);  // Log URL để xác nhận
+
+    //         // Gọi API để lấy danh sách sản phẩm
+    //         const response = await axios.get(apiUrl, {
+    //             headers: {
+    //                 'Accept': '*/*',
+    //                 'Authorization': `Bearer ${token}`
+    //             }
+    //         });
+
+    //         console.log("Response data:", response.data);  // Log toàn bộ dữ liệu phản hồi
+
+    //         let productData;
+
+    //         console.log("Checking responseList:", response.data?.responseList);
+
+    //         if (response.data?.productResponseList && response.data.productResponseList.length > 0) {
+    //             productData = response.data.productResponseList;
+    //         } else if (response.data?.productResponses && response.data.productResponses.length > 0) {
+    //             productData = response.data.productResponses;
+    //         } else if (response.data?.body?.responseList && response.data.body.responseList.length > 0) {
+    //             productData = response.data.body.responseList;  // Lấy dữ liệu từ body nếu tồn tại responseList
+    //             console.log("Product data for category:", productData); // Log để kiểm tra dữ liệu của responseList
+    //         } else {
+    //             setProducts([]);
+    //             console.log("No product data found in response");  // Log nếu không tìm thấy dữ liệu sản phẩm
+    //             return;
+    //         }
+
+
+
+    //         console.log("Parsed product data:", productData);  // Log dữ liệu sản phẩm đã được phân tích
+
+    //         // Xử lý dữ liệu sản phẩm và lấy thêm biến thể, hình ảnh
+    //         if (productData?.length > 0) {
+    //             const updatedProducts = await Promise.all(productData.map(async (product) => {
+    //                 console.log("Processing product:", product.proId);  // Log mỗi sản phẩm trước khi xử lý
+
+    //                 const variants = await fetchProductVariants(product.proId);
+    //                 const images = await fetchProductImages(product.proId);
+
+    //                 console.log("Fetched variants for product:", product.proId, variants);  // Log biến thể của sản phẩm
+    //                 console.log("Fetched images for product:", product.proId, images);  // Log hình ảnh của sản phm
+
+    //                 return { ...product, variants, images };
+    //             }));
+
+    //             setProducts(updatedProducts);
+    //             console.log("Updated products with details:", updatedProducts);  // Log danh sách sản phẩm sau khi xử lý
+
+    //             // Cập nhật danh sách sản phẩm đang hoạt động
+    //             const activeIds = updatedProducts.filter(product => !product.deleted).map(product => product.proId);
+    //             setActiveProducts("delete: " + activeIds);
+
+    //             setTotalPages(response.data.totalPage || response.data.body.totalPage || 1);
+    //             setTotal(response.data.total)
+    //         } else {
+    //             setProducts([]);
+    //             console.log("No products found in parsed product data");  // Log nếu không có sản phẩm trong dữ liệu đã phân tích
+    //         }
+    //     } catch (err) {
+    //         console.error("Lỗi khi lấy danh sách sản phẩm:", err);
+    //         setError("Không thể lấy danh sách sản phẩm.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }, [debouncedSearchTerm, selectedCateId, currentPage, fetchProductVariants, fetchProductImages]);
+
+
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
+         
             <div className="product-content">
                 <div className="product-categories">
                     <h3 className="product-title" onClick={handleReload}>Danh Mục</h3>
@@ -602,7 +658,7 @@ const Product = () => {
                     <div className='prodcut-table-header'>
                         <div>
                             <h3 className="product-title-table">
-                                {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName}` : `Tất Cả Sản Phẩm (${total})`}
+                                {selectedCateId ? `Sản phẩm của danh mục -  ${selectedCateName} (${total})` : `Tất Cả Sản Phẩm (${total})`}
                             </h3>
 
                         </div>
@@ -658,10 +714,10 @@ const Product = () => {
                                             <td>
                                                 {product.images && product.images.length > 0 ? (
                                                     <div className="product-images">
-                                                        {product.images.map((imgSrc, imgIndex) => (
+                                                        {product.images.map((image, imgIndex) => (
                                                             <img
-                                                                key={imgIndex}
-                                                                src={imgSrc}
+                                                                key={image.id || imgIndex} // Sử dụng ID từ API hoặc index nếu không có ID
+                                                                src={image.linkImage} // Truy cập vào linkImage từ response
                                                                 alt={`${product.proName} ${imgIndex + 1}`}
                                                                 className="product-img"
                                                                 loading="lazy"
@@ -672,6 +728,7 @@ const Product = () => {
                                                     <p>Đang tải hình ảnh...</p>
                                                 )}
                                             </td>
+
                                             <td>{product.description.length > 20
                                                 ? `${product.description.substring(0, 20)}...`
                                                 : product.description}

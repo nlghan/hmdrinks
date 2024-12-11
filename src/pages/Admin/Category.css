@@ -275,9 +275,9 @@
 
 .list-header {
   display: flex;
-  justify-content: space-between; /* Căn chỉnh tiêu đề và thanh tìm kiếm */
-  align-items: center; /* Đảm bảo chúng căn chỉnh theo chiều dọc */
-  margin-bottom: 20px; /* Khoảng cách dưới phần tiêu đề và thanh tìm kiếm */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
 .list-header h2 {
@@ -468,3 +468,20 @@
   }
 }
 
+.skeleton-row {
+  height: 80px;
+  background: #f0f0f0;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+      background-color: #f0f0f0;
+  }
+  50% {
+      background-color: #e0e0e0;
+  }
+  100% {
+      background-color: #f0f0f0;
+  }
+}

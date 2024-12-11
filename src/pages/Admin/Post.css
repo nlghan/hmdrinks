@@ -56,9 +56,21 @@
   min-height: 500px; */
 
   position: relative;
-  overflow: visible;
+  overflow: hidden;
 }
 
+.css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root{
+  line-height: 1em !important;
+}
+.css-1tlcqt-MuiAutocomplete-root .MuiAutocomplete-input{
+  opacity: 1 !important;
+  border: white;
+}
+
+.css-1tlcqt-MuiAutocomplete-root .MuiOutlinedInput-root{
+  height: 43px;
+  border-radius: 20px;
+}
 .voucher-table,
 .user-voucher-table {
   width: 100%;
@@ -404,6 +416,7 @@ tr:hover {
    display: flex;
    flex-direction: column;
    justify-content: center;
+   overflow: hidden;
   }
   .header-post-table h2{
     display: flex;

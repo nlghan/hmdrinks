@@ -169,34 +169,34 @@ export default function CustomChart() {
       console.error('chartElement không tồn tại.');
       return;
     }
-
+  
     try {
       const dataUrl = await domtoimage.toPng(chartElement);
-
+  
       // Tạo file PDF
       const pdf = new jsPDF();
-
+  
       // Sử dụng font đã được thêm qua sự kiện addFonts
       pdf.setFont('Roboto-Bold', 'bold');
-
+  
       // Tiêu đề chính
       pdf.setFontSize(18);
       pdf.setTextColor('#1d6587'); // Màu chữ xám đậm
       pdf.text('Báo cáo thống kê doanh thu', 105, 20, { align: 'center' }); // Căn giữa
-
+  
       // Thông tin tháng/năm
       pdf.setFont('Roboto-Regular', 'normal');
       pdf.setFontSize(12);
       pdf.text(`Tháng: ${selectedMonth}`, 20, 30);
       pdf.text(`Năm: ${selectedYear}`, 20, 40);
-
+  
       // Kiểm tra kích thước ảnh
       const imgWidth = 190;
       const imgHeight = (chartElement.offsetHeight * imgWidth) / chartElement.offsetWidth;
-
+  
       // Thêm biểu đồ vào PDF
       pdf.addImage(dataUrl, 'PNG', 10, 50, imgWidth, imgHeight);
-
+  
       // Tạo danh sách ngày trong tháng
       const daysInMonth = typeof monthData[selectedMonth] === 'function'
         ? monthData[selectedMonth](selectedYear)
@@ -206,22 +206,27 @@ export default function CustomChart() {
         const formattedDate = `${day < 10 ? '0' + day : day}/${selectedMonth < 10 ? '0' + selectedMonth : selectedMonth}/${selectedYear}`;
         return formattedDate;
       });
-
-      // Tạo dữ liệu bảng
-      const tableData = dates.map((date, index) => [
-        index + 1, // Số thứ tự
-        date, // Ngày/Tháng/Năm
-        successfulShipments[index] || 0, // Số lượng đơn hàng
-        data[index]?.precip ? `${formatPrice(data[index].precip)} VND` : '', // Giá trị đơn hàng
-      ]);
-
+  
+      // Tạo dữ liệu bảng và tính tổng doanh thu
+      let totalRevenue = 0; // Khởi tạo biến tổng doanh thu
+      const tableData = dates.map((date, index) => {
+        const revenue = data[index]?.precip || 0; // Giá trị đơn hàng
+        totalRevenue += revenue; // Cộng dồn vào tổng doanh thu
+        return [
+          index + 1, // Số thứ tự
+          date, // Ngày/Tháng/Năm
+          successfulShipments[index] || 0, // Số lượng đơn hàng
+          revenue ? `${formatPrice(revenue)} VND` : '', // Giá trị đơn hàng
+        ];
+      });
+  
       // Thêm trang mới
       pdf.addPage();
       pdf.setFont('Roboto-Bold', 'bold');
       pdf.setFontSize(18);
       pdf.setTextColor('#1d6587'); // Màu chữ xám đậm
       pdf.text('Dữ liệu chi tiết', 105, 20, { align: 'center' });
-
+  
       // Tùy chỉnh bảng
       pdf.autoTable({
         head: [['STT', 'Ngày', 'Số đơn hàng', 'Doanh thu']],
@@ -253,7 +258,12 @@ export default function CustomChart() {
           fillColor: [230, 247, 255], // Màu xanh nhạt cho các dòng kẻ sọc
         },
       });
-
+  
+      // Thêm tổng doanh thu vào cuối trang
+      pdf.setFont('Roboto-Bold', 'bold');
+      pdf.setFontSize(15);
+      pdf.text('Tổng doanh thu: ' + formatPrice(totalRevenue) + ' VND', 105, pdf.internal.pageSize.height - 15, { align: 'center' });
+  
       // Thêm ngày giờ hiện tại vào cuối trang
       const currentDate = new Date();
       const formattedDate = currentDate.toLocaleString('vi-VN', {
@@ -265,19 +275,19 @@ export default function CustomChart() {
         minute: 'numeric', // Phút
         second: 'numeric', // Giây
       });
-
-
+  
       pdf.setFont('Roboto-Regular', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor('#555555'); // Màu xám nhẹ cho ngày giờ
-      pdf.text(`Xuất báo cáo: ${formattedDate}`, 105, pdf.internal.pageSize.height - 20, { align: 'center' });
-
+      pdf.text(`Xuất báo cáo: ${formattedDate}`, 105, pdf.internal.pageSize.height - 8, { align: 'center' });
+  
       // Lưu file PDF
       pdf.save(`Bao_cao_${selectedMonth}_${selectedYear}.pdf`);
     } catch (error) {
       console.error('Lỗi khi xuất file PDF:', error);
     }
   };
+  
 
 
 

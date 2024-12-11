@@ -587,7 +587,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                                 id="cateId"
                                 value={cateId}
                                 onChange={(e) => setCateId(e.target.value)}
-                                disabled
+                                
                             >
                                 {availableCategories.map((category) => (
                                     <option key={category.cateId} value={category.cateId}>

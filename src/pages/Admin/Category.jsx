@@ -301,10 +301,10 @@ const Category = () => {
                 cateName: categoryName,  // Sử dụng tên danh mục mới nhập vào
                 cateImg: updateCategory.cateImg // Mặc định giữ lại hình ảnh cũ nếu không có hình ảnh mới
             };
-    
+
             try {
                 setLoadingbtn(true);
-    
+
                 // Gửi yêu cầu cập nhật danh mục trước
                 const updateCategoryResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
                     headers: {
@@ -312,19 +312,19 @@ const Category = () => {
                         'Content-Type': 'application/json'
                     }
                 });
-    
+
                 // Kiểm tra nếu trả về thông điệp "category already exists" trong response.data
                 if (updateCategoryResponse.data === "category already exists") {
                     setErrorMessage("Danh mục với tên này đã tồn tại. Vui lòng chọn tên khác.");
                     setTimeout(() => setErrorMessage(''), 2000);
                     return; // Dừng lại nếu tên danh mục đã tồn tại
                 }
-    
+
                 // Nếu có hình ảnh mới, upload ảnh
                 if (categoryImage) {
                     const formData = new FormData();
                     formData.append('file', categoryImage);
-    
+
                     // Upload hình ảnh để lấy URL mới
                     const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
                         headers: {
@@ -332,10 +332,10 @@ const Category = () => {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
-    
+
                     // Cập nhật URL hình ảnh sau khi upload thành công
                     updatedCategoryData.cateImg = uploadResponse.data.url;
-    
+
                     // Gửi yêu cầu cập nhật danh mục một lần nữa với hình ảnh mới
                     await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
                         headers: {
@@ -344,25 +344,25 @@ const Category = () => {
                         }
                     });
                 }
-    
+
                 setSuccessMessage("Cập nhật danh mục thành công!");
                 setTimeout(() => setSuccessMessage(''), 2000);
-    
+
                 // Reset form
                 resetForm();
-    
+
                 // Tải lại danh sách danh mục
                 fetchCategories(currentPage, debouncedSearchTerm, sortOrder);
             } catch (error) {
                 console.error("Lỗi khi cập nhật danh mục:", error);
-    
+
                 // Kiểm tra nếu có lỗi trả về từ server
                 if (error.response && error.response.data === "category already exists") {
                     setErrorMessage("Danh mục với tên này đã tồn tại. Vui lòng chọn tên khác.");
                 } else {
                     setErrorMessage("Không thể cập nhật danh mục. Vui lòng thử lại.");
                 }
-    
+
                 setTimeout(() => setErrorMessage(''), 2000);
             } finally {
                 setLoadingbtn(false);
@@ -372,9 +372,9 @@ const Category = () => {
             setTimeout(() => setErrorMessage(''), 2000);
         }
     };
-    
-    
-    
+
+
+
     const resetForm = () => {
         setCategoryName('');
         setCategoryImage(null);
@@ -505,27 +505,38 @@ const Category = () => {
                 </div>
                 <div className="main-section-cate">
                     <div className="list-cate-box">
-                        <div className="list-header">
+                        <div className="prodcut-table-header">
                             <h2>Danh mục các loại đồ uống ({total})</h2>
-                            <div className="search-sort-container">
-                                <Autocomplete
-                                    freeSolo
-                                    options={categories.map((option) => option.cateName)}
-                                    inputValue={searchTerm}
-                                    onInputChange={(event, newInputValue) => {
-                                        setSearchTerm(newInputValue);
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Tìm kiếm danh mục..."
-                                            variant="outlined"
-                                            className="search-bar"
-                                        />
-                                    )}
-                                    style={{ width: '400px', marginRight: '16px' }} // Điều chỉnh kích thước nếu cần
-                                />
-                                {/* <select
+
+                            <Autocomplete
+                                freeSolo
+                                options={categories.map((option) => option.cateName)}
+                                inputValue={searchTerm}
+                                onInputChange={(event, newInputValue) => {
+                                    setSearchTerm(newInputValue);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Tìm kiếm danh mục..."
+                                        variant="outlined"
+                                        className="search-bar"
+                                        sx={{
+                                            width: '400px', // Set width to 400px
+                                            marginRight: '16px', // Adjust margin if needed
+
+                                            '& .css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root': {
+                                                lineHeight: '2.5em  !important', // Line height adjustment
+
+                                            },
+                                        }}
+                                    />
+                                )}
+                                style={{ width: '400px', marginRight: '16px' }} // Style for the Autocomplete component
+                            />
+
+
+                            {/* <select
                                     value={sortOrder}
                                     onChange={handleSortChange}
                                     className="sort-select"
@@ -533,7 +544,7 @@ const Category = () => {
                                     <option value="desc">Sắp xếp theo mới nhất</option>
                                     <option value="asc">Sắp xếp theo cũ nhất</option>
                                 </select> */}
-                            </div>
+
                         </div>
                         <table>
                             <thead>
