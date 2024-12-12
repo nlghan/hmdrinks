@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CRUDContactResponse {
     private int contactId;
-    private  int userId;
     private String description;
     private Status_Contact status;
     private Boolean isDeleted;
@@ -31,4 +30,7 @@ public class CRUDContactResponse {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime deleteDate;
+    private String fullName;
+    private String phone;
+    private String email;
 }

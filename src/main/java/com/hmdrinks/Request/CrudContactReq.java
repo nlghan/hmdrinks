@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CrudContactReq {
     private int contactId;
-    private int userId;
+    private String email;
+    private String phone;
+    private String fullName;
     private String description;
     private Status_Contact statusContact;
 }
