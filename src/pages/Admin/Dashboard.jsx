@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import LineChart from '../../components/Charts/LineChart';
 import GaugeCard from '../../components/Card/GaugeCardDash';
+import axiosInstance from '../../utils/axiosConfig';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -98,7 +99,7 @@ const Dashboard = () => {
             }
 
             const url = `http://localhost:1010/api/admin/listUser-role?page=${page}&limit=${limit}&role=${role}`;
-            const response = await axios.get(url, {
+            const response = await axiosInstance.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import './HorizontalBars.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const HorizontalBars = ({ width, height }) => {
   const [data, setData] = useState([]); // State to hold the fetched data
@@ -22,7 +23,7 @@ const HorizontalBars = ({ width, height }) => {
       }
 
       // New API call to fetch total favorite counts
-      const response = await axios.get(`http://localhost:1010/api/fav-item/list`, {
+      const response = await axiosInstance.get(`http://localhost:1010/api/fav-item/list`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

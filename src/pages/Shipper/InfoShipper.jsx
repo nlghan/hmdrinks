@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import axiosInstance from '../../utils/axiosConfig';
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer/Footer.jsx";
 import NavbarShipper from "../../components/Navbar/NavbarShipper.jsx";
@@ -79,7 +80,7 @@ const Info = () => {
             }
 
             try {
-                const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
+                const userResponse = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -131,7 +132,7 @@ const Info = () => {
 
         const fetchProvinces = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`);
+                const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`);
                 const provinces = response.data.responseList;
 
                 let selectedProvince = null;
@@ -156,7 +157,7 @@ const Info = () => {
                     return;
                 }
 
-                const districtResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${selectedProvince.provinceId}`);
+                const districtResponse = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${selectedProvince.provinceId}`);
                 const districts = districtResponse.data.districtResponseList;
                 setDistricts(districts);
 
@@ -177,7 +178,7 @@ const Info = () => {
 
                 console.log("District ID:", selectedDistrict.districtId);
 
-                const wardResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${selectedDistrict.districtId}`);
+                const wardResponse = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${selectedDistrict.districtId}`);
                 console.log("Ward Response Data:", wardResponse.data);
 
                 const wards = wardResponse.data.responseList;
@@ -233,7 +234,7 @@ const Info = () => {
     const fetchWards = async (districtId) => {
         try {
             console.log("Fetching wards for districtId: " + districtId);
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${districtId}`, {
+            const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-ward?districtId=${districtId}`, {
                 headers: {
                     'Authorization': 'Bearer ' + getCookie('access_token')
                 }
@@ -266,7 +267,7 @@ const Info = () => {
 
     // Fetch provinces data
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`, {
+        axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/listAll`, {
             headers: {
                 'Authorization': 'access_token'
             }
@@ -282,7 +283,7 @@ const Info = () => {
     const fetchDistricts = async (provinceId) => {
         try {
             console.log("Fetching districts for provinceId: " + provinceId);
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${provinceId}`, {
+            const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/province/list-district?provinceId=${provinceId}`, {
                 headers: {
                     'Authorization': 'Bearer ' + getCookie('access_token')
                 }
@@ -352,7 +353,7 @@ const Info = () => {
             setIsUploading(true);
 
             try {
-                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/user/upload?userId=${userId}`, formData, {
+                const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/image/user/upload?userId=${userId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -418,7 +419,7 @@ const Info = () => {
         console.log("Data being sent:", updatedData);
 
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/info-update`, updatedData, {
+            await axiosInstance.put(`${import.meta.env.VITE_API_BASE_URL}/user/info-update`, updatedData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

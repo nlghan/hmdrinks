@@ -3,6 +3,7 @@ import './NavbarShipper.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import Cookies from 'js-cookie';
 import { useAuth } from '../../context/AuthProvider.jsx';
 import { useCart } from '../../context/CartContext.jsx';
@@ -50,7 +51,7 @@ const NavbarShipper = ({ currentPage }) => {
             if (!userId) return;
 
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
+                const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/user/info/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -82,7 +83,7 @@ const NavbarShipper = ({ currentPage }) => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
+            const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },

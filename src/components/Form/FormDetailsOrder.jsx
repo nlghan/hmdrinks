@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './FormDetailsOrder.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
@@ -24,7 +25,7 @@ const FormDetailsOrder = ({ shipment, onClose, formatPrice }) => {
                 return;
             }
 
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `${import.meta.env.VITE_API_BASE_URL}/orders/detail-item/${shipment.orderId}`,
                 {
                     headers: {

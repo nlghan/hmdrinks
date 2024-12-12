@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './FormAddProduct.css'; // Ensure you have this CSS file
 import { useNavigate } from 'react-router-dom';
 
@@ -34,7 +35,7 @@ const FormAddProduct = ({ onClose }) => {
         const fetchCategories = async () => {
             try {
                 const token = getCookie('access_token');
-                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=1&limit=100`, {
+                const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=1&limit=100`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -127,7 +128,7 @@ const FormAddProduct = ({ onClose }) => {
         try {
             setLoading(true);
             setIsCreating(true);  // Set loading to true when starting to submit
-            const productResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/product/create`, {
+            const productResponse = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/product/create`, {
                 cateId,
                 proName,
                 description
@@ -145,7 +146,7 @@ const FormAddProduct = ({ onClose }) => {
                     imageFormData.append('files', file);
                 });
     
-                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/product-image/upload?proId=${proId}`, imageFormData, {
+                await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/image/product-image/upload?proId=${proId}`, imageFormData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -154,7 +155,7 @@ const FormAddProduct = ({ onClose }) => {
     
                 for (const variant of variants) {
                     if (variant.size && variant.price && variant.stock) {
-                        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/productVar/create`, {
+                        await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/productVar/create`, {
                             proId,
                             size: variant.size,
                             price: parseInt(variant.price, 10),

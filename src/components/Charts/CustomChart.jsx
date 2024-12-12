@@ -22,6 +22,7 @@ import './CustomChart.css';
 import domtoimage from 'dom-to-image';
 import jsPDF from 'jspdf';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import robotoRegular from '../../assets/font/Roboto-Regular-normal';
 import robotoBold from '../../assets/font/Roboto-Bold-bold'
 
@@ -95,7 +96,7 @@ export default function CustomChart() {
 
       // Fetch shipments
       while (currentPage <= totalPages) {
-        const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+        const response = await axiosInstance.get('http://localhost:1010/api/shipment/view/listByStatus', {
           params: {
             page: currentPage,
             limit: 100,
@@ -138,7 +139,7 @@ export default function CustomChart() {
   const fetchPaymentDetails = async (paymentId, dayIndex, paymentAmounts) => {
     try {
       const token = getCookie('access_token');
-      const response = await axios.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
+      const response = await axiosInstance.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

@@ -6,6 +6,8 @@ import CustomChart from '../../components/Charts/CustomChart';
 import HorizontalBars from '../../components/Charts/HorizontalBars';
 import CustomPieChart from '../../components/Charts/PieChart'; 
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
+
 
 const Analytics = () => {
     const [waitingCount, setWaitingCount] = useState(0);
@@ -32,7 +34,7 @@ const Analytics = () => {
 
             const statuses = ['WAITING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
             const counts = await Promise.all(statuses.map(async (status) => {
-                const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+                const response = await axiosInstance.get('http://localhost:1010/api/shipment/view/listByStatus', {
                     params: {
                         page: 1,
                         limit: 100,

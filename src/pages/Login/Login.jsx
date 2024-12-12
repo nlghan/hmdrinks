@@ -4,6 +4,7 @@ import './Login.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from '../../utils/axiosConfig';
 import Cookies from 'js-cookie';
 import { useAuth } from "../../context/AuthProvider.jsx"; // Import useAuth từ AuthProvider
 
@@ -42,7 +43,7 @@ const Login = () => {
     const handleLoginGG = async () => {   
         try {
           // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
-          const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+          const response = await axiosInstance.get('http://localhost:1010/api/v1/auth/social-login/google', {
             headers: { 'accept': '*/*' }
           });
       
@@ -75,7 +76,7 @@ const Login = () => {
         }
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/authenticate`, data, {
+            const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/authenticate`, data, {
                 headers: { 'Content-Type': 'application/json' }
             });
 

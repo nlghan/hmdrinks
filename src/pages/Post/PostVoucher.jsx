@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import { useParams, useNavigate } from 'react-router-dom';
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
@@ -43,12 +44,12 @@ const PostVoucher = () => {
         const fetchPostDetails = async (voucherId) => {
             const token = getCookie('access_token');
             try {
-                const response = await axios.get(`http://localhost:1010/api/post/view/${postId}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/post/view/${postId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setPost(response.data.body);
 
-                const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                const responseVouchers = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
@@ -73,7 +74,7 @@ const PostVoucher = () => {
             const userId = getUserIdFromToken(token);
             const payload = { userId, voucherId };
 
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/user-voucher/get-voucher',
                 payload,
                 { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }

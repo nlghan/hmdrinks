@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import trachanh from '../../assets/img/about.png';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 
 const Contact = () => {
@@ -62,7 +63,7 @@ const Contact = () => {
       };
 
       try {
-        const response = await axios.post('http://localhost:1010/api/contact/create', contactData, {
+        const response = await axiosInstance.post('http://localhost:1010/api/contact/create', contactData, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`

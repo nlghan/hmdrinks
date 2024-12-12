@@ -5,6 +5,7 @@ import NavbarShipper from '../../components/Navbar/NavbarShipper';
 import Footer from '../../components/Footer/Footer';
 import GaugeCard from '../../components/Card/GaugeCardShip';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import CustomChart from '../../components/Charts/CustomChartShip';
 
 const AnalyticsShipper = () => {
@@ -23,6 +24,7 @@ const AnalyticsShipper = () => {
     try {
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
+      console.log('Decoded token payload:', decodedPayload);
       return decodedPayload.UserId;
     } catch (error) {
       console.error("Cannot decode token:", error);
@@ -33,15 +35,24 @@ const AnalyticsShipper = () => {
   const fetchShipmentCounts = async () => {
     try {
       const token = getCookie('access_token');
+      console.log('Token:', token);
+
       if (!token) {
         console.error("Không tìm thấy token xác thực.");
         return;
       }
 
       const userId = getUserIdFromToken(token);
+      console.log('UserId from token:', userId);
+
       const statuses = ['WAITING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
+      
       const counts = await Promise.all(statuses.map(async (status) => {
-        const response = await axios.get('http://localhost:1010/api/shipment/shipper/listShippment', {
+        console.log(`Starting request for status: ${status}`);
+
+        const requestConfig = {
+          method: 'get',
+          url: 'http://localhost:1010/api/shipment/shipper/listShippment',
           params: {
             page: 1,
             limit: 100,
@@ -50,22 +61,66 @@ const AnalyticsShipper = () => {
           },
           headers: {
             'Authorization': `Bearer ${token}`,
+            'Accept': '*/*',
+            'Content-Type': 'application/json'
           },
+        };
+        
+        console.log(`Detailed request config for ${status}:`, {
+          url: requestConfig.url,
+          method: requestConfig.method,
+          params: requestConfig.params,
+          headers: requestConfig.headers
         });
-        console.log('kq', response);
-        return response.data.total;
+
+        try {
+          const response = await axiosInstance(requestConfig);
+          console.log(`Success response for ${status}:`, {
+            status: response.status,
+            data: response.data,
+            headers: response.headers
+          });
+          return response.data.total;
+        } catch (error) {
+          console.error(`Detailed error for ${status}:`, {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            message: error.message,
+            endpoint: requestConfig.url,
+            params: requestConfig.params,
+            headers: error.response?.headers
+          });
+
+          if (status === 'WAITING') {
+            console.log('Returning 0 for WAITING status due to 403 error');
+            return 0;
+          }
+          throw error;
+        }
       }));
 
+      console.log('All counts:', counts);
+
       const total = counts.reduce((acc, count) => acc + count, 0);
+      console.log('Total:', total);
+
       const newPercentages = counts.map(count => (total > 0 ? (count / total) * 100 : 0));
+      console.log('New percentages:', newPercentages);
+
       setPercentages(newPercentages);
 
     } catch (error) {
-      console.error('Lỗi khi gọi API:', error);
+      console.error('Final error catch:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
     }
   };
 
   useEffect(() => {
+    console.log('Effect triggered with month:', month, 'year:', year);
     fetchShipmentCounts();
   }, [month, year]);
   return (

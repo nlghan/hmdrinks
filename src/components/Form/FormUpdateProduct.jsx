@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
 import './FormUpdateProduct.css'; // Ensure this CSS file exists and is properly styled
@@ -75,7 +76,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 }
 
                 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=1&limit=100`;
-                const response = await axios.get(apiUrl, {
+                const response = await axiosInstance.get(apiUrl, {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`,
@@ -111,7 +112,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                 }
 
                 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/variants/${proId}`;
-                const response = await axios.get(apiUrl, {
+                const response = await axiosInstance.get(apiUrl, {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`,
@@ -168,7 +169,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
             }
 
             const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/list-image/${proId}`;
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`,
@@ -224,7 +225,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
         const stt = index + 1;
 
         try {
-            const deleteResponse = await axios.delete(deleteUrl, {
+            const deleteResponse = await axiosInstance.delete(deleteUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`,
@@ -286,7 +287,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
         const deleteUrl = `${import.meta.env.VITE_API_BASE_URL}/product/image/deleteAll`;
 
         try {
-            const deleteResponse = await axios.delete(deleteUrl, {
+            const deleteResponse = await axiosInstance.delete(deleteUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`,
@@ -347,7 +348,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
         try {
             // Gửi yêu cầu tải lên hình ảnh
-            const uploadResponse = await axios.post(
+            const uploadResponse = await axiosInstance.post(
                 `${import.meta.env.VITE_API_BASE_URL}/image/product-image/upload?proId=${proId}`,
                 imageFormData,
                 {
@@ -449,7 +450,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
 
             console.log("Updating product with payload:", productPayload); // Log the payload for debugging
 
-            const productResponse = await axios.put(productUpdateUrl, productPayload, {
+            const productResponse = await axiosInstance.put(productUpdateUrl, productPayload, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`,
@@ -492,7 +493,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             price: variant.price || 0,  // Default price if not provided
                             stock: variant.stock || 0,  // Default stock if not provided
                         };
-                        variantRequests.push(axios.post(variantCreateUrl, variantPayload, {
+                        variantRequests.push(axiosInstance.post(variantCreateUrl, variantPayload, {
                             headers: {
                                 'Accept': '*/*',
                                 'Authorization': `Bearer ${token}`,
@@ -508,7 +509,7 @@ const FormUpdateProduct = ({ product, onClose, onUpdate }) => {
                             price: variant.price || 0,  // Default price if not provided
                             stock: variant.stock || 0,  // Default stock if not provided
                         };
-                        variantRequests.push(axios.put(variantUpdateUrl, variantPayload, {
+                        variantRequests.push(axiosInstance.put(variantUpdateUrl, variantPayload, {
                             headers: {
                                 'Accept': '*/*',
                                 'Authorization': `Bearer ${token}`,

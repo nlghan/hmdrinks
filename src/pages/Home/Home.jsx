@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import Footer from "../../components/Footer/Footer.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
 import PostCard from "../../components/Card/PostCard.jsx";
@@ -56,7 +57,7 @@ const Home = () => {
     // Fetch posts from API
     const fetchPosts = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=1&limit=30`);
+            const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=1&limit=30`);
             const reversedPosts = response.data.listPosts; // Reverse the order of posts
             setPosts(reversedPosts);
         } catch (error) {
@@ -241,7 +242,7 @@ const Home = () => {
             };
 
             try {
-                const response = await axios.post('http://localhost:1010/api/contact/create', contactData, {
+                const response = await axiosInstance.post('http://localhost:1010/api/contact/create', contactData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`

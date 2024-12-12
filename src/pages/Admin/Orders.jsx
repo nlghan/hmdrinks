@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
 import Swal from 'sweetalert2';
 import FormDetailsOrder from '../../components/Form/FormDetailsOrder';
-
+import axiosInstance from '../../utils/axiosConfig';
 function Orders() {
     const [shipments, setShipments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,25 +39,20 @@ function Orders() {
         setLoadingRefunds(true);
 
         try {
-            const response = await fetch(`http://localhost:1010/api/admin/list-payment-refund?page=${page}&limit=${limit}`, {
-                method: 'GET',
+            const response = await axiosInstance.get(`http://localhost:1010/api/admin/list-payment-refund?page=${page}&limit=${limit}`, {
                 headers: {
                     Accept: '*/*',
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            const data = await response.json();
-
-            const refundOrders = data.listPayments.map((payment) => ({
+            const refundOrders = response.data.listPayments.map((payment) => ({
                 refundId: payment.paymentId,
                 orderId: payment.orderId,
                 paymentMethod: payment.paymentMethod,
                 amount: payment.amount,
-                refunded: payment.refunded ? "True" : "False", // Convert boolean to string
+                refunded: payment.refunded ? "True" : "False",
             }));
-
-
 
             setRefundOrders(refundOrders);
         } catch (error) {
@@ -67,18 +62,15 @@ function Orders() {
         }
     };
 
-
     const fetchShipperName = async (shipperId, token) => {
         try {
-            const response = await fetch(`http://localhost:1010/api/user/info/${shipperId}`, {
-                method: 'GET',
+            const response = await axiosInstance.get(`http://localhost:1010/api/user/info/${shipperId}`, {
                 headers: {
                     Accept: '*/*',
                     'Authorization': `Bearer ${token}`,
                 },
             });
-            const data = await response.json();
-            return data.fullName || 'Unknown';
+            return response.data.fullName || 'Unknown';
         } catch (error) {
             console.error('Error fetching shipper name:', error);
             return 'Unknown';
@@ -87,18 +79,16 @@ function Orders() {
 
     const fetchPaymentInfo = async (paymentId, token) => {
         try {
-            const response = await fetch(`http://localhost:1010/api/payment/view/${paymentId}`, {
-                method: 'GET',
+            const response = await axiosInstance.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
                 headers: {
                     Accept: '*/*',
                     'Authorization': `Bearer ${token}`,
                 },
             });
-            const data = await response.json();
             return {
-                amount: data.amount,
-                paymentMethod: data.paymentMethod || 'Unknown',
-                statusPayment: data.statusPayment || 'Unknown',
+                amount: response.data.amount,
+                paymentMethod: response.data.paymentMethod || 'Unknown',
+                statusPayment: response.data.statusPayment || 'Unknown',
             };
         } catch (error) {
             console.error('Error fetching payment info:', error);
@@ -123,16 +113,14 @@ function Orders() {
         }
 
         try {
-            const response = await fetch(url, {
-                method: 'GET',
+            const response = await axiosInstance.get(url, {
                 headers: {
                     Accept: '*/*',
                     'Authorization': `Bearer ${token}`,
                 },
             });
-            const data = await response.json();
 
-            // Handle the response data based on whether it's a search result or normal list
+            const data = response.data;
             const shipmentsData = keyword ? data.listShipment : (data.listShipment || []);
             setTotalOrders(data.total || shipmentsData.length);
 
@@ -142,15 +130,14 @@ function Orders() {
                         ? await fetchShipperName(shipment.shipperId, token)
                         : 'Unknown';
 
-                    // Fetch payment info and amount
                     const paymentInfo = shipment.paymentId
                         ? await fetchPaymentInfo(shipment.paymentId, token)
-                        : { paymentMethod: 'Unknown', statusPayment: 'Unknown', amount: 0 }; // Default amount if not found
+                        : { paymentMethod: 'Unknown', statusPayment: 'Unknown', amount: 0 };
 
                     return {
                         ...shipment,
                         shipperName,
-                        amount: paymentInfo.amount, // Lấy giá trị amount
+                        amount: paymentInfo.amount,
                         paymentMethod: paymentInfo.paymentMethod,
                         statusPayment: paymentInfo.statusPayment,
                     };
@@ -165,6 +152,7 @@ function Orders() {
             setLoading(false);
         }
     };
+
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', {
             currency: 'VND',   // Đơn vị tiền tệ Việt Nam Đồng
@@ -172,7 +160,6 @@ function Orders() {
             maximumFractionDigits: 0,
         }).format(parseFloat(price));
     };
-
 
     useEffect(() => {
         fetchShipments(currentPage, selectedStatus, searchTerm.trim());
@@ -205,26 +192,21 @@ function Orders() {
 
     const handleStatusChange = async (shipmentId, newStatus) => {
         const token = getCookie('access_token');
-
         const payload = {
             shipmentId,
             status: newStatus,
         };
 
         try {
-            const response = await fetch('http://localhost:1010/api/admin/shipment/activate', {
-                method: 'POST',
+            await axiosInstance.post('http://localhost:1010/api/admin/shipment/activate', payload, {
                 headers: {
                     Accept: '*/*',
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
-            console.log('Status updated successfully:', data);
-
+            console.log('Status updated successfully');
             fetchShipments(currentPage, selectedStatus);
         } catch (error) {
             console.error('Error updating status:', error);
@@ -253,7 +235,7 @@ function Orders() {
     };
 
     const updateRefund = async (refundId) => {
-        const token = getCookie('access_token');  // Get token from the cookie
+        const token = getCookie('access_token');
 
         try {
             const result = await Swal.fire({
@@ -264,18 +246,17 @@ function Orders() {
                 confirmButtonText: 'Có',
                 cancelButtonText: 'Không',
             });
+
             if (result.isConfirmed) {
-            const response = await fetch('http://localhost:1010/api/admin/activate/refund', {
-                method: 'PUT',
-                headers: {
-                    'Accept': '*/*',
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: refundId,  // Send the refund ID to activate it
-                }),
-            });
+                await axiosInstance.put('http://localhost:1010/api/admin/activate/refund', {
+                    id: refundId,
+                }, {
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
 
                 // Check if the response is JSON or plain text
                 const contentType = response.headers.get('Content-Type');
@@ -297,12 +278,10 @@ function Orders() {
             }
 
         } catch (error) {
-            fetchRefundOrders();  // Refresh the refund list after activation
             console.error('Error activating refund:', error);
-            alert('Error activating refund');
+            fetchRefundOrders();
         }
     };
-
 
     const handleInputChange = debounce((event, newInputValue) => {
         setSearchTerm(newInputValue);
@@ -317,30 +296,24 @@ function Orders() {
     }, 500);
 
     const fetchCancelOrders = async () => {
-        setLoadingCancle(true); // Bắt đầu tải dữ liệu
-        const token = getCookie('access_token'); // Lấy token từ cookie
+        const token = getCookie('access_token');
+        setLoadingCancle(true);
 
         try {
-            // Gửi yêu cầu GET để lấy danh sách hủy đơn
-            const response = await fetch('http://localhost:1010/api/orders/list-cancel-reason', {
-                method: 'GET',
+            const response = await axiosInstance.get('http://localhost:1010/api/orders/list-cancel-reason', {
                 headers: {
                     Accept: '*/*',
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            // Chuyển đổi phản hồi thành JSON
-            const data = await response.json();
-
-            // Kiểm tra nếu có dữ liệu trả về và cập nhật danh sách đơn hủy
-            if (data && data.list) {
-                setCancleOrders(data.list);
+            if (response.data && response.data.list) {
+                setCancleOrders(response.data.list);
             }
         } catch (error) {
             console.error('Lỗi khi lấy danh sách yêu cầu hủy đơn:', error);
         } finally {
-            setLoadingCancle(false); // Kết thúc tải dữ liệu
+            setLoadingCancle(false);
         }
     };
 
@@ -348,7 +321,6 @@ function Orders() {
     useEffect(() => {
         fetchCancelOrders(); // Gọi hàm fetch khi component mount
     }, []);
-
 
     const acceptCancel = async (orderId) => {
         try {
@@ -364,19 +336,19 @@ function Orders() {
             if (result.isConfirmed) {
                 const token = getCookie('access_token');
 
-                const response = await fetch('http://localhost:1010/api/orders/reason-cancel/accept', {
-                    method: 'POST',
+                const response = await axiosInstance.post('http://localhost:1010/api/orders/reason-cancel/accept', {
+                    id: orderId,
+                }, {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ id: orderId }),
                 });
 
-                const data = await response.text();
+                const data = await response.data;
 
-                if (response.ok && data === 'Success') {
+                if (response.status === 200 && data === 'Success') {
                     setShowSuccess(true);
                     setTimeout(() => {
                         setShowSuccess(false);
@@ -406,19 +378,19 @@ function Orders() {
             if (result.isConfirmed) {
                 const token = getCookie('access_token');
 
-                const response = await fetch('http://localhost:1010/api/orders/reason-cancel/reject', {
-                    method: 'POST',
+                const response = await axiosInstance.post('http://localhost:1010/api/orders/reason-cancel/reject', {
+                    id: orderId,
+                }, {
                     headers: {
                         'Accept': '*/*',
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ id: orderId }),
                 });
 
-                const data = await response.text();
+                const data = await response.data;
 
-                if (response.ok && data === 'Success') {
+                if (response.status === 200 && data === 'Success') {
                     setShowSuccess(true);
                     setTimeout(() => {
                         setShowSuccess(false);
@@ -455,8 +427,6 @@ function Orders() {
         
         return reasonMap[reason] || reason;
     };
-
-
 
     return (
         <div className="orders-table">

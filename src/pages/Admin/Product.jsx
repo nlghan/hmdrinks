@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import Cookies from 'js-cookie';
 import Header from '../../components/Header/Header';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
@@ -81,7 +82,7 @@ const Product = () => {
             }
 
             const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/variants/${productId}`;
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -109,7 +110,7 @@ const Product = () => {
             }
 
             const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/product/list-image/${productId}`;
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -137,7 +138,7 @@ const Product = () => {
             }
 
             const categoryApiUrl = `${import.meta.env.VITE_API_BASE_URL}/cate/list-category?page=${categoryPage}&limit=12`;
-            const response = await axios.get(categoryApiUrl, {
+            const response = await axiosInstance.get(categoryApiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -177,7 +178,7 @@ const Product = () => {
 
             console.log("Fetching search options from URL:", apiUrl); // Log URL để kiểm tra
 
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`,
@@ -223,7 +224,7 @@ const Product = () => {
             console.log("Fetching data from URL:", apiUrl);  // Log URL để xác nhận
 
             // Gọi API để lấy danh sách sản phẩm
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -375,7 +376,7 @@ const Product = () => {
             }
 
             const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/product/view/${productId}`;
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -431,7 +432,7 @@ const Product = () => {
                 ? `${import.meta.env.VITE_API_BASE_URL}/product/disable`
                 : `${import.meta.env.VITE_API_BASE_URL}/product/enable`;
 
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 apiUrl,
                 { id: productId },
                 {

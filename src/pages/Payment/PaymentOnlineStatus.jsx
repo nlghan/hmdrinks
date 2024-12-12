@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const PaymentOnlineStatus = () => {
     const [status, setStatus] = useState('Đang xử lý...');
@@ -39,7 +40,7 @@ const PaymentOnlineStatus = () => {
     
         try {
             // Thực hiện GET request với appTransId dưới dạng query parameter
-            const response = await axios.get(`http://localhost:1010/api/payment/zalo/callback?app_trans_id=${appTransId}`, {
+            const response = await axiosInstance.get(`http://localhost:1010/api/payment/zalo/callback?app_trans_id=${appTransId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',

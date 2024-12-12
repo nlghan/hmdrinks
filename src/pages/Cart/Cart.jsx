@@ -5,6 +5,7 @@ import Footer from '../../components/Footer/Footer';
 import './Cart.css'; // Use a CSS file for styling
 import { useNavigate } from 'react-router-dom';
 import { Autocomplete, TextField } from '@mui/material'; // Import Autocomplete and TextField
+import axiosInstance from '../../utils/axiosConfig';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -73,41 +74,35 @@ const Cart = () => {
     useEffect(() => {
         const fetchVouchers = async () => {
             const token = getCookie('access_token');
-
-            // Get userId from token
             const userId = getUserIdFromToken(token);
-            console.log("User ID: ", userId);  // Log userId for debugging
-
+            
             if (!userId) {
                 console.error('User ID not found or invalid token');
                 return;
             }
 
             try {
-                // Fetch the list of vouchers for the user
-                const response = await fetch(`http://localhost:1010/api/user-voucher/view-all/${userId}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/user-voucher/view-all/${userId}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`,  // Dynamically use token here
+                        'Authorization': `Bearer ${token}`,
                     }
                 });
 
-                const data = await response.json();
-                console.log('Vouchers data: ', data);  // Log API response for debugging
+                const data = response.data;
+                console.log('Vouchers data: ', data);
 
                 if (data && data.getVoucherResponseList) {
-                    // Filter out USED vouchers and fetch key and discount for each remaining voucher
                     const vouchersWithKeys = await Promise.all(
                         data.getVoucherResponseList
-                            .filter(voucher => voucher.status !== "USED")  // Exclude "USED" vouchers
+                            .filter(voucher => voucher.status !== "USED")
                             .map(async (voucher) => {
-                                const voucherResponse = await fetch(`http://localhost:1010/api/voucher/view/${voucher.voucherId}`, {
+                                const voucherResponse = await axiosInstance.get(`http://localhost:1010/api/voucher/view/${voucher.voucherId}`, {
                                     headers: {
                                         'accept': '*/*',
                                     },
                                 });
-                                const voucherData = await voucherResponse.json();
+                                const voucherData = voucherResponse.data;
 
-                                // Add key and discount to each voucher
                                 return {
                                     ...voucher,
                                     key: voucherData.body.key,
@@ -120,7 +115,6 @@ const Cart = () => {
                 } else {
                     console.error('No vouchers found or unexpected data format');
                 }
-
             } catch (error) {
                 console.error('Error fetching vouchers:', error);
             }
@@ -131,48 +125,42 @@ const Cart = () => {
 
 
     const handleVoucherChange = async (event, newValue) => {
-        // Nếu giỏ hàng trống, reset selectedVoucher và discount
         if (cartItems.length === 0) {
             setSelectedVoucher(null);
             setDiscount(0);
             console.log("Giỏ hàng trống, voucher đã được reset.");
             return;
         }
-    
+
         if (newValue) {
-            const selectedVoucherId = newValue.voucherId; // Lấy voucherId từ giá trị mới
+            const selectedVoucherId = newValue.voucherId;
             setSelectedVoucher(selectedVoucherId);
-    
-            console.log("Selected Voucher ID: ", selectedVoucherId); // Log ID chọn được
-    
+            console.log("Selected Voucher ID: ", selectedVoucherId);
+
             try {
-                // Gọi API để lấy thông tin voucher
-                const response = await fetch(`http://localhost:1010/api/voucher/view/${selectedVoucherId}`, {
-                    method: 'GET',
+                const response = await axiosInstance.get(`http://localhost:1010/api/voucher/view/${selectedVoucherId}`, {
                     headers: {
                         'accept': '*/*',
                     },
                 });
-    
-                const data = await response.json();
-    
-                if (response.ok) {
-                    // Cập nhật discount nếu tìm thấy voucher
+
+                const data = response.data;
+
+                if (response.status === 200) {
                     const discount = data.body.discount;
-                    setDiscount(discount); // Cập nhật giá trị giảm giá
-                    console.log("Giảm giá nè: ", discount); // Log giảm giá
+                    setDiscount(discount);
+                    console.log("Giảm giá nè: ", discount);
                 } else {
-                    // Nếu API trả về lỗi hoặc không có voucher
                     setDiscount(0);
                     console.error("Không tìm thấy voucher hoặc có lỗi trong việc lấy dữ liệu.");
                 }
             } catch (error) {
                 console.error("Có lỗi xảy ra khi gọi API: ", error);
-                setDiscount(0); // Nếu có lỗi trong API call, set discount = 0
+                setDiscount(0);
             }
         } else {
-            setSelectedVoucher(null); // Xóa voucher nếu không chọn
-            setDiscount(0); // Giảm giá = 0
+            setSelectedVoucher(null);
+            setDiscount(0);
         }
     };
     

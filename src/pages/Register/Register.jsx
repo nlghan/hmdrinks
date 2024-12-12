@@ -4,6 +4,7 @@ import './Register.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from '../../utils/axiosConfig';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -48,7 +49,7 @@ const Register = () => {
     const handleLoginGG = async () => {
         try {
             // Gửi yêu cầu GET để lấy URL OAuth2 cho Google login
-            const response = await axios.get('http://localhost:1010/api/v1/auth/social-login/google', {
+            const response = await axiosInstance.get('http://localhost:1010/api/v1/auth/social-login/google', {
                 headers: { 'accept': '*/*' }
             });
 
@@ -99,7 +100,7 @@ const Register = () => {
         };
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
+            const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/register`, data, {
                 headers: {
                     'Content-Type': 'application/json'
                 }

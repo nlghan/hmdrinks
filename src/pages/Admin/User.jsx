@@ -12,6 +12,7 @@ import GaugeCard from '../../components/Card/GaugeCardRes';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
+import axiosInstance from '../../utils/axiosConfig';
 
 
 const User = () => {
@@ -102,7 +103,7 @@ const User = () => {
     
             console.log('Fetching URL:', url);
     
-            const response = await axios.get(url, {
+            const response = await axiosInstance.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -149,7 +150,7 @@ const User = () => {
 
             const firstPageUrl = `http://localhost:1010/api/admin/listUser?page=1&limit=${limit}`; // Lấy trang đầu tiên
             console.log("Fetching first page:", firstPageUrl);
-            const firstPageResponse = await axios.get(firstPageUrl, {
+            const firstPageResponse = await axiosInstance.get(firstPageUrl, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -163,7 +164,7 @@ const User = () => {
             for (let page = 1; page <= totalPages; page++) {
                 const url = `http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`;
                 console.log(`Fetching page ${page}:`, url);
-                const response = await axios.get(url, {
+                const response = await axiosInstance.get(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -244,7 +245,7 @@ const User = () => {
             const newIsDeletedStatus = !userToUpdate.isDelete;
 
             // Send the request to enable or disable the user
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 apiUrl,
                 { id: userId }, // Send the userId in the request body
                 {

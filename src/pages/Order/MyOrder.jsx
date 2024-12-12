@@ -3,6 +3,7 @@ import './MyOrder.css';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import { useCart } from '../../context/CartContext';
@@ -31,7 +32,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API lấy chi tiết đơn hàng
-            const detailResponse = await axios.get(
+            const detailResponse = await axiosInstance.get(
                 `http://localhost:1010/api/orders/detail-item/${order.orderId}`,
                 {
                     headers: {
@@ -53,7 +54,7 @@ const MyOrder = () => {
             };
 
             // Gọi API kiểm tra thông tin thanh toán
-            const paymentResponse = await axios.get(
+            const paymentResponse = await axiosInstance.get(
                 `http://localhost:1010/api/orders/info-payment?orderId=${order.orderId}`,
                 {
                     headers: {
@@ -139,7 +140,7 @@ const MyOrder = () => {
         try {
 
             // Gọi API lấy danh sách đơn hàng đã hủy nhưng đã thanh toán
-            const responsePaid = await axios.get(
+            const responsePaid = await axiosInstance.get(
                 `http://localhost:1010/api/orders/view/order-cancel/payment-have/${userId}`,
                 {
                     headers: {
@@ -175,7 +176,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API để lấy danh sách đơn hàng đang chờ
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `http://localhost:1010/api/orders/view/fetchOrdersAwaiting/${userId}`,
                 {
                     headers: {
@@ -218,7 +219,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API để lấy danh sách đơn hàng đã xác nhận
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `http://localhost:1010/api/orders/view/confirmed/${userId}`,
                 {
                     headers: {
@@ -307,7 +308,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API để lấy danh sách lịch sử đơn hàng
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `http://localhost:1010/api/orders/history/${userId}`,
                 {
                     headers: {
@@ -371,7 +372,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API danh sách shipment có trạng thái WAITING
-            const responseShipment = await axios.get(
+            const responseShipment = await axiosInstance.get(
                 `http://localhost:1010/api/shipment/view/list-waiting/${userId}`,
                 {
                     headers: {
@@ -387,7 +388,7 @@ const MyOrder = () => {
 
             // Lấy chi tiết info-payment của từng orderId
             const promises = listShipment.map(async (shipment) => {
-                const responseOrder = await axios.get(
+                const responseOrder = await axiosInstance.get(
                     `http://localhost:1010/api/orders/info-payment?orderId=${shipment.orderId}`,
                     {
                         headers: {
@@ -489,7 +490,7 @@ const MyOrder = () => {
 
         try {
             // Gọi API để lấy danh sách đơn hàng hoàn tiền
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `http://localhost:1010/api/orders/view/order-cancel/payment-refund-user/${userId}`,
                 {
                     headers: {
@@ -547,7 +548,7 @@ const MyOrder = () => {
         const token = getCookie('access_token');
         const userId = getUserIdFromToken(token);
         try {
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 'http://localhost:1010/api/orders/cancel-order',
                 { orderId, userId },
                 {

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthProvider';  // Import useAuth để sử dụng login
 import Cookies from 'js-cookie';
-
+import axiosInstance from '../../utils/axiosConfig';
 const IntermediaryPage = () => {
     const location = useLocation();
     const { login } = useAuth();  // Sử dụng login từ AuthContext
@@ -27,7 +27,7 @@ const IntermediaryPage = () => {
         const handleGoogleLogin = async (authCode) => {
             try {
                 // Gọi API backend để xác thực mã code với Google OAuth
-                const response = await axios.get(`http://localhost:1010/api/v1/auth/oauth2/callback`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/v1/auth/oauth2/callback`, {
                     params: {
                         code: authCode, // Gửi mã xác thực nhận được từ Google
                     },

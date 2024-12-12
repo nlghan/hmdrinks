@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios"; // Nhập axios
+import axiosInstance from '../../utils/axiosConfig';
 import Footer from "../../components/Footer/Footer.jsx"; // Đảm bảo bạn đã import Footer đúng
 import './SendMail.css';
 import { useNavigate } from "react-router-dom";
@@ -21,7 +22,7 @@ const SendMail = () => {
             if (email) {
                 try {
                     setIsLoading(true);
-                    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/forget/send`, {
+                    const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/forget/send`, {
                         email: email
                     }, {
                         headers: {
@@ -53,7 +54,7 @@ const SendMail = () => {
             if (otp) {
                 try {
                     setIsLoading(true);
-                    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/acceptOtp`, {
+                    const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/public/password/acceptOtp`, {
                         email: email,
                         otp: otp
                     }, {

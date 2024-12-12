@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './FormResponse.css';
 
 function FormResponse({ response, onClose }) {
@@ -39,7 +40,7 @@ function FormResponse({ response, onClose }) {
             console.log('Token:', token);
             console.log('Request Payload:', req);
     
-            const apiResponse = await axios.put(
+            const apiResponse = await axiosInstance.put(
                 'http://localhost:1010/api/contact/contact/response',
                 req,
                 {

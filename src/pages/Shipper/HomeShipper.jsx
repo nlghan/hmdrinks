@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import NavbarShipper from '../../components/Navbar/NavbarShipper';
 import Footer from '../../components/Footer/Footer';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
@@ -63,7 +64,7 @@ const HomeShipper = () => {
         }
         
         try {
-            const response = await axios.get(url, {
+            const response = await axiosInstance.get(url, {
                 params,
                 headers: {
                     Accept: '*/*',

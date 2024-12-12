@@ -10,7 +10,7 @@ import LoadingAnimation from "../../components/Animation/LoadingAnimation.jsx";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider'; // Import useAuth
 import { useLocation } from "react-router-dom";
-
+import axiosInstance from '../../utils/axiosConfig';
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -95,13 +95,13 @@ const Menu = () => {
             console.log("Fetching data from URL:", url); // Log URL để kiểm tra
     
             // Gọi API
-            const response = await fetch(url, {
+            const response = await axiosInstance.get(url, {
                 headers: {
                     // 'Authorization': `Bearer ${token}`, // Thay bằng token hợp lệ
                     'Accept': '*/*'
                 }
             });
-            const data = await response.json();
+            const data = response.data;
     
             // Xác định danh sách sản phẩm
             const productList = searchTerm && selectedCategoryId
@@ -151,9 +151,9 @@ const Menu = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://localhost:1010/api/cate/list-category?page=1&limit=100'); // Fetch all categories
-                const data = await response.json();
-                setCategories(data.categoryResponseList); // Set the categories from the API response
+                const response = await axiosInstance.get('http://localhost:1010/api/cate/list-category?page=1&limit=100');
+                const data = response.data;
+                setCategories(data.categoryResponseList);
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }
@@ -255,26 +255,19 @@ const Menu = () => {
     // Hàm fetchRating để lấy số rating trung bình cho từng sản phẩm
     const fetchRating = async () => {
         try {
-            const ratingResponse = await fetch(`http://localhost:1010/api/product/list-rating`, {
-                method: 'GET',
+            const response = await axiosInstance.get('http://localhost:1010/api/product/list-rating', {
                 headers: {
                     'Accept': '*/*'
                 }
             });
-
-            if (!ratingResponse.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const ratingData = await ratingResponse.json();
+            const ratingData = response.data;
             const ratings = {};
 
-            // Lưu trữ rating cho từng proId
             ratingData.list.forEach(avgRating => {
                 ratings[avgRating.proId] = avgRating.avgRating;
             });
 
-            setProductRatings(ratings); // Cập nhật state với rating
+            setProductRatings(ratings);
         } catch (error) {
             console.error('Failed to fetch product ratings:', error);
         }
@@ -292,7 +285,7 @@ const Menu = () => {
     });
 
     const handleFilterChange = async (filterType, page = 1, limit = 8) => {
-        setCurrentFilterType(filterType); // Cập nhật bộ lọc hiện tại
+        setCurrentFilterType(filterType);
 
         let newSortOrder;
         let filterCode;
@@ -334,22 +327,16 @@ const Menu = () => {
 
         // Gọi lại API khi bộ lọc thay đổi hoặc khi người dùng chuyển trang
         try {
-            const response = await fetch('http://localhost:1010/api/product/filter-product', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    c: selectedCategoryId || -1,
-                    p: filterCode,
-                    o: newSortOrder,
-                    page: page,
-                    limit: limit
-                }),
+            const response = await axiosInstance.post('http://localhost:1010/api/product/filter-product', {
+                c: selectedCategoryId || -1,
+                p: filterCode,
+                o: newSortOrder,
+                page: page,
+                limit: limit
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status === 200) {
+                const data = response.data;
 
                 let products = [];
                 if (newSortOrder === 6) {

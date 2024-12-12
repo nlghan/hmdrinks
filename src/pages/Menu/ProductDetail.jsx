@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import './ProductDetail.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthProvider';
 import ProductCard from '../../components/Card/ProductCard'; // Import ProductCard
@@ -363,7 +364,7 @@ const ProductDetail = () => {
 
     const fetchReviews = async (proId) => {
         try {
-            const response = await axios.get(`http://localhost:1010/api/product/list-review?proId=${proId}&page=${currentPage}&limit=${limit}`);
+            const response = await axiosInstance.get(`http://localhost:1010/api/product/list-review?proId=${proId}&page=${currentPage}&limit=${limit}`);
 
             // Kiểm tra dữ liệu trước khi cập nhật state
             if (response.data && Array.isArray(response.data.listReviews)) {
@@ -443,7 +444,7 @@ const ProductDetail = () => {
                 ratingStart: newRating
             };
 
-            const response = await axios.put('http://localhost:1010/api/review/update', req, {
+            const response = await axiosInstance.put('http://localhost:1010/api/review/update', req, {
                 headers: {
                     'Authorization': `Bearer ${token}` // Thay thế `yourToken` bằng token thực tế
                 }
@@ -469,7 +470,7 @@ const ProductDetail = () => {
 
             console.log("Deleting review with data:", reqData); // Log dữ liệu trước khi gửi
 
-            const response = await axios.delete('http://localhost:1010/api/review/delete', {
+            const response = await axiosInstance.delete('http://localhost:1010/api/review/delete', {
                 data: reqData,
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -492,7 +493,7 @@ const ProductDetail = () => {
             if (userId) {
                 try {
                     console.log(`Fetching recommended products for userId: ${userId}`);
-                    const response = await axios.get(`http://localhost:1010/api/product/recommended/${userId}`);
+                    const response = await axiosInstance.get(`http://localhost:1010/api/product/recommended/${userId}`);
                     console.log('API Response:', response.data); // Log the entire response
 
                     if (response.data && response.data.listRecommend) {

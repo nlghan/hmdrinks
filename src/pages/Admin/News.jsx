@@ -9,6 +9,7 @@ import pLimit from 'p-limit';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
+import axiosInstance from '../../utils/axiosConfig';
 
 const News = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,7 +93,7 @@ const News = () => {
                 url = `http://localhost:1010/api/admin/post/view/type/all?page=${page}&limit=${limit}&type=${type}`;
             }
 
-            const responsePosts = await axios.get(url, {
+            const responsePosts = await axiosInstance.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -101,7 +102,7 @@ const News = () => {
             const dataPosts = responsePosts.data;
             const fetchedPosts = dataPosts.listPosts || [];
 
-            const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
+            const responseVouchers = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -163,7 +164,7 @@ const News = () => {
             await Promise.all(
                 batch.map(async (userId) => {
                     try {
-                        const response = await axios.get(`http://localhost:1010/api/admin/list-voucher/${userId}`, {
+                        const response = await axiosInstance.get(`http://localhost:1010/api/admin/list-voucher/${userId}`, {
                             headers: {
                                 'Authorization': `Bearer ${token}`,
                             },
@@ -213,7 +214,7 @@ const News = () => {
             let hasMoreUsers = true;
 
             while (hasMoreUsers) {
-                const response = await axios.get(`http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/admin/listUser?page=${page}&limit=${limit}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -249,7 +250,7 @@ const News = () => {
 
     const fetchWithRetry = async (url, options, retries = 3, delay = 1000) => {
         try {
-            return await axios.get(url, options);
+            return await axiosInstance.get(url, options);
         } catch (error) {
             if (retries > 0 && error.response?.status === 429) {
                 console.warn(`Retrying after ${delay}ms...`);
@@ -333,7 +334,7 @@ const News = () => {
             // Fetch lại danh sách vouchers only when adding a post
             setIsUserVouchersLoading(true); // Set loading for user vouchers
             const token = getCookie('access_token');
-            const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+            const response = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -378,7 +379,7 @@ const News = () => {
         // Fetch lại danh sách vouchers only when updating a post
         setIsUserVouchersLoading(true); // Set loading for user vouchers
         const token = getCookie('access_token');
-        const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+        const response = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -434,7 +435,7 @@ const News = () => {
             const newIsDeletedStatus = !postToUpdate.isDeleted;
 
             // Send the request to enable or disable the post
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 apiUrl,
                 { id: postId },
                 {
@@ -501,12 +502,12 @@ const News = () => {
             setIsLoading(true); // Set loading to true when fetching starts
             const token = getCookie('access_token');
             try {
-                const response = await axios.get(`http://localhost:1010/api/post/view/${selectedPostId}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/post/view/${selectedPostId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setPost(response.data.body);
 
-                const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                const responseVouchers = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const fetchedVouchers = responseVouchers.data.body.voucherResponseList || [];
@@ -561,7 +562,7 @@ const News = () => {
             setIsLoading(true);
             try {
                 const token = getCookie('access_token');
-                const response = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                const response = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 

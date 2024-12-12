@@ -4,7 +4,7 @@ import '../Menu/Menu.css';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie'; 
 import axios from 'axios';
-
+import axiosInstance from '../../utils/axiosConfig';
 const Menu = ({ isMenuOpen, toggleMenu }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Menu = ({ isMenuOpen, toggleMenu }) => {
         }
     
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
+            const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/v1/auth/logout`, {}, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
