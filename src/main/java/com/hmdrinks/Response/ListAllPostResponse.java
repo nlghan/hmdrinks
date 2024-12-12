@@ -12,6 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ListAllPostResponse {
-
-    List<CRUDPostResponse> listPosts;
+    private int currentPage;
+    private long totalPages;
+    private int limit;
+    private int total;
+    List<CRUDPostAndVoucherResponse> listPosts;
 }

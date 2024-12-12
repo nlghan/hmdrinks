@@ -25,24 +25,25 @@ public class ProductVariantsController {
     @Autowired
     private ProductVarService productVarService;
     @PostMapping(value = "/create")
-    public ResponseEntity<CRUDProductVarResponse> createAccount(@RequestBody CreateProductVarReq req){
-        return ResponseEntity.ok(productVarService.crateProductVariants(req));
+    public ResponseEntity<?> createProductVariants(@RequestBody CreateProductVarReq req){
+        return productVarService.crateProductVariants(req);
     }
 
     @PutMapping(value = "/update")
-    public ResponseEntity<CRUDProductVarResponse> update(@RequestBody CRUDProductVarReq req){
-        return ResponseEntity.ok(productVarService.updateProduct(req));
+    public ResponseEntity<?> updateProductVariants(@RequestBody CRUDProductVarReq req){
+        return productVarService.updateProduct(req);
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<CRUDProductVarResponse> update( @PathVariable Integer id){
-        return ResponseEntity.ok(productVarService.getOneVarProduct(id));
+    public ResponseEntity<?> getOneProductVariants( @PathVariable Integer id){
+        return productVarService.getOneVarProduct(id);
     }
 
     @GetMapping(value = "/list-product")
-    public ResponseEntity<ListProductVarResponse> listAllUser(
-
+    public ResponseEntity<ListProductVarResponse> listAllProductVariants(
+            @RequestParam(name = "page") String page,
+            @RequestParam(name = "limit") String limit
     ) {
-        return ResponseEntity.ok(productVarService.listProduct());
+        return ResponseEntity.ok(productVarService.listProduct(page,limit));
     }
 }

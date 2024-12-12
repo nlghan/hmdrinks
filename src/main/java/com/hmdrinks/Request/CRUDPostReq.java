@@ -1,5 +1,6 @@
 package com.hmdrinks.Request;
 
+import com.hmdrinks.Enum.Type_Post;
 import lombok.*;
 
 @Getter
@@ -13,5 +14,6 @@ public class CRUDPostReq {
     private String description;
     private String title;
     private String shortDescription;
+    private Type_Post typePost;
     private int userId;
 }

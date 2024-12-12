@@ -1,78 +1,76 @@
 package com.hmdrinks.Service;
 
 import com.hmdrinks.Entity.*;
+import com.hmdrinks.Enum.Size;
 import com.hmdrinks.Enum.Status_Cart;
 import com.hmdrinks.Exception.BadRequestException;
 import com.hmdrinks.Repository.*;
-import com.hmdrinks.Request.DeleteAllCartItemReq;
-import com.hmdrinks.Request.DeleteOneCartItemReq;
-import com.hmdrinks.Request.IncreaseDecreaseItemQuantityReq;
-import com.hmdrinks.Request.InsertItemToCart;
+import com.hmdrinks.Request.*;
 import com.hmdrinks.Response.CRUDCartItemResponse;
+import com.hmdrinks.Response.ChangeSizeItemResponse;
 import com.hmdrinks.Response.DeleteCartItemResponse;
 import com.hmdrinks.Response.IncreaseDecreaseItemQuantityResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.sql.DriverManager.println;
+
 @Service
 public class CartItemService {
-
     @Autowired
     private CartItemRepository cartItemRepository;
-
     @Autowired
     private ProductVariantsRepository productVariantsRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private UserRepository userRepository;
 
-    public CRUDCartItemResponse insertCartItem(InsertItemToCart req)
+    @Transactional
+    public ResponseEntity<?> insertCartItem(InsertItemToCart req)
     {
-        User user = userRepository.findByUserId(req.getUserId());
+        User user = userRepository.findByUserIdAndIsDeletedFalse(req.getUserId());
         if(user == null)
         {
-            throw  new BadRequestException("Not found user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
         }
-
-        Product product= productRepository.findByProId(req.getProId());
+        Product product= productRepository.findByProIdAndIsDeletedFalse(req.getProId());
         if(product == null)
         {
-            throw new BadRequestException("proId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product Not Found");
         }
-        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProId(req.getSize(),req.getProId());
+        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProIdAndIsDeletedFalse(req.getSize(),req.getProId());
         if(productVariants == null)
         {
-            throw new BadRequestException("production size not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("production size not exists");
         }
         Cart cart1 = cartRepository.findByUserUserIdAndStatus(user.getUserId(), Status_Cart.NEW);
         if(cart1 == null)
         {
-            throw  new BadRequestException("Cart for userId not exists");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
         }
         Cart cart = cartRepository.findByCartId(req.getCartId());
         if(cart == null)
         {
-            throw  new BadRequestException("Not found cart");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
         }
         if(req.getQuantity() < 0){
-            throw  new BadRequestException("quantity must larger 0");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
         }
-
         CartItem cartItem1 = cartItemRepository.findByProductVariants_VarIdAndProductVariants_SizeAndCart_CartId(productVariants.getVarId(),req.getSize(),req.getCartId());
         CartItem cartItem = new CartItem();
         if(cartItem1 == null)
         {
             if(req.getQuantity() > productVariants.getStock())
             {
-                throw  new BadRequestException("hết hàng rồi hmm");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
             }
             Double totalPrice = req.getQuantity() * productVariants.getPrice();
             Integer stock_quantity = productVariants.getStock() - req.getQuantity();
@@ -92,22 +90,21 @@ public class CartItemService {
             cart.setTotalProduct(Quantity);
             cart.setTotalPrice(Price);
             cartRepository.save(cart);
-            return new CRUDCartItemResponse(
+            return ResponseEntity.status(HttpStatus.OK).body(new CRUDCartItemResponse(
                     cartItem.getCartItemId(),
                     cartItem.getProductVariants().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProName(),
                     cartItem.getCart().getCartId(),
                     cartItem.getProductVariants().getSize(),
                     cartItem.getTotalPrice(),
                     cartItem.getQuantity()
-            );
-
-
+            ));
         }
         else
         {
             if((req.getQuantity()+cartItem1.getQuantity()) > productVariants.getStock())
             {
-                throw  new BadRequestException("hết hàng rồi hmm");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
             }
             Integer stock_quantity = productVariants.getStock() - req.getQuantity();
             Double totalPrice = (req.getQuantity()+cartItem1.getQuantity()) * productVariants.getPrice();
@@ -125,44 +122,46 @@ public class CartItemService {
             cart.setTotalProduct(Quantity);
             cart.setTotalPrice(Price);
             cartRepository.save(cart);
-            return new CRUDCartItemResponse(
+            return ResponseEntity.status(HttpStatus.OK).body(new CRUDCartItemResponse(
                     cartItem1.getCartItemId(),
                     cartItem1.getProductVariants().getProduct().getProId(),
+                    cartItem.getProductVariants().getProduct().getProName(),
                     cartItem1.getCart().getCartId(),
                     cartItem1.getProductVariants().getSize(),
                     cartItem1.getTotalPrice(),
                     cartItem1.getQuantity()
-            );
+            ));
         }
-
-
     }
 
-    public IncreaseDecreaseItemQuantityResponse increaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
+    public ResponseEntity<?> increaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
     {
         CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
         if(cartItem == null)
         {
-            throw  new BadRequestException("Not found cartItem");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
         }
-        if(req.getQuantity() < 0){
-            throw  new BadRequestException("quantity must larger 0");
+        if(req.getQuantity() <= 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
         }
-        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getProduct().getProId());
-        Integer Present_Quantity = cartItem.getQuantity() + 1 ;
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
+        int Present_Quantity = cartItem.getQuantity() + 1 ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
+        System.out.println(productVariants.getStock());
 
         if((req.getQuantity() + 1 ) > productVariants.getStock())
         {
-            throw  new BadRequestException("hết hàng rồi lì như trâu ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
         }
         cartItem.setQuantity((Present_Quantity));
-
+        cartItem.setTotalPrice((Present_TotalPrice));
 
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
         if(cart == null)
         {
-            throw  new BadRequestException("Not found cart");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
         }
         List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
         Double Price = 0.0;
@@ -175,36 +174,128 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
-
-        return new IncreaseDecreaseItemQuantityResponse(
-                Present_Quantity
-        );
+        return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
+                Present_Quantity,
+                Present_TotalPrice
+        ));
     }
 
-    public IncreaseDecreaseItemQuantityResponse  decreaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
+    public ResponseEntity<?> updateCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
     {
         CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
         if(cartItem == null)
         {
-            throw  new BadRequestException("Not found cartItem");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
         }
-        if(req.getQuantity() < 0){
-            throw  new BadRequestException("quantity must larger 0");
+        if(req.getQuantity() <= 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
+        }
+        ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
+        int Present_Quantity = req.getQuantity();  ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
+        System.out.println(productVariants.getStock());
+
+        if((req.getQuantity() ) > productVariants.getStock())
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
+        }
+        cartItem.setQuantity((Present_Quantity));
+        cartItem.setTotalPrice((Present_TotalPrice));
+
+        cartItemRepository.save(cartItem);
+        Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
+        if(cart == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
+        }
+        List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
+        Double Price = 0.0;
+        Integer Quantity=0;
+        for(CartItem cartItem2: cartItemList)
+        {
+            Price = Price + Double.valueOf(cartItem2.getTotalPrice());
+            Quantity = Quantity + cartItem2.getQuantity();
+        }
+        cart.setTotalProduct(Quantity);
+        cart.setTotalPrice(Price);
+        cartRepository.save(cart);
+        return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
+                Present_Quantity,
+                Present_TotalPrice
+        ));
+    }
+
+    @Transactional
+    public ResponseEntity<?> changeSizeCartItemQuantity(ChangeSizeItemReq req)
+    {
+        CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
+        if(cartItem == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
+        }
+        ProductVariants productVariants = productVariantsRepository.findBySizeAndProduct_ProIdAndIsDeletedFalse(req.getSize(),cartItem.getProductVariants().getProduct().getProId());
+        if(productVariants == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ProductVariants Not Found with Size");
+        }
+        cartItem.setProductVariants(productVariants);
+        double Present_TotalPrice = productVariants.getPrice() * cartItem.getQuantity();
+        cartItem.setTotalPrice(Present_TotalPrice);
+        cartItemRepository.save(cartItem);
+        Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
+        if(cart == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
+        }
+
+        List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
+        Double Price = 0.0;
+        Integer Quantity=0;
+        for(CartItem cartItem2: cartItemList)
+        {
+            Price = Price + Double.valueOf(cartItem2.getTotalPrice());
+            Quantity = Quantity + cartItem2.getQuantity();
+        }
+        cart.setTotalProduct(Quantity);
+        cart.setTotalPrice(Price);
+        cartRepository.save(cart);
+        return ResponseEntity.status(HttpStatus.OK).body(new ChangeSizeItemResponse(
+                 req.getSize(),
+                 Quantity,
+                 Present_TotalPrice
+                )
+        );
+    }
+
+    public ResponseEntity<?> decreaseCartItemQuantity(IncreaseDecreaseItemQuantityReq req)
+    {
+        CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
+        if(cartItem == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
+        }
+        if(req.getQuantity() <= 0)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is less than 0");
         }
         ProductVariants productVariants = productVariantsRepository.findByVarId(cartItem.getProductVariants().getVarId());
         int Present_Quantity = cartItem.getQuantity() - 1 ;
+        double Present_TotalPrice = productVariants.getPrice() * Present_Quantity;
         System.out.println(productVariants.getStock());
 
         if((req.getQuantity() - 1 ) > productVariants.getStock())
         {
-            throw  new BadRequestException("hết hàng rồi hmm");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Quantity is greater than stock");
         }
         cartItem.setQuantity((Present_Quantity));
+        cartItem.setTotalPrice((Present_TotalPrice));
+
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findByCartId(cartItem.getCart().getCartId());
         if(cart == null)
         {
-            throw  new BadRequestException("Not found cart");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
         }
         List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
         Double Price = 0.0;
@@ -217,18 +308,27 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
-
-        return new IncreaseDecreaseItemQuantityResponse(
-                Present_Quantity
-        );
+        cartRepository.save(cart);
+        if(cart.getTotalProduct() == 0 && cart.getStatus() == Status_Cart.RESTORE)
+        {
+            cart.setTotalProduct(0);
+            cart.setTotalPrice(0);
+            cart.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new IncreaseDecreaseItemQuantityResponse(
+                Present_Quantity,
+                Present_TotalPrice
+        ));
     }
 
-    public DeleteCartItemResponse deleteOneItem(DeleteOneCartItemReq req)
+    @Transactional
+    public ResponseEntity<?> deleteOneItem(DeleteOneCartItemReq req)
     {
         CartItem cartItem = cartItemRepository.findByCartItemId(req.getCartItemId());
         if(cartItem == null)
         {
-            throw  new BadRequestException("Not found cartItem");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CartItem Not Found");
         }
         cartItemRepository.delete(cartItem);
         List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cartItem.getCart().getCartId());
@@ -243,17 +343,42 @@ public class CartItemService {
         cart.setTotalProduct(Quantity);
         cart.setTotalPrice(Price);
         cartRepository.save(cart);
-        return new DeleteCartItemResponse(
+        if(cart.getTotalProduct() == 0 && cart.getStatus() == Status_Cart.RESTORE)
+        {
+            cart.setTotalProduct(0);
+            cart.setTotalPrice(0);
+            cart.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new DeleteCartItemResponse(
                 "Delete item success"
-        );
+        ));
     }
 
-    public DeleteCartItemResponse deleteAllCartItem(DeleteAllCartItemReq req)
+    public ResponseEntity<?> deleteAllCartItem(DeleteAllCartItemReq req)
     {
+        Cart cart_restore = cartRepository.findByCartIdAndStatus(req.getCartId(), Status_Cart.RESTORE);
+        if(cart_restore != null)
+        {
+            List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(cart_restore.getCartId());
+            for(CartItem cartItem2: cartItemList)
+            {
+                cartItemRepository.delete(cartItem2);
+            }
+            cart_restore.setTotalProduct(0);
+            cart_restore.setTotalPrice(0);
+            cart_restore.setStatus(Status_Cart.COMPLETED);
+            cartRepository.save(cart_restore);
+            return ResponseEntity.status(HttpStatus.OK).body(new DeleteCartItemResponse(
+                    "Delete all item success"
+            ));
+        }
+
+        ///
         Cart cart = cartRepository.findByCartIdAndStatus(req.getCartId(),Status_Cart.NEW);
         if(cart == null)
         {
-            throw  new BadRequestException("Not found cart");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cart Not Found");
         }
         List<CartItem> cartItemList = cartItemRepository.findByCart_CartId(req.getCartId());
         for(CartItem cartItem2: cartItemList)
@@ -263,10 +388,8 @@ public class CartItemService {
         cart.setTotalProduct(0);
         cart.setTotalPrice(0);
         cartRepository.save(cart);
-        return new DeleteCartItemResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new DeleteCartItemResponse(
                 "Delete all item success"
-        );
+        ));
     }
-
-
 }

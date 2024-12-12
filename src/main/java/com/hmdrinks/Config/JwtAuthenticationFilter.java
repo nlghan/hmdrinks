@@ -57,14 +57,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         jwt = authHeader.substring(7);
         String msg = new String();
+        int customStatus = HttpServletResponse.SC_UNAUTHORIZED;
         try {
             userEmail = jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException ex) {
+            msg = "Expired JWT token";
+            customStatus = 410; // Đặt mã trạng thái 410 cho token hết hạn
         } catch (SignatureException ex) {
             msg = "Invalid JWT signature";
         } catch (MalformedJwtException ex) {
             msg = "Invalid JWT token";
-        } catch (ExpiredJwtException ex) {
-            msg = "Expired JWT token";
         } catch (UnsupportedJwtException ex) {
             msg = "Unsupported JWT token";
         } catch (IllegalArgumentException ex) {
@@ -116,7 +118,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .append("\"");
             sb.append("} ");
             response.setContentType("application/json");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(customStatus);
             response.getWriter().write(sb.toString());
             return;
         }

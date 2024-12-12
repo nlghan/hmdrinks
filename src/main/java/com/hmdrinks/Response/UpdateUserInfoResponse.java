@@ -1,5 +1,8 @@
 package com.hmdrinks.Response;
 
+import com.hmdrinks.Enum.Role;
+import com.hmdrinks.Enum.Sex;
+import com.hmdrinks.Enum.TypeLogin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,12 +16,18 @@ import java.util.Date;
 @AllArgsConstructor
 public class UpdateUserInfoResponse {
     private Integer userId;
-    private String email;
+    private String userName;
     private String fullName;
-    private String phoneNumber;
     private String avatar;
-    private String sex;
-    private Date birthDay;
+    private Date birth_date;
     private String address;
-
+    private String email;
+    private String phone;
+    private String sex;
+    private String type;
+    private Boolean isDelete;
+    private Date dateDeleted;
+    private Date dateUpdated;
+    private Date dateCreated;
+    private String role;
 }

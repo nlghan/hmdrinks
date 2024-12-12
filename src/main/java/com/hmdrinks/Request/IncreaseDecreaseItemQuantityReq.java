@@ -1,12 +1,12 @@
 package com.hmdrinks.Request;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class IncreaseDecreaseItemQuantityReq {
     private int userId;
     private int cartItemId;

@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -16,9 +18,9 @@ import lombok.Setter;
 public class CartItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Khóa chính cho cartItemId
-    @Column(name = "cartItemId", nullable = false) // Đánh dấu không null
-    private int cartItemId; // Trường tự động tăng nhưng không phải khóa chính
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cartItemId", nullable = false)
+    private int cartItemId; 
 
     @ManyToOne
     @JoinColumns({
@@ -34,9 +36,17 @@ public class CartItem {
     @Column(name = "totalPrice")
     private double totalPrice;
 
+    @Column(name = "note")
+    private String note;
+
     @Column(name = "quantity")
     private int quantity;
 
-    // Thêm các phương thức khác nếu cần
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "date_deleted",columnDefinition = "DATETIME")
+    private LocalDateTime dateDeleted;
+
 }
 

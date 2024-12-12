@@ -18,6 +18,8 @@ public class UserInfoUpdateReq {
     private String phoneNumber;
     private String avatar;
     private String sex;
+
+
     private Date birthDay;
     private String address;
 
