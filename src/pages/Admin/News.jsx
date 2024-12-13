@@ -10,6 +10,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import debounce from 'lodash/debounce';
 import axiosInstance from '../../utils/axiosConfig';
+import Swal from 'sweetalert2';
 
 const News = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -431,8 +432,28 @@ const News = () => {
             const apiUrl = postToUpdate.isDeleted
                 ? 'http://localhost:1010/api/post/enable'
                 : 'http://localhost:1010/api/post/disable';
-
-            const newIsDeletedStatus = !postToUpdate.isDeleted;
+        
+                const newIsDeletedStatus = !postToUpdate.isDeleted;
+        
+                // Hiển thị xác nhận với SweetAlert2
+                const confirmMessage = newIsDeletedStatus
+                    ? 'Bạn có chắc chắn muốn vô hiệu bài đăng này cùng voucher tương ứng?'
+                    : 'Bạn có chắc chắn muốn kích hoạt bài đăng này?';
+        
+                const result = await Swal.fire({
+                    title: 'Xác nhận',
+                    text: confirmMessage,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Hủy'
+                });
+        
+                if (!result.isConfirmed) {
+                    return; // Người dùng hủy bỏ, không thực hiện tiếp
+                }
 
             // Send the request to enable or disable the post
             const response = await axiosInstance.put(

@@ -12,6 +12,7 @@ import FormDetailsProduct from '../../components/Form/FormDetailsProduct';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import './Product.css';
+import Swal from 'sweetalert2';
 
 // Hook để debounce giá trị
 const useDebounce = (value, delay) => {
@@ -378,6 +379,27 @@ const Product = () => {
 
             const newIsDeletedStatus = !productToUpdate.deleted;
 
+            // Hiển thị xác nhận với SweetAlert2
+            const confirmMessage = newIsDeletedStatus
+                ? 'Bạn có chắc chắn muốn vô hiệu hóa sản phẩm này?'
+                : 'Bạn có chắc chắn muốn kích hoạt sản phẩm này?';
+
+            const result = await Swal.fire({
+                title: 'Xác nhận',
+                text: confirmMessage,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) {
+                return; // Người dùng hủy bỏ, không thực hiện tiếp
+            }
+
+
             // Cập nhật UI ngay lập tức
             setProducts((prevProducts) =>
                 prevProducts.map((product) =>
@@ -629,7 +651,7 @@ const Product = () => {
     return (
         <div className="product-page">
             <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} title="Sản phẩm" />
-         
+
             <div className="product-content">
                 <div className="product-categories">
                     <h3 className="product-title" onClick={handleReload}>Danh Mục</h3>

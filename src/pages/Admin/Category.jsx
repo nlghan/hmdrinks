@@ -9,6 +9,7 @@ import ErrorMessage from '../../components/Animation/ErrorMessage';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import axiosInstance from '../../utils/axiosConfig';
+import Swal from 'sweetalert2';
 
 const Category = () => {
     const navigate = useNavigate();
@@ -168,14 +169,34 @@ const Category = () => {
                 setError("Bạn cần đăng nhập để thực hiện thao tác này.");
                 return;
             }
-
+    
             // Tìm category trong state hiện tại
             const categoryToUpdate = categories.find(category => category.cateId === cateId);
             if (!categoryToUpdate) {
                 console.error("No category found with the given cateId:", cateId);
                 return;
             }
-
+    
+            // Hiển thị xác nhận với SweetAlert2
+            const confirmMessage = categoryToUpdate.isDeleted
+                ? 'Bạn có chắc chắn muốn kích hoạt danh mục này?'
+                : 'Bạn có chắc chắn muốn dừng trạng thái của danh mục này?';
+    
+            const result = await Swal.fire({
+                title: 'Xác nhận',
+                text: confirmMessage,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+    
+            if (!result.isConfirmed) {
+                return; // Người dùng hủy bỏ, không thực hiện tiếp
+            }
+    
             // Cập nhật UI ngay lập tức
             setCategories(prevCategories =>
                 prevCategories.map(category =>
@@ -184,12 +205,12 @@ const Category = () => {
                         : category
                 )
             );
-
+    
             // Xác định endpoint dựa trên trạng thái mới
             const apiUrl = categoryToUpdate.isDeleted
                 ? `${import.meta.env.VITE_API_BASE_URL}/cate/enable`
                 : `${import.meta.env.VITE_API_BASE_URL}/cate/disable`;
-
+    
             // Gọi API
             const response = await axiosInstance.put(
                 apiUrl,
@@ -201,7 +222,7 @@ const Category = () => {
                     },
                 }
             );
-
+    
             // Nếu API call thất bại, hoàn tác thay đổi UI
             if (response.status !== 200) {
                 setCategories(prevCategories =>
@@ -212,8 +233,15 @@ const Category = () => {
                     )
                 );
                 setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
+            } else {
+                // Hiển thị thông báo thành công
+                Swal.fire(
+                    'Thành công!',
+                    `Trạng thái của danh mục đã được cập nhật thành công.`,
+                    'success'
+                );
             }
-
+    
         } catch (error) {
             console.error("Error changing category status:", error);
             // Hoàn tác thay đổi UI nếu có lỗi
@@ -227,6 +255,7 @@ const Category = () => {
             setError("Không thể thay đổi trạng thái danh mục. Vui lòng thử lại.");
         }
     };
+    
 
     const handleAddCategory = async () => {
         if (categoryName && categoryImage) {
