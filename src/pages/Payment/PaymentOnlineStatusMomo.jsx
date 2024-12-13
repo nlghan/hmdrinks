@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import axiosInstance from '../../utils/axiosConfig';
 const PaymentOnlineStatusMomo = () => {
     const [status, setStatus] = useState('Đang xử lý...');
     const location = useLocation();
@@ -22,7 +22,7 @@ const PaymentOnlineStatusMomo = () => {
         }
 
         try {
-            const response = await axios.get(`http://localhost:1010/api/payment/momo/callback`, {
+            const response = await axiosInstance.get(`http://localhost:1010/api/payment/momo/callback`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': '*/*'

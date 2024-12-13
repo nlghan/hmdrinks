@@ -9,6 +9,7 @@ import freshIcon from '../../assets/img/docdao.png';
 import qualityIcon from '../../assets/img/chatluong.png';
 import productIcon from '../../assets/img/den.png';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import nv from '../../assets/img/nv.png'
 import gh from '../../assets/img/gh.png'
 import tt from '../../assets/img/tt.png'
@@ -151,7 +152,7 @@ const About = () => {
                 return;
             }
 
-            const response = axios.get(`http://localhost:1010/api/contact/view/all?page=1&limit=100`, {
+            const response = axiosInstance.get(`http://localhost:1010/api/contact/view/all?page=1&limit=100`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',

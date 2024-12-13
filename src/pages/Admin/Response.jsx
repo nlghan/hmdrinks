@@ -6,6 +6,7 @@ import axios from 'axios';
 import FormDetailsResponse from '../../components/Form/FormDetailsResponse';
 import FormResponse from '../../components/Form/FormResponse';
 import GaugeCard from '../../components/Card/GaugeCardRes';
+import axiosInstance from '../../utils/axiosConfig';
 
 function Response() {
     const [responses, setResponses] = useState([]);
@@ -60,25 +61,20 @@ function Response() {
                 url = `http://localhost:1010/api/contact/view/all/waiting?page=${page}&limit=${limit}`;
             }
 
-            const response = await fetch(url, {
+            const response = await axiosInstance.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            console.log('Response data:', response.data);
 
-            const data = await response.json();
-            console.log('Response data:', data);
-
-            setResponses(data.listContacts || []);
-            setCurrentPage(data.currentPage);
-            setTotalPage(data.totalPage);
-            setLimit(data.limit);
-            setTotal(data.total)
+            setResponses(response.data.listContacts || []);
+            setCurrentPage(response.data.currentPage);
+            setTotalPage(response.data.totalPage);
+            setLimit(response.data.limit);
+            setTotal(response.data.total);
 
         } catch (error) {
             console.error('Error fetching responses:', error);
@@ -95,35 +91,35 @@ function Response() {
             }
 
             const firstPageUrl = `http://localhost:1010/api/contact/view/all?page=1&limit=${limit}`;
-            const firstPageResponse = await fetch(firstPageUrl, {
+            const firstPageResponse = await axiosInstance.get(firstPageUrl, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
 
-            if (!firstPageResponse.ok) {
+            if (!firstPageResponse.data) {
                 throw new Error('Network response was not ok');
             }
 
-            const firstPageData = await firstPageResponse.json();
+            const firstPageData = firstPageResponse.data;
             const totalPages = firstPageData.totalPage;
 
             let allResponses = [];
             for (let page = 1; page <= totalPages; page++) {
                 const url = `http://localhost:1010/api/contact/view/all?page=${page}&limit=${limit}`;
-                const response = await fetch(url, {
+                const response = await axiosInstance.get(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                 });
 
-                if (!response.ok) {
+                if (!response.data) {
                     throw new Error(`Failed to fetch page ${page}`);
                 }
 
-                const data = await response.json();
+                const data = response.data;
                 allResponses = allResponses.concat(data.listContacts || []);
             }
 
@@ -136,7 +132,6 @@ function Response() {
             setApprovedCount(completed);
             setRejectedCount(rejected);
             setTotalResponses(total);
-            
 
         } catch (error) {
             console.error('Error fetching total counts:', error);

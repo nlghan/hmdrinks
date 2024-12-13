@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
 const PaymentOnlineStatusVnpay = () => {
     const [status, setStatus] = useState('Đang xử lý...');
     const location = useLocation();

@@ -2,6 +2,7 @@ import React, { useState}  from 'react';
 import axios from 'axios';
 import './FormUpdateUser.css';
 import { assets } from "../../assets/assets.js";
+import axiosInstance from '../../utils/axiosConfig';
 
 const FormUpdateUser = ({ user, onClose, onSave }) => {
     const formatDate = (dateString) => {
@@ -105,7 +106,7 @@ const FormUpdateUser = ({ user, onClose, onSave }) => {
 
             console.log('Submitting form data:', requestData);
 
-            const response = await axios.put('http://localhost:1010/api/admin/update-account', requestData, {
+            const response = await axiosInstance.put('http://localhost:1010/api/admin/update-account', requestData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

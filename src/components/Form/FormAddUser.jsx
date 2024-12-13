@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './FormAddUser.css';
 
 // Function to retrieve token from cookies
@@ -69,7 +70,7 @@ const FormAddUser = ({ onClose, onSubmit }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/create-account`, formData, {
+            const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/admin/create-account`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

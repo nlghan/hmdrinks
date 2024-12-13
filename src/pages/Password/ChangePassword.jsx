@@ -4,6 +4,7 @@ import './ChangePassword.css';
 import { assets } from '../../assets/assets.js';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from '../../utils/axiosConfig';
 import Cookies from 'js-cookie';
 import Navbar from "../../components/Navbar/Navbar.jsx";
 
@@ -92,7 +93,7 @@ const ChangePassword = () => {
         };
 
         try {
-            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/password/change`, data, {
+            const response = await axiosInstance.put(`${import.meta.env.VITE_API_BASE_URL}/user/password/change`, data, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${Cookies.get('access_token')}` // Thêm Authorization Bearer token nếu có

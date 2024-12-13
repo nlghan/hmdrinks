@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
@@ -59,7 +60,7 @@ const MyOrderDetail = () => {
 
         try {
             // Gọi API lấy toàn bộ thông tin
-            const response = await axios.get(
+            const response = await axiosInstance.get(
                 `${import.meta.env.VITE_API_BASE_URL}/orders/detail/${shipmentId}`, // Thay `shipmentId` bằng `orderId` nếu cần
                 {
                     headers: {
@@ -139,7 +140,7 @@ const MyOrderDetail = () => {
                     return;
                 }
 
-                const response = await axios.post(
+                const response = await axiosInstance.post(
                     'http://localhost:1010/api/orders/reason-cancel',
                     {
                         orderId: order.orderId,

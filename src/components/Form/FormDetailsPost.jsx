@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './FormDetailsPost.css'; // Đảm bảo bạn đã tạo file CSS
 
 // Function to retrieve token from cookies
@@ -19,7 +20,7 @@ const FormDetailsPost = ({ postId, onClose }) => {
         const fetchPostDetails = async () => {
             const token = getCookie('access_token'); // Lấy token từ cookie
             try {
-                const response = await axios.get(`http://localhost:1010/api/post/view/${postId}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/post/view/${postId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}` // Gửi token trong header
                     }
@@ -28,7 +29,7 @@ const FormDetailsPost = ({ postId, onClose }) => {
                 setPost(response.data.body); // Thiết lập dữ liệu bài đăng
 
                 // Fetch all vouchers
-                const responseVouchers = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                const responseVouchers = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

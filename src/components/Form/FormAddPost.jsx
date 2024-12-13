@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import mammoth from 'mammoth';
 import './FormAddPost.css';
 
@@ -131,7 +132,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
             const headers = { Authorization: `Bearer ${token}` };
 
             setIsCreating(true);
-            const postResponse = await axios.post(
+            const postResponse = await axiosInstance.post(
                 'http://localhost:1010/api/post/create',
                 {
                     title,
@@ -150,7 +151,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
                 const imageData = new FormData();
                 imageData.append('file', file);
 
-                const imageResponse = await axios.post(
+                const imageResponse = await axiosInstance.post(
                     `http://localhost:1010/api/image/post/upload?postId=${postId}`,
                     imageData,
                     {
@@ -168,7 +169,7 @@ const FormAddPost = ({ userId, onClose, onSubmit }) => {
             const formattedStartDate = formatDateTime(startDate);
             const formattedEndDate = formatDateTime(endDate);
 
-            await axios.post(
+            await axiosInstance.post(
                 'http://localhost:1010/api/voucher/create',
                 {
                     keyVoucher,

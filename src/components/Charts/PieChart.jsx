@@ -2,6 +2,7 @@ import * as React from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import './PieChart.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const valueFormatter = (value) => `${Number(value)}%`;
 
@@ -26,7 +27,7 @@ export default function CustomPieChart() {
 
             const statuses = ['WAITING', 'SHIPPING', 'SUCCESS', 'CANCELLED'];
             const counts = await Promise.all(statuses.map(async (status) => {
-                const response = await axios.get('http://localhost:1010/api/shipment/view/listByStatus', {
+                const response = await axiosInstance.get('http://localhost:1010/api/shipment/view/listByStatus', {
                     params: {
                         page: 1,
                         limit: 100,

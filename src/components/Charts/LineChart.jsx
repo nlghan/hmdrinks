@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './LineChart.css';
 
 export default function LineChartComponent() {
@@ -21,7 +22,7 @@ export default function LineChartComponent() {
       }
 
       try {
-        const response = await axios.get('http://localhost:1010/api/product/list-with-avg-rating?page=1&limit=100', {
+        const response = await axiosInstance.get('http://localhost:1010/api/product/list-with-avg-rating?page=1&limit=100', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

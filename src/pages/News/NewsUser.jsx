@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './NewsUser.css';
 import Navbar from '../../components/Navbar/Navbar';
 import trachanh from '../../assets/img/trachanh.png';
@@ -38,7 +39,7 @@ const NewsUser = () => {
   const fetchPosts = async (page) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=${page}&limit=${postsPerPage}`);
+      const response = await axiosInstance.get(`${import.meta.env.VITE_API_BASE_URL}/post/view/all/desc?page=${page}&limit=${postsPerPage}`);
       setPosts(response.data.listPosts);
       setTotalPages(response.data.totalPages);
       setLoading(false);

@@ -8,6 +8,7 @@ import LoadingAnimation from '../../components/Animation/LoadingAnimation';
 import ErrorMessage from '../../components/Animation/ErrorMessage';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import axiosInstance from '../../utils/axiosConfig';
 
 const Category = () => {
     const navigate = useNavigate();
@@ -86,7 +87,7 @@ const Category = () => {
             }
 
             // Gọi API để lấy danh sách danh mục
-            const response = await axios.get(apiUrl, {
+            const response = await axiosInstance.get(apiUrl, {
                 headers: {
                     'Accept': '*/*',
                     'Authorization': `Bearer ${token}`
@@ -190,7 +191,7 @@ const Category = () => {
                 : `${import.meta.env.VITE_API_BASE_URL}/cate/disable`;
 
             // Gọi API
-            const response = await axios.put(
+            const response = await axiosInstance.put(
                 apiUrl,
                 { id: cateId },
                 {
@@ -237,7 +238,7 @@ const Category = () => {
             setIsCreating(true);
 
             try {
-                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cate/create-category`, categoryData, {
+                const response = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/cate/create-category`, categoryData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -250,7 +251,7 @@ const Category = () => {
                 const formData = new FormData();
                 formData.append('file', categoryImage);
 
-                const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${cateId}`, formData, {
+                const uploadResponse = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${cateId}`, formData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -306,7 +307,7 @@ const Category = () => {
                 setLoadingbtn(true);
 
                 // Gửi yêu cầu cập nhật danh mục trước
-                const updateCategoryResponse = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
+                const updateCategoryResponse = await axiosInstance.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -326,7 +327,7 @@ const Category = () => {
                     formData.append('file', categoryImage);
 
                     // Upload hình ảnh để lấy URL mới
-                    const uploadResponse = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
+                    const uploadResponse = await axiosInstance.post(`${import.meta.env.VITE_API_BASE_URL}/image/cate/upload?cateId=${updateCategory.cateId}`, formData, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data'
@@ -337,7 +338,7 @@ const Category = () => {
                     updatedCategoryData.cateImg = uploadResponse.data.url;
 
                     // Gửi yêu cầu cập nhật danh mục một lần nữa với hình ảnh mới
-                    await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
+                    await axiosInstance.put(`${import.meta.env.VITE_API_BASE_URL}/cate/update`, updatedCategoryData, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'

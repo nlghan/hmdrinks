@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import NavbarShipper from '../../components/Navbar/NavbarShipper';
 import Footer from '../../components/Footer/Footer';
 import LoadingAnimation from '../../components/Animation/LoadingAnimation';
@@ -58,7 +59,7 @@ const ShipmentDetail = () => {
 
         try {
             // Lấy chi tiết shipment
-            const shipmentResponse = await axios.get(
+            const shipmentResponse = await axiosInstance.get(
                 `${import.meta.env.VITE_API_BASE_URL}/shipment/view/${shipmentId}`,
                 {
                     headers: {
@@ -70,7 +71,7 @@ const ShipmentDetail = () => {
             setShipment(shipmentData);
 
             // Lấy thông tin thanh toán
-            const paymentResponse = await axios.get(
+            const paymentResponse = await axiosInstance.get(
                 `${import.meta.env.VITE_API_BASE_URL}/payment/view/${shipmentData.paymentId}`,
                 {
                     headers: {
@@ -82,7 +83,7 @@ const ShipmentDetail = () => {
             setPayment(paymentData);
 
             // Lấy chi tiết đơn hàng
-            const orderResponse = await axios.get(
+            const orderResponse = await axiosInstance.get(
                 `${import.meta.env.VITE_API_BASE_URL}/orders/detail-item/${paymentData.orderId}`,
                 {
                     headers: {
@@ -128,7 +129,7 @@ const ShipmentDetail = () => {
     
         try {
             if (newStatus === 'SUCCESS') {
-                const response = await axios.post(
+                const response = await axiosInstance.post(
                     'http://localhost:1010/api/shipment/activate/success',
                     { userId, shipmentId },
                     {
@@ -141,7 +142,7 @@ const ShipmentDetail = () => {
                 console.log('API response (SUCCESS):', response.data);
                 fetchShipmentDetail(); // Làm mới dữ liệu
             } else if (newStatus === 'CANCELLED') {
-                const response = await axios.post(
+                const response = await axiosInstance.post(
                     'http://localhost:1010/api/shipment/activate/cancel',
                     { userId, shipmentId },
                     {
@@ -154,7 +155,7 @@ const ShipmentDetail = () => {
                 console.log('API response (CANCELLED):', response.data);
                 fetchShipmentDetail(); // Làm mới dữ liệu
             } else if (newStatus === 'SHIPPING') {
-                const response = await axios.post(
+                const response = await axiosInstance.post(
                     'http://localhost:1010/api/shipment/activate/shipping',
                     { userId, shipmentId },
                     {
@@ -167,7 +168,7 @@ const ShipmentDetail = () => {
                 console.log('API response (SHIPPING):', response.data);
                 fetchShipmentDetail(); // Làm mới dữ liệu
             } else {
-                const response = await axios.put(
+                const response = await axiosInstance.put(
                     `${import.meta.env.VITE_API_BASE_URL}/shipment/update-status/${shipmentId}`,
                     { status: newStatus },
                     {

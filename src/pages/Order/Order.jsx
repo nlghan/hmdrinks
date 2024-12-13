@@ -3,6 +3,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import './Order.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import { redirect, useLocation, useNavigate } from 'react-router-dom';
 import bidv from '../../assets/img/bidv.jpg'
 import momo from '../../assets/img/momo.png'
@@ -174,7 +175,7 @@ const Order = () => {
 
         try {
             // Gửi yêu cầu POST đến API tạo thanh toán
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/payment/create/cash',
                 {
                     orderId: orderId,
@@ -218,7 +219,7 @@ const Order = () => {
 
         try {
             // Send a POST request to the payment creation API
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/payment/create/credit/payOs',
                 {
                     orderId: orderId,
@@ -267,7 +268,7 @@ const Order = () => {
 
         try {
             // Send a POST request to the payment creation API
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/payment/create/credit/momo',
                 {
                     orderId: orderId,
@@ -315,7 +316,7 @@ const Order = () => {
 
         try {
             // Send a POST request to the payment creation API
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/payment/create/credit/zaloPay',
                 {
                     orderId: orderId,
@@ -365,7 +366,7 @@ const Order = () => {
 
         try {
             // Send a POST request to the payment creation API
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/payment/create/credit/vnPay',
                 {
                     orderId: orderId,
@@ -417,7 +418,7 @@ const Order = () => {
             const userId = getUserIdFromToken(token);
 
             try {
-                const userResponse = await axios.get(`http://localhost:1010/api/user/info/${userId}`, {
+                const userResponse = await axiosInstance.get(`http://localhost:1010/api/user/info/${userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const userInfo = userResponse.data;
@@ -452,7 +453,7 @@ const Order = () => {
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
-                const response = await axios.get('http://localhost:1010/api/province/listAll');
+                const response = await axiosInstance.get('http://localhost:1010/api/province/listAll');
                 setProvinces(response.data.responseList);
             } catch (error) {
                 console.error("Error fetching provinces:", error);
@@ -469,7 +470,7 @@ const Order = () => {
                 try {
                     const province = provinces.find(p => p.provinceName === userData.city);
                     if (province) {
-                        const response = await axios.get(`http://localhost:1010/api/province/list-district?provinceId=${province.provinceId}`);
+                        const response = await axiosInstance.get(`http://localhost:1010/api/province/list-district?provinceId=${province.provinceId}`);
                         setDistricts(response.data.districtResponseList);
                     }
                 } catch (error) {
@@ -487,7 +488,7 @@ const Order = () => {
                 try {
                     const district = districts.find(d => d.districtName === userData.district);
                     if (district) {
-                        const response = await axios.get(`http://localhost:1010/api/province/list-ward?districtId=${district.districtId}`);
+                        const response = await axiosInstance.get(`http://localhost:1010/api/province/list-ward?districtId=${district.districtId}`);
                         setWards(response.data.responseList);
                     }
                 } catch (error) {
@@ -505,7 +506,7 @@ const Order = () => {
             if (!token) return;
 
             try {
-                const response = await axios.get(`http://localhost:1010/api/orders/detail-item/${orderData.orderId}`, {
+                const response = await axiosInstance.get(`http://localhost:1010/api/orders/detail-item/${orderData.orderId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setOrderDetails(response.data);
@@ -533,7 +534,7 @@ const Order = () => {
             // Kiểm tra trạng thái của currentStep
             if (currentStep === 'confirmation') {
                 // Gọi API confirm-cancel nếu currentStep là confirmation
-                const response = await axios.put('http://localhost:1010/api/orders/cancel-order',
+                const response = await axiosInstance.put('http://localhost:1010/api/orders/cancel-order',
                     {
                         orderId: orderData.orderId,
                         userId: userId
@@ -559,7 +560,7 @@ const Order = () => {
                 }
             } else if (currentStep === 'payment') {
                 // Gọi API cancel-order nếu currentStep là payment
-                const response = await axios.put('http://localhost:1010/api/orders/cancel-order',
+                const response = await axiosInstance.put('http://localhost:1010/api/orders/cancel-order',
                     {
                         orderId: orderData.orderId,
                         userId: userId

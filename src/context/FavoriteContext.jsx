@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 
 // Initialize FavoriteContext
 const FavoriteContext = createContext();
@@ -53,7 +54,7 @@ export const FavoriteProvider = ({ children }) => {
             }
 
             // Fetch favId for the logged-in user
-            const favResponse = await axios.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
+            const favResponse = await axiosInstance.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
                 headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
             });
 
@@ -64,7 +65,7 @@ export const FavoriteProvider = ({ children }) => {
             }
 
             // Fetch favorite items based on favId
-            const favItemsResponse = await axios.get(`http://localhost:1010/api/fav/list-favItem/${favId}`, {
+            const favItemsResponse = await axiosInstance.get(`http://localhost:1010/api/fav/list-favItem/${favId}`, {
                 headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
             });
 
@@ -73,7 +74,7 @@ export const FavoriteProvider = ({ children }) => {
 
             // Fetch product details for each favorite item
             const productRequests = items.map(item =>
-                axios.get(`http://localhost:1010/api/product/view/${item.proId}`, {
+                axiosInstance.get(`http://localhost:1010/api/product/view/${item.proId}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
@@ -81,7 +82,7 @@ export const FavoriteProvider = ({ children }) => {
 
             // Fetch prices for each product variant
             const priceRequests = items.map(item =>
-                axios.get(`http://localhost:1010/api/product/variants/${item.proId}`, {
+                axiosInstance.get(`http://localhost:1010/api/product/variants/${item.proId}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
@@ -107,7 +108,7 @@ export const FavoriteProvider = ({ children }) => {
 
             // Fetch category details for each product's category
             const categoryRequests = Object.values(products).map(product =>
-                axios.get(`http://localhost:1010/api/cate/view/${product.cateId}`, {
+                axiosInstance.get(`http://localhost:1010/api/cate/view/${product.cateId}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 })
             );
@@ -143,7 +144,7 @@ export const FavoriteProvider = ({ children }) => {
 
         try {
             // Step 1: Attempt to create a new favorite list
-            const createFavResponse = await axios.post(
+            const createFavResponse = await axiosInstance.post(
                 'http://localhost:1010/api/fav/create',
                 { userId },
                 { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'accept': '*/*' } }
@@ -161,7 +162,7 @@ export const FavoriteProvider = ({ children }) => {
         if (!favId) {
             try {
                 console.log("Favorite list already exists, fetching existing favorite list...");
-                const favResponse = await axios.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
+                const favResponse = await axiosInstance.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
                 });
 
@@ -220,7 +221,7 @@ export const FavoriteProvider = ({ children }) => {
 
         // Step 5: Now that we have a valid favId, add the item to the favorite list
         try {
-            const addItemResponse = await axios.post(
+            const addItemResponse = await axiosInstance.post(
                 'http://localhost:1010/api/fav-item/insert',
                 { userId, favId, proId: product.proId, size: product.size }, // Do not include price here
                 { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'accept': '*/*' } }
@@ -230,7 +231,7 @@ export const FavoriteProvider = ({ children }) => {
             setFavoriteItems((prevItems) => [...prevItems, addItemResponse.data]);
 
             // Step 6: Fetch product details after adding to favorites
-            const productResponse = await axios.get(`http://localhost:1010/api/product/view/${product.proId}`, {
+            const productResponse = await axiosInstance.get(`http://localhost:1010/api/product/view/${product.proId}`, {
                 headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
             });
 
@@ -251,7 +252,7 @@ export const FavoriteProvider = ({ children }) => {
             console.log("Product details:", productDetails);
 
             // Step 7: Fetch category details for the newly added product
-            const categoryResponse = await axios.get(`http://localhost:1010/api/cate/view/${productDetails.cateId}`, {
+            const categoryResponse = await axiosInstance.get(`http://localhost:1010/api/cate/view/${productDetails.cateId}`, {
                 headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
             });
 
@@ -290,7 +291,7 @@ export const FavoriteProvider = ({ children }) => {
             }
 
             try {
-                await axios.delete(`http://localhost:1010/api/fav-item/delete/${favItem.favItemId}`, {
+                await axiosInstance.delete(`http://localhost:1010/api/fav-item/delete/${favItem.favItemId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
@@ -306,7 +307,7 @@ export const FavoriteProvider = ({ children }) => {
         } else if (source === 'favorite') {
             // If called from Favorite page, use the passed favItemId directly
             try {
-                await axios.delete(`http://localhost:1010/api/fav-item/delete/${product.favItemId}`, {
+                await axiosInstance.delete(`http://localhost:1010/api/fav-item/delete/${product.favItemId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
@@ -330,7 +331,7 @@ export const FavoriteProvider = ({ children }) => {
 
         try {
             // First, fetch the user's favorite ID
-            const favResponse = await axios.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
+            const favResponse = await axiosInstance.get(`http://localhost:1010/api/fav/list-fav/${userId}`, {
                 headers: { 'Authorization': `Bearer ${token}`, 'accept': '*/*' }
             });
 
@@ -342,7 +343,7 @@ export const FavoriteProvider = ({ children }) => {
             }
 
             // Make the DELETE request to delete all items
-            const deleteResponse = await axios.delete(`http://localhost:1010/api/fav/delete-allItem/${favId}`, {
+            const deleteResponse = await axiosInstance.delete(`http://localhost:1010/api/fav/delete-allItem/${favId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',

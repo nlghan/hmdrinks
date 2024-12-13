@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import axiosInstance from '../utils/axiosConfig';
 // Create Context
 const CartContext = createContext();
 
@@ -90,7 +90,7 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 'http://localhost:1010/api/orders/restore',
                 { userId, orderId },
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
@@ -676,7 +676,7 @@ export const CartProvider = ({ children }) => {
 
             // Lấy thời gian vận chuyển
             try {
-                const shipmentResponse = await axios.get('http://localhost:1010/api/shipment/check-time', {
+                const shipmentResponse = await axiosInstance.get('http://localhost:1010/api/shipment/check-time', {
                     headers: {
                         'accept': '*/*',
                         'Authorization': `Bearer ${token}`
@@ -689,7 +689,7 @@ export const CartProvider = ({ children }) => {
 
             // Gọi thêm API kiểm tra thời gian thanh toán
             try {
-                const paymentResponse = await axios.get('http://localhost:1010/api/payment/check-time', {
+                const paymentResponse = await axiosInstance.get('http://localhost:1010/api/payment/check-time', {
                     headers: {
                         'accept': '*/*',
                         'Authorization': `Bearer ${token}`

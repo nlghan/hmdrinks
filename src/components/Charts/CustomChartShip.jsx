@@ -14,6 +14,7 @@ import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
 import './CustomChartShip.css';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 
 const monthData = {
   'Tháng 1': 31,
@@ -96,7 +97,7 @@ export default function CustomChart() {
 
       // Fetch shipments
       while (currentPage <= totalPages) {
-        const response = await axios.get('http://localhost:1010/api/shipment/shipper/listShippment', {
+        const response = await axiosInstance.get('http://localhost:1010/api/shipment/shipper/listShippment', {
           params: {
             page: currentPage,
             limit: 100,
@@ -108,7 +109,7 @@ export default function CustomChart() {
           },
         });
 
-        console.log('Dữ liệu shipment trang shipper:', response.data);
+        // console.log('Dữ liệu shipment trang shipper:', response.data);
         const shipments = response.data.listShipment;
 
         totalPages = response.data.totalPages || 1;
@@ -140,7 +141,7 @@ export default function CustomChart() {
   const fetchPaymentDetails = async (paymentId, dayIndex, paymentAmounts) => {
     try {
       const token = getCookie('access_token');
-      const response = await axios.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
+      const response = await axiosInstance.get(`http://localhost:1010/api/payment/view/${paymentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -148,9 +149,9 @@ export default function CustomChart() {
 
       if (response.status === 200) {
         const paymentAmount = response.data.amount; // Assuming the response contains the amount
-        console.log('payment cho trang shipper:', paymentAmount);
+        // console.log('payment cho trang shipper:', paymentAmount);
         paymentAmounts[dayIndex] += paymentAmount; // Accumulate the payment amount for the corresponding day
-        console.log('Updated paymentAmounts:', paymentAmounts);
+        // console.log('Updated paymentAmounts:', paymentAmounts);
       }
     } catch (error) {
       console.error(`Lỗi khi gọi API cho paymentId ${paymentId}:`, error);

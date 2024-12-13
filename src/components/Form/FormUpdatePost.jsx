@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import axiosInstance from '../../utils/axiosConfig';
 import './FormUpdatePost.css';
 import { formatISO } from 'date-fns';
 import mammoth from 'mammoth';
@@ -31,7 +32,10 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [loadingbtn, setLoadingbtn] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
 
     const authToken = getCookie('access_token'); // Replace with your actual token retrieval logic
     // Helper function to format the datetime-local value
@@ -69,7 +73,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
     useEffect(() => {
         const fetchPostData = async () => {
             try {
-                const postResponse = await axios.get(`http://localhost:1010/api/post/view/${postId}`, {
+                const postResponse = await axiosInstance.get(`http://localhost:1010/api/post/view/${postId}`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
                         'accept': '*/*',
@@ -84,11 +88,11 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                         description: postData.description,
                         shortDescription: postData.shortDescription,
                         typePost: postData.typePost,
-                        imageUrl: postData.url,
+                        url: postData.url,
                     }));
 
                     // Fetch voucher data list and match with postId
-                    const voucherListResponse = await axios.get('http://localhost:1010/api/voucher/view/all', {
+                    const voucherListResponse = await axiosInstance.get('http://localhost:1010/api/voucher/view/all', {
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
                             'accept': '*/*',
@@ -102,7 +106,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
                         if (matchingVoucher) {
                             // Fetch specific voucher details
-                            const voucherResponse = await axios.get(
+                            const voucherResponse = await axiosInstance.get(
                                 `http://localhost:1010/api/voucher/view/${matchingVoucher.voucherId}`, {
                                 headers: {
                                     'Authorization': `Bearer ${authToken}`,
@@ -139,11 +143,22 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
     // Update form fields as users type
     const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+        const { name, value, files } = event.target;
+        
+        if (name === 'file' && files && files[0]) {
+            // Xử lý khi input là file
+            setFormData(prevData => ({
+                ...prevData,
+                file: files[0],
+                fileName: files[0].name
+            }));
+        } else {
+            // Xử lý các input khác
+            setFormData(prevData => ({
+                ...prevData,
+                [name]: value
+            }));
+        }
     };
 
     const getUserIdFromToken = (token) => {
@@ -219,56 +234,76 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const token = getCookie('access_token'); // Ensure the token is retrieved here if not already available
+        const token = getCookie('access_token');
+        console.log('Token:', token);
+
         if (!validateForm()) {
             return;
         }
         try {
             setLoading(true);
             setIsCreating(true);
-            let imageUrl = formData.imageUrl;
-
-            // Check if a new file is selected for upload
-            if (formData.file) {
-                const formDataImage = new FormData();
-                formDataImage.append('file', formData.file);
-
-                // Wait for the image upload to complete before proceeding
-                const imageUploadResponse = await axios.post(
-                    `http://localhost:1010/api/image/post/upload?postId=${postId}`,
-                    formDataImage,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'accept': '*/*',
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    }
-                );
-
-                if (imageUploadResponse.status === 200) {
-                    imageUrl = imageUploadResponse.data.url; // Update the image URL if upload is successful
-                } else {
-                    setErrorMessage('Lỗi khi tải ảnh lên');
-                    return;
-                }
-            }
-
-            // Prepare updated post data
+            
+            // Chuẩn bị dữ liệu cập nhật post
             const updatedPostData = {
-                postId,                // Post ID
-                userId,                // Replace with actual user ID
+                postId,
+                userId,
                 title: formData.title,
                 description: formData.description,
                 shortDescription: formData.shortDescription,
                 typePost: formData.typePost,
-                url: imageUrl,         // Use the updated image URL
+                url: formData.url,
             };
+
+            if (formData.file) {
+                const formDataImage = new FormData();
+                formDataImage.append('file', formData.file);
+                console.log('FormData:', formDataImage);
+
+                try {
+                    const imageUploadResponse = await axiosInstance.post(
+                        `http://localhost:1010/api/image/post/upload?postId=${postId}`,
+                        formDataImage,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'accept': '*/*',
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }
+                    );
+
+                    if (imageUploadResponse.status === 200) {
+                        console.log('Image upload successful:', imageUploadResponse.data);
+                        updatedPostData.url = imageUploadResponse.data.url;
+                    }
+                } catch (uploadError) {
+                    console.error('Upload error details:', {
+                        status: uploadError.response?.status,
+                        data: uploadError.response?.data,
+                        headers: uploadError.response?.headers,
+                        message: uploadError.message
+                    });
+                    setErrorMessage('Lỗi khi tải ảnh lên: ' + (uploadError.response?.data?.message || uploadError.message));
+                    return;
+                }
+            }
+
+            // // Prepare updated post data
+            // const updatedPostData = {
+            //     postId,                // Post ID
+            //     userId,                // Replace with actual user ID
+            //     title: formData.title,
+            //     description: formData.description,
+            //     shortDescription: formData.shortDescription,
+            //     typePost: formData.typePost,
+            //     url: formData.url,         // Use the updated image URL
+            // };
 
             // Check if the status of voucher is "inactive" or "EXPIRED"
             if (formData.status === "INACTIVE" || formData.status === "EXPIRED") {
                 // Disable voucher first by calling the API
-                const disableVoucherResponse = await axios.put(
+                const disableVoucherResponse = await axiosInstance.put(
                     'http://localhost:1010/api/voucher/disable',
                     { id: formData.voucherId }, // Send voucher ID to disable
                     {
@@ -287,7 +322,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
             }
 
             // Update post information using the correct endpoint
-            const postUpdateResponse = await axios.put(
+            const postUpdateResponse = await axiosInstance.put(
                 'http://localhost:1010/api/post/update',
                 updatedPostData,
                 {
@@ -319,7 +354,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
                 // Attempt to update the voucher
                 try {
-                    const voucherUpdateResponse = await axios.put(
+                    const voucherUpdateResponse = await axiosInstance.put(
                         'http://localhost:1010/api/voucher/update',
                         voucherUpdateData,
                         {
@@ -353,7 +388,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
 
                             console.log('Creating new voucher with data:', voucherCreateData);
 
-                            const voucherCreateResponse = await axios.post(
+                            const voucherCreateResponse = await axiosInstance.post(
                                 'http://localhost:1010/api/voucher/create',
                                 voucherCreateData,
                                 {
@@ -380,7 +415,7 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                                     postId: postId,
                                 };
 
-                                const updateVoucherResponse = await axios.put(
+                                const updateVoucherResponse = await axiosInstance.put(
                                     `http://localhost:1010/api/voucher/update/${newVoucherId}`,
                                     updateVoucherData,
                                     {
@@ -417,8 +452,8 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                 setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng');
             }
         } catch (error) {
-            // setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng hoặc voucher');
             console.error('Error updating post/voucher:', error);
+            setErrorMessage('Có lỗi xảy ra khi cập nhật bài đăng hoặc voucher');
         } finally {
             setLoading(false);
             setIsCreating(false);
@@ -431,6 +466,61 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
             ...prevData,
             number: newQuantity, // Cập nhật số lượng mới
         }));
+    };
+
+    // Xử lý khi chọn file
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            // Tạo preview cho ảnh đã chọn
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Xử lý upload ảnh riêng biệt
+    const handleImageUpload = async () => {
+        if (!selectedFile) {
+            setErrorMessage('Vui lòng chọn một file ảnh');
+            return;
+        }
+
+        try {
+            setLoadingbtn(true);
+            const token = getCookie('access_token');
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            const response = await axiosInstance.post(
+                `http://localhost:1010/api/image/post/upload?postId=${postId}`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                setFormData(prev => ({
+                    ...prev,
+                    url: response.data.url
+                }));
+                setSuccessMessage('Tải ảnh lên thành công!');
+                setUploadSuccess(true);
+                setTimeout(() => setSuccessMessage(''), 2000);
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            setErrorMessage('Lỗi khi tải ảnh lên');
+        } finally {
+            setLoadingbtn(false);
+        }
     };
 
     return (
@@ -492,32 +582,62 @@ const FormUpdatePost = ({ post, postId, onClose, onSave }) => {
                             </select>
                         </div>
                         <div className="form-update-post-group-image">
-                            <label htmlFor="file">
-                                {formData.imageUrl ? 'Cập nhật ảnh mới' : 'Ảnh minh họa'}
-                            </label>
-                            <div className="image-preview">
-                                {formData.imageUrl && (
-                                    <>
-                                        <img src={formData.imageUrl} alt="Post Thumbnail" id="thumbnail" />
-                                        <p>Ảnh hiện tại</p>
-                                    </>
+                            <label>Hình ảnh bài viết</label>
+                            <div className="image-upload-section">
+                                {/* Hiển thị ảnh hiện tại */}
+                                {formData.url && (
+                                    <div className="current-image">
+                                        <p>Ảnh hiện tại:</p>
+                                        <img 
+                                            src={formData.url} 
+                                            alt="Current post" 
+                                            style={{ maxWidth: '200px', marginBottom: '10px' }}
+                                        />
+                                    </div>
                                 )}
+                                
+                                {/* Phần chọn và upload ảnh mới */}
+                                <div className="new-image-upload">
+                                    <p>Chọn ảnh mới:</p>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ marginBottom: '10px' }}
+                                    />
+                                    
+                                    {/* Preview ảnh đã chọn */}
+                                    {imagePreview && (
+                                        <div className="image-preview">
+                                            <p>Ảnh đã chọn:</p>
+                                            <img 
+                                                src={imagePreview} 
+                                                alt="Preview" 
+                                                style={{ maxWidth: '200px', marginBottom: '10px' }}
+                                            />
+                                        </div>
+                                    )}
+                                    
+                                    {/* Nút upload ảnh */}
+                                    <button
+                                        type="button"
+                                        onClick={handleImageUpload}
+                                        disabled={!selectedFile || loadingbtn}
+                                        style={{
+                                            backgroundColor: '#00B087',
+                                            color: 'white',
+                                            padding: '8px 16px',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: selectedFile ? 'pointer' : 'not-allowed',
+                                            opacity: selectedFile ? 1 : 0.6
+                                        }}
+                                    >
+                                        {loadingbtn ? 'Đang tải...' : 'Tải hình ảnh lên'}
+                                    </button>
+                                </div>
                             </div>
-                            <input
-                                type="file"
-                                id="file"
-                                name="file"
-                                accept="image/*"
-                                onChange={handleInputChange}
-                                style={{ display: 'block' }} // Luôn hiển thị ô input
-                            />
-                            {formData.fileName && !formData.imageUrl && (
-                                <p>Đã chọn tệp: {formData.fileName}</p> // Hiển thị tên tệp đã chọn
-                            )}
-
-
                         </div>
-
 
                         <div className="form-update-post-actions">
                             <button type="submit" className="form-update-post-submit" disabled={loading} style={{
